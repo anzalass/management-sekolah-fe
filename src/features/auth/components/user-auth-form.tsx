@@ -19,7 +19,10 @@ import * as z from 'zod';
 import GithubSignInButton from './github-auth-button';
 
 const formSchema = z.object({
-  email: z.string().email({ message: 'Enter a valid email address' })
+  email: z.string(),
+  password: z
+    .string()
+    .min(8, { message: 'Password must be at least 8 characters' })
 });
 
 type UserFormValue = z.infer<typeof formSchema>;
@@ -29,21 +32,28 @@ export default function UserAuthForm() {
   const callbackUrl = searchParams.get('callbackUrl');
   const [loading, startTransition] = useTransition();
   const defaultValues = {
-    email: 'demo@gmail.com'
+    email: '',
+    password: ''
   };
   const form = useForm<UserFormValue>({
     resolver: zodResolver(formSchema),
     defaultValues
   });
-
   const onSubmit = async (data: UserFormValue) => {
-    startTransition(() => {
-      signIn('credentials', {
-        email: data.email,
-        callbackUrl: callbackUrl ?? '/dashboard'
-      });
-      toast.success('Signed In Successfully!');
+    const result = await signIn('credentials', {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+      callbackUrl: '/dashboard'
     });
+
+    if (result?.error != null) {
+      toast.error('Login gagal, cek email dan password anda');
+      return;
+    } else {
+      toast.success('Login berhasil, anda akan diarahkan ke dashboard');
+      startTransition(() => window.location.replace('/dashboard'));
+    }
   };
 
   return (
@@ -51,43 +61,58 @@ export default function UserAuthForm() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className='w-full space-y-2'
+          className='w-full space-y-5'
         >
           <FormField
             control={form.control}
             name='email'
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type='email'
-                    placeholder='Enter your email...'
-                    disabled={loading}
-                    {...field}
-                  />
-                </FormControl>
+              <FormItem className='space-y-3'>
+                <div className=''>
+                  <FormLabel>NIP</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='text'
+                      placeholder='Masukan NIP...'
+                      className='text-xs'
+                      disabled={loading}
+                      {...field}
+                    />
+                  </FormControl>
+                </div>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='password'
+            render={({ field }) => (
+              <FormItem className='space-y-3'>
+                <div className=''>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='password'
+                      placeholder='Masukan Password...'
+                      className='text-xs'
+                      disabled={loading}
+                      {...field}
+                    />
+                  </FormControl>
+                </div>
+
                 <FormMessage />
               </FormItem>
             )}
           />
 
           <Button disabled={loading} className='ml-auto w-full' type='submit'>
-            Continue With Email
+            Masuk
           </Button>
         </form>
       </Form>
-      <div className='relative'>
-        <div className='absolute inset-0 flex items-center'>
-          <span className='w-full border-t' />
-        </div>
-        <div className='relative flex justify-center text-xs uppercase'>
-          <span className='bg-background px-2 text-muted-foreground'>
-            Or continue with
-          </span>
-        </div>
-      </div>
-      <GithubSignInButton />
     </>
   );
 }

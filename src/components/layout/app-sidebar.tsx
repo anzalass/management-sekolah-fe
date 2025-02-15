@@ -153,7 +153,7 @@ export default function AppSidebar() {
                       {session?.user?.name || ''}
                     </span>
                     <span className='truncate text-xs'>
-                      {session?.user?.email || ''}
+                      {/* {session?.user?.email || ''} */}
                     </span>
                   </div>
                   <ChevronsUpDown className='ml-auto size-4' />
@@ -179,9 +179,9 @@ export default function AppSidebar() {
                     </Avatar>
                     <div className='grid flex-1 text-left text-sm leading-tight'>
                       <span className='truncate font-semibold'>
-                        {session?.user?.name || ''}
+                        {session?.user?.name || 'Cross Near'}
                       </span>
-                      <span className='truncate text-xs'>
+                      <span className='mt-1 truncate text-xs'>
                         {' '}
                         {session?.user?.email || ''}
                       </span>
@@ -191,24 +191,19 @@ export default function AppSidebar() {
                 <DropdownMenuSeparator />
 
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <BadgeCheck />
-                    Account
+                  <DropdownMenuItem className='space-x-3'>
+                    <BadgeCheck size={18} />
+                    <p>Account</p>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <CreditCard />
-                    Billing
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Bell />
-                    Notifications
+
+                  <DropdownMenuItem
+                    onClick={() => signOut()}
+                    className='space-x-4'
+                  >
+                    <LogOut size={18} />
+                    <p>Logout</p>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => signOut()}>
-                  <LogOut />
-                  Log out
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
