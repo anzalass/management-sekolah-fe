@@ -23,7 +23,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Guru dan Staff',
-    url: '/dashboard/product',
+    url: '/dashboard/guru-staff',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
@@ -31,7 +31,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Siswa',
-    url: '/dashboard/product',
+    url: '/dashboard/siswa',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
@@ -39,7 +39,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Perizinan Guru',
-    url: '/dashboard/product',
+    url: '/dashboard/perizinan-guru-staff',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
@@ -47,7 +47,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Kehadiran Guru dan Staff',
-    url: '/dashboard/product',
+    url: '/dashboard/presensi-guru-staff',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
@@ -56,7 +56,7 @@ export const navItems: NavItem[] = [
 
   {
     title: 'Kelas',
-    url: '/dashboard/product',
+    url: '/dashboard/kelas',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
@@ -64,7 +64,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Kegiatan Sekolah',
-    url: '/dashboard/product',
+    url: '/dashboard/kegiatan-sekolah',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
@@ -73,7 +73,7 @@ export const navItems: NavItem[] = [
 
   {
     title: 'Inventaris',
-    url: '/dashboard/product',
+    url: '/dashboard/inventaris',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
@@ -81,15 +81,15 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Mata Pelajaran',
-    url: '/dashboard/product',
+    url: '/dashboard/mata-pelajaran',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
     items: [] // No child items
   },
   {
-    title: 'Ruang Kelas',
-    url: '/dashboard/product',
+    title: 'Ruangan',
+    url: '/dashboard/ruangan',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
@@ -97,7 +97,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Tahun Ajaran',
-    url: '/dashboard/product',
+    url: '/dashboard/tahun-ajaran',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
@@ -105,7 +105,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Buku Perpustakaan',
-    url: '/dashboard/product',
+    url: '/dashboard/buku-perpustakaan',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,

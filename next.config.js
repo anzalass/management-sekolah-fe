@@ -12,7 +12,8 @@ const nextConfig = {
         hostname: 'api.slingacademy.com',
         port: ''
       }
-    ]
+    ],
+    domains: ['ik.imagekit.io'] // Tambahkan domain yang diperbolehkan
   },
   transpilePackages: ['geist']
 };
