@@ -5,33 +5,35 @@ import { DataTableResetFilter } from '@/components/ui/table/data-table-reset-fil
 import { DataTableSearch } from '@/components/ui/table/data-table-search';
 import {
   CATEGORY_OPTIONS,
-  useProductTableFilters
-} from './use-product-table-filters';
+  useGuruStaffTableFilters
+} from './use-gurustaff-table-filters';
 
-export default function ProductTableAction() {
+export default function GuruStaffTableAction() {
   const {
-    categoriesFilter,
-    setCategoriesFilter,
     isAnyFilterActive,
     resetFilters,
     searchQuery,
+    setSearchQuery,
     setPage,
-    setSearchQuery
-  } = useProductTableFilters();
+    namaFilter,
+    setNamaFilter,
+    nipFilter,
+    setNipFilter
+  } = useGuruStaffTableFilters();
+
   return (
     <div className='flex flex-wrap items-center gap-4'>
       <DataTableSearch
-        searchKey='nama'
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
+        searchKey='Nama'
+        searchQuery={namaFilter}
+        setSearchQuery={setNamaFilter}
         setPage={setPage}
       />
-      <DataTableFilterBox
-        filterKey='nama'
-        title='Categories'
-        options={CATEGORY_OPTIONS}
-        setFilterValue={setCategoriesFilter}
-        filterValue={categoriesFilter}
+      <DataTableSearch
+        searchKey='NIP'
+        searchQuery={nipFilter}
+        setSearchQuery={setNipFilter}
+        setPage={setPage}
       />
       <DataTableResetFilter
         isFilterActive={isAnyFilterActive}
