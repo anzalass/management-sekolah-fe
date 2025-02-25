@@ -22,117 +22,203 @@ export const navItems: NavItem[] = [
     items: [] // Empty array as there are no child items for Dashboard
   },
   {
-    title: 'Guru dan Staff',
-    url: '/dashboard/guru-staff',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Siswa',
-    url: '/dashboard/siswa',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Perizinan Guru',
-    url: '/dashboard/perizinan-guru-staff',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Kehadiran Guru dan Staff',
-    url: '/dashboard/presensi-guru-staff',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [] // No child items
-  },
-
-  {
-    title: 'Kelas',
-    url: '/dashboard/kelas',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Kegiatan Sekolah',
-    url: '/dashboard/kegiatan-sekolah',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [] // No child items
-  },
-
-  {
-    title: 'Inventaris',
-    url: '/dashboard/inventaris',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Mata Pelajaran',
-    url: '/dashboard/mata-pelajaran',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Ruangan',
-    url: '/dashboard/ruangan',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Tahun Ajaran',
+    title: 'Master Data',
     url: '/dashboard/tahun-ajaran',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
-    items: [] // No child items
-  },
-  {
-    title: 'Buku Perpustakaan',
-    url: '/dashboard/buku-perpustakaan',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [] // No child items
-  },
-
-  {
-    title: 'Account',
-    url: '#', // Placeholder as there is no direct link for the parent
-    icon: 'billing',
-    isActive: true,
-
     items: [
       {
-        title: 'Profile',
-        url: '/dashboard/profile',
+        title: 'Guru & Staff',
+        url: '/dashboard/master-data/guru-staff',
         icon: 'userPen',
         shortcut: ['m', 'm']
       },
       {
-        title: 'Login',
-        shortcut: ['l', 'l'],
-        url: '/',
-        icon: 'login'
+        title: 'Siswa',
+        url: '/dashboard/master-data/siswa',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      },
+      {
+        title: 'Ruangan',
+        url: '/dashboard/master-data/ruangan',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      },
+      {
+        title: 'Anggaran',
+        url: '/dashboard/master-data/anggaran',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      },
+      {
+        title: 'Kelas',
+        url: '/dashboard/master-data/kelas',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      },
+      {
+        title: 'Pengumuman',
+        url: '/dashboard/master-data/pengumuman',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      },
+      // {
+      //   title: 'Mata Pelajaran',
+      //   url: '/dashboard/master-data/mata-pelajaran',
+      //   icon: 'userPen',
+      //   shortcut: ['m', 'm']
+      // },
+      {
+        title: 'Kegiatan Sekolah',
+        url: '/dashboard/master-data/kegiatan-sekolah',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
       }
-    ]
+    ] // No child items
   },
+  {
+    title: 'Presensi Guru & Staff',
+    url: '#',
+    icon: 'product',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: [
+      {
+        title: 'Kehadiran ',
+        url: '/dashboard/presensi/kehadiran',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      },
+      {
+        title: 'Perizinan',
+        url: '/dashboard/presensi/perizinan',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      }
+    ] // No child items
+  },
+
+  {
+    title: 'Inventaris',
+    url: '#',
+    icon: 'product',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: [
+      {
+        title: 'Daftar Inventaris',
+        url: '/dashboard/inventaris',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      },
+      {
+        title: 'Pemeliharaan',
+        url: '/dashboard/inventaris/pemeliharaan',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      }
+    ] // No child items
+  },
+  {
+    title: 'Pembayaran',
+    url: '#',
+    icon: 'product',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: [
+      {
+        title: 'Daftar Inventaris',
+        url: '/dashboard/inventaris',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      },
+      {
+        title: 'Pemeliharaan',
+        url: '/dashboard/inventaris/pemeliharaan',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      }
+    ] // No child items
+  },
+
+  {
+    title: 'Bimbingan Konseling',
+    url: '#',
+    icon: 'product',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: [
+      {
+        title: 'Dashboard BK',
+        url: '/dashboard/bk',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      },
+      {
+        title: 'Pelanggaran dan Prestasi Siswa',
+        url: '/dashboard/bk/list',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      }
+    ] // No child items
+  },
+  {
+    title: 'Perpustakaan',
+    url: '#',
+    icon: 'product',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: [
+      {
+        title: 'Dashboard Perpustakaan',
+        url: '/dashboard/perpustakaan',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      },
+      {
+        title: 'Buku Perpustakaan',
+        url: '/dashboard/perpustakaan/buku',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      },
+      {
+        title: 'Peminjaman',
+        url: '/dashboard/perpustakaan/peminjaman',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      }
+    ] // No child items
+  },
+  {
+    title: 'Tabungan Siswa',
+    url: '#',
+    icon: 'product',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: [
+      {
+        title: 'Dashboard Perpustakaan',
+        url: '/dashboard/perpustakaan',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      },
+      {
+        title: 'Buku Perpustakaan',
+        url: '/dashboard/perpustakaan/buku',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      },
+      {
+        title: 'Peminjaman',
+        url: '/dashboard/perpustakaan/peminjaman',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      }
+    ] // No child items
+  },
+
   {
     title: 'Kanban',
     url: '/dashboard/kanban',
