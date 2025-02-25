@@ -12,10 +12,10 @@ import { Product } from '@/constants/data';
 import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Guru } from '../guru-staff-listing';
+import { Siswa } from '../siswa-listing';
 
 interface CellActionProps {
-  data: Guru;
+  data: Siswa;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
@@ -45,7 +45,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
           <DropdownMenuItem
             onClick={() =>
-              router.push(`/dashboard/master-data/guru-staff/${data.id}`)
+              router.push(`/dashboard/master-data/siswa/${data.id}`)
             }
           >
             <Edit className='mr-2 h-4 w-4' /> Update

@@ -2,20 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { DataTable as GuruStaffTable } from '@/components/ui/table/data-table';
-import { columns } from './guru-staff-tables/columns';
+import { DataTable as SiswaTable } from '@/components/ui/table/data-table';
+import { columns } from './siswa-tables/columns';
 import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
 
-export type Guru = {
+export type Siswa = {
   id: string;
-  nip: string;
+  nis: string;
   nik: string;
   password: string;
   jabatan: string;
   nama: string;
+  kelas: string;
   tempatLahir: string;
-  tanggalLahir: string | null;
+  tanggalLahir: Date | null;
   alamat: string;
   agama: string;
   jenisKelamin: 'Laki Laki' | 'Perempuan';
@@ -26,23 +27,24 @@ export type Guru = {
   fotoId: string;
 };
 
-export default function GuruStaffListingPage() {
+export default function SiswaListingPage() {
   const searchParams = useSearchParams();
   const page = searchParams.get('page') || '1';
   const search = searchParams.get('nama') || '';
-  const nip = searchParams.get('nip') || '';
+  const nis = searchParams.get('nis') || '';
   const pageLimit = searchParams.get('limit') || '10';
+  const kelas = searchParams.get('kelas') || '';
 
-  const [data, setData] = useState<Guru[]>([]);
+  const [data, setData] = useState<Siswa[]>([]);
   const [totalUser, setTotalUser] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchGuruStaff = async () => {
+    const fetchSiswa = async () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}user/get-all-guru?page=${page}?pageSize=${pageLimit}&nama=${search}&nip=${nip}`
+          `${API}user/get-all-siswa?page=${page}?pageSize=${pageLimit}&nama=${search}&nip=${nis}&kelas${kelas}`
         );
         setData(response.data.result.data);
         setTotalUser(response.data.result.total);
@@ -53,10 +55,8 @@ export default function GuruStaffListingPage() {
       }
     };
 
-    fetchGuruStaff();
-  }, [page, search, nip, pageLimit]); // Re-fetch data when query changes
+    fetchSiswa();
+  }, [page, search, nis, pageLimit, kelas]); // Re-fetch data when query changes
 
-  return (
-    <GuruStaffTable columns={columns} data={data} totalItems={totalUser} />
-  );
+  return <SiswaTable columns={columns} data={data} totalItems={totalUser} />;
 }

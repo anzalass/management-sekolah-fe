@@ -1,5 +1,6 @@
 import axios from 'axios';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { API } from './server';
 
 const authConfig = {
   providers: [
@@ -11,13 +12,10 @@ const authConfig = {
       },
       async authorize(credentials, req) {
         try {
-          const response = await axios.post(
-            `${process.env.API_URL}/auth/login`,
-            {
-              nip: credentials.email,
-              password: credentials.password
-            }
-          );
+          const response = await axios.post(`${API}auth/login`, {
+            nip: credentials.email,
+            password: credentials.password
+          });
 
           const user = response.data.data;
 

@@ -1,3 +1,4 @@
+import { API } from '@/lib/server';
 import GuruStaffForm from './guru-staff-form';
 import axios from 'axios';
 
@@ -7,14 +8,12 @@ type NipType = {
 
 export default async function GuruStaffViewPage({ nip }: NipType) {
   let GuruStaff = null;
-  let pageTitle = '';
+  let pageTitle = 'Tambah Guru dan Staff';
 
   if (nip !== 'new') {
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.API_URL}/user/get-guru/${nip}`
-        );
+        const response = await axios.get(`${API}user/get-guru/${nip}`);
         return response.data.data;
       } catch (error) {}
     };

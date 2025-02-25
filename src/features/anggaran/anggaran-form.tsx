@@ -1,0 +1,226 @@
+'use client';
+import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+
+import { Textarea } from '@/components/ui/textarea';
+import { Product } from '@/constants/mock-api';
+import { zodResolver } from '@hookform/resolvers/zod';
+import axios from 'axios';
+import { Trash } from 'lucide-react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useTransition } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { API } from '@/lib/server';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+
+// Tipe Data Siswa
+export type Anggaran = {
+  id: string;
+  nama: string;
+  tanggal: Date;
+  jumlah: number;
+  jenis: string;
+  keterangan: string;
+};
+
+export default function AnggaranForm({
+  initialData,
+  id,
+  pageTitle
+}: {
+  initialData: Anggaran | null;
+  id: string;
+  pageTitle: string;
+}) {
+  const [loading, startTransition] = useTransition();
+  const router = useRouter();
+
+  const defaultValue = {
+    nama: initialData?.nama,
+    tanggal: initialData?.tanggal,
+    jumlah: initialData?.jumlah,
+    jenis: initialData?.jenis,
+    keterangan: initialData?.keterangan
+  };
+
+  const form = useForm({
+    defaultValues: defaultValue
+  });
+
+  // Handle Submit
+  async function onSubmit(values: any) {
+    startTransition(async () => {
+      try {
+        if (id !== 'new') {
+          await axios.put(
+            `${API}anggaran/update/${id}`,
+            { ...values },
+            {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+          toast.success('Data anggaran berhasil diubah');
+        } else {
+          await axios.post(
+            `${API}anggaran/create`,
+            {
+              ...values
+            },
+            {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+          toast.success('Data anggaran berhasil disimpan');
+        }
+
+        router.push('/dashboard/master-data/anggaran');
+      } catch (error) {
+        toast.error(error?.response?.data?.message || 'Terjadi Kesalahan');
+      }
+    });
+  }
+
+  // Handle File Upload
+  return (
+    <Card className='mx-auto w-full'>
+      <CardHeader>
+        <CardTitle className='text-left text-2xl font-bold'>
+          {pageTitle}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+            <div className='space-y-6'>
+              {/* Foto */}
+
+              <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+                {/* NIS */}
+                <FormItem>
+                  <FormLabel>Nama Anggaran</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='text'
+                      placeholder='Masukkan Nama Ruangan...'
+                      {...form.register('nama', {
+                        required: 'Nama Ruangan wajib diisi',
+                        minLength: 6
+                      })}
+                    />
+                  </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.nama?.message}
+                  </FormMessage>
+                </FormItem>
+                <FormItem>
+                  <FormLabel>Tanggal Anggaran</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='date'
+                      placeholder='Masukkan Tanggal Anggaran...'
+                      {...form.register('tanggal', {
+                        required: 'Tanggal Anggaran wajib diisi'
+                      })}
+                    />
+                  </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.tanggal?.message}
+                  </FormMessage>
+                </FormItem>
+                <FormItem>
+                  <FormLabel>Jumlah Anggaran</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='number'
+                      placeholder='Masukkan Jumlah Anggaran...'
+                      {...form.register('jumlah', {
+                        required: 'Jumlah Anggaran wajib diisi'
+                      })}
+                    />
+                  </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.jumlah?.message}
+                  </FormMessage>
+                </FormItem>
+
+                <FormField
+                  control={form.control}
+                  name='jenis'
+                  rules={{ required: 'Agama wajib dipilih' }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Pilih Jenis Anggaran</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder='Pilih Jenis Anggaran' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value='pemasukan'>Pemasukan</SelectItem>
+                          <SelectItem value='pengeluaran'>
+                            Pengeluaran
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage>
+                        {form.formState.errors.jenis?.message}
+                      </FormMessage>
+                    </FormItem>
+                  )}
+                />
+
+                {/* Keterangan */}
+                <FormItem>
+                  <FormLabel>Keterangan</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder='Masukkan Keterangan...'
+                      {...form.register('keterangan')}
+                    />
+                  </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.keterangan?.message}
+                  </FormMessage>
+                </FormItem>
+              </div>
+            </div>
+            {/* Tombol Submit */}
+            <Button type='submit' disabled={loading}>
+              {loading ? (
+                <Loader2 className='h-5 w-5 animate-spin' />
+              ) : (
+                'Simpan'
+              )}
+            </Button>{' '}
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
+}

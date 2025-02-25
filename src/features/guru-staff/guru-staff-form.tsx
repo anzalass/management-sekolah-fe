@@ -1,5 +1,4 @@
 'use client';
-
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,7 +19,6 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Product } from '@/constants/mock-api';
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
 import { Trash } from 'lucide-react';
@@ -30,6 +28,7 @@ import { useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
+import { API } from '@/lib/server';
 
 export type GuruStaff = {
   nip: string;
@@ -38,7 +37,7 @@ export type GuruStaff = {
   jabatan: string;
   nama: string;
   tempatLahir: string;
-  tanggalLahir?: string | Date; // Tanggal Lahir bisa null
+  tanggalLahir?: Date; // Tanggal Lahir bisa null
   alamat: string;
   agama: string;
   jenisKelamin: string;
@@ -180,20 +179,14 @@ export default function GuruStaffForm({
 
         let res;
         if (nip !== 'new') {
-          res = await axios.put(
-            `http://localhost:5000/api/v1/user/update-guru/${nip}`,
-            data
-          );
+          res = await axios.put(`${API}user/update-guru/${nip}`, data);
         } else {
-          res = await axios.post(
-            `http://localhost:5000/api/v1/user/create-guru`,
-            data
-          );
+          res = await axios.post(`${API}user/create-guru`, data);
         }
 
         if (res.status === 201) {
           await axios.post(
-            `http://localhost:5000/api/v1/user/create-riwayat-pendidikan/${values.nip}`,
+            `${API}user/create-riwayat-pendidikan/${values.nip}`,
             { data: riwayatPendidikanGuruArr }
           );
         }
@@ -204,10 +197,9 @@ export default function GuruStaffForm({
             : 'Berhasil menambahkan data Guru / Staff'
         );
 
-        router.push('/dashboard/guru-staff');
+        router.push('/dashboard/master-data/guru-staff');
       } catch (error) {
-        console.log(error);
-        toast.error('Terjadi kesalahan');
+        toast.error(error?.response.data.message || 'Terjadi Kesalahan');
       }
     });
   }
@@ -261,9 +253,7 @@ export default function GuruStaffForm({
 
   const hapusRiwayatPendidikan = async (id: string) => {
     try {
-      await axios.delete(
-        `http://localhost:5000/api/v1/user/delete-riwayat-pendidikan/${id}`
-      );
+      await axios.delete(`${API}user/delete-riwayat-pendidikan/${id}`);
 
       setData((prevData) => prevData.filter((r) => r.id !== id));
     } catch (error) {
@@ -291,27 +281,23 @@ export default function GuruStaffForm({
                 <FormControl>
                   <div>
                     <Input type='file' onChange={handleFileChange} />
-                    {imagePreview && fotoUrl !== '' ? (
-                      <div className='mt-4'>
-                        <Image
-                          src={imagePreview}
-                          alt='Uploaded Preview'
-                          width={200} // Set the desired width for the preview
-                          height={200} // Set the desired height for the preview
-                          objectFit='contain' // Adjust to fit the container
-                        />
-                      </div>
-                    ) : (
-                      <div className='mt-4'>
-                        <Image
-                          src={fotoUrl || ''}
-                          alt='Uploaded Preview'
-                          width={200} // Set the desired width for the preview
-                          height={200} // Set the desired height for the preview
-                          objectFit='contain' // Adjust to fit the container
-                        />
-                      </div>
-                    )}
+                    {imagePreview ? (
+                      <Image
+                        src={imagePreview ?? null}
+                        alt='Uploaded Preview'
+                        width={200}
+                        height={200}
+                        objectFit='contain'
+                      />
+                    ) : fotoUrl ? (
+                      <Image
+                        src={fotoUrl ?? null}
+                        alt='Uploaded Preview'
+                        width={200}
+                        height={200}
+                        objectFit='contain'
+                      />
+                    ) : null}
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -412,11 +398,7 @@ export default function GuruStaffForm({
                         </SelectItem>
                         <SelectItem value='Kesiswaan'>Kesiswaan</SelectItem>
                         <SelectItem value='Kurikulum'>Kurikulum</SelectItem>
-
-                        <SelectItem
-                          value='                          Bimbingan Konseling
-'
-                        >
+                        <SelectItem value='Bimbingan Konseling'>
                           Bimbingan Konseling
                         </SelectItem>
                         <SelectItem value='Perpustakaan'>
