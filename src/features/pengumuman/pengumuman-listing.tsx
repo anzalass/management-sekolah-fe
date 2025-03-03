@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { DataTable as AnggaranaTable } from '@/components/ui/table/data-table';
-import { columns } from './anggaran-tables/columns';
+import { DataTable as PengumumanTable } from '@/components/ui/table/data-table';
+import { columns } from './pengumuman-tables/columns';
 import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
-import { Anggaran } from './anggaran-form';
+import { Anggaran } from './pengumuman-form';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
-export default function AnggaranListingPage() {
+export default function PengumumanListingPage() {
   const searchParams = useSearchParams();
   const page = searchParams.get('page') || '1';
   const search = searchParams.get('nama') || '';
@@ -43,6 +43,6 @@ export default function AnggaranListingPage() {
   }, [page, search, jumlah, tanggal, trigger, jenis, pageLimit]);
 
   return (
-    <AnggaranaTable columns={columns} data={data} totalItems={totalData} />
+    <PengumumanTable columns={columns} data={data} totalItems={totalData} />
   );
 }
