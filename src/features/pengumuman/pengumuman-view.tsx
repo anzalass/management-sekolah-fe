@@ -1,14 +1,14 @@
 import { API } from '@/lib/server';
 import axios from 'axios';
-import AnggaranForm from './anggaran-form';
+import AnggaranForm from './pengumuman-form';
 
 type IDAnggaran = {
   id: string;
 };
 
-export default async function AnggaranViewPage({ id }: IDAnggaran) {
-  let Anggarana = null;
-  let pageTitle = 'Tambah Riwayat Anggaran';
+export default async function PengumumanViewPage({ id }: IDAnggaran) {
+  let Pengumuman = null;
+  let pageTitle = 'Tambah Pengumuman';
 
   if (id !== 'new') {
     const fetchData = async () => {
@@ -20,9 +20,11 @@ export default async function AnggaranViewPage({ id }: IDAnggaran) {
       }
     };
     const user = await fetchData();
-    Anggarana = user;
-    pageTitle = 'Ubah Riwayat Anggaran';
+    Pengumuman = user;
+    pageTitle = 'Ubah Pengumuman';
   }
 
-  return <AnggaranForm id={id} initialData={Anggarana} pageTitle={pageTitle} />;
+  return (
+    <AnggaranForm id={id} initialData={Pengumuman} pageTitle={pageTitle} />
+  );
 }

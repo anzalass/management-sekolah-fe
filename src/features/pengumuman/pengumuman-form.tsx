@@ -41,7 +41,7 @@ export type Anggaran = {
   keterangan: string;
 };
 
-export default function AnggaranForm({
+export default function PengumumanForm({
   initialData,
   id,
   pageTitle

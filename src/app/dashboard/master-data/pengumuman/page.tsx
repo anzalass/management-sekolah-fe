@@ -3,12 +3,8 @@ import { buttonVariants } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
-import AnggaranListingPage from '@/features/anggaran/anggaran-listing';
-import AnggaranTableAction from '@/features/anggaran/anggaran-tables/anggaran-table-action';
-import KegiatanSekolahListingPage from '@/features/kegiatan-sekolah/kegiatan-sekolah-listing';
-import KegiatanSekolahTableAction from '@/features/kegiatan-sekolah/kegiatan-sekolah-tables/kegiatansekolah-table-action';
-import RuangListingPage from '@/features/ruang/ruang-listing';
-import RuangTableAction from '@/features/ruang/ruang-tables/ruang-table-action';
+import PengumumanListingPage from '@/features/pengumuman/pengumuman-listing';
+import PengumumanTableAction from '@/features/pengumuman/pengumuman-tables/pengumuman-table-action';
 import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
 import { cn } from '@/lib/utils';
@@ -18,7 +14,7 @@ import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 
 export const metadata = {
-  title: 'Dashboard: Anggaran Sekolah'
+  title: 'Dashboard: Pengumuman Sekolah'
 };
 
 type pageProps = {
@@ -38,21 +34,21 @@ export default async function Page(props: pageProps) {
       <PageContainer scrollable={false}>
         <div className='flex flex-1 flex-col space-y-4'>
           <div className='flex items-start justify-between'>
-            <Heading title='Riwayat Anggaran' description='' />
+            <Heading title='Pengumuman Sekolah' description='' />
             <Link
-              href='/dashboard/master-data/anggaran/new'
+              href='/dashboard/master-data/pengumuman-sekolah/new'
               className={cn(buttonVariants(), 'text-xs md:text-sm')}
             >
-              <Plus className='mr-2 h-4 w-4' /> Tambah Riwayat Anggaran
+              <Plus className='mr-2 h-4 w-4' /> Tambah Pengumuman Sekolah
             </Link>
           </div>
           <Separator />
-          <AnggaranTableAction />
+          <PengumumanTableAction />
           <Suspense
             key={key}
             fallback={<DataTableSkeleton columnCount={5} rowCount={10} />}
           >
-            <AnggaranListingPage />
+            <PengumumanListingPage />
           </Suspense>
         </div>
       </PageContainer>
