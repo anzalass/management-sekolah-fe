@@ -13,6 +13,7 @@ import GuruStaffTableAction from '@/features/guru-staff/guru-staff-tables/gurust
 import GuruStaffListingPage from '@/features/guru-staff/guru-staff-listing';
 import SiswaListingPage from '@/features/siswa/siswa-listing';
 import SiswaTableAction from '@/features/siswa/siswa-tables/siswa-table-action';
+import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';
 
 export const metadata = {
   title: 'Dashboard: Siswa'
@@ -31,26 +32,28 @@ export default async function Page(props: pageProps) {
   const key = serialize({ ...searchParams });
 
   return (
-    <PageContainer scrollable={false}>
-      <div className='flex flex-1 flex-col space-y-4'>
-        <div className='flex items-start justify-between'>
-          <Heading title='Siswa' description='' />
-          <Link
-            href='/dashboard/master-data/siswa/new'
-            className={cn(buttonVariants(), 'text-xs md:text-sm')}
+    <RenderTriggerProvider>
+      <PageContainer scrollable={false}>
+        <div className='flex flex-1 flex-col space-y-4'>
+          <div className='flex items-start justify-between'>
+            <Heading title='Siswa' description='' />
+            <Link
+              href='/dashboard/master-data/siswa/new'
+              className={cn(buttonVariants(), 'text-xs md:text-sm')}
+            >
+              <Plus className='mr-2 h-4 w-4' /> Tambah Siswa
+            </Link>
+          </div>
+          <Separator />
+          <SiswaTableAction />
+          <Suspense
+            key={key}
+            fallback={<DataTableSkeleton columnCount={5} rowCount={10} />}
           >
-            <Plus className='mr-2 h-4 w-4' /> Tambah Siswa
-          </Link>
+            <SiswaListingPage />
+          </Suspense>
         </div>
-        <Separator />
-        <SiswaTableAction />
-        <Suspense
-          key={key}
-          fallback={<DataTableSkeleton columnCount={5} rowCount={10} />}
-        >
-          <SiswaListingPage />
-        </Suspense>
-      </div>
-    </PageContainer>
+      </PageContainer>
+    </RenderTriggerProvider>
   );
 }

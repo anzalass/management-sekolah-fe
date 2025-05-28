@@ -23,7 +23,7 @@ export const columns: ColumnDef<Anggaran>[] = [
     accessorKey: 'tanggal',
     header: 'Tanggal',
     cell: ({ row }) => {
-      const formatTanggal = (date?: string | Date) => {
+      const formatTanggal = (date?: any) => {
         const tanggal = date ? new Date(date) : null;
         if (!tanggal || isNaN(tanggal.getTime())) {
           return 'Tanggal tidak valid';

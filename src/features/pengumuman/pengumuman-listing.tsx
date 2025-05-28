@@ -6,7 +6,7 @@ import { DataTable as PengumumanTable } from '@/components/ui/table/data-table';
 import { columns } from './pengumuman-tables/columns';
 import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
-import { Anggaran } from './pengumuman-form';
+import { Pengumuman } from './pengumuman-form';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 export default function PengumumanListingPage() {
@@ -18,7 +18,7 @@ export default function PengumumanListingPage() {
   const jumlah = searchParams.get('jumlah') || '';
   const pageLimit = searchParams.get('limit') || '10';
 
-  const [data, setData] = useState<Anggaran[]>([]);
+  const [data, setData] = useState<Pengumuman[]>([]);
   const [totalData, setTotalData] = useState(0);
   const [loading, setLoading] = useState(true);
   const { trigger, toggleTrigger } = useRenderTrigger();
@@ -28,7 +28,7 @@ export default function PengumumanListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}anggaran?page=${page}&pageSize=${pageLimit}&nama=${search}&jenis=${jenis}&tanggal=${tanggal}&jumlah=${jumlah}`
+          `${API}pengumuman?page=${page}&pageSize=${pageLimit}&title=${search}&time=${tanggal}`
         );
         setData(response.data.data);
         setTotalData(response.data.total);

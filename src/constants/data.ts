@@ -64,12 +64,7 @@ export const navItems: NavItem[] = [
         icon: 'userPen',
         shortcut: ['m', 'm']
       },
-      // {
-      //   title: 'Mata Pelajaran',
-      //   url: '/dashboard/master-data/mata-pelajaran',
-      //   icon: 'userPen',
-      //   shortcut: ['m', 'm']
-      // },
+
       {
         title: 'Kegiatan Sekolah',
         url: '/dashboard/master-data/kegiatan-sekolah',
@@ -108,8 +103,14 @@ export const navItems: NavItem[] = [
     isActive: false,
     items: [
       {
+        title: 'Jenis Inventaris',
+        url: '/dashboard/inventaris/jenis-inventaris',
+        icon: 'userPen',
+        shortcut: ['m', 'm']
+      },
+      {
         title: 'Daftar Inventaris',
-        url: '/dashboard/inventaris',
+        url: '/dashboard/inventaris/daftar-inventaris',
         icon: 'userPen',
         shortcut: ['m', 'm']
       },
@@ -129,13 +130,13 @@ export const navItems: NavItem[] = [
     isActive: false,
     items: [
       {
-        title: 'Daftar Inventaris',
+        title: 'Daftar Tagihan',
         url: '/dashboard/inventaris',
         icon: 'userPen',
         shortcut: ['m', 'm']
       },
       {
-        title: 'Pemeliharaan',
+        title: 'Riwayat Pembayaran Siswa',
         url: '/dashboard/inventaris/pemeliharaan',
         icon: 'userPen',
         shortcut: ['m', 'm']

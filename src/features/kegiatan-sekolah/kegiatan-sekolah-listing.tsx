@@ -6,6 +6,7 @@ import { DataTable as KegiatanSekolahTable } from '@/components/ui/table/data-ta
 import { columns } from './kegiatan-sekolah-tables/columns';
 import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 export type KegiatanSekolah = {
   id: string;
@@ -27,6 +28,7 @@ export default function KegiatanSekolahListingPage() {
   const [data, setData] = useState<KegiatanSekolah[]>([]);
   const [totalData, setTotalData] = useState(0);
   const [loading, setLoading] = useState(true);
+  const { trigger, toggleTrigger } = useRenderTrigger();
 
   useEffect(() => {
     const fetch = async () => {
@@ -45,7 +47,7 @@ export default function KegiatanSekolahListingPage() {
     };
 
     fetch();
-  }, [page, search, ta, pageLimit]); // Re-fetch data when query changes
+  }, [page, search, ta, pageLimit, trigger]); // Re-fetch data when query changes
 
   return (
     <KegiatanSekolahTable

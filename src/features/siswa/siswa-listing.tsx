@@ -6,6 +6,7 @@ import { DataTable as SiswaTable } from '@/components/ui/table/data-table';
 import { columns } from './siswa-tables/columns';
 import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 export type Siswa = {
   id: string;
@@ -38,6 +39,7 @@ export default function SiswaListingPage() {
   const [data, setData] = useState<Siswa[]>([]);
   const [totalUser, setTotalUser] = useState(0);
   const [loading, setLoading] = useState(true);
+  const { trigger, toggleTrigger } = useRenderTrigger();
 
   useEffect(() => {
     const fetchSiswa = async () => {
@@ -56,7 +58,7 @@ export default function SiswaListingPage() {
     };
 
     fetchSiswa();
-  }, [page, search, nis, pageLimit, kelas]); // Re-fetch data when query changes
+  }, [page, search, nis, pageLimit, kelas, trigger]); // Re-fetch data when query changes
 
   return <SiswaTable columns={columns} data={data} totalItems={totalUser} />;
 }

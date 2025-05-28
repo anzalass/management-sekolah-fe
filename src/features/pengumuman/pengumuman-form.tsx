@@ -19,7 +19,7 @@ import axios from 'axios';
 import { Trash } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { API } from '@/lib/server';
@@ -30,15 +30,15 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { title } from 'process';
+import RichTextEditor from '../texteditor/textEditor';
 
 // Tipe Data Siswa
-export type Anggaran = {
+export type Pengumuman = {
   id: string;
-  nama: string;
-  tanggal: Date;
-  jumlah: number;
-  jenis: string;
-  keterangan: string;
+  title: string;
+  time: Date;
+  content: string;
 };
 
 export default function PengumumanForm({
@@ -46,7 +46,7 @@ export default function PengumumanForm({
   id,
   pageTitle
 }: {
-  initialData: Anggaran | null;
+  initialData: Pengumuman | null;
   id: string;
   pageTitle: string;
 }) {
@@ -54,14 +54,14 @@ export default function PengumumanForm({
   const router = useRouter();
 
   const defaultValue = {
-    nama: initialData?.nama,
-    tanggal: initialData?.tanggal
-      ? new Date(initialData.tanggal).toISOString().split('T')[0] // Konversi ke Date dulu
+    title: initialData?.title,
+    time: initialData?.time
+      ? new Date(initialData.time).toISOString().split('T')[0] // Konversi ke Date dulu
       : '',
-    jumlah: initialData?.jumlah,
-    jenis: initialData?.jenis,
-    keterangan: initialData?.keterangan
+    content: initialData?.content
   };
+
+  const [content, setContent] = useState(initialData?.content || '');
 
   const form = useForm({
     defaultValues: defaultValue
@@ -73,20 +73,10 @@ export default function PengumumanForm({
       try {
         if (id !== 'new') {
           await axios.put(
-            `${API}anggaran/update/${id}`,
-            { ...values },
+            `${API}pengumuman/update/${id}`,
             {
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            }
-          );
-          toast.success('Data anggaran berhasil diubah');
-        } else {
-          await axios.post(
-            `${API}anggaran/create`,
-            {
-              ...values
+              ...values,
+              content: content
             },
             {
               headers: {
@@ -94,10 +84,23 @@ export default function PengumumanForm({
               }
             }
           );
-          toast.success('Data anggaran berhasil disimpan');
+          toast.success('Data pengumuman berhasil diubah');
+        } else {
+          await axios.post(
+            `${API}pengumuman/create`,
+            {
+              ...values,
+              content: content
+            },
+            {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+          toast.success('Data pengumuman berhasil disimpan');
         }
-
-        router.push('/dashboard/master-data/anggaran');
+        router.push('/dashboard/master-data/pengumuman');
       } catch (error) {
         toast.error(error?.response?.data?.message || 'Terjadi Kesalahan');
       }
@@ -121,93 +124,47 @@ export default function PengumumanForm({
               <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
                 {/* NIS */}
                 <FormItem>
-                  <FormLabel>Nama Anggaran</FormLabel>
+                  <FormLabel>Judul</FormLabel>
                   <FormControl>
                     <Input
                       type='text'
-                      placeholder='Masukkan Nama Anggaran...'
-                      {...form.register('nama', {
-                        required: 'Nama Anggaran wajib diisi',
-                        minLength: 6
+                      placeholder='Masukkan Judul...'
+                      {...form.register('title', {
+                        required: 'Judul wajib diisi',
+                        minLength: {
+                          value: 6,
+                          message: 'Minimal panjang 6 karakter'
+                        }
                       })}
                     />
                   </FormControl>
                   <FormMessage>
-                    {form.formState.errors.nama?.message}
+                    {form.formState.errors.title?.message}
                   </FormMessage>
                 </FormItem>
                 <FormItem>
-                  <FormLabel>Tanggal Anggaran</FormLabel>
+                  <FormLabel>Tanggal Pengumuman</FormLabel>
                   <FormControl>
                     <Input
                       type='date'
-                      placeholder='Masukkan Tanggal Anggaran...'
-                      {...form.register('tanggal', {
-                        required: 'Tanggal Anggaran wajib diisi'
+                      placeholder='Masukkan Tanggal Pengumuman...'
+                      {...form.register('time', {
+                        required: 'Tanggal wajib diisi'
                       })}
                     />
                   </FormControl>
                   <FormMessage>
-                    {form.formState.errors.tanggal?.message}
-                  </FormMessage>
-                </FormItem>
-                <FormItem>
-                  <FormLabel>Jumlah Anggaran</FormLabel>
-                  <FormControl>
-                    <Input
-                      type='number'
-                      placeholder='Masukkan Jumlah Anggaran...'
-                      {...form.register('jumlah', {
-                        required: 'Jumlah Anggaran wajib diisi'
-                      })}
-                    />
-                  </FormControl>
-                  <FormMessage>
-                    {form.formState.errors.jumlah?.message}
+                    {form.formState.errors.time?.message}
                   </FormMessage>
                 </FormItem>
 
-                <FormField
-                  control={form.control}
-                  name='jenis'
-                  rules={{ required: 'Agama wajib dipilih' }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Pilih Jenis Anggaran</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder='Pilih Jenis Anggaran' />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value='pemasukan'>Pemasukan</SelectItem>
-                          <SelectItem value='pengeluaran'>
-                            Pengeluaran
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage>
-                        {form.formState.errors.jenis?.message}
-                      </FormMessage>
-                    </FormItem>
-                  )}
-                />
-
-                {/* Keterangan */}
                 <FormItem>
                   <FormLabel>Keterangan</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder='Masukkan Keterangan...'
-                      {...form.register('keterangan')}
-                    />
+                    <RichTextEditor content={content} onChange={setContent} />
                   </FormControl>
                   <FormMessage>
-                    {form.formState.errors.keterangan?.message}
+                    {form.formState.errors.content?.message}
                   </FormMessage>
                 </FormItem>
               </div>

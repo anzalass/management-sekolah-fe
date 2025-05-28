@@ -170,7 +170,7 @@ export default function AnggaranForm({
                 <FormField
                   control={form.control}
                   name='jenis'
-                  rules={{ required: 'Agama wajib dipilih' }}
+                  rules={{ required: 'Jenis Anggaran wajib dipilih' }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Pilih Jenis Anggaran</FormLabel>
