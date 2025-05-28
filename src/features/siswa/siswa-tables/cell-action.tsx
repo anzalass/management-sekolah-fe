@@ -13,6 +13,9 @@ import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Siswa } from '../siswa-listing';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import { API } from '@/lib/server';
+import axios from 'axios';
 
 interface CellActionProps {
   data: Siswa;
@@ -23,8 +26,17 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  const onConfirm = async () => {};
+  const { trigger, toggleTrigger } = useRenderTrigger();
 
+  const onConfirm = async () => {
+    try {
+      await axios.delete(`${API}user/delete-siswa/${data.nis}`);
+      setOpen(false);
+      toggleTrigger();
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <>
       <AlertModal

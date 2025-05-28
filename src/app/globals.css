@@ -124,4 +124,103 @@
   body {
     @apply bg-background text-foreground;
   }
+  h1 {
+    @apply text-2xl font-bold;
+  }
+  h2 {
+    @apply text-xl font-bold;
+  }
+  h3 {
+    @apply text-lg font-bold;
+  }
+  pre {
+    @apply rounded-md bg-foreground p-2 text-background;
+  }
+}
+body {
+  overflow-x: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.round {
+  border-radius: 3rem;
+}
+
+.image1 {
+  background-image: url('../../public/founder.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.auto-scroll-wrapper {
+  overflow: hidden;
+  width: 100%;
+}
+
+.auto-scroll {
+  display: flex;
+  width: max-content;
+  animation: scroll-left 60s linear infinite;
+}
+
+.bg {
+  background-image: url('../../public/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100vh;
+}
+
+.bg-lap {
+  background-image: url('../../public/bg20.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100vh;
+}
+
+.bg2-lap {
+  background-color: #83ceed;
+  background-size: 100% auto;
+  background-repeat: no-repeat;
+  background-position: top center;
+  width: 100%;
+  height: 168vh; /* Atur sesuai kebutuhan */
+}
+
+.bor {
+  background-image: url('../../public/Foto.png');
+  background-size: 100% auto;
+  background-repeat: no-repeat;
+  background-position: top center;
+  width: 45%;
+  height: 40vh;
+}
+
+@keyframes scroll-images {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll-images {
+  animation: scroll-images 20s linear infinite;
 }

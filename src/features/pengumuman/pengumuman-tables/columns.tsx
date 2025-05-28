@@ -1,31 +1,21 @@
 'use client';
 import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
-import { Anggaran } from '../pengumuman-form';
+import { Pengumuman } from '../pengumuman-form';
 
-export const columns: ColumnDef<Anggaran>[] = [
+export const columns: ColumnDef<Pengumuman>[] = [
   {
-    accessorKey: 'nama', // NIP
-    header: 'Nama',
-    cell: ({ row }) => row.original.nama
+    accessorKey: 'title', // NIP
+    header: 'Judul',
+    cell: ({ row }) => row.original.title
   },
   {
-    accessorKey: 'jumlah', // NIP
-    header: 'Jumlah',
-    cell: ({ row }) => row.original.jumlah
-  },
-  {
-    accessorKey: 'jenis', // NIP
-    header: 'Jenis',
-    cell: ({ row }) => row.original.jenis
-  },
-  {
-    accessorKey: 'tanggal',
+    accessorKey: 'time',
     header: 'Tanggal',
     cell: ({ row }) => {
       const formatTanggal = (date?: string | Date) => {
-        const tanggal = date ? new Date(date) : null;
-        if (!tanggal || isNaN(tanggal.getTime())) {
+        const time = date ? new Date(date) : null;
+        if (!time || isNaN(time.getTime())) {
           return 'Tanggal tidak valid';
         }
 
@@ -33,20 +23,15 @@ export const columns: ColumnDef<Anggaran>[] = [
           day: '2-digit',
           month: 'long',
           year: 'numeric'
-        }).format(tanggal);
+        }).format(time);
       };
 
       // Ambil data 'tanggal' dari baris
-      const tanggal = row.getValue('tanggal');
-      return formatTanggal(tanggal);
+      const tanggal = row.getValue('time');
+      return formatTanggal(row.original.time);
     }
   },
 
-  {
-    accessorKey: 'keterangan', // NIP
-    header: 'Keterangan',
-    cell: ({ row }) => row.original.keterangan
-  },
   {
     id: 'actions', // Actions (untuk tombol aksi seperti edit, delete)
     header: 'Actions',

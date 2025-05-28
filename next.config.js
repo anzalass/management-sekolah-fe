@@ -13,7 +13,12 @@ const nextConfig = {
         port: ''
       }
     ],
-    domains: ['ik.imagekit.io', 'static.vecteezy.com'] // Tambahkan domain yang diperbolehkan
+    domains: [
+      'ik.imagekit.io',
+      'static.vecteezy.com',
+      'res.cloudinary.com',
+      'storage.googleapis.com'
+    ] // Tambahkan domain yang diperbolehkan
   },
   transpilePackages: ['geist']
 };

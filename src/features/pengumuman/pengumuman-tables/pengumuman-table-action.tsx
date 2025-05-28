@@ -20,10 +20,6 @@ export default function PengumumanTableAction() {
     isAnyFilterActive,
     tanggalFilter,
     setTanggalFilter,
-    jenisFilter,
-    setJenisFilter,
-    jumlahFilter,
-    setJumlahFilter,
     resetFilters,
     setPage,
     namaFilter,
@@ -35,11 +31,6 @@ export default function PengumumanTableAction() {
     setPage(1);
   };
 
-  const handleChangeJenis = (value: string) => {
-    setJenisFilter(value, { startTransition });
-    setPage(1);
-  };
-
   return (
     <div className='grid grid-cols-1 items-center gap-4 md:grid-cols-4'>
       <DataTableSearch
@@ -48,21 +39,6 @@ export default function PengumumanTableAction() {
         setSearchQuery={setNamaFilter}
         setPage={setPage}
       />
-      <DataTableSearch
-        searchKey='Jumlah'
-        searchQuery={jumlahFilter}
-        setSearchQuery={setJumlahFilter}
-        setPage={setPage}
-      />
-      <Select value={jenisFilter} onValueChange={handleChangeJenis}>
-        <SelectTrigger>
-          <SelectValue placeholder='Pilih Jenis Anggaran' />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value='pemasukan'>Pemasukan</SelectItem>
-          <SelectItem value='pengeluaran'>Pengeluaran</SelectItem>
-        </SelectContent>
-      </Select>
       <Input
         type='date'
         placeholder='Masukan Tanggal'

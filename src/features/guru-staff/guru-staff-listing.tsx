@@ -6,6 +6,7 @@ import { DataTable as GuruStaffTable } from '@/components/ui/table/data-table';
 import { columns } from './guru-staff-tables/columns';
 import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 export type Guru = {
   id: string;
@@ -36,6 +37,7 @@ export default function GuruStaffListingPage() {
   const [data, setData] = useState<Guru[]>([]);
   const [totalUser, setTotalUser] = useState(0);
   const [loading, setLoading] = useState(true);
+  const { trigger, toggleTrigger } = useRenderTrigger();
 
   useEffect(() => {
     const fetchGuruStaff = async () => {
@@ -54,7 +56,7 @@ export default function GuruStaffListingPage() {
     };
 
     fetchGuruStaff();
-  }, [page, search, nip, pageLimit]); // Re-fetch data when query changes
+  }, [page, search, nip, pageLimit, trigger]); // Re-fetch data when query changes
 
   return (
     <GuruStaffTable columns={columns} data={data} totalItems={totalUser} />

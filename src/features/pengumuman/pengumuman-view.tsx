@@ -1,20 +1,20 @@
 import { API } from '@/lib/server';
 import axios from 'axios';
-import AnggaranForm from './pengumuman-form';
+import PengumumanForm from './pengumuman-form';
 
-type IDAnggaran = {
+type IDPengumuman = {
   id: string;
 };
 
-export default async function PengumumanViewPage({ id }: IDAnggaran) {
+export default async function PengumumanViewPage({ id }: IDPengumuman) {
   let Pengumuman = null;
   let pageTitle = 'Tambah Pengumuman';
 
   if (id !== 'new') {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}anggaran/get/${id}`);
-        return response.data.data;
+        const response = await axios.get(`${API}pengumuman/get/${id}`);
+        return response.data;
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -25,6 +25,6 @@ export default async function PengumumanViewPage({ id }: IDAnggaran) {
   }
 
   return (
-    <AnggaranForm id={id} initialData={Pengumuman} pageTitle={pageTitle} />
+    <PengumumanForm id={id} initialData={Pengumuman} pageTitle={pageTitle} />
   );
 }

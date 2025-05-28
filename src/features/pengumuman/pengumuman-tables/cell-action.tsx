@@ -12,14 +12,14 @@ import { Product } from '@/constants/data';
 import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Anggaran } from '../pengumuman-form';
+import { Pengumuman } from '../pengumuman-form';
 import axios from 'axios';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { TooltipTrigger } from '@radix-ui/react-tooltip';
 
 interface CellActionProps {
-  data: Anggaran;
+  data: Pengumuman;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
@@ -30,7 +30,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
   const onConfirm = async () => {
     try {
-      await axios.delete(`${API}anggaran/delete/${data.id}`);
+      await axios.delete(`${API}pengumuman/delete/${data.id}`);
       setOpen(false);
       toggleTrigger();
     } catch (error) {
@@ -58,7 +58,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
           <DropdownMenuItem
             onClick={() =>
-              router.push(`/dashboard/master-data/anggaran/${data.id}`)
+              router.push(`/dashboard/master-data/pengumuman/${data.id}`)
             }
           >
             <Edit className='mr-2 h-4 w-4' /> Update

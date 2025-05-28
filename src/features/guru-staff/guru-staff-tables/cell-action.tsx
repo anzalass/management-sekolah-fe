@@ -13,6 +13,9 @@ import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Guru } from '../guru-staff-listing';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import { API } from '@/lib/server';
+import axios from 'axios';
 
 interface CellActionProps {
   data: Guru;
@@ -22,9 +25,17 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const { trigger, toggleTrigger } = useRenderTrigger();
 
-  const onConfirm = async () => {};
-
+  const onConfirm = async () => {
+    try {
+      await axios.delete(`${API}user/delete-guru/${data.nip}`);
+      setOpen(false);
+      toggleTrigger();
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <>
       <AlertModal

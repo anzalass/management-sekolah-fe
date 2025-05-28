@@ -1,6 +1,6 @@
 'use client';
+import { Toggle } from '@/components/ui/toggle';
 import { List } from 'lucide-react';
-import { Toggle } from '../ui/toggle';
 import {
   Heading1,
   Heading2,
@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { ListOrdered } from 'lucide-react';
 
-export default function ToolBar({ editor }) {
+export default function ToolBar({ editor }: any) {
   if (!editor) return null;
   const addImage = () => {
     const url = window.prompt('URL');
@@ -100,7 +100,7 @@ export default function ToolBar({ editor }) {
   ];
 
   return (
-    <div className='sticky top-10 z-50 mb-1 space-x-1 rounded-md border bg-slate-50 p-1.5'>
+    <div className='sticky top-10 z-50 mb-1 space-x-1 rounded-md border p-1.5'>
       {Options.map((option, i) => (
         <Toggle
           key={i}
