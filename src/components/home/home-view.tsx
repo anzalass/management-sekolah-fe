@@ -122,9 +122,8 @@ export default function HomeView() {
   return (
     <div className=''>
       <Navbar />
-      <div className='flex h-[10rem] items-center justify-center overflow-auto bg-blue-600 md:h-full'>
+      <div className='flex items-center justify-center overflow-auto bg-blue-600 md:h-full'>
         <div className='relative h-full w-full'>
-          {/* Swiper */}
           <Swiper
             modules={[Navigation, Autoplay]}
             spaceBetween={30}
@@ -160,8 +159,6 @@ export default function HomeView() {
                 alt='Slide 3'
               />
             </SwiperSlide>
-
-            {/* Prev & Next Buttons */}
             <div className='swiper-button-prev absolute left-0 top-1/2 z-10 -translate-y-1/2 cursor-pointer text-2xl text-white' />
             <div className='swiper-button-next absolute right-0 top-1/2 z-10 -translate-y-1/2 cursor-pointer text-2xl text-white' />
           </Swiper>
@@ -188,7 +185,7 @@ export default function HomeView() {
             </div>
             <div className='md:w-1/2 md:text-right'>
               <h2 className='mb-4 text-2xl font-bold'>SOLUTION</h2>
-              <p className='font-marathi text-black-700 mx-auto w-[90%] text-justify text-lg md:mx-0 md:text-right lg:ml-16'>
+              <p className='font-marathi text-black-700 mx-auto w-[90%] text-justify text-lg md:mx-0 md:ml-[50px] md:text-right lg:ml-16'>
                 We teach using various methods, become facilitators for students
                 with diverse characters because they have the same
                 opportunities. We provide our students with a strong foundation
@@ -201,7 +198,7 @@ export default function HomeView() {
 
       <div className='mx-auto max-w-[90%] rounded bg-gray-200 p-8 shadow-lg'>
         <div className='flex flex-col items-center md:flex-row'>
-          <div className='order-2 p-4 md:order-1 md:w-3/4'>
+          <div className='order-2 p-4 md:order-1 md:w-[70%] lg:w-3/4'>
             <h1 className='font-tiltwarp mb-2 hidden text-left text-3xl md:block'>
               SPEECH FOUNDER
             </h1>
@@ -209,7 +206,7 @@ export default function HomeView() {
               YAYASAN TUNAS ANAK MULIA
             </h2>
 
-            <p className='font-marathi mb-4 text-justify'>
+            <p className='font-marathi word-wrap break-word mb-4 text-justify'>
               Dear parents, students, and community members. It is my great
               pleasure to welcome you to the Yayasan Tunas Anak Mulia. Let me
               tell about my dedication in early childhood programme.
@@ -250,9 +247,9 @@ export default function HomeView() {
               YAYASAN TUNAS ANAK MULIA
             </h2>
 
-            <div className='image1 mb-4 h-[350px] w-[220px] rounded-[1rem] bg-red-700'></div>
-            <p className='font-tiltwarp'>NOVITA WIJAYA</p>
-            <p className='font-marathi text-sm'>
+            <div className='image1 mb-4 h-[350px] w-[220px] rounded-[1rem] bg-red-700 md:ml-10 md:mt-[1rem] lg:ml-0 lg:mt-0 lg:h-[350px]'></div>
+            <p className='font-tiltwarp md:ml-5 lg:ml-0'>NOVITA WIJAYA</p>
+            <p className='font-marathi text-sm md:ml-10 md:w-[120%] lg:ml-0 lg:w-auto'>
               Founder Yayasan Tunas Anak Mulia
             </p>
           </div>
