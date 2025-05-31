@@ -20,32 +20,32 @@ export default function Navbar() {
             </a>
           </div>
           <div className='md:ml-18 ml-[60px] lg:ml-[130px]'>
-            <h1 className='text-2xl font-bold'>YAYASAN</h1>
-            <p className='text-sm font-semibold'>TUNAS ANAK MULIA</p>
+            <h1 className='text-2xl font-extrabold'>YAYASAN</h1>
+            <p className='inline text-sm font-semibold'>TUNAS ANAK MULIA</p>
           </div>
         </div>
         <button className='z-30 lg:hidden' onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
         <nav
-          className={`font-montserrat absolute left-0 top-[100%] w-full flex-col space-y-4 bg-white px-6 py-6 shadow-md transition-all duration-300 ease-in-out md:absolute md:ml-[-33px] md:w-[108%] md:flex-col md:space-y-6 md:py-0 md:py-6 lg:static lg:flex lg:w-auto lg:flex-row lg:space-x-12 lg:space-y-0 lg:bg-transparent lg:px-0 lg:shadow-none ${
+          className={`font-montserrat absolute left-[-20] top-[100%] w-screen flex-col space-y-4 bg-white px-6 py-6 shadow-md transition-all duration-300 ease-in-out md:absolute md:ml-[-18px] md:w-[108%] md:w-screen md:flex-col md:space-y-6 md:py-0 md:py-6 lg:static lg:flex lg:w-auto lg:flex-row lg:space-x-12 lg:space-y-0 lg:bg-transparent lg:px-0 lg:shadow-none ${
             isOpen ? 'flex' : 'hidden lg:flex'
           }`}
         >
           <a
             className='pt-2 font-semibold text-gray-700 hover:text-gray-900 md:ml-2 lg:ml-0'
-            href='/lap'
+            href='/little-alley-preschool'
           >
             Little Alley Preschool
           </a>
           <a
             className='pt-2 font-semibold text-gray-700 hover:text-gray-900 md:ml-2 lg:ml-0'
-            href='/lac'
+            href='/little-alley-cyberschool'
           >
             Little Alley CyberSchool
           </a>
           <a
-            className='rounded-full bg-black px-4 py-2 text-white hover:bg-gray-800'
+            className='rounded-full bg-black px-4 py-2 text-center text-white hover:bg-gray-800'
             href='/register'
           >
             Join Us

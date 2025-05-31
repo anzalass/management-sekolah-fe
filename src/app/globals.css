@@ -79,6 +79,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply box-border bg-background text-foreground;
   }
@@ -102,17 +103,22 @@
   .hover-elevation-dark {
     transition: background-color 0.2s ease;
   }
+
   .hover-elevation-dark:hover {
     background-color: rgba(255, 255, 255, 0.03);
   }
 }
+
 @layer utilities {
   .min-h-screen {
-    min-height: 100vh; /* Fallback */
+    min-height: 100vh;
+    /* Fallback */
     min-height: 100dvh;
   }
+
   .h-screen {
-    height: 100vh; /* Fallback */
+    height: 100vh;
+    /* Fallback */
     height: 100dvh;
   }
 }
@@ -121,22 +127,28 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   h1 {
     @apply text-2xl font-bold;
   }
+
   h2 {
     @apply text-xl font-bold;
   }
+
   h3 {
     @apply text-lg font-bold;
   }
+
   pre {
     @apply rounded-md bg-foreground p-2 text-background;
   }
 }
+
 body {
   overflow-x: hidden;
 }
@@ -160,6 +172,7 @@ html {
   0% {
     transform: translateX(0%);
   }
+
   100% {
     transform: translateX(-50%);
   }
@@ -194,13 +207,23 @@ html {
   height: 100vh;
 }
 
+.bg-lac {
+  background-image: url('../../public/3.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100vh;
+}
+
 .bg2-lap {
   background-color: #83ceed;
   background-size: 100% auto;
   background-repeat: no-repeat;
   background-position: top center;
   width: 100%;
-  height: 168vh; /* Atur sesuai kebutuhan */
+  height: 168vh;
+  /* Atur sesuai kebutuhan */
 }
 
 .bor {
@@ -216,6 +239,7 @@ html {
   0% {
     transform: translateX(0%);
   }
+
   100% {
     transform: translateX(-50%);
   }
@@ -223,4 +247,191 @@ html {
 
 .animate-scroll-images {
   animation: scroll-images 20s linear infinite;
+}
+
+@media (max-width: 1024px) {
+  .bg-lap {
+    height: auto;
+  }
+
+  .bg-lac {
+    height: auto;
+  }
+
+  .tes {
+    left: -20%;
+  }
+}
+
+@media (max-width: 640px) {
+  .lap,
+  .lac {
+    overflow-x: hidden;
+  }
+
+  .tes {
+    left: 0;
+  }
+
+  .bg-lap {
+    height: auto;
+  }
+
+  .about {
+    margin-top: 2rem;
+  }
+
+  .about > .group.relative {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-left: 9rem;
+    margin-top: -100px;
+    margin-bottom: 50px;
+  }
+
+  .about > .group.relative img {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+  }
+
+  .about .relative.max-w-xl {
+    width: 100%;
+    padding: 0 15px;
+  }
+
+  .about h2 {
+    font-size: 2rem;
+    text-align: center;
+  }
+
+  .about .text-sm {
+    font-size: 0.875rem;
+    width: 90%;
+  }
+
+  .about .sm\:text-base {
+    font-size: 1rem;
+    text-align: justify;
+    width: 100%;
+    margin: 0 auto;
+    word-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .about .garis {
+    margin: auto;
+    margin-bottom: 20px;
+  }
+
+  .vision {
+    margin-bottom: 50rem;
+    text-align: center;
+    margin-top: -1rem;
+  }
+
+  .vision h2 {
+    font-size: 24px;
+    margin-bottom: 5px;
+  }
+
+  .vision .flex {
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .vision .flex img {
+    display: none;
+  }
+
+  .vision .grid {
+    grid-template-columns: 1fr;
+    margin-top: 40px;
+    position: relative;
+  }
+
+  .vision .misi {
+    margin-top: 30px;
+  }
+
+  .misi span {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .visi span {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .visi p {
+    text-align: justify;
+    margin: 0 auto;
+    padding: 10px;
+    width: 100%;
+    word-spacing: 1px;
+    line-height: 1.6;
+  }
+
+  .vision .space-y-4 {
+    text-align: center;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .vision .space-y-4 p {
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: justify;
+    margin: 0 auto;
+  }
+
+  .vision .list-disc {
+    text-align: left;
+    padding-left: 20px;
+  }
+
+  .our-class .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .our-class .card {
+    width: 100px;
+    height: 100px;
+  }
+
+  .our-class .text-4xl {
+    font-size: 1.5rem;
+  }
+
+  .our-class .text-2xl {
+    font-size: 1rem;
+  }
+
+  .our-class .text-lg {
+    font-size: 0.875rem;
+  }
+
+  .our-class .bg2-lap {
+    width: 100%;
+    height: auto;
+  }
+
+  .our-class .img2 {
+    margin-top: -20rem;
+  }
+
+  .our-class .img1 {
+    margin-bottom: 40rem;
+  }
+
+  .curiculum img {
+    height: 50%;
+    margin-top: -30px;
+  }
 }

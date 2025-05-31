@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import logo2 from '../../../public/logo2.png';
+import logo3 from '../../../public/logo3.png';
 import Ellipse from '../../../public/Ellipse.png';
 import Children from '../../../public/children.png';
 import Education from '../../../public/curriculumLAC.png';
@@ -115,25 +115,19 @@ export default function LacView() {
     if (inViewWhy) setShowWhy(true);
   }, [inViewAbout, inViewVision, inViewWhy]);
   return (
-    <div>
+    <div className='lac md:overflow-x-hidden'>
       <Navbar />
-      <div className='bg-lap relative flex min-h-screen flex-wrap items-start justify-center gap-10 bg-cover bg-center p-4 pt-28'>
-        {/* Overlay */}
+      <div className='bg-lac relative z-0 flex flex-wrap items-start justify-center gap-10 bg-cover bg-center p-4 pt-28'>
         <div className='absolute inset-0 z-0 bg-black bg-opacity-40'></div>
-
-        {/* Konten Kiri */}
-        <div
-          className='relative z-10 flex w-full flex-col items-start p-10 text-white md:w-1/2'
-          style={{ marginLeft: '50px' }}
-        >
+        <div className='tes relative z-10 ml-[-35px] flex w-full flex-col items-start p-10 text-white md:w-1/2 lg:ml-0 lg:ml-[-100px]'>
           <h1
-            className='pb-7 text-4xl font-bold md:text-5xl'
+            className='pb-7 text-3xl font-bold sm:text-4xl md:text-5xl'
             style={{ fontFamily: "'Poetsen One', sans-serif" }}
           >
             A HAPPY
           </h1>
           <h1
-            className='pb-10 text-4xl font-bold md:text-5xl'
+            className='w-[400px] pb-10 text-3xl font-bold sm:text-4xl md:text-5xl lg:w-auto'
             style={{ fontFamily: "'Poetsen One', sans-serif" }}
           >
             PRE-SCHOOL
@@ -144,7 +138,7 @@ export default function LacView() {
           <p className='font-montserrat pb-7 text-lg font-bold'>
             adventure of learning
           </p>
-          <div className='flex gap-4'>
+          <div className='flex gap-4 sm:flex-row'>
             <a href='/register'>
               <button className='rounded bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700'>
                 Join Us
@@ -159,10 +153,11 @@ export default function LacView() {
         </div>
         <div className='relative z-10 flex w-full justify-end pr-4 md:w-[500px]'>
           <Image
-            src={logo2}
+            width={1000}
+            height={1000}
+            src={logo3}
             alt='Logo'
-            style={{ marginTop: '-100px', marginRight: '-50px' }}
-            className='ml-10 h-40 object-contain md:h-60'
+            className='absolute right-[-110px] top-[-32rem] h-40 object-contain md:left-72 md:right-auto lg:relative lg:left-20 lg:top-[-110px] lg:ml-44 lg:h-60'
           />
         </div>
       </div>
@@ -172,38 +167,42 @@ export default function LacView() {
         initial={{ opacity: 0, x: -100 }}
         animate={showAbout ? { opacity: 1, x: 0 } : {}}
         transition={{ duration: 0.8 }}
-        className='mx-auto ml-64 mt-20 max-w-4xl px-4 py-12'
+        className='mx-auto mt-20 max-w-4xl px-4 py-12 sm:max-w-full md:mb-[30rem] lg:mb-0'
       >
-        <div className='flex items-center gap-40' id='about'>
-          <div className='group relative'>
-            <img
+        <div
+          className='about flex flex-col items-center justify-center sm:gap-4 md:flex-row md:gap-28 md:pl-[100px] lg:ml-64 lg:gap-32'
+          id='about'
+        >
+          <div className='group relative flex items-center justify-center sm:w-full md:w-auto'>
+            <Image
+              width={1000}
+              height={1000}
               alt='Back card'
               src='https://storage.googleapis.com/a1aa/image/d8ef3b8c-4a38-4a11-7f34-2897f7117777.jpg'
-              className='absolute left-0 top-0 z-10 h-[250px] w-[250px] rotate-[-10deg] transform rounded-md object-cover transition-transform duration-500 ease-in-out group-hover:z-20 group-hover:-translate-y-4 group-hover:translate-x-4 group-hover:scale-110'
+              className='absolute left-0 top-0 z-10 h-[250px] w-[250px] rotate-[-10deg] transform rounded-md object-cover transition-transform duration-500 ease-in-out group-hover:z-20 group-hover:-translate-y-4 group-hover:translate-x-4 group-hover:scale-110 sm:h-[200px] sm:w-[200px]'
             />
-            <img
+            <Image
+              width={1000}
+              height={1000}
               alt='Front card'
               src='https://storage.googleapis.com/a1aa/image/405ee2e3-92a0-4c62-563a-c7293cd2229e.jpg'
-              className='absolute left-8 top-6 z-20 h-[250px] w-[250px] rotate-[3deg] transform rounded-md object-cover transition-transform duration-500 ease-in-out group-hover:z-10 group-hover:-translate-x-2 group-hover:translate-y-2 group-hover:scale-95'
+              className='absolute left-8 top-6 z-20 h-[250px] w-[250px] rotate-[3deg] transform rounded-md object-cover transition-transform duration-500 ease-in-out group-hover:z-10 group-hover:-translate-x-2 group-hover:translate-y-2 group-hover:scale-95 sm:h-[200px] sm:w-[200px]'
             />
             <div className='invisible h-44 w-44 sm:h-52 sm:w-52'></div>
           </div>
 
-          <div className='relative max-w-xl text-left'>
-            <span className='mb-3 block h-1 w-28 bg-blue-700'></span>
+          <div className='relative max-w-xl text-left sm:w-full'>
+            <span className='garis mb-3 block h-1 w-28 justify-center bg-blue-700'></span>
             <h2
-              className='mb-3 text-4xl font-bold text-[#017BBD]'
+              className='mb-3 text-4xl font-semibold text-[#017BBD] sm:text-2xl'
               style={{ fontFamily: "'Poetsen One', sans-serif" }}
             >
               ABOUT US
             </h2>
-            <p
-              className='text-sm leading-relaxed text-gray-700 sm:text-base'
-              style={{ width: '80%' }}
-            >
-              Little Alley is refresh kindergarten curriculum framework
+            <p className='text-sm leading-relaxed text-[#0066b3] sm:w-[100%] sm:text-base md:w-[90%] lg:w-[80%]'>
+              Little Alley is a refresh kindergarten curriculum framework that
               highlights teaching and learning principles that are relevant for
-              developing competences of young children. Kidsroom where learning
+              developing competencies of young children. Kidsroom where learning
               meets imagination! We believe that every child is a unique learner
               with unlimited potential waiting to be unlocked. Kidsroom is
               designed to provide a nurturing and inspiring environment where
@@ -219,7 +218,7 @@ export default function LacView() {
         initial={{ opacity: 0, y: 50 }}
         animate={showVision ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8, ease: 'easeOut' }}
-        className='mt-20 bg-white px-4 py-10 text-center md:px-16'
+        className='vision mt-20 bg-white px-4 py-10 text-center md:mt-[-25rem] lg:mb-0 lg:mt-0 lg:px-16'
       >
         <h2
           className='mb-10 text-4xl font-extrabold text-[#017BBD]'
@@ -228,52 +227,65 @@ export default function LacView() {
           VISION AND MISSION
         </h2>
 
-        <div className='mx-auto grid grid-cols-3 items-start text-left'>
-          <div className='w-30 -mr-12 space-y-4 text-right'>
-            <p>
-              Open the chance to every child can learn & each child learns
+        <div className='mx-auto mt-5 grid grid-cols-3 items-start text-left'>
+          <div className='w-30 visi -mr-12 space-y-4 text-right'>
+            <p style={{ color: '#017BBD' }}>
+              <span className='font-montserrat text-2xl font-extrabold'>
+                VISION
+              </span>
               <br />
-              differently, Develop their sense of confidence
-            </p>
-            <p>
-              Plan to nurture children’s holistic development using integrated
+              To be a Pioneer in providing quality space and time for future
+              generations preparing them to become the best
               <br />
-              approach, Facilitate the learning process to extend children’s
-              thinking and learning
+              for the nation, with character and moral values as the foundation
+              of life.
             </p>
           </div>
 
-          <div
-            className='flex items-center justify-center'
-            style={{ marginTop: '-65px' }}
-          >
-            <Image src={Ellipse} alt='Little Alley Preschool' />
+          <div className='flex items-center justify-center md:mt-[-15] lg:mt-[-65px]'>
+            <Image src={logo3} alt='Little Alley Preschool' />
           </div>
 
-          <div className='-ml-12 space-y-4'>
-            <p>
-              Our goal is clear. Help and create our children build a good,
-              <br />
-              age-appropriate foundation, Build global perspective in children
-              growth
+          <div className='misi -ml-12 space-y-4'>
+            <p className='text-[#017BBD]'>
+              <span className='font-montserrat text-2xl font-extrabold'>
+                MISSION
+              </span>
             </p>
-            <p>
-              Collaborate with families and the community to enhance
-              <br />
-              children’s learning, Observe and assess children’s learning &
-              <br />
-              development Reflect on and enhance professional practice
-            </p>
+            <ul className='mb-0 mt-0 list-disc pl-5 text-[#017BBD]'>
+              <li>
+                To design holistic child development programs using an
+                integrated approach
+              </li>
+              <li>
+                To facilitate the learning process in order to broaden
+                children's thinking and understanding
+              </li>
+              <li>To observe and assess children's learning and development</li>
+              <li>
+                To collaborate with families and communities to support
+                children's learning
+              </li>
+            </ul>
           </div>
         </div>
       </motion.div>
 
-      <div className='relative mb-20 mt-20'>
+      <div className='our-class max-h-auto relative mb-20 mt-[-45rem] md:mt-[10rem] lg:mt-0'>
         {/* Awan Atas */}
-        <Image src={Awan2} alt='' className='w-full' />
+        <Image
+          width={1000}
+          height={1000}
+          src={Awan2}
+          alt=''
+          className='img1 w-full md:mb-[15rem] lg:mb-0'
+        />
 
         {/* Konten OUR CLASS */}
-        <div className='bg2-lap px-4 py-7' style={{ marginTop: '-60rem' }}>
+        <div
+          className='bg2-lap px-4 py-7 md:h-auto lg:h-[170vh]'
+          style={{ marginTop: '-60rem' }}
+        >
           {/* OUR CLASS Title */}
           <div className='mb-10 mt-10 flex justify-center'>
             <div
@@ -288,38 +300,44 @@ export default function LacView() {
           <div className='relative mx-auto mt-10 grid max-w-3xl grid-cols-2 gap-8'>
             {/* Card 1 */}
             <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
-              <p className='text-2xl font-bold text-blue-800'>Preparatory</p>
-              <p className='text-lg text-gray-700'>Age: 1.5 - 2 Years</p>
+              <div className='card mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
+              <p className='text-2xl font-bold text-blue-800'>Primary 1</p>
+            </div>
+            <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
+              <div className='card mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
+              <p className='text-2xl font-bold text-blue-800'>Primary 2</p>
+            </div>
+            <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
+              <div className='card mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
+              <p className='text-2xl font-bold text-blue-800'>Primary 3</p>
             </div>
 
             {/* Card 2 */}
             <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
-              <p className='text-2xl font-bold text-blue-800'>Toddler</p>
-              <p className='text-lg text-gray-700'>Age: 2 - 3 Years</p>
+              <div className='card mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
+              <p className='text-2xl font-bold text-blue-800'>Primary 4</p>
             </div>
 
             {/* Card 3 */}
             <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
-              <p className='text-2xl font-bold text-blue-800'>Playgroup</p>
-              <p className='text-lg text-gray-700'>Age: 3 - 4 Years</p>
+              <div className='card mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
+              <p className='text-2xl font-bold text-blue-800'>Primary 5</p>
             </div>
 
             {/* Card 4 */}
             <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
-              <p className='text-2xl font-bold text-blue-800'>
-                Learners & Achievers
-              </p>
-              <p className='text-lg text-gray-700'>Age: 4 Years +</p>
+              <div className='card mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
+              <p className='text-2xl font-bold text-blue-800'>Primary 6</p>
             </div>
           </div>
         </div>
-
-        {/* Awan Bawah */}
-        <Image src={Awan} alt='' className='-mt-[68rem] w-full' />
+        <Image
+          width={1000}
+          height={1000}
+          src={Awan}
+          alt=''
+          className='img2 -mt-[68rem] w-full md:mt-[-45rem] lg:mt-[-65rem]'
+        />
       </div>
 
       <motion.div
@@ -327,7 +345,7 @@ export default function LacView() {
         initial={{ opacity: 0, y: 60 }}
         animate={showWhy ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8, ease: 'easeOut' }}
-        className='mx-auto mt-5 max-w-7xl px-1 py-12'
+        className='quetions mx-auto mt-5 max-w-7xl px-1 py-12'
       >
         <h2
           className='title-font text-center text-4xl font-extrabold leading-tight text-[#017BBD]'
@@ -335,19 +353,22 @@ export default function LacView() {
         >
           WHY
           <br />
-          <span className='mt-1 block'>LITTLE ALLEY PRESCHOOL ?</span>
+          <span className='mt-1 block text-xl lg:text-3xl'>
+            LITTLE ALLEY CYBERSCHOOL ?
+          </span>
         </h2>
 
-        <div className='mt-10 flex flex-col space-y-10 md:flex-row md:items-center md:justify-center md:space-x-20 md:space-y-0'>
-          <div className='order-1 flex max-w-[180px] flex-col items-center md:order-none md:max-w-none'>
+        <div className='mt-10 flex flex-col space-y-10 md:flex-row md:items-center md:justify-center md:space-x-[-55px] lg:space-x-20 lg:space-y-0'>
+          <div className='order-1 mx-auto flex max-w-[180px] flex-col items-center justify-center md:order-none md:max-w-none lg:mx-0'>
             <Image
+              width={1000}
+              height={1000}
               src={Children}
               alt='Young girl with two buns hairstyle holding a phone'
               className='h-[180px] w-[180px] object-contain'
-              width='180'
-              height='180'
             />
           </div>
+
           <div className='order-2 max-w-xl text-center text-sm leading-relaxed text-[#0B6CBF] sm:text-base md:order-none'>
             We teach using various methods, become facilitators for students
             with diverse characters because they have the same opportunities. We
@@ -356,7 +377,7 @@ export default function LacView() {
           </div>
         </div>
 
-        <div className='mt-10 flex flex-col space-y-10 md:flex-row md:items-center md:justify-center md:space-x-20 md:space-y-0'>
+        <div className='mt-10 flex flex-col space-y-10 md:flex-row md:items-center md:justify-center md:space-x-10 lg:space-x-20 lg:space-y-0'>
           <p className='order-2 max-w-xl text-center text-sm leading-relaxed text-[#0B6CBF] sm:text-base md:order-none'>
             Our preschool program is designed to lay a strong foundation for
             children aged 1 to 6 years old. Through a blend of play-based
@@ -366,13 +387,13 @@ export default function LacView() {
             arts, and physical education to provide a well-rounded educational
             experience.
           </p>
-          <div className='order-1 flex max-w-[180px] flex-col items-center md:order-none md:max-w-none'>
+          <div className='order-1 mx-auto flex max-w-[180px] flex-col items-center justify-center md:order-none md:max-w-none lg:mx-0'>
             <Image
+              width={1000}
+              height={1000}
               src={Children}
               alt='Young girl with two buns hairstyle holding a phone'
               className='h-[180px] w-[180px] object-contain'
-              width='180'
-              height='180'
             />
           </div>
         </div>
@@ -384,7 +405,7 @@ export default function LacView() {
         variants={fadeIn('up', 0.3)}
         initial='hidden'
         animate={inViewCurriculum ? 'show' : 'hidden'}
-        className='mx-auto mt-24 max-w-7xl px-4 py-5'
+        className='curiculum mx-auto mt-24 max-w-7xl px-4 py-5'
       >
         <h2
           className='title-font mb-5 text-center text-4xl font-extrabold leading-tight text-[#017BBD]'
@@ -396,7 +417,7 @@ export default function LacView() {
           <div className='w-72 flex-shrink-0 md:w-[320px]'>
             <Image
               alt='Curriculum diagram'
-              className='h-[400px] w-[800px]'
+              className='h-[400px] w-[800px] md:ml-[50px] lg:ml-0'
               src={Education}
             />
           </div>
@@ -413,12 +434,12 @@ export default function LacView() {
                 practices
               </li>
             </ul>
-            <h3 className='mb-4 text-base font-bold text-[#0066b3] md:text-lg'>
+            <h3 className='mb-4 ml-[20px] text-base font-bold text-[#0066b3] md:text-lg lg:ml-0'>
               INTERNATIONAL BACCALAUREATE PRIMARY YEARS PROGRAMME
             </h3>
-            <ul className='list-inside list-disc space-y-1 text-sm text-[#0066b3] md:text-base'>
+            <ul className='list-disc space-y-1 pl-5 text-sm text-[#0066b3] md:text-base'>
               <li>
-                KNOWLEDGE (Content in math, language, social studies, science
+                KNOWLEDGE (Content in math, language, social studies, science,
                 and the arts.)
               </li>
               <li>
@@ -429,7 +450,7 @@ export default function LacView() {
               </li>
               <li>
                 SKILLS (Specific capabilities in thinking, social interactions,
-                self management, and research.)
+                self-management, and research.)
               </li>
               <li>
                 ATTITUDES (Dispositions, values, beliefs, and feelings towards
@@ -441,7 +462,7 @@ export default function LacView() {
         </div>
       </motion.div>
 
-      <div className='mx-auto mt-24 max-w-3xl px-4 py-8'>
+      <div className='mx-auto mt-24 mt-[3rem] max-w-3xl px-4 py-8 lg:mt-0'>
         <h2
           className='mb-6 text-center text-4xl font-extrabold text-[#017BBD]'
           style={{ fontFamily: "'Poetsen One', sans-serif" }}
@@ -451,26 +472,62 @@ export default function LacView() {
 
         <div className='mt-14 grid grid-cols-2 justify-items-center gap-x-4 gap-y-6'>
           <Image
+            width={1000}
+            height={1000}
             src={Fasilitas1}
             alt='Facility 1'
             className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
           <Image
+            width={1000}
+            height={1000}
             src={Fasilitas2}
             alt='Facility 2'
             className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
           <Image
+            width={1000}
+            height={1000}
             src={Fasilitas3}
             alt='Facility 3'
             className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
           <Image
+            width={1000}
+            height={1000}
             src={Fasilitas4}
             alt='Facility 4'
             className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
-          <div className='mb-6 mt-9 w-72 text-sm leading-tight text-[#0066b3]'>
+          <Image
+            width={1000}
+            height={1000}
+            src={Fasilitas1}
+            alt='Facility 1'
+            className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
+          />
+          <Image
+            width={1000}
+            height={1000}
+            src={Fasilitas2}
+            alt='Facility 2'
+            className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
+          />
+          <Image
+            width={1000}
+            height={1000}
+            src={Fasilitas3}
+            alt='Facility 3'
+            className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
+          />
+          <Image
+            width={1000}
+            height={1000}
+            src={Fasilitas4}
+            alt='Facility 4'
+            className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
+          />
+          <div className='mb-6 mt-9 hidden w-72 text-sm leading-tight text-[#0066b3] lg:block'>
             <p>
               Yayasan Tunas Anak Mulia is equipped with facilities and resources
               to enhance the learning experience:
@@ -484,6 +541,8 @@ export default function LacView() {
           </div>
 
           <Image
+            width={1000}
+            height={1000}
             src={Fasilitas5}
             alt='Facility 5'
             className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
@@ -529,24 +588,40 @@ export default function LacView() {
             </p>
           </div>
           <Swiper
-            onSwiper={(swiper) => {
+            onSwiper={(swiper: any) => {
               setSwiperInstance(swiper);
               console.log('Swiper instance set:', swiper);
             }}
             modules={[Navigation, Autoplay]}
             spaceBetween={20}
             loop={true}
-            slidesPerView={4}
             autoplay={{
               delay: 4000,
               disableOnInteraction: false
             }}
             navigation={false}
+            slidesPerView={2} // Default value for smaller screens (1 slide on mobile)
+            breakpoints={{
+              640: {
+                slidesPerView: 2 // 2 slides per view on mobile devices
+              },
+              768: {
+                slidesPerView: 4 // 2 slides per view on tablets
+              },
+              1024: {
+                slidesPerView: 3 // 3 slides per view on medium screens (laptops)
+              },
+              1280: {
+                slidesPerView: 4 // 4 slides per view on desktop
+              }
+            }}
           >
             {testimonials.map((item, index) => (
               <SwiperSlide key={index}>
                 <div className='mx-auto flex h-[230px] w-full max-w-[250px] flex-col overflow-hidden rounded-3xl bg-white shadow-lg'>
                   <Image
+                    width={1000}
+                    height={1000}
                     src={item.img}
                     alt='Testimonial'
                     className='h-40 w-full rounded-t-3xl object-cover'
@@ -558,6 +633,7 @@ export default function LacView() {
               </SwiperSlide>
             ))}
           </Swiper>
+
           <div className='mb-3 mt-14 flex justify-center space-x-4'>
             <button
               onClick={() => swiperInstance?.slidePrev()}
