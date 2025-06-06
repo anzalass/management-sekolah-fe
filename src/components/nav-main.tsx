@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronRight, type LucideIcon } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 import {
   Collapsible,
@@ -32,6 +33,20 @@ export function NavMain({
     }[];
   }[];
 }) {
+  const [activeItem, setActiveItem] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Set active item based on `isActive`
+    const activeNavItem = items.find((item) => item.isActive);
+    if (activeNavItem) {
+      setActiveItem(activeNavItem.title);
+    }
+  }, [items]);
+
+  const handleCollapsibleChange = (itemTitle: string) => {
+    setActiveItem(itemTitle === activeItem ? null : itemTitle); // Toggle collapsible open/close
+  };
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -40,8 +55,9 @@ export function NavMain({
           <Collapsible
             key={item.title}
             asChild
-            defaultOpen={item.isActive}
+            open={activeItem === item.title} // Controlled collapsible state
             className='group/collapsible'
+            onChange={() => handleCollapsibleChange(item.title)} // Toggle on click
           >
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>

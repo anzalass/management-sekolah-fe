@@ -30,6 +30,8 @@ import 'swiper/css/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import Image from 'next/image';
+import axios from 'axios';
+import { API } from '@/lib/server';
 
 const fadeIn = (direction = 'up', delay = 0) => {
   return {
@@ -51,40 +53,20 @@ const fadeIn = (direction = 'up', delay = 0) => {
   };
 };
 
-const testimonials = [
-  {
-    img: Fasilitas1,
-    text: '“blablablala...”'
-  },
-  {
-    img: Fasilitas2,
-    text: '“blablablala...”'
-  },
-  {
-    img: Fasilitas3,
-    text: '“blablablala...”'
-  },
-  {
-    img: Fasilitas4,
-    text: '“blablablala...”'
-  },
-  {
-    img: Fasilitas5,
-    text: '“Tambahan agar loop & next jalan.”'
-  }
-];
+interface GalleryItem {
+  image: string;
+}
 
-const galleryImages = [
-  Galery1,
-  Galery2,
-  Galery3,
-  Galery4,
-  Galery5,
-  Galery6,
-  Galery7
-];
+interface TestimonialItem {
+  image: string;
+  description: string;
+}
+
+const BASE_URL = `${API}view-image`;
 
 export default function Lap() {
+  const [gallery, setGallery] = useState<GalleryItem[]>([]);
+  const [testimonials, setTestimonials] = useState<TestimonialItem[]>([]);
   const [swiperInstance, setSwiperInstance] = useState<any>(null);
   const [refAbout, inViewAbout] = useInView({
     triggerOnce: true,
@@ -110,6 +92,28 @@ export default function Lap() {
     if (inViewVision) setShowVision(true);
     if (inViewWhy) setShowWhy(true);
   }, [inViewAbout, inViewVision, inViewWhy]);
+
+  useEffect(() => {
+    axios
+      .get(`${API}testimonials`)
+      .then((response) => {
+        setTestimonials(response.data.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching the news:', error);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get(`${API}gallery`)
+      .then((response) => {
+        setGallery(response.data.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching the news:', error);
+      });
+  }, []);
 
   return (
     <div className='lap md:overflow-x-hidden'>
@@ -551,16 +555,22 @@ export default function Lap() {
         </h2>
         <div className='mt-14 overflow-hidden'>
           <div className='animate-scroll-images flex gap-4'>
-            {galleryImages.concat(galleryImages).map((img, index) => (
-              <Image
-                width={1000}
-                height={1000}
-                key={index}
-                src={img}
-                alt={`Facility ${index + 1}`}
-                className='h-40 w-64 flex-shrink-0 rounded-lg object-cover shadow'
-              />
-            ))}
+            {gallery.concat(gallery).map((item, index) => {
+              // Extract the image URL here
+              const imageUrl = `${BASE_URL}/${item.image.split('/').pop()}`;
+
+              return (
+                <div key={index} className='flex-shrink-0'>
+                  <Image
+                    width={1000}
+                    height={1000}
+                    src={imageUrl} // Use imageUrl here
+                    alt={`Facility ${index + 1}`}
+                    className='h-40 w-64 rounded-lg object-cover shadow'
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -576,7 +586,7 @@ export default function Lap() {
             </p>
           </div>
           <Swiper
-            onSwiper={(swiper: any) => {
+            onSwiper={(swiper) => {
               setSwiperInstance(swiper);
               console.log('Swiper instance set:', swiper);
             }}
@@ -604,22 +614,25 @@ export default function Lap() {
               }
             }}
           >
-            {testimonials.map((item, index) => (
-              <SwiperSlide key={index}>
-                <div className='mx-auto flex h-[230px] w-full max-w-[250px] flex-col overflow-hidden rounded-3xl bg-white shadow-lg'>
-                  <Image
-                    width={1000}
-                    height={1000}
-                    src={item.img}
-                    alt='Testimonial'
-                    className='h-40 w-full rounded-t-3xl object-cover'
-                  />
-                  <p className='flex-1 p-4 text-xs leading-relaxed text-[#003049] md:text-sm'>
-                    {item.text}
-                  </p>
-                </div>
-              </SwiperSlide>
-            ))}
+            {testimonials.map((item, index) => {
+              const imageUrl = `${BASE_URL}/${item.image.split('/').pop()}`;
+              return (
+                <SwiperSlide key={index}>
+                  <div className='mx-auto flex h-[230px] w-full max-w-[250px] flex-col overflow-hidden rounded-3xl bg-white shadow-lg'>
+                    <Image
+                      width={1000}
+                      height={1000}
+                      src={imageUrl} // Use the imageUrl here
+                      alt='Testimonial'
+                      className='h-40 w-full rounded-t-3xl object-cover'
+                    />
+                    <p className='flex-1 p-4 text-xs leading-relaxed text-[#003049] md:text-sm'>
+                      {item.description}
+                    </p>
+                  </div>
+                </SwiperSlide>
+              );
+            })}
           </Swiper>
 
           <div className='mb-3 mt-14 flex justify-center space-x-4'>
