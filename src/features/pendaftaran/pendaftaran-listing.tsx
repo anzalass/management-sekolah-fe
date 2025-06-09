@@ -28,8 +28,8 @@ export default function PendaftaranListingPage() {
         const response = await axios.get(
           `${API}pendaftaran?page=${page}?pageSize=${pageLimit}&studentName=${studentName}&parentName=${parentName}`
         );
-        setData(response.data.data.data);
-        setTotalUser(response.data.result.total);
+        setData(response?.data?.data?.data);
+        setTotalUser(response?.data?.result?.total);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {

@@ -31,11 +31,6 @@ export const columns: ColumnDef<Pendaftaran>[] = [
     header: 'Alamat',
     cell: ({ row }) => row.original.yourLocation
   },
-  {
-    accessorKey: 'email', // Email
-    header: 'Email',
-    cell: ({ row }) => row.original.email
-  },
 
   {
     id: 'actions', // Actions (untuk tombol aksi seperti edit, delete)

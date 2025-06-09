@@ -30,7 +30,7 @@ export const navItems: NavItem[] = [
     items: [] // Empty array as there are no child items for Dashboard
   },
   {
-    title: 'Master Data',
+    title: 'Konten Management',
     url: '/dashboard/tahun-ajaran',
     icon: 'product',
     shortcut: ['p', 'p'],
