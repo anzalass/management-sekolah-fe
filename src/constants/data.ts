@@ -22,6 +22,14 @@ export const navItems: NavItem[] = [
     items: [] // Empty array as there are no child items for Dashboard
   },
   {
+    title: 'Pendaftaran Siswa',
+    url: '/dashboard/pendaftaran',
+    icon: 'dashboard',
+    isActive: false,
+    shortcut: ['d', 'd'],
+    items: [] // Empty array as there are no child items for Dashboard
+  },
+  {
     title: 'Master Data',
     url: '/dashboard/tahun-ajaran',
     icon: 'product',

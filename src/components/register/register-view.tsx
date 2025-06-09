@@ -5,57 +5,38 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Footer from '@/components/layout/footer';
 import Success from '../../../public/Notif.png';
 import Image from 'next/image';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { X } from 'lucide-react';
 
 export default function RegisterView() {
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [formData, setFormData] = useState({
-    studentName: '',
-    parentName: '',
-    location: '',
-    phoneNumber: '',
-    email: '',
-    program: '',
-    whatsappConsent: false
-  });
 
-  const handleChange = (e: any) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  };
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm();
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-
-    // Convert boolean to string for whatsappConsent
-    const formDataForSubmit = {
-      ...formData,
-      whatsappConsent: formData.whatsappConsent ? 'true' : 'false'
-    };
-
-    const scriptURL =
-      'https://script.google.com/macros/s/AKfycbyZmzyOIZgJCjLLRCmkXFskxPRczY6voRPhYdf_e_iPO-jf8Hf7C17B5kIijrvIadZ3jA/exec'; // <- ganti dengan URL Web Apps kamu
-
-    const response = await fetch(scriptURL, {
-      method: 'POST',
-      body: new URLSearchParams(formDataForSubmit)
-    });
-
-    if (response.ok) {
-      setIsSubmitted(true);
-      setFormData({
-        studentName: '',
-        parentName: '',
-        location: '',
-        phoneNumber: '',
-        email: '',
-        program: '',
-        whatsappConsent: false
+  const onSubmit = async (data: any) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/v1/pendaftaran', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
       });
-    } else {
-      alert('Failed to submit form');
+
+      if (response.ok) {
+        setIsSubmitted(true);
+        toast.success('Berhasil melakukan pendaftaran');
+        reset();
+      } else {
+        toast.error('Gagal melakukan pendaftaran');
+      }
+    } catch (error) {
+      alert('Error submitting form');
+      console.error(error);
     }
   };
 
@@ -72,87 +53,85 @@ export default function RegisterView() {
           </div>
         </div>
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           className='relative top-[-25rem] w-full space-y-3 rounded-xl bg-white p-4 shadow-lg md:w-[500px] lg:top-0'
         >
           <h1 className='mx-auto flex w-[80%] items-center justify-center text-center text-2xl font-bold text-blue-800 lg:w-auto'>
             Register Now for LAP 2025–2026
           </h1>
-
           <p className='text-center text-gray-500'>
             Fill the form below and we'll get in touch shortly!
           </p>
 
           <input
             type='text'
-            name='studentName'
             placeholder='Student Name'
-            value={formData.studentName}
-            onChange={handleChange}
+            {...register('studentName', { required: true })}
             className='w-full rounded-md border p-3'
           />
+          {errors.studentName && (
+            <p className='text-sm text-red-500'>Student Name is required</p>
+          )}
+
           <input
             type='text'
-            name='parentName'
             placeholder='Parent Name'
-            value={formData.parentName}
-            onChange={handleChange}
+            {...register('parentName', { required: true })}
             className='w-full rounded-md border p-3'
           />
+          {errors.parentName && (
+            <p className='text-sm text-red-500'>Parent Name is required</p>
+          )}
+
           <input
             type='text'
-            name='location'
             placeholder='Your Location'
-            value={formData.location}
-            onChange={handleChange}
+            {...register('yourLocation', { required: true })}
             className='w-full rounded-md border p-3'
           />
+          {errors.yourLocation && (
+            <p className='text-sm text-red-500'>Location is required</p>
+          )}
+
           <input
             type='text'
-            name='phoneNumber'
             placeholder='Phone Number'
-            value={formData.phoneNumber}
-            onChange={handleChange}
+            {...register('phoneNumber', { required: true })}
             className='w-full rounded-md border p-3'
           />
+          {errors.phoneNumber && (
+            <p className='text-sm text-red-500'>Phone number is required</p>
+          )}
+
           <input
             type='email'
-            name='email'
-            placeholder='Email Id'
-            value={formData.email}
-            onChange={handleChange}
+            placeholder='Email'
+            {...register('email', { required: true })}
             className='w-full rounded-md border p-3'
           />
+          {errors.email && (
+            <p className='text-sm text-red-500'>Email is required</p>
+          )}
 
-          <select
-            name='program'
-            value={formData.program}
-            onChange={handleChange}
-            className='w-full rounded-md border p-3'
-          >
-            <option value=''>Select Program</option>
-            <option value='Preparatory'>Preparatory (age 1.5 - 2 Years)</option>
-            <option value='Toddler'>Toddler (age 2 - 3 Years)</option>
-            <option value='Playgroup'>Playgroup (age 3 - 4 Years)</option>
-            <option value='Learnes & Achives'>
-              Learnes & Achives (age 4 Years+)
-            </option>
-          </select>
-
+          {/* Checkbox Agreement */}
           <div className='flex items-center space-x-2'>
             <input
               type='checkbox'
-              name='whatsappConsent'
-              checked={formData.whatsappConsent}
-              onChange={handleChange}
-              id='whatsapp'
+              id='agree'
+              {...register('agree', { required: true })}
               className='h-4 w-4'
             />
-            <label htmlFor='whatsapp' className='text-sm text-gray-700'>
-              I agree to receive messages on Whatsapp
+            <label htmlFor='agree' className='text-sm text-gray-700'>
+              I agree to be contacted by LAP regarding this registration.
             </label>
           </div>
+          {errors.agree && (
+            <p className='text-sm text-red-500'>
+              You must agree before submitting.
+            </p>
+          )}
 
+          {/* Submit Button */}
           <button
             type='submit'
             className='mt-2 w-full rounded-md bg-blue-500 p-3 text-white hover:bg-blue-600'
@@ -161,6 +140,7 @@ export default function RegisterView() {
           </button>
         </form>
       </div>
+
       <AnimatePresence>
         {isSubmitted && (
           <motion.div
@@ -184,6 +164,14 @@ export default function RegisterView() {
                 className='h-[650px] w-[500px]'
               />
             </motion.div>
+            <div
+              className='rounded-lg bg-white'
+              onClick={() => setIsSubmitted(false)}
+            >
+              <button>
+                <X />
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
