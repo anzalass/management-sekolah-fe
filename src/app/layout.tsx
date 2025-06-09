@@ -1,4 +1,4 @@
-// import { auth } from '@/lib/auth';
+// RootLayout.tsx
 import Providers from '@/components/layout/providers';
 import { Toaster } from '@/components/ui/sonner';
 import type { Metadata } from 'next';
@@ -7,8 +7,11 @@ import { Lato } from 'next/font/google';
 import NextTopLoader from 'nextjs-toploader';
 import './globals.css';
 
+// Import the RenderTriggerProvider here
+import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';
+
 export const metadata: Metadata = {
-  title: 'Next Shadcn',
+  title: 'Little Alley',
   description: 'Basic dashboard with Next.js and Shadcn'
 };
 
@@ -23,17 +26,18 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // const session = await auth();
   return (
     <html lang='en' className={`${lato.className}`} suppressHydrationWarning>
       <body className={''}>
         <NextTopLoader showSpinner={false} />
-        <NuqsAdapter>
-          {/* <Providers session={session}> */}
-          <Toaster />
-          {children}
-          {/* </Providers> */}
-        </NuqsAdapter>
+
+        {/* Wrap the entire layout with RenderTriggerProvider */}
+        <RenderTriggerProvider>
+          <NuqsAdapter>
+            <Toaster />
+            {children}
+          </NuqsAdapter>
+        </RenderTriggerProvider>
       </body>
     </html>
   );

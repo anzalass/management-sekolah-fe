@@ -133,6 +133,7 @@ const SidebarProvider = React.forwardRef<
       <SidebarContext.Provider value={contextValue}>
         <TooltipProvider delayDuration={0}>
           <div
+            suppressHydrationWarning={true} // Menambahkan suppressHydrationWarning di sini
             style={
               {
                 '--sidebar-width': SIDEBAR_WIDTH,

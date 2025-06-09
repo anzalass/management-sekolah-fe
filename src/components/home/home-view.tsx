@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
@@ -26,20 +26,6 @@ import imageevn7 from '../../../public/event7.jpg';
 import imageevn8 from '../../../public/event8.jpg';
 import imageevn9 from '../../../public/event9.jpg';
 import imageevn10 from '../../../public/event10.jpg';
-
-const teachers = [
-  { name: 'Mr. John', image: image1 },
-  { name: 'Ms. Alice', image: image2 },
-  { name: 'Mr. Bob', image: image3 },
-  { name: 'Ms. Clara', image: image4 },
-  { name: 'Mr. Daniel', image: image5 },
-  { name: 'Ms. Emma', image: image6 },
-  { name: 'Mr. Frank', image: image7 },
-  { name: 'Ms. Grace', image: image8 },
-  { name: 'Mr. Henry', image: image9 },
-  { name: 'Ms. Irene', image: image10 }
-];
-
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 
@@ -48,61 +34,55 @@ import 'swiper/css/navigation';
 import Footer from '../../components/layout/footer';
 import Image from 'next/image';
 import Navbar from '../layout/navbar';
+import axios from 'axios';
+import { API } from '@/lib/server';
 
-const testimonials = [
-  {
-    image: imageevn1,
-    text: 'This event combines environmental awareness with a love for reading. Children dress up in themed costumes and present their favorite books, learning the importance of caring for the planet while developing early literacy and public speaking skills.',
-    judul: 'EARTH & BOOK DAY'
-  },
-  {
-    image: imageevn2,
-    text: 'This fun field trip gave children an exciting outdoor learning experience. They actively joined various activities and explored the environment firsthand, guided by their teachers. It helped them become more independent, disciplined, and cooperative.',
-    judul: 'FUNTASIA FIELDTRIP'
-  },
-  {
-    image: imageevn3,
-    text: 'The children joyfully celebrate Chinese New Year by wearing bright red costumes and participating in cultural activities like singing and storytelling. This celebration encourages them to be more active, confident, and enthusiastic about learning while also introducing them to cultural diversity.',
-    judul: 'CHINESE NEW YEAR'
-  },
-  {
-    image: imageevn4,
-    text: 'This event offers an opportunity for teachers to connect, collaborate, and share inspiring ideas on teaching young children. Parents appreciate the patience and friendliness of the teachers, who always create a fun and nurturing learning environment.',
-    judul: 'TEACHERS GATHERING'
-  },
-  {
-    image: imageevn5,
-    text: 'In this eco-friendly activity, children are invited to plant trees around the school area. They learn about the importance of taking care of nature, develop a sense of responsibility, and enjoy outdoor learning experiences in a fun and cheerful way.',
-    judul: 'PLANTING 1000 TREES'
-  },
-  {
-    image: imageevn6,
-    text: 'The joyful spirit of Christmas is celebrated with performances by the children dressed in festive costumes. This event helps build their confidence to perform in front of others, promotes discipline, and fosters a sense of sharing and happiness among classmates.',
-    judul: 'CHRISMAS DAY'
-  },
-  {
-    image: imageevn7,
-    text: 'This in-school field trip provides a simulated outdoor experience where children practice real-life activities such as crossing the street and recognizing traffic signs. It teaches them discipline, independence, and safety in a hands-on, engaging way.',
-    judul: 'INSCHOOL FIELDTRIP'
-  },
-  {
-    image: imageevn8,
-    text: 'The children dress up in traditional costumes from various countries, celebrating global diversity in a joyful and engaging way. This activity teaches them about different cultures, encourages tolerance, and fosters a sense of global unity from an early age.',
-    judul: 'UNITED NATIONAL DAY'
-  },
-  {
-    image: imageevn9,
-    text: 'Children take part in fun games and light physical activities that help develop agility, sportsmanship, and teamwork. With a cheerful atmosphere, this event becomes one of the students’ favorites. They not only become more disciplined but also learn to value health through active play.',
-    judul: 'SPORTS DAY'
-  },
-  {
-    image: imageevn10,
-    text: 'The children celebrated Independence Day with fun games and activities in red-and-white outfits. They learned about patriotism, bravery, and unity in an engaging and joyful way.',
-    judul: 'INDEPENDENCE DAY'
-  }
-];
+interface NewsItem {
+  image: string;
+  title: string;
+  content: string;
+}
+
+interface GuruTemplate {
+  image: string;
+  name: string;
+  imageUrl?: string;
+}
+
+const BASE_URL = `${API}view-image`;
+
 export default function HomeView() {
   const [index, setIndex] = useState(0);
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [teachers, setTeachers] = useState<GuruTemplate[]>([]);
+
+  useEffect(() => {
+    axios
+      .get(`${API}news`)
+      .then((response) => {
+        setNews(response.data.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching the news:', error);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get(`${API}guru-template`)
+      .then((response) => {
+        const updatedTeachers = response.data.data.map(
+          (teacher: GuruTemplate) => ({
+            ...teacher,
+            imageUrl: `${BASE_URL}/${teacher.image.split('/').pop()}`
+          })
+        );
+        setTeachers(updatedTeachers);
+      })
+      .catch((error) => {
+        console.error('Error fetching teacher data:', error);
+      });
+  }, []);
 
   const handlePrev = () => {
     setIndex((prevIndex) =>
@@ -260,48 +240,58 @@ export default function HomeView() {
         <h1 className='font-tiltwarp mb-6 text-center text-2xl md:text-4xl'>
           MEET OUR TEACHERS
         </h1>
-        <div className='mb-4 flex flex-wrap items-center justify-center gap-2 transition-all duration-500 md:space-x-4'>
-          <Image
-            alt={teachers[(index - 2 + teachers.length) % teachers.length].name}
-            className='hidden h-20 w-20 rounded-full bg-gray-300 object-cover opacity-70 md:h-40 md:w-40 lg:block'
-            src={
-              teachers[(index - 2 + teachers.length) % teachers.length].image
-            }
-          />
-          <Image
-            alt={teachers[(index - 1 + teachers.length) % teachers.length].name}
-            className='h-20 w-20 rounded-full bg-gray-300 object-cover opacity-70 md:h-40 md:w-40'
-            src={
-              teachers[(index - 1 + teachers.length) % teachers.length].image
-            }
-          />
-
-          <div className='flex flex-col items-center'>
-            <Image
-              alt={teachers[index].name}
-              className='h-32 w-32 rounded-full bg-gray-300 object-cover md:h-60 md:w-60'
-              src={teachers[index].image}
+        {teachers.length > 0 && (
+          <div className='mb-4 flex flex-wrap items-center justify-center gap-2 transition-all duration-500 md:space-x-4'>
+            <img
+              alt={
+                teachers[(index - 2 + teachers.length) % teachers.length]
+                  ?.name || 'No Name'
+              }
+              className='hidden h-20 w-20 rounded-full bg-gray-300 object-cover opacity-70 md:h-40 md:w-40 lg:block'
+              src={
+                teachers[(index - 2 + teachers.length) % teachers.length]
+                  ?.imageUrl || '/fallback.jpg'
+              }
             />
-            <p className='mt-2 w-full text-center text-base font-semibold md:text-lg'>
-              {teachers[index].name}
-            </p>
+            <img
+              alt={
+                teachers[(index - 1 + teachers.length) % teachers.length]
+                  ?.name || 'No Name'
+              }
+              className='h-20 w-20 rounded-full bg-gray-300 object-cover opacity-70 md:h-40 md:w-40'
+              src={
+                teachers[(index - 1 + teachers.length) % teachers.length]
+                  ?.imageUrl || '/fallback.jpg'
+              }
+            />
+            <div className='flex flex-col items-center'>
+              <img
+                alt={teachers[index]?.name || 'No Name'}
+                className='h-32 w-32 rounded-full bg-gray-300 object-cover md:h-60 md:w-60'
+                src={teachers[index]?.imageUrl || '/fallback.jpg'}
+              />
+              <p className='mt-2 w-full text-center text-base font-semibold md:text-lg'>
+                {teachers[index]?.name || 'No Name'}
+              </p>
+            </div>
+            <img
+              alt={teachers[(index + 1) % teachers.length]?.name || 'No Name'}
+              className='h-20 w-20 rounded-full bg-gray-300 object-cover opacity-70 md:h-40 md:w-40'
+              src={
+                teachers[(index + 1) % teachers.length]?.imageUrl ||
+                '/fallback.jpg'
+              }
+            />
+            <img
+              alt={teachers[(index + 2) % teachers.length]?.name || 'No Name'}
+              className='hidden h-20 w-20 rounded-full bg-gray-300 object-cover opacity-70 md:h-40 md:w-40 lg:block'
+              src={
+                teachers[(index + 2) % teachers.length]?.imageUrl ||
+                '/fallback.jpg'
+              }
+            />
           </div>
-
-          {/* Gambar setelah */}
-          <Image
-            alt={teachers[(index + 1) % teachers.length].name}
-            className='h-20 w-20 rounded-full bg-gray-300 object-cover opacity-70 md:h-40 md:w-40'
-            src={teachers[(index + 1) % teachers.length].image}
-          />
-
-          {/* Gambar kanan paling ujung (hanya tampil di md ke atas) */}
-          <Image
-            alt={teachers[(index + 2) % teachers.length].name}
-            className='hidden h-20 w-20 rounded-full bg-gray-300 object-cover opacity-70 md:h-40 md:w-40 lg:block'
-            src={teachers[(index + 2) % teachers.length].image}
-          />
-        </div>
-
+        )}
         <div className='mt-4 flex space-x-4'>
           <button
             className='flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-700 text-gray-700'
@@ -325,24 +315,30 @@ export default function HomeView() {
           </h1>
           <div className='relative mt-10 overflow-hidden'>
             <div className='auto-scroll w-max gap-2 px-1 sm:gap-4 sm:px-4'>
-              {[...testimonials, ...testimonials].map((item, index) => (
-                <div
-                  key={index}
-                  className='mx-1 flex h-[300px] w-56 flex-shrink-0 flex-col rounded-2xl bg-white px-3 pb-4 pt-2 shadow-lg sm:h-[340px] sm:w-64 md:w-72'
-                >
-                  <Image
-                    src={item.image}
-                    alt={`testimonial-${index}`}
-                    className='h-[120px] w-full rounded-xl object-cover sm:h-[140px]'
-                  />
-                  <h1 className='mb-1 mt-2 text-sm font-bold sm:text-base'>
-                    {item.judul}
-                  </h1>
-                  <p className='text-center text-xs italic text-gray-700 sm:text-sm'>
-                    {item.text}
-                  </p>
-                </div>
-              ))}
+              {[...news, ...news].map((item, index) => {
+                const imageUrl = `${BASE_URL}/${item.image.split('/').pop()}`;
+
+                return (
+                  <div
+                    key={index}
+                    className='mx-1 flex h-[300px] w-56 flex-shrink-0 flex-col rounded-2xl bg-white px-3 pb-4 pt-2 shadow-lg sm:h-[340px] sm:w-64 md:w-72'
+                  >
+                    <Image
+                      src={imageUrl}
+                      alt={`news-${index}`}
+                      className='h-[120px] w-full rounded-xl object-cover sm:h-[140px]'
+                      width={1000}
+                      height={1000}
+                    />
+                    <h1 className='mb-1 mt-2 text-sm font-bold sm:text-base'>
+                      {item.title}
+                    </h1>
+                    <p className='text-center text-xs italic text-gray-700 sm:text-sm'>
+                      {item.content}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

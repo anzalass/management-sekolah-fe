@@ -69,11 +69,11 @@ export default function UserAuthForm() {
             render={({ field }) => (
               <FormItem className='space-y-3'>
                 <div className=''>
-                  <FormLabel>NIP</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
                       type='text'
-                      placeholder='Masukan NIP...'
+                      placeholder='Masukan Email...'
                       className='text-xs'
                       disabled={loading}
                       {...field}
