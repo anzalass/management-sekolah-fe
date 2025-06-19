@@ -1,4 +1,5 @@
 'use client';
+
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import {
@@ -8,41 +9,48 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Product } from '@/constants/data';
+import { Pendaftaran } from '../pendaftaran-listing';
 import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { API } from '@/lib/server';
 import axios from 'axios';
-import { Pendaftaran } from '../pendaftaran-form';
+import { useSession } from 'next-auth/react';
 
 interface CellActionProps {
   data: Pendaftaran;
 }
 
-export const CellAction: React.FC<CellActionProps> = ({ data }) => {
+export const PendaftaranCellAction: React.FC<CellActionProps> = ({ data }) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
-
-  const { trigger, toggleTrigger } = useRenderTrigger();
-
-  const onConfirm = async () => {
+  const { data: session } = useSession();
+  const token = session?.user?.token;
+  const onConfirmDelete = async () => {
+    setLoading(true);
     try {
-      await axios.delete(`${API}user/delete-siswa/${data.id}`);
+      await axios.delete(`${API}pendaftaran/delete/${data.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       setOpen(false);
-      toggleTrigger();
+      window.location.reload();
     } catch (error) {
-      console.log(error);
+      console.error('Error deleting Pendaftaran:', error);
+      setOpen(false);
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
     <>
       <AlertModal
         isOpen={open}
         onClose={() => setOpen(false)}
-        onConfirm={onConfirm}
+        onConfirm={onConfirmDelete}
         loading={loading}
       />
       <DropdownMenu modal={false}>
@@ -54,13 +62,12 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
           <DropdownMenuItem
             onClick={() =>
-              router.push(`/dashboard/master-data/siswa/${data.id}`)
+              router.push(`/admin-dashboard/pendaftaran/${data.id}`)
             }
           >
-            <Edit className='mr-2 h-4 w-4' /> Update
+            <Edit className='mr-2 h-4 w-4' /> Edit
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setOpen(true)}>
             <Trash className='mr-2 h-4 w-4' /> Delete

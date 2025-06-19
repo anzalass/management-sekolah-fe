@@ -11,7 +11,6 @@ export type Product = {
   updated_at: string;
 };
 
-//Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [
   {
     title: 'Dashboard',
@@ -19,7 +18,7 @@ export const navItems: NavItem[] = [
     icon: 'dashboard',
     isActive: false,
     shortcut: ['d', 'd'],
-    items: [] // Empty array as there are no child items for Dashboard
+    items: []
   },
   {
     title: 'Pendaftaran Siswa',
@@ -27,7 +26,68 @@ export const navItems: NavItem[] = [
     icon: 'dashboard',
     isActive: false,
     shortcut: ['d', 'd'],
-    items: [] // Empty array as there are no child items for Dashboard
+    items: []
+  },
+  {
+    title: 'Inventaris',
+    url: '/dashboard/Inventaris',
+    icon: 'product',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: [
+      {
+        title: 'Daftar Inventaris',
+        url: '/dashboard/inventaris/daftar-inventaris',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+      {
+        title: 'Jenis Inventaris',
+        url: '/dashboard/inventaris/jenis-inventaris',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      }
+    ]
+  },
+  {
+    title: 'Master Data',
+    url: '/dashboard/tahun-ajaran',
+    icon: 'product',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: [
+      {
+        title: 'Guru Staff',
+        url: '/dashboard/master-data/guru-staff',
+        icon: 'userPen',
+        shortcut: ['n', 'n'],
+        allowedRoles: ['Kepala Sekolah']
+      },
+      {
+        title: 'Siswa',
+        url: '/dashboard/master-data/siswa',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+      {
+        title: 'Ruangan',
+        url: '/dashboard/master-data/ruangan',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+      {
+        title: 'Mata Pelajaran',
+        url: '/dashboard/master-data/mata-pelajaran',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+      {
+        title: 'Anggaran',
+        url: '/dashboard/master-data/anggaran',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      }
+    ]
   },
   {
     title: 'Konten Management',
@@ -35,6 +95,7 @@ export const navItems: NavItem[] = [
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
+    allowedRoles: ['Kepala Sekolah'],
     items: [
       {
         title: 'News',

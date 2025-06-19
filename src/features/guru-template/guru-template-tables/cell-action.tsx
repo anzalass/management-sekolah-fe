@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import axios from 'axios';
 import { API } from '@/lib/server';
+import { useSession } from 'next-auth/react';
 
 interface CellActionProps {
   data: GuruTemplate;
@@ -26,16 +27,20 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [open, setOpen] = useState(false);
   const { trigger, toggleTrigger } = useRenderTrigger();
   const router = useRouter();
+  const { data: session } = useSession();
+  const token = session?.user?.token;
 
-  // Handle the confirmation of the delete action
   const onConfirm = async () => {
     setLoading(true);
     try {
-      // Make the API call to delete the GuruTemplate by id
-      await axios.delete(`${API}guru-template/${data.id}`);
+      await axios.delete(`${API}guru-template/${data.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       setOpen(false);
       toggleTrigger();
-      window.location.reload(); // Reload the page after deletion
+      window.location.reload();
     } catch (error) {
       console.log(error);
     } finally {

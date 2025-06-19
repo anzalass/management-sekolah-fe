@@ -2,43 +2,62 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { DataTable as SiswaTable } from '@/components/ui/table/data-table';
+import { DataTable as PendaftaranTable } from '@/components/ui/table/data-table';
 import { columns } from './pendaftaran-tables/columns';
-import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
-import { useRenderTrigger } from '@/hooks/use-rendertrigger';
-import { Pendaftaran } from './pendaftaran-form';
+import { useSearchParams } from 'next/navigation';
+
+export type Pendaftaran = {
+  id: string;
+  studentName: string;
+  parentName: string;
+  email: string;
+  phoneNumber: string;
+  yourLocation: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
 export default function PendaftaranListingPage() {
   const searchParams = useSearchParams();
   const page = searchParams.get('page') || '1';
-  const studentName = searchParams.get('studentName') || '';
-  const parentName = searchParams.get('parentName') || '';
+  const search = searchParams.get('search') || '';
   const pageLimit = searchParams.get('limit') || '10';
 
   const [data, setData] = useState<Pendaftaran[]>([]);
-  const [totalUser, setTotalUser] = useState(0);
+  const [totalData, setTotalData] = useState(0);
   const [loading, setLoading] = useState(true);
-  const { trigger, toggleTrigger } = useRenderTrigger();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchSiswa = async () => {
+    const fetchPendaftaran = async () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}pendaftaran?page=${page}?pageSize=${pageLimit}&studentName=${studentName}&parentName=${parentName}`
+          `${API}pendaftaran?page=${page}&pageSize=${pageLimit}&search=${search}`
         );
-        setData(response?.data?.data?.data);
-        setTotalUser(response?.data?.result?.total);
+        if (response.data && response.data.data) {
+          setData(response.data.data);
+          setTotalData(response.data.total);
+        } else {
+          setError('Data format is invalid');
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
+        setError('An error occurred while fetching the registration data');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSiswa();
-  }, [page, studentName, pageLimit, parentName, trigger]); // Re-fetch data when query changes
+    fetchPendaftaran();
+  }, [page, pageLimit, search]);
 
-  return <SiswaTable columns={columns} data={data} totalItems={totalUser} />;
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  return (
+    <PendaftaranTable columns={columns} data={data} totalItems={totalData} />
+  );
 }

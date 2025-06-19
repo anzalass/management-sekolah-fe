@@ -11,35 +11,22 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Product } from '@/constants/mock-api';
-import { zodResolver } from '@hookform/resolvers/zod';
-import axios from 'axios';
-import { Trash } from 'lucide-react';
-import Image from 'next/image';
+import axios, { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useTransition } from 'react';
+import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import * as z from 'zod';
-import { S } from '@faker-js/faker/dist/airline-BcEu2nRk';
 import { API } from '@/lib/server';
+import { useSession } from 'next-auth/react';
 
-// Tipe Data Siswa
+// Tipe Data Pendaftaran
 export type Pendaftaran = {
-  id: string;
   studentName: string;
   parentName: string;
-  yourLocation: string;
-  phoneNumber: string;
   email: string;
+  phoneNumber: string;
+  yourLocation: string;
 };
 
 export default function PendaftaranForm({
@@ -53,62 +40,61 @@ export default function PendaftaranForm({
 }) {
   const [loading, startTransition] = useTransition();
   const router = useRouter();
+  const { data: session } = useSession();
+  const token = session?.user?.token;
 
-  const [img, setImg] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-
-  // Default Values dengan Fallback
   const defaultValue = {
-    studentName: initialData?.studentName ?? '',
-    parentName: initialData?.parentName ?? '',
-    yourLocation: initialData?.yourLocation ?? '',
-    phoneNumber: initialData?.phoneNumber ?? '',
-    email: initialData?.email ?? ''
-  };
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const fileUrl = URL.createObjectURL(file);
-      setImagePreview(fileUrl);
-      setImg(file);
-    }
+    studentName: initialData?.studentName || '',
+    parentName: initialData?.parentName || '',
+    email: initialData?.email || '',
+    phoneNumber: initialData?.phoneNumber || '',
+    yourLocation: initialData?.yourLocation || ''
   };
 
   const form = useForm({
     defaultValues: defaultValue
   });
 
-  // Handle Submit
   async function onSubmit(values: any) {
-    console.log(values.noTeleponOrtu);
-
     startTransition(async () => {
       try {
-        const data = new FormData();
-        if (img) {
-          data.append('foto', img);
-        }
-        console.log(img);
+        // Kirim sebagai JSON, tidak perlu FormData
+        const jsonData = {
+          studentName: values.studentName,
+          parentName: values.parentName,
+          email: values.email,
+          phoneNumber: values.phoneNumber,
+          yourLocation: values.yourLocation
+        };
 
         if (id !== 'new') {
-          await axios.put(`${API}pendaftaran/${id}`, { ...values });
-          toast.success('Data siswa berhasil diubah');
-        } else {
-          await axios.post(`${API}pendaftaran`, {
-            ...values
+          await axios.put(`${API}pendaftaran/update/${id}`, jsonData, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            }
           });
-          toast.success('Data siswa berhasil disimpan');
+          toast.success('Pendaftaran berhasil diperbarui');
+        } else {
+          await axios.post(`${API}pendaftaran/`, jsonData, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            }
+          });
+          toast.success('Pendaftaran berhasil disimpan');
         }
 
-        router.push('/dashboard/pendaftaran');
+        router.push('/admin-dashboard/pendaftaran');
       } catch (error) {
-        toast.error(error?.response.data.message);
+        const axiosError = error as AxiosError;
+        const errorMessage =
+          axiosError.response?.data?.message || 'Terjadi Kesalahan';
+        toast.error(errorMessage);
       }
     });
   }
 
-  // Handle File Upload
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>
@@ -120,18 +106,16 @@ export default function PendaftaranForm({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
             <div className='space-y-6'>
-              {/* Foto */}
-
               <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-                {/* id */}
+                {/* Student Name */}
                 <FormItem>
-                  <FormLabel>Nama Calon Peserta Didik</FormLabel>
+                  <FormLabel>Nama Peserta Didik</FormLabel>
                   <FormControl>
                     <Input
                       type='text'
-                      placeholder='Masukkan Nama Calon Peserta Didik...'
+                      placeholder='Masukkan Nama Peserta Didik...'
                       {...form.register('studentName', {
-                        required: 'Nama wajib diisi',
+                        required: 'Nama Peserta Didik wajib diisi',
                         minLength: 6
                       })}
                     />
@@ -141,7 +125,7 @@ export default function PendaftaranForm({
                   </FormMessage>
                 </FormItem>
 
-                {/* NIK */}
+                {/* Parent Name */}
                 <FormItem>
                   <FormLabel>Nama Wali Murid</FormLabel>
                   <FormControl>
@@ -157,34 +141,14 @@ export default function PendaftaranForm({
                   </FormMessage>
                 </FormItem>
 
-                {/* Nama */}
-                <FormItem>
-                  <FormLabel>Tempat Tinggal</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder='Masukkan Alamat Lengkap...'
-                      {...form.register('yourLocation', {
-                        required: 'Alamat wajib diisi',
-                        minLength: {
-                          value: 3,
-                          message: 'Nama minimal 3 karakter'
-                        }
-                      })}
-                    />
-                  </FormControl>
-                  <FormMessage>
-                    {form.formState.errors.yourLocation?.message}
-                  </FormMessage>
-                </FormItem>
-
-                {/* Jurusan */}
+                {/* Email */}
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
                       placeholder='Masukkan Email...'
                       {...form.register('email', {
-                        required: 'Email Wajib Diisi'
+                        required: 'Email wajib diisi'
                       })}
                     />
                   </FormControl>
@@ -193,7 +157,7 @@ export default function PendaftaranForm({
                   </FormMessage>
                 </FormItem>
 
-                {/* No Telepon */}
+                {/* Phone Number */}
                 <FormItem>
                   <FormLabel>No Telepon</FormLabel>
                   <FormControl>
@@ -214,17 +178,32 @@ export default function PendaftaranForm({
                   </FormMessage>
                 </FormItem>
 
-                {/* Email */}
+                {/* Location */}
+                <FormItem>
+                  <FormLabel>Alamat</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder='Masukkan Alamat...'
+                      {...form.register('yourLocation', {
+                        required: 'Alamat wajib diisi'
+                      })}
+                    />
+                  </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.yourLocation?.message}
+                  </FormMessage>
+                </FormItem>
               </div>
             </div>
-            {/* Tombol Submit */}
+
+            {/* Submit Button */}
             <Button type='submit' disabled={loading}>
               {loading ? (
                 <Loader2 className='h-5 w-5 animate-spin' />
               ) : (
                 'Simpan'
               )}
-            </Button>{' '}
+            </Button>
           </form>
         </Form>
       </CardContent>

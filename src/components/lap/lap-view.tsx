@@ -12,13 +12,9 @@ import Fasilitas2 from '../../../public/fasilitas2.jpg';
 import Fasilitas3 from '../../../public/fasilitas3.jpg';
 import Fasilitas4 from '../../../public/fasilitas4.jpg';
 import Fasilitas5 from '../../../public/fasilitas5.jpg';
-import Galery1 from '../../../public/galery1.jpg';
-import Galery2 from '../../../public/galery2.jpg';
-import Galery3 from '../../../public/galery3.jpg';
-import Galery4 from '../../../public/galery4.jpg';
-import Galery5 from '../../../public/galery5.jpg';
-import Galery6 from '../../../public/galery6.jpg';
-import Galery7 from '../../../public/galery7.jpg';
+import child1 from '../../../public/childs1.jpg';
+import child2 from '../../../public/childs2.jpg';
+import child3 from '../../../public/childs3.jpg';
 import Garis from '../../../public/Garis.png';
 import Awan from '../../../public/awan.png';
 import Awan2 from '../../../public/awan2.png';
@@ -279,7 +275,7 @@ export default function Lap() {
           height={1000}
           src={Awan2}
           alt=''
-          className='img1 w-full md:mb-[15rem] lg:mb-0'
+          className='img1 w-full md:mb-[18rem] lg:mb-0'
         />
 
         {/* Konten OUR CLASS */}
@@ -301,28 +297,52 @@ export default function Lap() {
           <div className='relative mx-auto mt-10 grid max-w-3xl grid-cols-2 gap-8'>
             {/* Card 1 */}
             <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
+              <div className='card mx-auto mb-4 flex h-[200px] w-[200px] items-center justify-center overflow-hidden rounded-2xl border-[6px] border-blue-500 bg-white'>
+                <Image
+                  src={child1}
+                  alt='Preparatory'
+                  className='h-full w-full object-cover'
+                />
+              </div>
               <p className='text-2xl font-bold text-blue-800'>Preparatory</p>
               <p className='text-lg text-gray-700'>Age: 1.5 - 2 Years</p>
             </div>
 
             {/* Card 2 */}
             <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
+              <div className='card mx-auto mb-4 flex h-[200px] w-[200px] items-center justify-center overflow-hidden rounded-2xl border-[6px] border-blue-500 bg-white'>
+                <Image
+                  src={child2}
+                  alt='Toddler'
+                  className='h-full w-full object-cover'
+                />
+              </div>
               <p className='text-2xl font-bold text-blue-800'>Toddler</p>
               <p className='text-lg text-gray-700'>Age: 2 - 3 Years</p>
             </div>
 
             {/* Card 3 */}
             <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
+              <div className='card mx-auto mb-4 flex h-[200px] w-[200px] items-center justify-center overflow-hidden rounded-2xl border-[6px] border-blue-500 bg-white'>
+                <img
+                  src='/images/playgroup.jpg'
+                  alt='Playgroup'
+                  className='h-full w-full object-cover'
+                />
+              </div>
               <p className='text-2xl font-bold text-blue-800'>Playgroup</p>
               <p className='text-lg text-gray-700'>Age: 3 - 4 Years</p>
             </div>
 
             {/* Card 4 */}
             <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
+              <div className='card mx-auto mb-4 flex h-[200px] w-[200px] items-center justify-center overflow-hidden rounded-2xl border-[6px] border-blue-500 bg-white'>
+                <Image
+                  src={child3} // Ganti dengan path atau URL gambar
+                  alt='Learners & Achievers'
+                  className='h-full w-full object-cover'
+                />
+              </div>
               <p className='text-2xl font-bold text-blue-800'>
                 Learners & Achievers
               </p>
@@ -618,17 +638,19 @@ export default function Lap() {
               const imageUrl = `${BASE_URL}/${item.image.split('/').pop()}`;
               return (
                 <SwiperSlide key={index}>
-                  <div className='mx-auto flex h-[230px] w-full max-w-[250px] flex-col overflow-hidden rounded-3xl bg-white shadow-lg'>
+                  <div className='mx-auto flex h-[340px] w-full max-w-[250px] flex-col overflow-hidden rounded-3xl bg-white shadow-lg'>
                     <Image
                       width={1000}
                       height={1000}
-                      src={imageUrl} // Use the imageUrl here
+                      src={imageUrl}
                       alt='Testimonial'
                       className='h-40 w-full rounded-t-3xl object-cover'
                     />
-                    <p className='flex-1 p-4 text-xs leading-relaxed text-[#003049] md:text-sm'>
-                      {item.description}
-                    </p>
+                    <div className='flex flex-1 flex-col p-4'>
+                      <p className='hyphens-auto break-words text-justify text-xs italic leading-relaxed text-[#003049] md:text-sm'>
+                        “{item.description}”
+                      </p>
+                    </div>
                   </div>
                 </SwiperSlide>
               );
