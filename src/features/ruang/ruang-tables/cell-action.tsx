@@ -13,6 +13,9 @@ import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Ruangan } from '../ruang-listing';
+import axios from 'axios';
+import { API } from '@/lib/server';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 interface CellActionProps {
   data: Ruangan;
@@ -22,9 +25,20 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
-
-  const onConfirm = async () => {};
-
+  const { toggleTrigger } = useRenderTrigger();
+  const onConfirm = async () => {
+    try {
+      setLoading(true);
+      await axios.delete(`${API}ruang/delete/${data.id}`);
+      setOpen(false);
+      window.location.reload();
+      toggleTrigger();
+    } catch (error) {
+      console.error('Failed to delete mapel:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <>
       <AlertModal

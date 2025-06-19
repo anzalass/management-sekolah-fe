@@ -1,4 +1,5 @@
 'use client';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Collapsible,
@@ -30,13 +31,12 @@ import {
   SidebarRail,
   useSidebar
 } from '@/components/ui/sidebar';
+
 import { navItems } from '@/constants/data';
 import {
   BadgeCheck,
-  Bell,
   ChevronRight,
   ChevronsUpDown,
-  CreditCard,
   GalleryVerticalEnd,
   LogOut
 } from 'lucide-react';
@@ -45,6 +45,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import * as React from 'react';
 import { Icons } from '../icons';
+import { NavItem } from 'types';
 
 export const company = {
   name: 'Acme Inc',
@@ -55,7 +56,31 @@ export const company = {
 export default function AppSidebar() {
   const { data: session } = useSession();
   const pathname = usePathname();
-  const { state, isMobile } = useSidebar();
+  const { state } = useSidebar();
+
+  const jabatan = session?.user?.jabatan || '';
+
+  const filterNavItemsByRole = (
+    navItems: NavItem[],
+    userRole: string
+  ): NavItem[] => {
+    return navItems
+      .filter((item) => {
+        if (!item.allowedRoles) return true;
+        return item.allowedRoles.includes(userRole);
+      })
+      .map((item) => ({
+        ...item,
+        items: item.items
+          ? item.items.filter((child) => {
+              if (!child.allowedRoles) return true;
+              return child.allowedRoles.includes(userRole);
+            })
+          : []
+      }));
+  };
+
+  const filteredNavItems = filterNavItemsByRole(navItems, jabatan);
 
   return (
     <Sidebar collapsible='icon'>
@@ -70,66 +95,74 @@ export default function AppSidebar() {
           </div>
         </div>
       </SidebarHeader>
+
       <SidebarContent className='overflow-x-hidden'>
         <SidebarGroup>
           <SidebarGroupLabel>Overview</SidebarGroupLabel>
           <SidebarMenu>
-            {navItems.map((item) => {
-              const Icon = item.icon ? Icons[item.icon] : Icons.logo;
-              return item?.items && item?.items?.length > 0 ? (
-                <Collapsible
-                  key={item.title}
-                  asChild
-                  defaultOpen={item.isActive}
-                  className='group/collapsible'
-                >
-                  <SidebarMenuItem>
-                    <CollapsibleTrigger asChild>
-                      <SidebarMenuButton
-                        tooltip={item.title}
-                        isActive={pathname === item.url}
-                      >
-                        {item.icon && <Icon />}
-                        <span>{item.title}</span>
-                        <ChevronRight className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
-                      </SidebarMenuButton>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {item.items?.map((subItem) => (
-                          <SidebarMenuSubItem key={subItem.title}>
-                            <SidebarMenuSubButton
-                              asChild
-                              isActive={pathname === subItem.url}
-                            >
-                              <Link href={subItem.url}>
-                                <span>{subItem.title}</span>
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  </SidebarMenuItem>
-                </Collapsible>
-              ) : (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
+            {filteredNavItems
+              .filter(
+                (item): item is NavItem => item !== null && item !== undefined
+              )
+              .map((item) => {
+                const IconName = item.icon as keyof typeof Icons;
+                const Icon = Icons[IconName] || Icons.logo;
+
+                return Array.isArray(item.items) && item.items.length > 0 ? (
+                  <Collapsible
+                    key={item.title}
                     asChild
-                    tooltip={item.title}
-                    isActive={pathname === item.url}
+                    defaultOpen={item.isActive}
+                    className='group/collapsible'
                   >
-                    <Link href={item.url}>
-                      <Icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })}
+                    <SidebarMenuItem>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton
+                          tooltip={item.title}
+                          isActive={pathname === item.url}
+                        >
+                          {item.icon && <Icon />}
+                          <span>{item.title}</span>
+                          <ChevronRight className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {(item.items as NavItem[]).map((subItem: NavItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={pathname === subItem.url}
+                              >
+                                <Link href={subItem.url}>
+                                  <span>{subItem.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </SidebarMenuItem>
+                  </Collapsible>
+                ) : (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      tooltip={item.title}
+                      isActive={pathname === item.url}
+                    >
+                      <Link href={item.url}>
+                        <Icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
+
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -153,12 +186,13 @@ export default function AppSidebar() {
                       {session?.user?.name || ''}
                     </span>
                     <span className='truncate text-xs'>
-                      {/* {session?.user?.email || ''} */}
+                      {session?.user?.email || ''}
                     </span>
                   </div>
                   <ChevronsUpDown className='ml-auto size-4' />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
+
               <DropdownMenuContent
                 className='w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg'
                 side='bottom'
@@ -179,23 +213,16 @@ export default function AppSidebar() {
                     </Avatar>
                     <div className='grid flex-1 text-left text-sm leading-tight'>
                       <span className='truncate font-semibold'>
-                        {session?.user?.name || 'Cross Near'}
+                        {session?.user?.nama || 'Cross Near'}
                       </span>
                       <span className='mt-1 truncate text-xs'>
-                        {' '}
                         {session?.user?.email || ''}
                       </span>
                     </div>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-
                 <DropdownMenuGroup>
-                  <DropdownMenuItem className='space-x-3'>
-                    <BadgeCheck size={18} />
-                    <p>Account</p>
-                  </DropdownMenuItem>
-
                   <DropdownMenuItem
                     onClick={() => signOut()}
                     className='space-x-4'
