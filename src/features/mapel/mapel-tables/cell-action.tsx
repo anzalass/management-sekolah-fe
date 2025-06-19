@@ -1,4 +1,10 @@
 'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+import { Edit, MoreHorizontal, Trash } from 'lucide-react';
+
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import {
@@ -8,10 +14,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Product } from '@/constants/data';
-import { Edit, MoreHorizontal, Trash } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+
+import { API } from '@/lib/server';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { Mapel } from '../mapel-listing';
 
 interface CellActionProps {
@@ -22,8 +27,21 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const { toggleTrigger } = useRenderTrigger();
 
-  const onConfirm = async () => {};
+  const onConfirm = async () => {
+    try {
+      setLoading(true);
+      await axios.delete(`${API}mapel/delete/${data.id}`);
+      setOpen(false);
+      window.location.reload();
+      toggleTrigger();
+    } catch (error) {
+      console.error('Failed to delete mapel:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -42,7 +60,6 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
           <DropdownMenuItem
             onClick={() =>
               router.push(`/dashboard/master-data/mata-pelajaran/${data.id}`)

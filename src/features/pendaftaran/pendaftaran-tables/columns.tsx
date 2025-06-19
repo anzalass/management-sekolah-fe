@@ -1,40 +1,40 @@
 'use client';
+
 import { ColumnDef } from '@tanstack/react-table';
-import Image from 'next/image';
-import { CellAction } from './cell-action';
-import { Pendaftaran } from '../pendaftaran-form';
+import { PendaftaranCellAction } from './cell-action';
+import { Pendaftaran } from '../pendaftaran-listing';
+
+const BASE_URL = 'http://localhost:5000/api/v1/view-image';
 
 export const columns: ColumnDef<Pendaftaran>[] = [
   {
-    accessorKey: 'studentName', // NIP
-    header: 'Nama Calon Peserta Didik',
+    accessorKey: 'studentName',
+    header: 'Student Name',
     cell: ({ row }) => row.original.studentName
   },
   {
-    accessorKey: 'parentName', // Nama
-    header: 'Nama Orang Tua ',
+    accessorKey: 'parentName',
+    header: 'Parent Name',
     cell: ({ row }) => row.original.parentName
   },
   {
-    accessorKey: 'email', // Jabatan
+    accessorKey: 'email',
     header: 'Email',
     cell: ({ row }) => row.original.email
   },
-
   {
-    accessorKey: 'phoneNumber', // No Telepon
-    header: 'No Telepon',
+    accessorKey: 'phoneNumber',
+    header: 'Phone Number',
     cell: ({ row }) => row.original.phoneNumber
   },
   {
-    accessorKey: 'yourLocation', // No Telepon
-    header: 'Alamat',
+    accessorKey: 'yourLocation',
+    header: 'Location',
     cell: ({ row }) => row.original.yourLocation
   },
-
   {
-    id: 'actions', // Actions (untuk tombol aksi seperti edit, delete)
+    id: 'actions',
     header: 'Actions',
-    cell: ({ row }) => <CellAction data={row.original} />
+    cell: ({ row }) => <PendaftaranCellAction data={row.original} /> // PendaftaranCellAction handles edit and delete actions
   }
 ];

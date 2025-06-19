@@ -23,6 +23,7 @@ import { useTransition } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { API } from '@/lib/server';
+import { useSession } from 'next-auth/react';
 
 // Tipe Data Siswa
 export type Mapel = {
@@ -41,6 +42,8 @@ export default function MapelForm({
 }) {
   const [loading, startTransition] = useTransition();
   const router = useRouter();
+  const { data: session } = useSession();
+  const token = session?.user?.token;
 
   // Default Values dengan Fallback
   const defaultValue = {
@@ -62,7 +65,8 @@ export default function MapelForm({
             { ...values },
             {
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
               }
             }
           );
@@ -75,7 +79,8 @@ export default function MapelForm({
             },
             {
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
               }
             }
           );

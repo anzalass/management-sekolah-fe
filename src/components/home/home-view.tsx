@@ -242,53 +242,63 @@ export default function HomeView() {
         </h1>
         {teachers.length > 0 && (
           <div className='mb-4 flex flex-wrap items-center justify-center gap-2 transition-all duration-500 md:space-x-4'>
-            <img
+            <Image
               alt={
                 teachers[(index - 2 + teachers.length) % teachers.length]
                   ?.name || 'No Name'
               }
               className='hidden h-20 w-20 rounded-full bg-gray-300 object-cover opacity-70 md:h-40 md:w-40 lg:block'
+              width={1000}
+              height={1000}
               src={
                 teachers[(index - 2 + teachers.length) % teachers.length]
                   ?.imageUrl || '/fallback.jpg'
               }
             />
-            <img
+            <Image
               alt={
                 teachers[(index - 1 + teachers.length) % teachers.length]
                   ?.name || 'No Name'
               }
               className='h-20 w-20 rounded-full bg-gray-300 object-cover opacity-70 md:h-40 md:w-40'
+              width={1000}
+              height={1000}
               src={
                 teachers[(index - 1 + teachers.length) % teachers.length]
                   ?.imageUrl || '/fallback.jpg'
               }
             />
             <div className='flex flex-col items-center'>
-              <img
+              <Image
                 alt={teachers[index]?.name || 'No Name'}
                 className='h-32 w-32 rounded-full bg-gray-300 object-cover md:h-60 md:w-60'
                 src={teachers[index]?.imageUrl || '/fallback.jpg'}
+                width={1000}
+                height={1000}
               />
               <p className='mt-2 w-full text-center text-base font-semibold md:text-lg'>
                 {teachers[index]?.name || 'No Name'}
               </p>
             </div>
-            <img
+            <Image
               alt={teachers[(index + 1) % teachers.length]?.name || 'No Name'}
               className='h-20 w-20 rounded-full bg-gray-300 object-cover opacity-70 md:h-40 md:w-40'
               src={
                 teachers[(index + 1) % teachers.length]?.imageUrl ||
                 '/fallback.jpg'
               }
+              width={1000}
+              height={1000}
             />
-            <img
+            <Image
               alt={teachers[(index + 2) % teachers.length]?.name || 'No Name'}
               className='hidden h-20 w-20 rounded-full bg-gray-300 object-cover opacity-70 md:h-40 md:w-40 lg:block'
               src={
                 teachers[(index + 2) % teachers.length]?.imageUrl ||
                 '/fallback.jpg'
               }
+              width={1000}
+              height={1000}
             />
           </div>
         )}

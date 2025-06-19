@@ -1,48 +1,29 @@
 'use client';
 
-import { DataTableFilterBox } from '@/components/ui/table/data-table-filter-box';
 import { DataTableResetFilter } from '@/components/ui/table/data-table-reset-filter';
 import { DataTableSearch } from '@/components/ui/table/data-table-search';
-import {
-  CATEGORY_OPTIONS,
-  usePendaftaranTableFilters
-} from './use-pendaftaran-table-filters';
+import { usePendaftaranTableFilters } from './use-pendaftaran-table-filters'; // Custom hook to handle filters for Pendaftaran
 
-export default function PendaftaranTableActions() {
+export default function PendaftaranTableAction() {
   const {
-    studentName,
-    setStudentName,
     isAnyFilterActive,
     resetFilters,
     setPage,
-    parentName,
-    setParentName,
-    yourLocation,
-    setYourLocation
-  } = usePendaftaranTableFilters();
+    searchQuery,
+    setSearchQuery
+  } = usePendaftaranTableFilters(); // Use the custom hook for Pendaftaran filters
 
   return (
     <div className='flex flex-wrap items-center gap-4'>
+      {/* Search functionality for Pendaftaran */}
       <DataTableSearch
-        searchKey='Nama'
-        searchQuery={studentName}
-        setSearchQuery={setStudentName}
-        setPage={setPage}
-      />
-      <DataTableSearch
-        searchKey='Nama Orang Tua'
-        searchQuery={parentName}
-        setSearchQuery={setParentName}
+        searchKey='Student Name' // Searching by student name (can be adjusted)
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
         setPage={setPage}
       />
 
-      <DataTableSearch
-        searchKey='Alamat'
-        searchQuery={yourLocation}
-        setSearchQuery={setYourLocation}
-        setPage={setPage}
-      />
-
+      {/* Reset filters */}
       <DataTableResetFilter
         isFilterActive={isAnyFilterActive}
         onReset={resetFilters}

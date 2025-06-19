@@ -6,14 +6,16 @@ import { JWT, Session, User } from 'next-auth';
 declare module 'next-auth' {
   interface User {
     token: string;
-    role: string;
+    nip: string;
+    nama: string;
+    jabatan: string;
   }
 
   interface JWT {
-    id: string;
-    email: string;
     token: string;
-    role: string;
+    nip: string;
+    nama: string;
+    jabatan: string;
   }
 
   interface Session {
@@ -26,43 +28,32 @@ const authConfig = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email: { label: 'Email', type: 'text' },
+        nip: { label: 'NIP', type: 'text' },
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
         try {
-          const response = await axios.post(`${API}auth/admin`, {
-            email: credentials.email,
+          const response = await axios.post(`${API}auth/login`, {
+            nip: credentials.nip,
             password: credentials.password
           });
 
-          if (response.data && response.data.data) {
-            const user = response.data.data;
+          const user = response.data.data;
 
-            if (user) {
-              const token = user.token;
-
-              if (typeof window !== 'undefined') {
-                localStorage.setItem('token', token);
-              }
-              return {
-                id: user.nip,
-                email: user.email,
-                token: token,
-                role: user.role,
-                ...user
-              };
-            } else {
-              console.log('Invalid credentials');
-              return null;
-            }
+          if (user && user.token) {
+            return {
+              token: user.token,
+              nip: user.nip,
+              nama: user.nama,
+              jabatan: user.jabatan || 'Guru'
+            };
           } else {
-            console.log('Invalid response format', response.data);
+            console.log('Login gagal: data tidak lengkap');
             return null;
           }
         } catch (error: any) {
           console.error('Login error:', error.message || error);
-          throw new Error('Invalid credentials or server error');
+          throw new Error('NIP atau Password salah');
         }
       }
     })
@@ -78,15 +69,17 @@ const authConfig = {
     async jwt({ token, user }: { token: JWT; user: User | undefined }) {
       if (user) {
         token.token = user.token;
-        token.role = user.role;
+        token.nip = user.nip;
+        token.nama = user.nama;
+        token.jabatan = user.jabatan;
       }
       return token;
     },
     async session({ session, token }: { session: Session; token: JWT }) {
-      session.user.id = token.id;
-      session.user.email = token.email;
       session.user.token = token.token;
-      session.user.role = token.role;
+      session.user.nip = token.nip;
+      session.user.nama = token.nama;
+      session.user.jabatan = token.jabatan;
       return session;
     }
   }
