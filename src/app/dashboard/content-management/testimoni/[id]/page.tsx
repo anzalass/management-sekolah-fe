@@ -1,7 +1,7 @@
 import FormCardSkeleton from '@/components/form-card-skeleton';
 import PageContainer from '@/components/layout/page-container';
 import { Suspense } from 'react';
-import TestimonialViewPage from '@/features/testimoni/testimoni-view';
+import TestimonialViewPage from '@/features/kontent-management/testimoni/testimoni-view';
 
 export const metadata = {
   title: 'Dashboard : Testimonial' // Update to Testimonial

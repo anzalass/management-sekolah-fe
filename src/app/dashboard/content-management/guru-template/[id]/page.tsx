@@ -1,7 +1,7 @@
 import FormCardSkeleton from '@/components/form-card-skeleton';
 import PageContainer from '@/components/layout/page-container';
 import { Suspense } from 'react';
-import GuruTemplateViewPage from '@/features/guru-template/guru-template-views';
+import GuruTemplateViewPage from '@/features/kontent-management/guru-template/guru-template-views';
 
 export const metadata = {
   title: 'Dashboard: Guru & Staff'

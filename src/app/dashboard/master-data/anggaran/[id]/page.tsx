@@ -1,7 +1,7 @@
 import FormCardSkeleton from '@/components/form-card-skeleton';
 import PageContainer from '@/components/layout/page-container';
 import { Suspense } from 'react';
-import AnggaranViewPage from '@/features/anggaran/anggaran-view';
+import AnggaranViewPage from '@/features/master-data/anggaran/anggaran-view';
 
 export const metadata = {
   title: 'Dashboard : Anggaran'

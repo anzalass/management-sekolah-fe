@@ -21,12 +21,33 @@ export const navItems: NavItem[] = [
     items: []
   },
   {
-    title: 'Pendaftaran Siswa',
+    title: 'Pendaftaran Siswaa',
     url: '/dashboard/pendaftaran',
     icon: 'dashboard',
     isActive: false,
     shortcut: ['d', 'd'],
     items: []
+  },
+  {
+    title: 'Presensi Guru',
+    url: '/dashboard/pendaftaran',
+    icon: 'dashboard',
+    isActive: false,
+    shortcut: ['d', 'd'],
+    items: [
+      {
+        title: 'Kehadiran Guru',
+        url: '/dashboard/inventaris/daftar-inventaris',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+      {
+        title: 'Perizinan Guru',
+        url: '/dashboard/inventaris/jenis-inventaris',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      }
+    ]
   },
   {
     title: 'Inventaris',
@@ -50,52 +71,12 @@ export const navItems: NavItem[] = [
     ]
   },
   {
-    title: 'Master Data',
-    url: '/dashboard/tahun-ajaran',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [
-      {
-        title: 'Guru Staff',
-        url: '/dashboard/master-data/guru-staff',
-        icon: 'userPen',
-        shortcut: ['n', 'n'],
-        allowedRoles: ['Kepala Sekolah']
-      },
-      {
-        title: 'Siswa',
-        url: '/dashboard/master-data/siswa',
-        icon: 'userPen',
-        shortcut: ['n', 'n']
-      },
-      {
-        title: 'Ruangan',
-        url: '/dashboard/master-data/ruangan',
-        icon: 'userPen',
-        shortcut: ['n', 'n']
-      },
-      {
-        title: 'Mata Pelajaran',
-        url: '/dashboard/master-data/mata-pelajaran',
-        icon: 'userPen',
-        shortcut: ['n', 'n']
-      },
-      {
-        title: 'Anggaran',
-        url: '/dashboard/master-data/anggaran',
-        icon: 'userPen',
-        shortcut: ['n', 'n']
-      }
-    ]
-  },
-  {
-    title: 'Konten Management',
+    title: 'Konten Managementtt',
     url: '/dashboard/content-management/news',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
-    allowedRoles: ['Kepala Sekolah'],
+    allowedRoles: ['Guru'],
     items: [
       {
         title: 'News',
@@ -171,6 +152,12 @@ export const navItems: NavItem[] = [
         url: '/dashboard/master-data/ruangan',
         icon: 'userPen',
         shortcut: ['n', 'n']
+      },
+      {
+        title: 'Arsip dan Dokumen',
+        url: '/dashboard/master-data/ruangan',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
       }
     ]
   },
@@ -182,7 +169,7 @@ export const navItems: NavItem[] = [
     isActive: false,
     items: [
       {
-        title: 'Data Siswa',
+        title: 'Data Konseling Siswa',
         url: '/dashboard/konseling/data-siswa',
         icon: 'userPen',
         shortcut: ['n', 'n']
@@ -216,6 +203,55 @@ export const navItems: NavItem[] = [
       },
       {
         title: 'Peminjaman dan Pengembalian Buku',
+        url: '/dashboard/master-data/guru-staff',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      }
+    ]
+  },
+  {
+    title: 'E - Pembayaran',
+    url: '/dashboard/master-data/siswa',
+    icon: 'product',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: [
+      {
+        title: 'Daftar Tagihan Siswa',
+        url: '/dashboard/master-data/anggaran',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+      {
+        title: 'Riwayat Pembayaran Siswa',
+        url: '/dashboard/master-data/guru-staff',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      }
+    ]
+  },
+  {
+    title: 'E - Tabungan',
+    url: '/dashboard/master-data/siswa',
+    icon: 'product',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: [
+      {
+        title: 'Tabungan Siswa',
+        url: '/dashboard/master-data/anggaran',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+      {
+        title: 'Riwayat Menabung Siswa',
+        url: '/dashboard/master-data/guru-staff',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+
+      {
+        title: 'Riwayat Penarikan Siswa',
         url: '/dashboard/master-data/guru-staff',
         icon: 'userPen',
         shortcut: ['n', 'n']

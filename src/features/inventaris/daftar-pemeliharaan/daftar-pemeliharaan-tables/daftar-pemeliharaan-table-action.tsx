@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Ruangan } from '@/features/ruang/ruang-listing';
+import { Ruangan } from '@/features/master-data/ruang/ruang-listing';
 import axios from 'axios';
 import { API } from '@/lib/server';
 

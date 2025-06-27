@@ -1,7 +1,7 @@
 import FormCardSkeleton from '@/components/form-card-skeleton';
 import PageContainer from '@/components/layout/page-container';
 import { Suspense } from 'react';
-import GalleryViewPage from '@/features/gallery/galery-view';
+import GalleryViewPage from '@/features/kontent-management/gallery/galery-view';
 
 export const metadata = {
   title: 'Dashboard : Gallery'

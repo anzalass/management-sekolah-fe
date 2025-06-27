@@ -1,7 +1,7 @@
 import FormCardSkeleton from '@/components/form-card-skeleton';
 import PageContainer from '@/components/layout/page-container';
 import { Suspense } from 'react';
-import NewsViewPage from '@/features/news/news-view';
+import NewsViewPage from '@/features/kontent-management/news/news-view';
 
 export const metadata = {
   title: 'Dashboard : Guru & Staff'

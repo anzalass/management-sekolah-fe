@@ -1,8 +1,8 @@
 import FormCardSkeleton from '@/components/form-card-skeleton';
 import PageContainer from '@/components/layout/page-container';
 import { Suspense } from 'react';
-import RuanganViewPage from '@/features/ruang/ruang-view';
-import MapelViewPage from '@/features/mapel/mapel-view';
+import RuanganViewPage from '@/features/master-data/ruang/ruang-view';
+import MapelViewPage from '@/features/master-data/mapel/mapel-view';
 
 export const metadata = {
   title: 'Dashboard : Guru & Staff'
