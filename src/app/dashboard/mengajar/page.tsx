@@ -1,27 +1,27 @@
-import PageContainer from '@/components/layout/page-container';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import MengajarViewPage from '@/features/mengajar/mengajar-view';
+import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';
+import { searchParamsCache, serialize } from '@/lib/searchparams';
+import { SearchParams } from 'nuqs/server';
 
-export default function Page() {
+export const metadata = {
+  title: 'Dashboard: Anggaran Sekolah'
+};
+
+type pageProps = {
+  searchParams: Promise<SearchParams>;
+};
+
+export default async function Page(props: pageProps) {
+  const searchParams = await props.searchParams;
+  // Allow nested RSCs to access the search params (in a type-safe way)
+  searchParamsCache.parse(searchParams);
+
+  // This key is used for invoke suspense if any of the search params changed (used for filters).
+  const key = serialize({ ...searchParams });
+
   return (
-    <div className='mx-auto w-[98%]'>
-      <Button className='mt-7'>Tambah Kelas +</Button>
-      <div className='mt-4'>
-        <Card className='p-4'>
-          <p>Jadwal Mengajar</p>
-        </Card>
-        <div className='mt-4 grid grid-cols-1 gap-4 md:grid-cols-3'>
-          <Card className='p-4'>
-            <p>XII Mipa 2</p>
-          </Card>
-          <Card className='p-4'>
-            <p>XII Mipa 2</p>
-          </Card>
-          <Card className='p-4'>
-            <p>XII Mipa 2</p>
-          </Card>
-        </div>
-      </div>
-    </div>
+    <RenderTriggerProvider>
+      <MengajarViewPage />
+    </RenderTriggerProvider>
   );
 }

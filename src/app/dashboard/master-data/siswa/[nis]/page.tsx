@@ -1,6 +1,6 @@
 import FormCardSkeleton from '@/components/form-card-skeleton';
 import PageContainer from '@/components/layout/page-container';
-import SiswaViewPage from '@/features/siswa/siswa-view';
+import SiswaViewPage from '@/features/master-data/siswa/siswa-view';
 import { Suspense } from 'react';
 
 export const metadata = {

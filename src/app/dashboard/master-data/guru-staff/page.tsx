@@ -9,8 +9,8 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
-import GuruStaffTableAction from '@/features/guru-staff/guru-staff-tables/gurustaff-table-action';
-import GuruStaffListingPage from '@/features/guru-staff/guru-staff-listing';
+import GuruStaffTableAction from '@/features/master-data/guru-staff/guru-staff-tables/gurustaff-table-action';
+import GuruStaffListingPage from '@/features/master-data/guru-staff/guru-staff-listing';
 import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';
 
 export const metadata = {

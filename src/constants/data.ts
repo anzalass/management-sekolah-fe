@@ -21,12 +21,33 @@ export const navItems: NavItem[] = [
     items: []
   },
   {
-    title: 'Pendaftaran Siswa',
+    title: 'Pendaftaran Siswaa',
     url: '/dashboard/pendaftaran',
     icon: 'dashboard',
     isActive: false,
     shortcut: ['d', 'd'],
     items: []
+  },
+  {
+    title: 'Presensi Guru',
+    url: '/dashboard/pendaftaran',
+    icon: 'dashboard',
+    isActive: false,
+    shortcut: ['d', 'd'],
+    items: [
+      {
+        title: 'Kehadiran Guru',
+        url: '/dashboard/inventaris/daftar-inventaris',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+      {
+        title: 'Perizinan Guru',
+        url: '/dashboard/inventaris/jenis-inventaris',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      }
+    ]
   },
   {
     title: 'Inventaris',
@@ -50,18 +71,57 @@ export const navItems: NavItem[] = [
     ]
   },
   {
+    title: 'Konten Managementtt',
+    url: '/dashboard/content-management/news',
+    icon: 'product',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    allowedRoles: ['Guru'],
+    items: [
+      {
+        title: 'News',
+        url: '/dashboard/content-management/news',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+      {
+        title: 'Testimonials',
+        url: '/dashboard/content-management/testimoni',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+      {
+        title: 'Gallery',
+        url: '/dashboard/content-management/gallery',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+      {
+        title: 'Guru Template',
+        url: '/dashboard/content-management/guru-template',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      }
+    ]
+  },
+  {
     title: 'Master Data',
-    url: '/dashboard/tahun-ajaran',
+    url: '/dashboard/master-data/siswa',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
     items: [
       {
-        title: 'Guru Staff',
+        title: 'Anggaran',
+        url: '/dashboard/master-data/anggaran',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+      {
+        title: 'Guru dan Staff',
         url: '/dashboard/master-data/guru-staff',
         icon: 'userPen',
-        shortcut: ['n', 'n'],
-        allowedRoles: ['Kepala Sekolah']
+        shortcut: ['n', 'n']
       },
       {
         title: 'Siswa',
@@ -70,8 +130,8 @@ export const navItems: NavItem[] = [
         shortcut: ['n', 'n']
       },
       {
-        title: 'Ruangan',
-        url: '/dashboard/master-data/ruangan',
+        title: 'Kegiatan Sekolah',
+        url: '/dashboard/master-data/kegiatan-sekolah',
         icon: 'userPen',
         shortcut: ['n', 'n']
       },
@@ -82,42 +142,117 @@ export const navItems: NavItem[] = [
         shortcut: ['n', 'n']
       },
       {
-        title: 'Anggaran',
-        url: '/dashboard/master-data/anggaran',
+        title: 'Pengumuman',
+        url: '/dashboard/master-data/pengumuman',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+      {
+        title: 'Ruangan',
+        url: '/dashboard/master-data/ruangan',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+      {
+        title: 'Arsip dan Dokumen',
+        url: '/dashboard/master-data/ruangan',
         icon: 'userPen',
         shortcut: ['n', 'n']
       }
     ]
   },
   {
-    title: 'Konten Management',
-    url: '/dashboard/tahun-ajaran',
+    title: 'E - Konseling',
+    url: '/dashboard/konseling/data-siswa',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
-    allowedRoles: ['Kepala Sekolah'],
     items: [
       {
-        title: 'News',
-        url: '/dashboard/master-data/news',
+        title: 'Data Konseling Siswa',
+        url: '/dashboard/konseling/data-siswa',
         icon: 'userPen',
         shortcut: ['n', 'n']
       },
       {
-        title: 'Testimonials',
-        url: '/dashboard/master-data/testimoni',
+        title: 'Pelanggaran Siswa',
+        url: '/dashboard/konseling/pelanggaran',
         icon: 'userPen',
         shortcut: ['n', 'n']
       },
       {
-        title: 'Gallery',
-        url: '/dashboard/master-data/gallery',
+        title: 'Prestasi Siswa',
+        url: '/dashboard/konseling/prestasi',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      }
+    ]
+  },
+  {
+    title: 'E - Perpus',
+    url: '/dashboard/master-data/siswa',
+    icon: 'product',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: [
+      {
+        title: 'Data Buku',
+        url: '/dashboard/master-data/anggaran',
         icon: 'userPen',
         shortcut: ['n', 'n']
       },
       {
-        title: 'Guru Template',
-        url: '/dashboard/master-data/guru-template',
+        title: 'Peminjaman dan Pengembalian Buku',
+        url: '/dashboard/master-data/guru-staff',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      }
+    ]
+  },
+  {
+    title: 'E - Pembayaran',
+    url: '/dashboard/master-data/siswa',
+    icon: 'product',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: [
+      {
+        title: 'Daftar Tagihan Siswa',
+        url: '/dashboard/master-data/anggaran',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+      {
+        title: 'Riwayat Pembayaran Siswa',
+        url: '/dashboard/master-data/guru-staff',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      }
+    ]
+  },
+  {
+    title: 'E - Tabungan',
+    url: '/dashboard/master-data/siswa',
+    icon: 'product',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: [
+      {
+        title: 'Tabungan Siswa',
+        url: '/dashboard/master-data/anggaran',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+      {
+        title: 'Riwayat Menabung Siswa',
+        url: '/dashboard/master-data/guru-staff',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+
+      {
+        title: 'Riwayat Penarikan Siswa',
+        url: '/dashboard/master-data/guru-staff',
         icon: 'userPen',
         shortcut: ['n', 'n']
       }

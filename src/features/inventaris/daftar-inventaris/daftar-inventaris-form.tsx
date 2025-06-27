@@ -31,7 +31,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { JenisInventaris } from '../jenis-inventaris/jenis-inventaris-form';
-import { Ruangan } from '@/features/ruang/ruang-listing';
+import { Ruangan } from '@/features/master-data/ruang/ruang-listing';
 
 export type Inventaris = {
   id: string;

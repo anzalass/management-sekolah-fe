@@ -21,12 +21,6 @@ export default function OverViewLayout({
 
   return (
     <PageContainer>
-      <div className='absolute left-[30%] right-[30%]'>
-        {isCameraOpen ? (
-          <Camera open={isCameraOpen} setOpen={setIsCameraOpen} />
-        ) : null}
-      </div>
-
       <div className='flex flex-1 flex-col space-y-2'>
         <div className='my-5 flex flex-col items-center justify-between space-y-2 md:flex-row'>
           <h2 className='text-2xl font-bold tracking-tight'>
