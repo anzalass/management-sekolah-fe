@@ -108,6 +108,7 @@ export default function ModalTambahIzin({
       );
       fetchData();
       setOpenModal(false);
+      reset();
     } catch (err) {
       console.error(err);
       toast.error('Terjadi kesalahan saat menyimpan data');

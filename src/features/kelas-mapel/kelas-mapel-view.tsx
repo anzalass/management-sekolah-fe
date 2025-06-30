@@ -1,5 +1,4 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,6 +9,9 @@ import InputNilaiKelas from './input-nilai-kelas';
 import ModalMateri from './tambah-materi-kelas';
 import { Trash2 } from 'lucide-react';
 import ModalTugas from './tambah-tugas';
+import { API } from '@/lib/server';
+import axios from 'axios';
+import { toast } from 'sonner';
 
 interface Student {
   id: number;
@@ -38,12 +40,7 @@ type KelasMapelID = {
 };
 
 export default function KelasMapelView({ id }: KelasMapelID) {
-  const [masterSiswa] = useState<Student[]>([
-    { id: 1, name: 'Ali' },
-    { id: 2, name: 'Budi' },
-    { id: 3, name: 'Citra' },
-    { id: 4, name: 'Dewi' }
-  ]);
+  const [masterSiswa, setMasterSiswa] = useState<Student[]>([]);
   const [kelasSiswa, setKelasSiswa] = useState<Student[]>([]);
   const [selectedSiswaId, setSelectedSiswaId] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -51,6 +48,33 @@ export default function KelasMapelView({ id }: KelasMapelID) {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredMasterSiswa, setFilteredMasterSiswa] = useState<Student[]>([]);
+
+  useEffect(() => {
+    const fetchSiswa = async () => {
+      try {
+        const response = await axios.get(`${API}user/get-all-siswa`);
+        const json = response.data;
+
+        if (Array.isArray(json.result?.data)) {
+          const siswaArray: Student[] = json.result.data.map((item: any) => ({
+            id: item.id,
+            name: item.nama,
+            nis: item.nis,
+            gender: item.jenisKelamin,
+            kelas: item.kelas
+          }));
+
+          setMasterSiswa(siswaArray);
+        } else {
+          console.error('Data siswa bukan array:', json.result?.data);
+        }
+      } catch (error) {
+        console.error('Gagal fetch siswa:', error);
+      }
+    };
+
+    fetchSiswa();
+  }, []);
 
   useEffect(() => {
     const filtered = masterSiswa.filter(
@@ -112,11 +136,22 @@ export default function KelasMapelView({ id }: KelasMapelID) {
   const [judulTugas, setJudulTugas] = useState('');
   const [deskripsiTugas, setDeskripsiTugas] = useState('');
 
-  const handleAddSiswaToKelas = (id: number) => {
-    const siswa = masterSiswa.find((s) => s.id === id);
-    if (siswa && !kelasSiswa.find((s) => s.id === id)) {
-      setKelasSiswa((prev) => [...prev, siswa]);
-      setSearchTerm('');
+  const handleAddSiswaToKelas = async (nis: string) => {
+    try {
+      const response = await axios.post(`${API}kelas-mapel/add-siswa`, {
+        nis,
+        idKelas: id // pastikan juga kirim ID kelasMapel
+      });
+
+      toast.success('Siswa berhasil ditambahkan ke kelas');
+      const siswa = masterSiswa.find((s) => s.nis === nis);
+      if (siswa) {
+        setKelasSiswa((prev) => [...prev, siswa]);
+        setSearchTerm('');
+      }
+    } catch (error) {
+      console.error('Gagal menambahkan siswa:', error);
+      toast.error('Gagal menambahkan siswa ke kelas');
     }
   };
 
@@ -168,10 +203,12 @@ export default function KelasMapelView({ id }: KelasMapelID) {
                     key={siswa.id}
                     className='flex items-center justify-between border-b pb-1 last:border-none last:pb-0'
                   >
-                    <span>{siswa.name}</span>
+                    <span>
+                      {siswa.name} - {siswa.nis}
+                    </span>
                     <Button
                       size='sm'
-                      onClick={() => handleAddSiswaToKelas(siswa.id)}
+                      onClick={() => handleAddSiswaToKelas(siswa.nis || '')}
                     >
                       Tambah
                     </Button>
