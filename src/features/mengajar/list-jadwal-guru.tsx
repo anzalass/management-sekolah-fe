@@ -7,8 +7,12 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { Clock } from 'lucide-react';
-import React from 'react';
+import { Clock, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import axios from 'axios';
+import { toast } from 'sonner';
+import { API } from '@/lib/server';
 
 const hariIniLabel = new Date().toLocaleDateString('id-ID', {
   weekday: 'long',
@@ -25,12 +29,29 @@ const today = new Date()
 
 type Props = {
   jadwalGuru: any[];
+  fetchData: () => void;
 };
 
-export default function ListJadwalGuru({ jadwalGuru }: Props) {
+export default function ListJadwalGuru({ jadwalGuru, fetchData }: Props) {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
   const jadwalHariIni = jadwalGuru.filter(
     (jadwal) => jadwal.hari?.toLowerCase() === today
   );
+
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    try {
+      await axios.delete(`${API}jadwal-mengajar/delete/${id}`);
+      toast.success('Jadwal berhasil dihapus');
+      fetchData();
+    } catch (error) {
+      toast.error('Gagal menghapus jadwal');
+      console.error(error);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <Card className='shadow-md'>
@@ -47,6 +68,7 @@ export default function ListJadwalGuru({ jadwalGuru }: Props) {
                 <TableHead>Mata Pelajaran</TableHead>
                 <TableHead>Kelas</TableHead>
                 <TableHead>Ruang Kelas</TableHead>
+                <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -58,6 +80,20 @@ export default function ListJadwalGuru({ jadwalGuru }: Props) {
                   <TableCell>{jadwal.kelas}</TableCell>
                   <TableCell>{jadwal.namaMapel}</TableCell>
                   <TableCell>{jadwal.ruang}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant='destructive'
+                      size='sm'
+                      disabled={deletingId === jadwal.id}
+                      onClick={() => handleDelete(jadwal.id)}
+                    >
+                      {deletingId === jadwal.id ? (
+                        <span className='text-xs'>Menghapus...</span>
+                      ) : (
+                        <Trash2 className='h-4 w-4' />
+                      )}
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -11,10 +11,14 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Calendar, ImageIcon, Search } from 'lucide-react';
+import { Calendar, Search, Trash2, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import axios from 'axios';
+import { API } from '@/lib/server';
+import { toast } from 'sonner';
 
 type Izin = {
-  id: number;
+  id: string;
   tanggal: string;
   keterangan: string;
   buktiUrl?: string;
@@ -23,6 +27,7 @@ type Izin = {
 
 type Props = {
   listIzin: Izin[];
+  fetchData: () => void;
 };
 
 const statusColor = {
@@ -31,11 +36,26 @@ const statusColor = {
   ditolak: 'bg-red-100 text-red-700'
 };
 
-export default function CardListIzin({ listIzin }: Props) {
+export default function CardListIzin({ listIzin, fetchData }: Props) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<
     'semua' | 'disetujui' | 'menunggu' | 'ditolak'
   >('semua');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    try {
+      await axios.delete(`${API}/perizinan-guru/delete/${id}`);
+      toast.success('Data izin berhasil dihapus');
+      fetchData();
+    } catch (error) {
+      toast.error('Gagal menghapus izin');
+      console.error(error);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const filteredList = useMemo(() => {
     return listIzin.filter((izin) => {
@@ -51,6 +71,7 @@ export default function CardListIzin({ listIzin }: Props) {
   return (
     <div className='space-y-6'>
       <CardTitle>Perizinan</CardTitle>
+
       {/* FILTER */}
       <div className='flex flex-col gap-4 md:flex-row md:items-center'>
         <div className='relative w-full md:w-1/2'>
@@ -110,6 +131,23 @@ export default function CardListIzin({ listIzin }: Props) {
                   </p>
                   <p className='text-sm text-gray-600'>{izin.keterangan}</p>
                 </div>
+
+                {izin.status === 'menunggu' && (
+                  <div className='flex gap-2 pt-2'>
+                    <Button
+                      variant='destructive'
+                      size='sm'
+                      disabled={deletingId === izin.id}
+                      onClick={() => handleDelete(izin.id)}
+                    >
+                      {deletingId === izin.id ? (
+                        <Loader2 className='h-4 w-4 animate-spin' />
+                      ) : (
+                        <Trash2 className='h-4 w-4' />
+                      )}
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}

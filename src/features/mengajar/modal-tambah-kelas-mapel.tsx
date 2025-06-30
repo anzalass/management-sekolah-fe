@@ -100,7 +100,7 @@ export default function ModalTambahKelasMapel({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? 'Edit Kelas Mapel' : 'Tambah Kelas Mapel'}
+            {isEdit ? 'Edit Kelas Mapell' : 'Tambah Kelas Mapell'}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-3'>

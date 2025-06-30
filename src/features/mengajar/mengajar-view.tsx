@@ -210,13 +210,17 @@ export default function MengajarViewPage() {
       </div>
 
       {/* Jadwal Hari Ini */}
-      <ListJadwalGuru jadwalGuru={dashboard?.jadwalGuru} />
+      <ListJadwalGuru
+        jadwalGuru={dashboard?.jadwalGuru}
+        fetchData={dataDashboard}
+      />
 
       {/* Wali Kelas & Kelas Diajar */}
       <ListKelasGuru
-        kelasMapel={dashboard?.kelasMapel}
-        kelasWaliKelas={dashboard?.kelasWaliKelas}
+        kelasMapel={dashboard?.kelasMapel || []}
+        kelasWaliKelas={dashboard?.kelasWaliKelas || []}
         setOpenModal={setOpenModal}
+        fetchData={dataDashboard}
       />
 
       {/* Modal Tambah Kelas */}
@@ -233,7 +237,7 @@ export default function MengajarViewPage() {
         setOpenModal={setOpenModal}
       />
 
-      <CardListIzin listIzin={dashboard?.perizinan} />
+      <CardListIzin listIzin={dashboard?.perizinan} fetchData={dataDashboard} />
     </div>
   );
 }

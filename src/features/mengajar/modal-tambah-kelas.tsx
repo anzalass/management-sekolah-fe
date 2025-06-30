@@ -62,7 +62,7 @@ export default function ModalTambahKelas({
     try {
       const response = await fetch(
         isEdit
-          ? `${API}kelas-walikelas/update${dataEdit?.id}`
+          ? `${API}kelas-walikelas/update/${dataEdit?.id}`
           : `${API}kelas-walikelas/create`,
         {
           method: isEdit ? 'PUT' : 'POST',
