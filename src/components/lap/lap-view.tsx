@@ -136,7 +136,7 @@ export default function Lap() {
             adventure of learning
           </p>
           <div className='flex gap-4 sm:flex-row'>
-            <a href='/register'>
+            <a href='/pendaftaran-siswa'>
               <button className='rounded bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700'>
                 Join Us
               </button>
