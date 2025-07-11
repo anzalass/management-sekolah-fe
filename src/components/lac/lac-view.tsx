@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import logo3 from '../../../public/logo3.png';
 import Ellipse from '../../../public/Ellipse.png';
+import { easeInOut } from 'framer-motion';
 import Children from '../../../public/children.png';
 import Education from '../../../public/curriculumLAC.png';
 import Fasilitas1 from '../../../public/fasilitas1.jpg';
@@ -46,7 +47,7 @@ const fadeIn = (direction = 'up', delay = 0) => {
       transition: {
         duration: 0.6,
         delay: delay,
-        ease: 'easeInOut'
+        ease: easeInOut
       }
     }
   };
@@ -139,7 +140,7 @@ export default function LacView() {
             adventure of learning
           </p>
           <div className='flex gap-4 sm:flex-row'>
-            <a href='/register'>
+            <a href='/pendaftaran-siswa'>
               <button className='rounded bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700'>
                 Join Us
               </button>

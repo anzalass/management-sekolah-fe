@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { X } from 'lucide-react';
+import { API } from '@/lib/server';
 
 export default function RegisterView() {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -21,7 +22,7 @@ export default function RegisterView() {
 
   const onSubmit = async (data: any) => {
     try {
-      const response = await fetch('http://localhost:5000/api/v1/pendaftaran', {
+      const response = await fetch(`${API}pendaftaran`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
