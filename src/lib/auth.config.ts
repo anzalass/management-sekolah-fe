@@ -3,6 +3,8 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { API } from './server';
 import { JWT, Session, User } from 'next-auth';
 
+console.log('✅ NEXTAUTH_SECRET is set:', !!process.env.NEXTAUTH_SECRET);
+
 declare module 'next-auth' {
   interface User {
     token: string;
@@ -64,6 +66,17 @@ const authConfig = {
   session: {
     strategy: 'jwt',
     maxAge: 24 * 60 * 60
+  },
+  cookies: {
+    sessionToken: {
+      name: '__Secure-next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'none', // ⬅️ WAJIB agar cookie cross-domain bisa disimpan
+        secure: true, // ⬅️ WAJIB kalau domain pakai HTTPS
+        path: '/'
+      }
+    }
   },
   callbacks: {
     async jwt({ token, user }: { token: JWT; user: User | undefined }) {

@@ -201,13 +201,17 @@ export default function LacView() {
               ABOUT US
             </h2>
             <p className='text-sm leading-relaxed text-[#0066b3] sm:w-[100%] sm:text-base md:w-[90%] lg:w-[80%]'>
-              Little Alley is a refresh kindergarten curriculum framework that
-              highlights teaching and learning principles that are relevant for
-              developing competencies of young children. Kidsroom where learning
-              meets imagination! We believe that every child is a unique learner
-              with unlimited potential waiting to be unlocked. Kidsroom is
-              designed to provide a nurturing and inspiring environment where
-              children can grow academically and personally.
+              Little Alley Cyberschool is an online school built for active,
+              curious, and creative children. We move beyond textbook learning,
+              offering a full day of hands-on activities that let students
+              explore, create, and grow. Here, students lead their own learning
+              journey, while teachers serve as facilitators—guiding, supporting,
+              and helping each child discover their unique strengths. We use
+              technology as a tool to connect learners with real-world
+              experiences and meaningful projects, encouraging independence,
+              critical thinking, and personal growth. Little Alley is a
+              flexible, engaging space where children are free to be themselves
+              and learn in ways that matter to them.
             </p>
           </div>
         </div>
@@ -235,11 +239,9 @@ export default function LacView() {
                 VISION
               </span>
               <br />
-              To be a Pioneer in providing quality space and time for future
-              generations preparing them to become the best
+              learn without limits, be virtuous throughout life
               <br />
-              for the nation, with character and moral values as the foundation
-              of life.
+              Empowering digital culture outside with moral values inside
             </p>
           </div>
 
@@ -254,18 +256,12 @@ export default function LacView() {
               </span>
             </p>
             <ul className='mb-0 mt-0 list-disc pl-5 text-[#017BBD]'>
+              <li>Facilitate the learning process anywhere, anytime.</li>
+              <li>Design technology-based teaching and learning.</li>
+              <li>Reflect on and improve professional practice.</li>
               <li>
-                To design holistic child development programs using an
-                integrated approach
-              </li>
-              <li>
-                To facilitate the learning process in order to broaden
-                children's thinking and understanding
-              </li>
-              <li>To observe and assess children's learning and development</li>
-              <li>
-                To collaborate with families and communities to support
-                children's learning
+                Collaborate with the virtual and real worlds to enhance
+                children's understanding.
               </li>
             </ul>
           </div>
@@ -371,22 +367,20 @@ export default function LacView() {
           </div>
 
           <div className='order-2 max-w-xl text-center text-sm leading-relaxed text-[#0B6CBF] sm:text-base md:order-none'>
-            We teach using various methods, become facilitators for students
-            with diverse characters because they have the same opportunities. We
-            provide our students with a strong foundation for lifelong learning
-            and leading academically.
+            Little Alley Cyberschool As a fully internet-based school, all
+            classes, exams, and announcements are conducted through email and
+            our official website. This makes it easy for both students and
+            parents to stay informed and involved—anytime, anywhere.
           </div>
         </div>
 
         <div className='mt-10 flex flex-col space-y-10 md:flex-row md:items-center md:justify-center md:space-x-10 lg:space-x-20 lg:space-y-0'>
           <p className='order-2 max-w-xl text-center text-sm leading-relaxed text-[#0B6CBF] sm:text-base md:order-none'>
-            Our preschool program is designed to lay a strong foundation for
-            children aged 1 to 6 years old. Through a blend of play-based
-            learning, thematic approaches, and hands-on activities, we nurture
-            early literacy, numeracy, social skills, and creativity. Our
-            curriculum integrates language development, mathematics, science,
-            arts, and physical education to provide a well-rounded educational
-            experience.
+            Little Alley Cyberschool offers a modern and flexible learning
+            experience designed for today’s students. We use the IB-based
+            curriculum from Swiss, carefully tailored to help each child grow
+            through their unique interests and talents. Our approach encourages
+            curiosity, independence, and lifelong learning.
           </p>
           <div className='order-1 mx-auto flex max-w-[180px] flex-col items-center justify-center md:order-none md:max-w-none lg:mx-0'>
             <Image
@@ -427,12 +421,15 @@ export default function LacView() {
               IB CURRICULUM
             </h2>
             <ul className='mb-6 list-outside list-disc space-y-2 pl-5 text-sm text-[#0066b3] md:text-base'>
-              <li>Published by the MOE (Ministry of Education) 2012</li>
               <li>
-                NEL was designing and implementing a quality kindergarten
-                curriculum for children aged four to six with six principles,
-                encapsulated in the acronym “iTeach” as the basis for the best
-                practices
+                Published by the International Baccalaureate Organization (IBO),
+                a global non-profit based in Geneva, Switzerland
+              </li>
+              <li>
+                IB Curriculum focuses on developing internationally-minded,
+                inquiry-driven, and well-rounded learners, with strong emphasis
+                on learner agency, conceptual understanding, and
+                global citizenship
               </li>
             </ul>
             <h3 className='mb-4 ml-[20px] text-base font-bold text-[#0066b3] md:text-lg lg:ml-0'>
@@ -550,108 +547,6 @@ export default function LacView() {
           />
         </div>
       </div>
-
-      <Image
-        src={Garis}
-        className='mt-10 mt-24 w-full'
-        alt='Garis horizontal'
-      />
-
-      <div className='bg-white px-4 py-10 text-center md:px-16'>
-        <h2
-          className='mb-10 text-4xl font-extrabold text-[#017BBD]'
-          style={{ fontFamily: "'Poetsen One', sans-serif" }}
-        >
-          GALLERY
-        </h2>
-        <div className='mt-14 overflow-hidden'>
-          <div className='animate-scroll-images flex gap-4'>
-            {galleryImages.concat(galleryImages).map((img, index) => (
-              <Image
-                key={index}
-                src={img}
-                alt={`Facility ${index + 1}`}
-                className='h-40 w-64 flex-shrink-0 rounded-lg object-cover shadow'
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className='mt-10 bg-[#bde0fe] font-sans'>
-        <div className='mx-auto max-w-5xl px-4 py-10'>
-          <div className='mb-8 text-center'>
-            <h2 className='text-4xl font-extrabold text-[#003049]'>
-              TESTIMONIAL
-            </h2>
-            <p className='text-sm italic text-[#003049] md:text-base'>
-              Hear From Our Parents
-            </p>
-          </div>
-          <Swiper
-            onSwiper={(swiper: any) => {
-              setSwiperInstance(swiper);
-              console.log('Swiper instance set:', swiper);
-            }}
-            modules={[Navigation, Autoplay]}
-            spaceBetween={20}
-            loop={true}
-            autoplay={{
-              delay: 4000,
-              disableOnInteraction: false
-            }}
-            navigation={false}
-            slidesPerView={2} // Default value for smaller screens (1 slide on mobile)
-            breakpoints={{
-              640: {
-                slidesPerView: 2 // 2 slides per view on mobile devices
-              },
-              768: {
-                slidesPerView: 4 // 2 slides per view on tablets
-              },
-              1024: {
-                slidesPerView: 3 // 3 slides per view on medium screens (laptops)
-              },
-              1280: {
-                slidesPerView: 4 // 4 slides per view on desktop
-              }
-            }}
-          >
-            {testimonials.map((item, index) => (
-              <SwiperSlide key={index}>
-                <div className='mx-auto flex h-[230px] w-full max-w-[250px] flex-col overflow-hidden rounded-3xl bg-white shadow-lg'>
-                  <Image
-                    width={1000}
-                    height={1000}
-                    src={item.img}
-                    alt='Testimonial'
-                    className='h-40 w-full rounded-t-3xl object-cover'
-                  />
-                  <p className='flex-1 p-4 text-xs leading-relaxed text-[#003049] md:text-sm'>
-                    {item.text}
-                  </p>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-
-          <div className='mb-3 mt-14 flex justify-center space-x-4'>
-            <button
-              onClick={() => swiperInstance?.slidePrev()}
-              className='flex h-9 w-9 items-center justify-center rounded-full border-2 border-blue-500 text-blue-500'
-            >
-              <FontAwesomeIcon icon={faArrowLeft} />
-            </button>
-            <button
-              onClick={() => swiperInstance?.slideNext()}
-              className='flex h-9 w-9 items-center justify-center rounded-full border-2 border-blue-500 text-blue-500'
-            >
-              <FontAwesomeIcon icon={faArrowRight} />
-            </button>
-          </div>
-        </div>
-      </div>
-
       <Footer />
     </div>
   );

@@ -77,7 +77,7 @@ export default function TestimonialForm({
           toast.success('Testimoni berhasil disimpan');
         }
 
-        router.push('/dashboard/master-data/testimoni');
+        router.push('/dashboard/content-management/testimoni');
       } catch (error) {
         const axiosError = error as AxiosError;
         const errorMessage =

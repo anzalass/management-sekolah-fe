@@ -3,8 +3,9 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { GuruTemplate } from '../guru-template-listing'; // Adjust the import path accordingly
+import { API } from '@/lib/server';
 
-const BASE_URL = 'http://localhost:5000/api/v1/view-image'; // API route to view images for GuruTemplate
+const BASE_URL = `${API}view-image`; // API route to view images for GuruTemplate
 
 export const columns: ColumnDef<GuruTemplate>[] = [
   {
