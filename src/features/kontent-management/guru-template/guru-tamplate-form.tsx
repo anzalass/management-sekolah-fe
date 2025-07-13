@@ -79,7 +79,7 @@ export default function GuruTemplateForm({
           toast.success('Guru Template berhasil disimpan');
         }
 
-        router.push('/dashboard/master-data/guru-template');
+        router.push('/dashboard/content-management/guru-template');
       } catch (error) {
         const axiosError = error as AxiosError;
         const errorMessage =

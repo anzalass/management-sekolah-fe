@@ -72,7 +72,7 @@ export default function GalleryForm({
           toast.success('Gallery berhasil disimpan');
         }
 
-        router.push('/dashboard/master-data/gallery');
+        router.push('/dashboard/content-management/gallery');
       } catch (error) {
         const axiosError = error as AxiosError;
         const errorMessage =

@@ -31,7 +31,7 @@ export default async function Page(props: pageProps) {
         <div className='flex items-start justify-between'>
           <Heading title='Testimonial' description='' />
           <Link
-            href='/dashboard/master-data/testimoni/new'
+            href='/dashboard/content-management/testimoni/new'
             className={cn(buttonVariants(), 'text-xs md:text-sm')}
           >
             <Plus className='mr-2 h-4 w-4' /> Tambah Testimoni

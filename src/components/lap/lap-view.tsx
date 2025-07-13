@@ -12,6 +12,8 @@ import Fasilitas2 from '../../../public/fasilitas2.jpg';
 import Fasilitas3 from '../../../public/fasilitas3.jpg';
 import Fasilitas4 from '../../../public/fasilitas4.jpg';
 import Fasilitas5 from '../../../public/fasilitas5.jpg';
+import Fasilitas6 from '../../../public/fasilitas6.jpg';
+import Fasilitas7 from '../../../public/fasilitas7.jpg';
 import child1 from '../../../public/childs1.jpg';
 import child2 from '../../../public/childs2.jpg';
 import child3 from '../../../public/childs3.jpg';
@@ -199,11 +201,11 @@ export default function Lap() {
             <p className='text-sm leading-relaxed text-[#0066b3] sm:w-[100%] sm:text-base md:w-[90%] lg:w-[80%]'>
               Little Alley is a refresh kindergarten curriculum framework that
               highlights teaching and learning principles that are relevant for
-              developing competencies of young children. Kidsroom where learning
-              meets imagination! We believe that every child is a unique learner
-              with unlimited potential waiting to be unlocked. Kidsroom is
-              designed to provide a nurturing and inspiring environment where
-              children can grow academically and personally.
+              developing competencies of young children. We believe that every
+              child is a unique learner with unlimited potential waiting to be
+              unlocked. Kidsroom is designed to provide a nurturing and
+              inspiring environment where children can grow academically and
+              personally.
             </p>
           </div>
         </div>
@@ -399,7 +401,7 @@ export default function Lap() {
         <div className='mt-10 flex flex-col space-y-10 md:flex-row md:items-center md:justify-center md:space-x-10 lg:space-x-20 lg:space-y-0'>
           <p className='order-2 max-w-xl text-center text-sm leading-relaxed text-[#0B6CBF] sm:text-base md:order-none'>
             Our preschool program is designed to lay a strong foundation for
-            children aged 1 to 6 years old. Through a blend of play-based
+            children aged 1,5 to 6 years old. Through a blend of play-based
             learning, thematic approaches, and hands-on activities, we nurture
             early literacy, numeracy, social skills, and creativity. Our
             curriculum integrates language development, mathematics, science,
@@ -510,31 +512,25 @@ export default function Lap() {
           <Image
             width={1000}
             height={1000}
-            src={Fasilitas1}
+            src={Fasilitas5}
             alt='Facility 1'
             className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
           <Image
             width={1000}
             height={1000}
-            src={Fasilitas2}
+            src={Fasilitas6}
             alt='Facility 2'
             className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
           <Image
             width={1000}
             height={1000}
-            src={Fasilitas3}
+            src={Fasilitas7}
             alt='Facility 3'
             className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
-          <Image
-            width={1000}
-            height={1000}
-            src={Fasilitas4}
-            alt='Facility 4'
-            className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
-          />
+
           <div className='mb-6 mt-9 hidden w-72 text-sm leading-tight text-[#0066b3] lg:block'>
             <p>
               Yayasan Tunas Anak Mulia is equipped with facilities and resources
@@ -547,14 +543,6 @@ export default function Lap() {
               <li>Center Playgrounds</li>
             </ul>
           </div>
-
-          <Image
-            width={1000}
-            height={1000}
-            src={Fasilitas5}
-            alt='Facility 5'
-            className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
-          />
         </div>
       </div>
 

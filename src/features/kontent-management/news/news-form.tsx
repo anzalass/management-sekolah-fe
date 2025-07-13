@@ -82,7 +82,7 @@ export default function NewsForm({
           toast.success('Berita berhasil disimpan');
         }
 
-        router.push('/dashboard/master-data/news');
+        router.push('/dashboard/content-management/news');
       } catch (error) {
         const axiosError = error as AxiosError;
         const errorMessage =

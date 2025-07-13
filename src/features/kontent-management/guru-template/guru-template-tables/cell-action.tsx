@@ -73,7 +73,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           {/* Edit action - navigate to the update page */}
           <DropdownMenuItem
             onClick={() =>
-              router.push(`/dashboard/master-data/guru-template/${data.id}`)
+              router.push(
+                `/dashboard/content-management/guru-template/${data.id}`
+              )
             }
           >
             <Edit className='mr-2 h-4 w-4' /> Update
