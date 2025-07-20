@@ -16,6 +16,11 @@ const nextConfig = {
         protocol: 'http',
         hostname: 'localhost',
         port: '5000'
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.yayasantunasanakmulia.sch.id',
+        port: ''
       }
     ],
     domains: [
@@ -23,12 +28,13 @@ const nextConfig = {
       'static.vecteezy.com',
       'res.cloudinary.com',
       'storage.googleapis.com',
-      'localhost'
+      'localhost',
+      'api.yayasantunasanakmulia.sch.id'
     ]
   },
+
   transpilePackages: ['geist'],
 
-  // ✅ Skip TypeScript error saat build
   typescript: {
     ignoreBuildErrors: true
   },
