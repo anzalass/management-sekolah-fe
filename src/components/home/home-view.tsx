@@ -3,29 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
-import image1 from '../../../public/asuma.jpg';
-import image2 from '../../../public/choji.jpg';
-import image3 from '../../../public/guy.jpg';
-import image4 from '../../../public/hinata.jpg';
-import image5 from '../../../public/itachi.jpg';
-import image6 from '../../../public/jiraya.jpg';
-import image7 from '../../../public/kakashi.jpg';
-import image8 from '../../../public/rocklee.jpg';
-import image9 from '../../../public/naruto.jpg';
-import image10 from '../../../public/shikamaru.jpg';
 import imagebg1 from '../../../public/4.jpg';
+import founder from '../../../public/founder.jpg';
+
 import imagebg2 from '../../../public/3.jpg';
 import imagebg3 from '../../../public/5.jpg';
-import imageevn1 from '../../../public/event1.jpg';
-import imageevn2 from '../../../public/event2.jpg';
-import imageevn3 from '../../../public/event3.jpg';
-import imageevn4 from '../../../public/event4.jpg';
-import imageevn5 from '../../../public/event5.jpg';
-import imageevn6 from '../../../public/event6.jpg';
-import imageevn7 from '../../../public/event7.jpg';
-import imageevn8 from '../../../public/event8.jpg';
-import imageevn9 from '../../../public/event9.jpg';
-import imageevn10 from '../../../public/event10.jpg';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 
@@ -36,6 +18,15 @@ import Image from 'next/image';
 import Navbar from '../layout/navbar';
 import axios from 'axios';
 import { API } from '@/lib/server';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '../ui/card';
+import { Button } from '../ui/button';
+import Link from 'next/link';
 
 interface NewsItem {
   image: string;
@@ -145,96 +136,207 @@ export default function HomeView() {
         </div>
       </div>
 
-      <div className='py-8'>
-        <div className='container mx-auto px-6'>
-          <p className='font-marathi text-black-700 mx-auto mb-8 w-full px-4 text-justify text-lg md:w-[70%] md:text-center'>
-            Yayasan Tunas Anak Mulia (YTAM), an educational institution
-            dedicated to nurturing young minds through our preschool and
-            tutoring services. Since our establishment in 2021, we have been
-            committed to providing quality education and empowering them to
-            reach their full potential.
+      <section className='bg-white py-12'>
+        <div className='container mx-auto px-4 md:px-6'>
+          <p className='mx-auto mb-10 max-w-3xl text-justify text-lg font-medium text-muted-foreground md:text-center'>
+            <span className='font-semibold'>
+              Yayasan Tunas Anak Mulia (YTAM)
+            </span>{' '}
+            is an educational institution dedicated to nurturing young minds
+            through our preschool and tutoring programs. Since our founding in
+            2021, we’ve remained committed to providing quality education and
+            empowering children to reach their full potential.
           </p>
-          <div className='flex flex-col items-center justify-center text-center md:flex-row md:justify-between md:text-left'>
-            <div className='mb-8 md:mb-0 md:w-1/2'>
-              <h2 className='mb-4 text-2xl font-bold'>PROBLEM</h2>
-              <p className='font-marathi text-black-700 mx-auto w-[90%] text-justify text-lg md:mx-0 md:text-left'>
-                Busy parents and the impact of the COVID-19 pandemic have led to
-                many children interacting more with gadgets than with their
-                parents in the development in this modern era.
-              </p>
-            </div>
-            <div className='md:w-1/2 md:text-right'>
-              <h2 className='mb-4 text-2xl font-bold'>SOLUTION</h2>
-              <p className='font-marathi text-black-700 mx-auto w-[90%] text-justify text-lg md:mx-0 md:ml-[50px] md:text-right lg:ml-16'>
-                We teach using various methods, become facilitators for students
-                with diverse characters because they have the same
-                opportunities. We provide our students with a strong foundation
-                for lifelong learning and leading academically.
-              </p>
-            </div>
+
+          <div className='grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-16'>
+            <Card className='shadow-lg'>
+              <CardHeader>
+                <CardTitle className='text-2xl font-bold'>PROBLEM</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className='text-justify text-base leading-relaxed text-muted-foreground'>
+                  Busy parents and the impact of the COVID-19 pandemic have
+                  caused many children to spend more time with gadgets than
+                  engaging with their parents. This shift impacts their
+                  development in today's digital era.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className='shadow-lg'>
+              <CardHeader>
+                <CardTitle className='text-2xl font-bold'>SOLUTION</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className='text-justify text-base leading-relaxed text-muted-foreground'>
+                  We utilize various teaching methods and act as facilitators to
+                  support students with different characteristics— giving them
+                  equal opportunities to grow. We help build a strong foundation
+                  for lifelong learning and academic excellence.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className='mx-auto max-w-[90%] rounded bg-gray-200 p-8 shadow-lg'>
-        <div className='flex flex-col items-center md:flex-row'>
-          <div className='order-2 p-4 md:order-1 md:w-[70%] lg:w-3/4'>
-            <h1 className='font-tiltwarp mb-2 hidden text-left text-3xl md:block'>
-              SPEECH FOUNDER
-            </h1>
-            <h2 className='font-tiltwarp mb-4 hidden text-left text-lg md:block'>
-              YAYASAN TUNAS ANAK MULIA
-            </h2>
+      <section className='bg-muted/40 py-12'>
+        <div className='container mx-auto px-4 md:px-6'>
+          <Card className='mx-auto max-w-6xl shadow-lg'>
+            <div className='flex flex-col md:flex-row'>
+              {/* Text Content */}
+              <div className='order-2 w-full p-6 md:order-1 md:w-[70%] lg:w-3/4'>
+                <CardHeader className='hidden md:block'>
+                  <CardTitle className='font-tiltwarp text-left text-3xl'>
+                    SPEECH FOUNDER
+                  </CardTitle>
+                  <p className='text-left text-sm font-medium tracking-wide text-muted-foreground'>
+                    YAYASAN TUNAS ANAK MULIA
+                  </p>
+                </CardHeader>
 
-            <p className='font-marathi word-wrap break-word mb-4 text-justify'>
-              Dear parents, students, and community members. It is my great
-              pleasure to welcome you to the Yayasan Tunas Anak Mulia. Let me
-              tell about my dedication in early childhood programme.
-            </p>
-            <p className='font-marathi mb-4 text-justify'>
-              Because every child is a unique individual with different
-              strengths and weakness, that's why our philosophy of education has
-              been designed to our students.
-            </p>
-            <p className='font-marathi mb-4 text-justify'>
-              I am delighted that our students continue to be very happy in a
-              range of their ages. Reflecting on my experiences, I created the
-              critical environment to our students school. We let them to ask as
-              many as they want, we also understanding the concept of who
-              children are, what they are capable or how they learn from the
-              curiosity.
-            </p>
-            <p className='font-marathi mb-4 text-justify'>
-              Thus, in this great time I engaged all parents to see and observe
-              how your child learn and growth differently with nurture their
-              talents to bring out their almost potential.
-            </p>
-            <p className='font-marathi mb-4 text-justify'>
-              Finally, I believed that learning occurs when children are
-              involved in first hand experiences is the point of child's growth.
-            </p>
-            <p className='font-marathi mb-4 text-justify'>
-              Thank you for your trust and support to Yayasan Tunas Anak Mulia.
-              I hope together we can nurture bright future.
+                <CardContent className='font-marathi space-y-4 text-justify text-base leading-relaxed text-muted-foreground'>
+                  <p>
+                    Dear parents, students, and community members. It is my
+                    great pleasure to welcome you to Yayasan Tunas Anak Mulia.
+                    Let me share my dedication to early childhood education.
+                  </p>
+                  <p>
+                    Every child is a unique individual with different strengths
+                    and challenges. That’s why our educational philosophy is
+                    thoughtfully designed to meet the needs of each student.
+                  </p>
+                  <p>
+                    I am delighted that our students continue to thrive across
+                    various age groups. Drawing from my experiences, I’ve
+                    cultivated an environment that encourages curiosity and
+                    critical thinking. We allow students to ask questions freely
+                    and discover who they are and how they learn.
+                  </p>
+                  <p>
+                    I encourage all parents to actively observe and support
+                    their child’s learning journey. We believe in nurturing
+                    talents to bring out their fullest potential.
+                  </p>
+                  <p>
+                    Ultimately, I believe that true learning happens through
+                    real experiences—this is the foundation of a child’s growth.
+                  </p>
+                  <p>
+                    Thank you for your trust and continued support in Yayasan
+                    Tunas Anak Mulia. Together, we can nurture a bright future.
+                  </p>
+                </CardContent>
+              </div>
+
+              {/* Photo & Info */}
+              <div className='order-1 flex w-full flex-col items-center justify-center p-6 md:order-2 md:w-1/3 md:items-start md:pl-4 md:pt-12'>
+                {/* Mobile title */}
+                <div className='mb-4 block text-center md:hidden'>
+                  <h1 className='font-tiltwarp text-2xl'>SPEECH FOUNDER</h1>
+                  <p className='text-sm text-muted-foreground'>
+                    YAYASAN TUNAS ANAK MULIA
+                  </p>
+                </div>
+
+                {/* Gambar founder */}
+                <div className='mb-4 h-[300px] w-[200px] overflow-hidden rounded-xl bg-gray-200 shadow-md md:ml-6'>
+                  <Image
+                    src={founder} // Ganti path sesuai file kamu
+                    alt='Founder YTAM'
+                    width={200}
+                    height={300}
+                    className='h-full w-full object-cover'
+                  />
+                </div>
+
+                {/* Nama & Jabatan */}
+                <p className='font-tiltwarp text-lg font-semibold md:ml-6'>
+                  NOVITA WIJAYA
+                </p>
+                <p className='text-sm text-muted-foreground md:ml-6'>
+                  Founder of Yayasan Tunas Anak Mulia
+                </p>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </section>
+
+      <section className='bg-white py-12'>
+        <div className='container mx-auto px-4 md:px-6'>
+          {/* Heading Section */}
+          <div className='mb-10 text-center'>
+            <h2 className='text-3xl font-bold'>Our Class Offerings</h2>
+            <p className='mx-auto mt-2 max-w-2xl text-base text-muted-foreground'>
+              Yayasan Tunas Anak Mulia offers two types of classes designed to
+              optimally support children's development and education.
             </p>
           </div>
 
-          <div className='order-1 mt-8 flex flex-col items-center md:order-2 md:mt-0 md:w-1/4'>
-            <h1 className='font-tiltwarp mb-1 block text-center text-2xl md:hidden'>
-              SPEECH FOUNDER
-            </h1>
-            <h2 className='font-tiltwarp mb-3 block text-center text-sm md:hidden'>
-              YAYASAN TUNAS ANAK MULIA
-            </h2>
+          {/* Grid Card Kelas */}
+          <div className='grid grid-cols-1 gap-8 md:grid-cols-2'>
+            {/* Card LAP */}
+            <Card className='relative h-full shadow-md'>
+              <CardHeader>
+                <CardTitle className='text-xl'>
+                  Little Alley Preschool
+                </CardTitle>
+              </CardHeader>
+              <CardContent className='mb-14 space-y-2 text-justify text-base text-muted-foreground'>
+                <p>
+                  Little Alley is a refresh kindergarten curriculum framework
+                  that highlights teaching and learning principles that are
+                  relevant for developing competencies of young children. We
+                  believe that every child is a unique learner with unlimited
+                  potential waiting to be unlocked. Kidsroom is designed to
+                  provide a nurturing and inspiring environment where children
+                  can grow academically and personally.
+                </p>
+              </CardContent>
+              <CardFooter className='absolute bottom-3 right-3'>
+                <Link href={'/little-alley-preschool'}>
+                  <Button className='ml-auto' variant='outline'>
+                    More
+                  </Button>
+                </Link>
+              </CardFooter>
+            </Card>
 
-            <div className='image1 mb-4 h-[350px] w-[220px] rounded-[1rem] bg-red-700 md:ml-10 md:mt-[1rem] lg:ml-0 lg:mt-0 lg:h-[350px]'></div>
-            <p className='font-tiltwarp md:ml-5 lg:ml-0'>NOVITA WIJAYA</p>
-            <p className='font-marathi text-sm md:ml-10 md:w-[120%] lg:ml-0 lg:w-auto'>
-              Founder Yayasan Tunas Anak Mulia
-            </p>
+            {/* Card LAC */}
+            <Card className='relative h-full shadow-md'>
+              <CardHeader>
+                <CardTitle className='text-xl'>
+                  Little Alley Cyberschool
+                </CardTitle>
+              </CardHeader>
+              <CardContent className='mb-14 space-y-2 text-justify text-base text-muted-foreground'>
+                <p>
+                  Little Alley Cyberschool is an online school built for active,
+                  curious, and creative children. We move beyond textbook
+                  learning, offering a full day of hands-on activities that let
+                  students explore, create, and grow. Here, students lead their
+                  own learning journey, while teachers serve as
+                  facilitators—guiding, supporting, and helping each child
+                  discover their unique strengths. We use technology as a tool
+                  to connect learners with real-world experiences and meaningful
+                  projects, encouraging independence, critical thinking, and
+                  personal growth. Little Alley is a flexible, engaging space
+                  where children are free to be themselves and learn in ways
+                  that matter to them.
+                </p>
+              </CardContent>
+              <CardFooter className='absolute bottom-3 right-3'>
+                <Link href={'/little-alley-cyberschool'}>
+                  <Button className='ml-auto' variant='outline'>
+                    More
+                  </Button>
+                </Link>
+              </CardFooter>
+            </Card>
           </div>
         </div>
-      </div>
+      </section>
 
       <div className='mt-10 flex flex-col items-center justify-center px-4'>
         <h1 className='font-tiltwarp mb-6 text-center text-2xl md:text-4xl'>

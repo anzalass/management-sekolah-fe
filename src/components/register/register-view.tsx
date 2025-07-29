@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/layout/navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import Footer from '@/components/layout/footer';
@@ -12,15 +12,34 @@ import { API } from '@/lib/server';
 
 export default function RegisterView() {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors }
   } = useForm();
 
+  useEffect(() => {
+    if (selectedProgram) {
+      setValue('kategori', selectedProgram, {
+        shouldValidate: true // penting agar error dihapus otomatis
+      });
+    }
+  }, [selectedProgram, setValue]);
+
   const onSubmit = async (data: any) => {
+    if (!selectedProgram) {
+      toast.error('Please select LAC or LAP before submitting');
+      return;
+    }
+
+    console.log('Asas');
+
+    data.kategori = selectedProgram; // Tambahkan ke data yang dikirim
+
     try {
       const response = await fetch(`${API}pendaftaran`, {
         method: 'POST',
@@ -32,6 +51,7 @@ export default function RegisterView() {
         setIsSubmitted(true);
         toast.success('Berhasil melakukan pendaftaran');
         reset();
+        setSelectedProgram(null);
       } else {
         toast.error('Gagal melakukan pendaftaran');
       }
@@ -58,11 +78,21 @@ export default function RegisterView() {
           className='relative top-[-25rem] w-full space-y-3 rounded-xl bg-white p-4 shadow-lg md:w-[500px] lg:top-0'
         >
           <h1 className='mx-auto flex w-[80%] items-center justify-center text-center text-2xl font-bold text-blue-800 lg:w-auto'>
-            Register Now for LAP 2025–2026
+            Register Now for LAP or LAC 2025–2026
           </h1>
           <p className='text-center text-gray-500'>
             Fill the form below and we'll get in touch shortly!
           </p>
+
+          {/* Hidden input program */}
+          <input
+            type='hidden'
+            value={selectedProgram || ''}
+            {...register('kategori', { required: true })}
+          />
+          {errors.kategori && (
+            <p className='text-sm text-red-500'>Kategori is required</p>
+          )}
 
           <input
             type='text'
@@ -112,6 +142,37 @@ export default function RegisterView() {
           />
           {errors.email && (
             <p className='text-sm text-red-500'>Email is required</p>
+          )}
+
+          {/* Tombol Pilih Program */}
+          <div className='flex w-full gap-4'>
+            <button
+              type='button'
+              onClick={() => setSelectedProgram('LAC')}
+              className={`rounded-md border px-4 py-2 ${
+                selectedProgram === 'LAC'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-800'
+              }`}
+            >
+              LAC
+            </button>
+            <button
+              type='button'
+              onClick={() => setSelectedProgram('LAP')}
+              className={`rounded-md border px-4 py-2 ${
+                selectedProgram === 'LAP'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-800'
+              }`}
+            >
+              LAP
+            </button>
+          </div>
+          {!selectedProgram && (
+            <p className='text-sm text-red-500'>
+              Please select a program (LAC or LAP)
+            </p>
           )}
 
           {/* Checkbox Agreement */}

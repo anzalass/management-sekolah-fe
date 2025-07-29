@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 
 interface Student {
   id: number;
-  name: string;
+  nama: string;
   nis?: string;
   gender?: 'Laki-laki' | 'Perempuan';
   kelas?: string;
@@ -42,7 +42,6 @@ type KelasMapelID = {
 export default function KelasMapelView({ id }: KelasMapelID) {
   const [masterSiswa, setMasterSiswa] = useState<Student[]>([]);
   const [kelasSiswa, setKelasSiswa] = useState<Student[]>([]);
-  const [selectedSiswaId, setSelectedSiswaId] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showTugasModal, setShowTugasModal] = useState(false);
 
@@ -53,21 +52,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
     const fetchSiswa = async () => {
       try {
         const response = await axios.get(`${API}user/get-all-siswa`);
-        const json = response.data;
-
-        if (Array.isArray(json.result?.data)) {
-          const siswaArray: Student[] = json.result.data.map((item: any) => ({
-            id: item.id,
-            name: item.nama,
-            nis: item.nis,
-            gender: item.jenisKelamin,
-            kelas: item.kelas
-          }));
-
-          setMasterSiswa(siswaArray);
-        } else {
-          console.error('Data siswa bukan array:', json.result?.data);
-        }
+        setMasterSiswa(response.data.result.data);
       } catch (error) {
         console.error('Gagal fetch siswa:', error);
       }
@@ -79,10 +64,11 @@ export default function KelasMapelView({ id }: KelasMapelID) {
   useEffect(() => {
     const filtered = masterSiswa.filter(
       (s) =>
-        s.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        s?.nama.toLowerCase().includes(searchTerm.toLowerCase()) &&
         !kelasSiswa.find((k) => k.id === s.id) // jangan tampilkan yg sudah masuk kelas
     );
     setFilteredMasterSiswa(filtered);
+    console.log(filteredMasterSiswa);
   }, [searchTerm, masterSiswa, kelasSiswa]);
 
   const [judulMateri, setJudulMateri] = useState('');
@@ -204,7 +190,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
                     className='flex items-center justify-between border-b pb-1 last:border-none last:pb-0'
                   >
                     <span>
-                      {siswa.name} - {siswa.nis}
+                      {siswa.nama} - {siswa.nis}
                     </span>
                     <Button
                       size='sm'
@@ -227,7 +213,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
         <CardContent>
           <ul className='ml-5 list-disc'>
             {kelasSiswa.map((s) => (
-              <li key={s.id}>{s.name}</li>
+              <li key={s.id}>{s.nama}</li>
             ))}
           </ul>
         </CardContent>

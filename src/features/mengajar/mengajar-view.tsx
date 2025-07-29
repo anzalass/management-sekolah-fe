@@ -146,7 +146,7 @@ export default function MengajarViewPage() {
         <Button
           variant='outline'
           onClick={() => setShowIzinModal(true)}
-          disabled={dashboard.statusIzin}
+          disabled={dashboard.statusMasuk}
         >
           {dashboard.statusIzin
             ? '📋 Telah Izin Tidak Hadir'

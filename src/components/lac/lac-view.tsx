@@ -7,11 +7,13 @@ import Ellipse from '../../../public/Ellipse.png';
 import { easeInOut } from 'framer-motion';
 import Children from '../../../public/children.png';
 import Education from '../../../public/curriculumLAC.png';
-import Fasilitas1 from '../../../public/fasilitas1.jpg';
-import Fasilitas2 from '../../../public/fasilitas2.jpg';
-import Fasilitas3 from '../../../public/fasilitas3.jpg';
-import Fasilitas4 from '../../../public/fasilitas4.jpg';
-import Fasilitas5 from '../../../public/fasilitas5.jpg';
+import fasilitaslac1 from '../../../public/fasilitaslac7.jpg';
+import fasilitaslac2 from '../../../public/fasilitaslac8.jpg';
+import fasilitaslac3 from '../../../public/fasilitaslac9.jpg';
+import fasilitaslac4 from '../../../public/fasilitaslac10.jpg';
+import fasilitaslac5 from '../../../public/fasilitaslac11.jpg';
+import fasilitaslac6 from '../../../public/fasilitaslac12.jpg';
+import fasilitaslac7 from '../../../public/fasilitaslac14.jpg';
 import Galery1 from '../../../public/galery1.jpg';
 import Galery2 from '../../../public/galery2.jpg';
 import Galery3 from '../../../public/galery3.jpg';
@@ -19,6 +21,12 @@ import Galery4 from '../../../public/galery4.jpg';
 import Galery5 from '../../../public/galery5.jpg';
 import Galery6 from '../../../public/galery6.jpg';
 import Galery7 from '../../../public/galery7.jpg';
+import primary1 from '../../../public/primary1.jpg';
+import primary2 from '../../../public/primary2.jpg';
+import primary3 from '../../../public/primary3.jpg';
+import primary4 from '../../../public/primary4.jpg';
+import primary5 from '../../../public/primary5.jpg';
+import primary6 from '../../../public/primary6.jpg';
 import Garis from '../../../public/Garis.png';
 import Awan from '../../../public/awan.png';
 import Awan2 from '../../../public/awan2.png';
@@ -32,6 +40,13 @@ import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import Footer from '../../components/layout/footer';
 import Image from 'next/image';
 import Navbar from '../../components/layout/navbar';
+import { AboutUs } from '../lap/about-us';
+import { VisionAndMission } from '../lap/visimisi';
+import { CurriculumSection } from '../lap/curriculum';
+import Testimonial from '../lap/testimonial';
+import axios from 'axios';
+import { API } from '@/lib/server';
+import Gallery from '../lap/gallery';
 
 const fadeIn = (direction = 'up', delay = 0) => {
   return {
@@ -55,23 +70,27 @@ const fadeIn = (direction = 'up', delay = 0) => {
 
 const testimonials = [
   {
-    img: Fasilitas1,
+    img: fasilitaslac1,
     text: '“blablablala...”'
   },
   {
-    img: Fasilitas2,
+    img: fasilitaslac2,
     text: '“blablablala...”'
   },
   {
-    img: Fasilitas3,
+    img: fasilitaslac3,
     text: '“blablablala...”'
   },
   {
-    img: Fasilitas4,
+    img: fasilitaslac4,
     text: '“blablablala...”'
   },
   {
-    img: Fasilitas5,
+    img: fasilitaslac6,
+    text: '“Tambahan agar loop & next jalan.”'
+  },
+  {
+    img: fasilitaslac7,
     text: '“Tambahan agar loop & next jalan.”'
   }
 ];
@@ -109,6 +128,31 @@ export default function LacView() {
     triggerOnce: true,
     threshold: 0.2
   });
+
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [gallery, setGallery] = useState<any[]>([]);
+
+  useEffect(() => {
+    axios
+      .get(`${API}testimonials`)
+      .then((response) => {
+        setTestimonials(response.data.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching the news:', error);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get(`${API}gallery`)
+      .then((response) => {
+        setGallery(response.data.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching the news:', error);
+      });
+  }, []);
 
   useEffect(() => {
     if (inViewAbout) setShowAbout(true);
@@ -163,110 +207,18 @@ export default function LacView() {
         </div>
       </div>
 
-      <motion.div
-        ref={refAbout}
-        initial={{ opacity: 0, x: -100 }}
-        animate={showAbout ? { opacity: 1, x: 0 } : {}}
-        transition={{ duration: 0.8 }}
-        className='mx-auto mt-20 max-w-4xl px-4 py-12 sm:max-w-full md:mb-[30rem] lg:mb-0'
-      >
-        <div
-          className='about flex flex-col items-center justify-center sm:gap-4 md:flex-row md:gap-28 md:pl-[100px] lg:ml-64 lg:gap-32'
-          id='about'
-        >
-          <div className='group relative flex items-center justify-center sm:w-full md:w-auto'>
-            <Image
-              width={1000}
-              height={1000}
-              alt='Back card'
-              src='https://storage.googleapis.com/a1aa/image/d8ef3b8c-4a38-4a11-7f34-2897f7117777.jpg'
-              className='absolute left-0 top-0 z-10 h-[250px] w-[250px] rotate-[-10deg] transform rounded-md object-cover transition-transform duration-500 ease-in-out group-hover:z-20 group-hover:-translate-y-4 group-hover:translate-x-4 group-hover:scale-110 sm:h-[200px] sm:w-[200px]'
-            />
-            <Image
-              width={1000}
-              height={1000}
-              alt='Front card'
-              src='https://storage.googleapis.com/a1aa/image/405ee2e3-92a0-4c62-563a-c7293cd2229e.jpg'
-              className='absolute left-8 top-6 z-20 h-[250px] w-[250px] rotate-[3deg] transform rounded-md object-cover transition-transform duration-500 ease-in-out group-hover:z-10 group-hover:-translate-x-2 group-hover:translate-y-2 group-hover:scale-95 sm:h-[200px] sm:w-[200px]'
-            />
-            <div className='invisible h-44 w-44 sm:h-52 sm:w-52'></div>
-          </div>
-
-          <div className='relative max-w-xl text-left sm:w-full'>
-            <span className='garis mb-3 block h-1 w-28 justify-center bg-blue-700'></span>
-            <h2
-              className='mb-3 text-4xl font-semibold text-[#017BBD] sm:text-2xl'
-              style={{ fontFamily: "'Poetsen One', sans-serif" }}
-            >
-              ABOUT US
-            </h2>
-            <p className='text-sm leading-relaxed text-[#0066b3] sm:w-[100%] sm:text-base md:w-[90%] lg:w-[80%]'>
-              Little Alley Cyberschool is an online school built for active,
-              curious, and creative children. We move beyond textbook learning,
-              offering a full day of hands-on activities that let students
-              explore, create, and grow. Here, students lead their own learning
-              journey, while teachers serve as facilitators—guiding, supporting,
-              and helping each child discover their unique strengths. We use
-              technology as a tool to connect learners with real-world
-              experiences and meaningful projects, encouraging independence,
-              critical thinking, and personal growth. Little Alley is a
-              flexible, engaging space where children are free to be themselves
-              and learn in ways that matter to them.
-            </p>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* VISION AND MISSION Section */}
-      <motion.div
-        ref={refVision}
-        initial={{ opacity: 0, y: 50 }}
-        animate={showVision ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
-        className='vision mt-20 bg-white px-4 py-10 text-center md:mt-[-25rem] lg:mb-0 lg:mt-0 lg:px-16'
-      >
-        <h2
-          className='mb-10 text-4xl font-extrabold text-[#017BBD]'
-          style={{ fontFamily: "'Poetsen One', sans-serif" }}
-        >
-          VISION AND MISSION
-        </h2>
-
-        <div className='mx-auto mt-5 grid grid-cols-3 items-start text-left'>
-          <div className='w-30 visi -mr-12 space-y-4 text-right'>
-            <p style={{ color: '#017BBD' }}>
-              <span className='font-montserrat text-2xl font-extrabold'>
-                VISION
-              </span>
-              <br />
-              learn without limits, be virtuous throughout life
-              <br />
-              Empowering digital culture outside with moral values inside
-            </p>
-          </div>
-
-          <div className='flex items-center justify-center md:mt-[-15] lg:mt-[-65px]'>
-            <Image src={logo3} alt='Little Alley Preschool' />
-          </div>
-
-          <div className='misi -ml-12 space-y-4'>
-            <p className='text-[#017BBD]'>
-              <span className='font-montserrat text-2xl font-extrabold'>
-                MISSION
-              </span>
-            </p>
-            <ul className='mb-0 mt-0 list-disc pl-5 text-[#017BBD]'>
-              <li>Facilitate the learning process anywhere, anytime.</li>
-              <li>Design technology-based teaching and learning.</li>
-              <li>Reflect on and improve professional practice.</li>
-              <li>
-                Collaborate with the virtual and real worlds to enhance
-                children's understanding.
-              </li>
-            </ul>
-          </div>
-        </div>
-      </motion.div>
+      <AboutUs
+        refAbout={refAbout}
+        showAbout={showAbout}
+        content={
+          'Little Alley Cyberschool is an online school built for active, curious, and creative children. We move beyond textbook learning, offering a full day of hands-on activities that let students explore, create, and grow. Here, students lead their own learning journey, while teachers serve as facilitators—guiding, supporting, and helping each child discover their unique strengths. We use technology as a tool to connect learners with real-world experiences and meaningful projects, encouraging independence, critical thinking, and personal growth. Little Alley is a flexible, engaging space where children are free to be themselves and learn in ways that matter to them.'
+        }
+      />
+      <VisionAndMission refVision={refVision} showVision={showVision} />
+      <CurriculumSection
+        inViewCurriculum={inViewCurriculum}
+        refCurriculum={refCurriculum}
+      />
 
       <div className='our-class max-h-auto relative mb-20 mt-[-45rem] md:mt-[10rem] lg:mt-0'>
         {/* Awan Atas */}
@@ -294,36 +246,48 @@ export default function LacView() {
           </div>
 
           {/* Grid 2x2 */}
-          <div className='relative mx-auto mt-10 grid max-w-3xl grid-cols-2 gap-8'>
+          <div className='relative mx-auto mt-10 grid max-w-3xl grid-cols-2 gap-12'>
             {/* Card 1 */}
             <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
+              <div className='card mx-auto mb-4 h-[100%] w-[100%] rounded-2xl border-[6px] border-blue-500 bg-white'>
+                <Image src={primary1} alt='Little Alley Preschool' />
+              </div>
               <p className='text-2xl font-bold text-blue-800'>Primary 1</p>
             </div>
             <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
+              <div className='card mx-auto mb-4 h-[100%] w-[100%] rounded-2xl border-[6px] border-blue-500 bg-white'>
+                <Image src={primary2} alt='Little Alley Preschool' />
+              </div>
               <p className='text-2xl font-bold text-blue-800'>Primary 2</p>
             </div>
             <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
+              <div className='card mx-auto mb-4 h-[100%] w-[100%] rounded-2xl border-[6px] border-blue-500 bg-white'>
+                <Image src={primary3} alt='Little Alley Preschool' />
+              </div>
               <p className='text-2xl font-bold text-blue-800'>Primary 3</p>
             </div>
 
             {/* Card 2 */}
             <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
+              <div className='card mx-auto mb-4 h-[100%] w-[100%] rounded-2xl border-[6px] border-blue-500 bg-white'>
+                <Image src={primary4} alt='Little Alley Preschool' />
+              </div>
               <p className='text-2xl font-bold text-blue-800'>Primary 4</p>
             </div>
 
             {/* Card 3 */}
             <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
+              <div className='card mx-auto mb-4 h-[100%] w-[100%] rounded-2xl border-[6px] border-blue-500 bg-white'>
+                <Image src={primary5} alt='Little Alley Preschool' />
+              </div>
               <p className='text-2xl font-bold text-blue-800'>Primary 5</p>
             </div>
 
             {/* Card 4 */}
             <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 h-[200px] w-[200px] rounded-2xl border-[6px] border-blue-500 bg-white'></div>
+              <div className='card mx-auto mb-4 h-[100%] w-[100%] rounded-2xl border-[6px] border-blue-500 bg-white'>
+                <Image src={primary6} alt='Little Alley Preschool' />
+              </div>
               <p className='text-2xl font-bold text-blue-800'>Primary 6</p>
             </div>
           </div>
@@ -395,70 +359,6 @@ export default function LacView() {
       </motion.div>
 
       {/* Curriculum */}
-      <motion.div
-        ref={refCurriculum}
-        variants={fadeIn('up', 0.3)}
-        initial='hidden'
-        animate={inViewCurriculum ? 'show' : 'hidden'}
-        className='curiculum mx-auto mt-24 max-w-7xl px-4 py-5'
-      >
-        <h2
-          className='title-font mb-5 text-center text-4xl font-extrabold leading-tight text-[#017BBD]'
-          style={{ fontFamily: "'Poetsen One', sans-serif" }}
-        >
-          OUR CURRICULUM
-        </h2>
-        <div className='flex flex-col items-center justify-center gap-10 py-10 md:flex-row md:items-start md:gap-20'>
-          <div className='w-72 flex-shrink-0 md:w-[320px]'>
-            <Image
-              alt='Curriculum diagram'
-              className='h-[400px] w-[800px] md:ml-[50px] lg:ml-0'
-              src={Education}
-            />
-          </div>
-          <div className='max-w-xl text-left'>
-            <h2 className='mb-3 text-center text-lg font-semibold text-[#0066b3] md:text-left md:text-xl'>
-              IB CURRICULUM
-            </h2>
-            <ul className='mb-6 list-outside list-disc space-y-2 pl-5 text-sm text-[#0066b3] md:text-base'>
-              <li>
-                Published by the International Baccalaureate Organization (IBO),
-                a global non-profit based in Geneva, Switzerland
-              </li>
-              <li>
-                IB Curriculum focuses on developing internationally-minded,
-                inquiry-driven, and well-rounded learners, with strong emphasis
-                on learner agency, conceptual understanding, and
-                global citizenship
-              </li>
-            </ul>
-            <h3 className='mb-4 ml-[20px] text-base font-bold text-[#0066b3] md:text-lg lg:ml-0'>
-              INTERNATIONAL BACCALAUREATE PRIMARY YEARS PROGRAMME
-            </h3>
-            <ul className='list-disc space-y-1 pl-5 text-sm text-[#0066b3] md:text-base'>
-              <li>
-                KNOWLEDGE (Content in math, language, social studies, science,
-                and the arts.)
-              </li>
-              <li>
-                CONCEPTS (Important ideas that have universal significance
-                regardless of time or place within and across disciplines.
-                Concepts are presented in the forms of questions that drive the
-                inquiry.)
-              </li>
-              <li>
-                SKILLS (Specific capabilities in thinking, social interactions,
-                self-management, and research.)
-              </li>
-              <li>
-                ATTITUDES (Dispositions, values, beliefs, and feelings towards
-                learning.)
-              </li>
-              <li>ACTIONS (Making changes to and in the world.)</li>
-            </ul>
-          </div>
-        </div>
-      </motion.div>
 
       <div className='mx-auto mt-24 mt-[3rem] max-w-3xl px-4 py-8 lg:mt-0'>
         <h2
@@ -472,59 +372,53 @@ export default function LacView() {
           <Image
             width={1000}
             height={1000}
-            src={Fasilitas1}
+            src={fasilitaslac1}
             alt='Facility 1'
             className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
           <Image
             width={1000}
             height={1000}
-            src={Fasilitas2}
+            src={fasilitaslac2}
             alt='Facility 2'
             className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
           <Image
             width={1000}
             height={1000}
-            src={Fasilitas3}
+            src={fasilitaslac3}
             alt='Facility 3'
             className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
           <Image
             width={1000}
             height={1000}
-            src={Fasilitas4}
+            src={fasilitaslac4}
             alt='Facility 4'
             className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
           <Image
             width={1000}
             height={1000}
-            src={Fasilitas1}
+            src={fasilitaslac5}
             alt='Facility 1'
             className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
           <Image
             width={1000}
             height={1000}
-            src={Fasilitas2}
+            src={fasilitaslac6}
             alt='Facility 2'
             className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
           <Image
             width={1000}
             height={1000}
-            src={Fasilitas3}
+            src={fasilitaslac7}
             alt='Facility 3'
             className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
-          <Image
-            width={1000}
-            height={1000}
-            src={Fasilitas4}
-            alt='Facility 4'
-            className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
-          />
+
           <div className='mb-6 mt-9 hidden w-72 text-sm leading-tight text-[#0066b3] lg:block'>
             <p>
               Yayasan Tunas Anak Mulia is equipped with facilities and resources
@@ -541,12 +435,27 @@ export default function LacView() {
           <Image
             width={1000}
             height={1000}
-            src={Fasilitas5}
+            src={fasilitaslac5}
             alt='Facility 5'
             className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
         </div>
       </div>
+
+      <Image
+        src={Garis}
+        className='mt-10 mt-24 w-full'
+        alt='Garis horizontal'
+      />
+
+      <Gallery gallery={gallery} />
+
+      <Testimonial
+        testimonials={testimonials}
+        setSwiperInstance={setSwiperInstance}
+        swiperInstance={swiperInstance}
+      />
+
       <Footer />
     </div>
   );

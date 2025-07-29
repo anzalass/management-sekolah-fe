@@ -1,16 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
-import { Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import TextEditor from '@/components/text-editor';
+import 'react-quill/dist/quill.snow.css';
+import { useState } from 'react';
 
 interface Materi {
   id: number;
@@ -27,37 +28,48 @@ interface ModalMateriProps {
   onOpenChange: (open: boolean) => void;
 }
 
+interface FormValues {
+  judul: string;
+  konten: string;
+  iframeSlide: string;
+  iframeYoutube: string;
+}
+
 export default function ModalMateri({ open, onOpenChange }: ModalMateriProps) {
+  const { register, handleSubmit, control, reset, setValue } =
+    useForm<FormValues>({
+      defaultValues: {
+        judul: '',
+        konten: '',
+        iframeSlide: '',
+        iframeYoutube: ''
+      }
+    });
+
   const [materiList, setMateriList] = useState<Materi[]>([]);
-  const [judulMateri, setJudulMateri] = useState('');
-  const [kontenMateri, setKontenMateri] = useState('');
-  const [iframeSlide, setIframeSlide] = useState('');
-  const [iframeYoutube, setIframeYoutube] = useState('');
   const [pdfFile, setPdfFile] = useState<File | null>(null);
 
-  const handleAddMateri = () => {
-    if (!judulMateri.trim() || !kontenMateri.trim()) return;
+  const onSubmit = (data: FormValues) => {
+    if (!data.judul.trim() || !data.konten.trim()) return;
 
     const newMateri: Materi = {
       id: Date.now(),
-      judul: judulMateri,
-      konten: kontenMateri,
-      iframeSlide,
-      iframeYoutube,
+      judul: data.judul,
+      konten: data.konten,
+      iframeSlide: data.iframeSlide,
+      iframeYoutube: data.iframeYoutube,
       pdfFile
     };
 
     setMateriList((prev) => [...prev, newMateri]);
-    setJudulMateri('');
-    setKontenMateri('');
-    setIframeSlide('');
-    setIframeYoutube('');
+    reset();
     setPdfFile(null);
   };
 
   const handleGenerateAI = () => {
-    setJudulMateri('Pengantar Algoritma');
-    setKontenMateri(
+    setValue('judul', 'Pengantar Algoritma');
+    setValue(
+      'konten',
       'Materi ini membahas tentang konsep dasar algoritma dan logika.'
     );
   };
@@ -73,28 +85,27 @@ export default function ModalMateri({ open, onOpenChange }: ModalMateriProps) {
           <DialogTitle>Tambah Materi</DialogTitle>
         </DialogHeader>
 
-        <div className='space-y-4'>
+        <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           <div>
             <label>Judul Materi</label>
-            <Input
-              value={judulMateri}
-              onChange={(e) => setJudulMateri(e.target.value)}
-            />
+            <Input {...register('judul')} />
           </div>
 
           <div>
-            <label>Konten Materi</label>
-            <Textarea
-              value={kontenMateri}
-              onChange={(e) => setKontenMateri(e.target.value)}
+            <label>Konten</label>
+            <Controller
+              name='konten'
+              control={control}
+              render={({ field }) => (
+                <TextEditor value={field.value} onChange={field.onChange} />
+              )}
             />
           </div>
 
           <div>
             <label>Iframe Google Slide</label>
             <Input
-              value={iframeSlide}
-              onChange={(e) => setIframeSlide(e.target.value)}
+              {...register('iframeSlide')}
               placeholder='URL iframe slide'
             />
           </div>
@@ -102,9 +113,8 @@ export default function ModalMateri({ open, onOpenChange }: ModalMateriProps) {
           <div>
             <label>Iframe YouTube</label>
             <Input
-              value={iframeYoutube}
-              onChange={(e) => setIframeYoutube(e.target.value)}
-              placeholder='URL iframe youtube'
+              {...register('iframeYoutube')}
+              placeholder='URL iframe YouTube'
             />
           </div>
 
@@ -121,12 +131,18 @@ export default function ModalMateri({ open, onOpenChange }: ModalMateriProps) {
           </div>
 
           <div className='flex gap-2'>
-            <Button onClick={handleAddMateri}>Simpan Materi</Button>
-            <Button variant='outline' onClick={handleGenerateAI}>
+            <Button type='submit'>Simpan Materi</Button>
+            <Button type='button' variant='outline' onClick={handleGenerateAI}>
               Generate Materi dengan AI
             </Button>
           </div>
-        </div>
+        </form>
+
+        {/* Optional preview */}
+        {/* <div
+          className='prose max-w-none mt-6'
+          dangerouslySetInnerHTML={{ __html: watch('konten') }}
+        ></div> */}
       </DialogContent>
     </Dialog>
   );

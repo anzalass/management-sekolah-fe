@@ -13,6 +13,7 @@ export type Pendaftaran = {
   parentName: string;
   email: string;
   phoneNumber: string;
+  kategori: string;
   yourLocation: string;
   createdAt: string;
   updatedAt: string;

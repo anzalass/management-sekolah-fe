@@ -9,6 +9,11 @@ const BASE_URL = `${API}view-image`;
 
 export const columns: ColumnDef<Testimonial>[] = [
   {
+    accessorKey: 'parentName',
+    header: 'Nama Orang Tua',
+    cell: ({ row }) => row.original.parentName
+  },
+  {
     accessorKey: 'description',
     header: 'Description',
     cell: ({ row }) => row.original.description
