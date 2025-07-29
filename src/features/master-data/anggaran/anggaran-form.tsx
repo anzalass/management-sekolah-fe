@@ -1,4 +1,5 @@
 'use client';
+import type { AxiosError } from 'axios'; // pastikan di atas sudah ada
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -99,7 +100,10 @@ export default function AnggaranForm({
 
         router.push('/dashboard/master-data/anggaran');
       } catch (error) {
-        toast.error(error?.response?.data?.message || 'Terjadi Kesalahan');
+        const axiosError = error as AxiosError<{ message?: string }>;
+        const errorMessage =
+          axiosError.response?.data?.message || 'Terjadi Kesalahan';
+        toast.error(errorMessage);
       }
     });
   }

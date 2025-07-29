@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import Navbar from '../../components/layout/navbar';
-
 import Garis from '../../../public/Garis.png';
 
 import Footer from '../../components/layout/footer';

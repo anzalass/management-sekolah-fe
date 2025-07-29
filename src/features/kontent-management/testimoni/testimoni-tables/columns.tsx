@@ -3,8 +3,9 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { Testimonial } from '../testimoni-listing';
+import { API } from '@/lib/server';
 
-const BASE_URL = 'http://localhost:5000/api/v1/view-image';
+const BASE_URL = `${API}view-image`;
 
 export const columns: ColumnDef<Testimonial>[] = [
   {

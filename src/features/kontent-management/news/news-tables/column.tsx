@@ -3,8 +3,10 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { News } from '../news-listing';
+import { API } from '@/lib/server';
 
-const BASE_URL = 'http://localhost:5000/api/v1/view-image'; // API route untuk melihat gambar
+const BASE_URL = `${API}view-image`;
+// API route untuk melihat gambar
 
 export const columns: ColumnDef<News>[] = [
   {

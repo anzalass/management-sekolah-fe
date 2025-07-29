@@ -161,7 +161,10 @@ export default function GuruStaffForm({
 
         data.append('nip', values.nip);
         data.append('nik', values.nik);
-        data.append('password', values.password);
+        if (values.password) {
+          data.append('password', values.password);
+        }
+
         data.append('jabatan', values.jabatan);
         data.append('nama', values.nama);
         data.append('tempatLahir', values.tempatLahir);

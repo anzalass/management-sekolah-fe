@@ -3,8 +3,9 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { PendaftaranCellAction } from './cell-action';
 import { Pendaftaran } from '../pendaftaran-listing';
+import { API } from '@/lib/server';
 
-const BASE_URL = 'http://localhost:5000/api/v1/view-image';
+const BASE_URL = `${API}view-image`;
 
 export const columns: ColumnDef<Pendaftaran>[] = [
   {

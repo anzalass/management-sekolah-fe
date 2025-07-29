@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import logo3 from '../../../public/logo3.png';
 import Ellipse from '../../../public/Ellipse.png';
+import { easeInOut } from 'framer-motion';
 import Children from '../../../public/children.png';
 import Education from '../../../public/curriculumLAC.png';
 import fasilitaslac1 from '../../../public/fasilitaslac7.jpg';
@@ -61,7 +62,7 @@ const fadeIn = (direction = 'up', delay = 0) => {
       transition: {
         duration: 0.6,
         delay: delay,
-        ease: 'easeInOut'
+        ease: easeInOut
       }
     }
   };
@@ -183,7 +184,7 @@ export default function LacView() {
             adventure of learning
           </p>
           <div className='flex gap-4 sm:flex-row'>
-            <a href='/register'>
+            <a href='/pendaftaran-siswa'>
               <button className='rounded bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700'>
                 Join Us
               </button>
@@ -330,22 +331,20 @@ export default function LacView() {
           </div>
 
           <div className='order-2 max-w-xl text-center text-sm leading-relaxed text-[#0B6CBF] sm:text-base md:order-none'>
-            We teach using various methods, become facilitators for students
-            with diverse characters because they have the same opportunities. We
-            provide our students with a strong foundation for lifelong learning
-            and leading academically.
+            Little Alley Cyberschool As a fully internet-based school, all
+            classes, exams, and announcements are conducted through email and
+            our official website. This makes it easy for both students and
+            parents to stay informed and involved—anytime, anywhere.
           </div>
         </div>
 
         <div className='mt-10 flex flex-col space-y-10 md:flex-row md:items-center md:justify-center md:space-x-10 lg:space-x-20 lg:space-y-0'>
           <p className='order-2 max-w-xl text-center text-sm leading-relaxed text-[#0B6CBF] sm:text-base md:order-none'>
-            Our preschool program is designed to lay a strong foundation for
-            children aged 1 to 6 years old. Through a blend of play-based
-            learning, thematic approaches, and hands-on activities, we nurture
-            early literacy, numeracy, social skills, and creativity. Our
-            curriculum integrates language development, mathematics, science,
-            arts, and physical education to provide a well-rounded educational
-            experience.
+            Little Alley Cyberschool offers a modern and flexible learning
+            experience designed for today’s students. We use the IB-based
+            curriculum from Swiss, carefully tailored to help each child grow
+            through their unique interests and talents. Our approach encourages
+            curiosity, independence, and lifelong learning.
           </p>
           <div className='order-1 mx-auto flex max-w-[180px] flex-col items-center justify-center md:order-none md:max-w-none lg:mx-0'>
             <Image
