@@ -12,7 +12,10 @@ import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';
 
 export const metadata: Metadata = {
   title: 'Little Alley',
-  description: 'Basic dashboard with Next.js and Shadcn'
+  description: 'Basic dashboard with Next.js and Shadcn',
+  icons: {
+    icon: '/vercel.svg' // path ke favicon
+  }
 };
 
 const lato = Lato({
