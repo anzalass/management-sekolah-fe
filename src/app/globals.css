@@ -85,6 +85,10 @@
   }
 }
 
+.btn {
+  @apply rounded p-1 transition hover:bg-gray-200;
+}
+
 /* Refined shadow utilities for better layering */
 @layer utilities {
   .shadow-card-dark {

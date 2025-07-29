@@ -22,6 +22,7 @@ import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
 
 export type Testimonial = {
+  parentName: string;
   description: string;
   image: string;
 };
@@ -42,7 +43,8 @@ export default function TestimonialForm({
 
   const defaultValue = {
     description: initialData?.description || '',
-    image: initialData?.image || ''
+    image: initialData?.image || '',
+    parentName: initialData?.parentName || ''
   };
 
   const form = useForm({
@@ -55,6 +57,7 @@ export default function TestimonialForm({
       try {
         const formData = new FormData();
         formData.append('description', values.description);
+        formData.append('parentName', values.parentName);
         if (values.image[0]) {
           formData.append('image', values.image[0]);
         }
@@ -77,7 +80,7 @@ export default function TestimonialForm({
           toast.success('Testimoni berhasil disimpan');
         }
 
-        router.push('/dashboard/master-data/testimoni');
+        router.push('/dashboard/content-management/testimoni');
       } catch (error) {
         const axiosError = error as AxiosError;
         const errorMessage =
@@ -99,6 +102,20 @@ export default function TestimonialForm({
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
             <div className='space-y-6'>
               <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+                <FormItem>
+                  <FormLabel>Nama Orang Tua</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder='Masukkan Nama Orang Tua...'
+                      {...form.register('parentName', {
+                        required: 'Nama Orang Tua wajib diisi'
+                      })}
+                    />
+                  </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.description?.message}
+                  </FormMessage>
+                </FormItem>
                 {/* Description */}
                 <FormItem>
                   <FormLabel>Deskripsi Testimoni</FormLabel>

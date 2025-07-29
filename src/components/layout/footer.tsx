@@ -21,7 +21,7 @@ export default function Footer() {
               </p>
             </div>
             <div>
-              <p className='font-bold'>KidsRoom ( KD )</p>
+              <p className='font-bold'>KidsRoom ( KR )</p>
               <p>
                 Ruko Terrace 8, Suvarna Bianca Utama No.9 Blok B, Sutera,
                 Sindang Jaya, Tangerang Regency, BANTEN 15560

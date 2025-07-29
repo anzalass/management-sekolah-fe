@@ -23,7 +23,9 @@ const nextConfig = {
       'static.vecteezy.com',
       'res.cloudinary.com',
       'storage.googleapis.com',
-      'localhost' // Add localhost to the domains list if needed
+      'localhost',
+      'images.pexels.com',
+      'shanibacreative.com' // Add localhost to the domains list if needed
     ]
   },
   transpilePackages: ['geist']

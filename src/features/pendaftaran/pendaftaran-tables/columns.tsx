@@ -28,6 +28,11 @@ export const columns: ColumnDef<Pendaftaran>[] = [
     cell: ({ row }) => row.original.phoneNumber
   },
   {
+    accessorKey: 'kategori',
+    header: 'Kategori',
+    cell: ({ row }) => row.original.kategori
+  },
+  {
     accessorKey: 'yourLocation',
     header: 'Location',
     cell: ({ row }) => row.original.yourLocation

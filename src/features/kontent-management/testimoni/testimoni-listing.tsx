@@ -11,6 +11,7 @@ import { useSearchParams } from 'next/navigation';
 export type Testimonial = {
   id: string;
   description: string;
+  parentName: string;
   image: string;
   createdAt: string;
   updatedAt: string;

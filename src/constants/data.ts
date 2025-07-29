@@ -37,13 +37,13 @@ export const navItems: NavItem[] = [
     items: [
       {
         title: 'Kehadiran Guru',
-        url: '/dashboard/inventaris/daftar-inventaris',
+        url: '/dashboard/presensi/presensi',
         icon: 'userPen',
         shortcut: ['n', 'n']
       },
       {
         title: 'Perizinan Guru',
-        url: '/dashboard/inventaris/jenis-inventaris',
+        url: '/dashboard/presensi/perizinan',
         icon: 'userPen',
         shortcut: ['n', 'n']
       }
@@ -71,7 +71,7 @@ export const navItems: NavItem[] = [
     ]
   },
   {
-    title: 'Konten Managementtt',
+    title: 'Konten Management',
     url: '/dashboard/content-management/news',
     icon: 'product',
     shortcut: ['p', 'p'],
