@@ -17,7 +17,7 @@ export default function OurFacilities() {
         OUR FACILITIES
       </h2>
 
-      <div className='mt-14 grid grid-cols-2 justify-items-center gap-10'>
+      <div className='mt-14 grid grid-cols-1 justify-items-center gap-10 md:grid-cols-2'>
         <Image
           width={1000}
           height={1000}

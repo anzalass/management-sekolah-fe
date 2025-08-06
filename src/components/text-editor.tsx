@@ -26,9 +26,10 @@ import { useCallback } from 'react';
 interface TextEditorProps {
   value: string;
   onChange: (value: string) => void;
+  type: string;
 }
 
-export default function TextEditor({ value, onChange }: TextEditorProps) {
+export default function TextEditor({ value, onChange, type }: TextEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -48,7 +49,7 @@ export default function TextEditor({ value, onChange }: TextEditorProps) {
       OrderedList,
       ListItem
     ],
-    content: value || '<p>Tulis materi di sini...</p>',
+    content: value || `<p>Tulis ${type} di sini...</p>`,
     onUpdate({ editor }) {
       onChange(editor.getHTML());
     },
@@ -86,7 +87,7 @@ export default function TextEditor({ value, onChange }: TextEditorProps) {
   };
 
   return (
-    <div className='rounded-md border bg-white p-2'>
+    <div className='h-[50vh] overflow-auto rounded-md border bg-white p-2'>
       <div className='mb-2 flex flex-wrap gap-2 border-b pb-2'>
         <button
           onClick={() => editor?.chain().focus().toggleBold().run()}

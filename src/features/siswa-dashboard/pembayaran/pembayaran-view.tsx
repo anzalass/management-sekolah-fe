@@ -73,8 +73,8 @@ export default function PembayaranSiswaView() {
   );
 
   return (
-    <div className='mx-auto max-w-4xl space-y-6 p-4'>
-      <Card>
+    <div className='mx-auto max-w-4xl space-y-6'>
+      <>
         <CardHeader>
           <div className='flex items-center justify-between'>
             <CardTitle className='flex items-center gap-2 text-lg'>
@@ -150,7 +150,7 @@ export default function PembayaranSiswaView() {
             </TabsContent>
           </Tabs>
         </CardContent>
-      </Card>
+      </>
     </div>
   );
 }

@@ -89,7 +89,7 @@ export default function ListKelasGuru({
 
   return (
     <>
-      <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+      <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
         {/* Wali Kelas */}
         <Card className='shadow-md'>
           <CardHeader>

@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import child1 from '../../../public/childs1.jpg';
 import child2 from '../../../public/childs2.jpg';
@@ -9,94 +11,78 @@ import Awan2 from '../../../public/awan2.png';
 
 export default function OurClass() {
   return (
-    <div>
-      {' '}
-      <div className='relative'>
-        {/* Awan Atas */}
-        <Image
-          width={1000}
-          height={1000}
-          src={Awan2}
-          alt=''
-          className='h-[50%] w-full object-contain'
-        />
-        {/* Konten OUR CLASS */}
-        <div className='px-4 py-7'>
-          {/* OUR CLASS Title */}
-          <div className='mb-10 mt-10 flex justify-center'>
-            <div
-              className='rounded-[30px] bg-white p-4 text-center text-4xl font-extrabold text-[#017BBD] shadow-md'
-              style={{ fontFamily: "'Poetsen One', sans-serif" }}
-            >
-              OUR CLASS
-            </div>
-          </div>
+    <div className='relative overflow-hidden'>
+      {/* Awan Atas */}
+      <Image
+        src={Awan2}
+        alt='Awan Atas'
+        width={1920}
+        height={1080}
+        className='absolute left-0 top-0 z-10 w-full object-cover'
+      />
 
-          {/* Grid 2x2 */}
-          <div className='mt-10 grid w-full grid-cols-1 md:grid-cols-2'>
-            {/* Card 1 */}
-            <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 flex h-[70%] w-[70%] items-center justify-center overflow-hidden rounded-2xl border-[6px] border-blue-500 bg-white'>
-                <Image
-                  src={child1}
-                  alt='Preparatory'
-                  className='h-full w-full object-cover'
-                />
-              </div>
-              <p className='text-2xl font-bold text-blue-800'>Preparatory</p>
-              <p className='text-lg text-gray-700'>Age: 1.5 - 2 Years</p>
-            </div>
-
-            {/* Card 2 */}
-            <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 flex h-[70%] w-[70%] items-center justify-center overflow-hidden rounded-2xl border-[6px] border-blue-500 bg-white'>
-                <Image
-                  src={child2}
-                  alt='Toddler'
-                  className='h-full w-full object-cover'
-                />
-              </div>
-              <p className='text-2xl font-bold text-blue-800'>Toddler</p>
-              <p className='text-lg text-gray-700'>Age: 2 - 3 Years</p>
-            </div>
-
-            {/* Card 3 */}
-            <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 flex h-[70%] w-[70%] items-center justify-center overflow-hidden rounded-2xl border-[6px] border-blue-500 bg-white'>
-                <Image
-                  src={child4}
-                  alt='Playgroup'
-                  className='h-full w-full object-cover'
-                />
-              </div>
-              <p className='text-2xl font-bold text-blue-800'>Playgroup</p>
-              <p className='text-lg text-gray-700'>Age: 3 - 4 Years</p>
-            </div>
-
-            {/* Card 4 */}
-            <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 flex h-[70%] w-[70%] items-center justify-center overflow-hidden rounded-2xl border-[6px] border-blue-500 bg-white'>
-                <Image
-                  src={child3} // Ganti dengan path atau URL gambar
-                  alt='Learners & Achievers'
-                  className='h-full w-full object-cover'
-                />
-              </div>
-              <p className='text-2xl font-bold text-blue-800'>
-                Learners & Achievers
-              </p>
-              <p className='text-lg text-gray-700'>Age: 4 Years +</p>
-            </div>
+      {/* Konten */}
+      <div className='relative z-10 mx-auto mt-[25vh] h-[200vh] max-w-5xl px-4 py-20 sm:h-[200vh] lg:mt-[100vh] lg:h-[250vh]'>
+        {/* OUR CLASS Title */}
+        <div className='mb-16 flex justify-center'>
+          <div
+            className='rounded-[30px] bg-white p-4 text-center text-4xl font-extrabold text-[#017BBD] shadow-md'
+            style={{ fontFamily: "'Poetsen One', sans-serif" }}
+          >
+            OUR CLASS
           </div>
         </div>
-        <Image
-          width={1000}
-          height={1000}
-          src={Awan}
-          alt=''
-          className='h-[70%] w-full object-cover'
-        />
+
+        {/* Grid Cards */}
+        <div className='grid grid-cols-1 gap-y-12 md:gap-10 lg:grid-cols-2'>
+          {[
+            {
+              image: child1,
+              title: 'Preparatory',
+              age: 'Age: 1.5 - 2 Years'
+            },
+            {
+              image: child2,
+              title: 'Toddler',
+              age: 'Age: 2 - 3 Years'
+            },
+            {
+              image: child4,
+              title: 'Playgroup',
+              age: 'Age: 3 - 4 Years'
+            },
+            {
+              image: child3,
+              title: 'Learners & Achievers',
+              age: 'Age: 4 Years +'
+            }
+          ].map((item, index) => (
+            <div
+              key={index}
+              className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-105'
+            >
+              <div className='card mx-auto mb-4 flex w-[85%] max-w-md items-center justify-center overflow-hidden rounded-2xl border-[6px] border-blue-500 bg-white'>
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  className='aspect-[3/2] h-full w-full object-cover'
+                />
+              </div>
+              <p className='text-2xl font-bold text-blue-900'>{item.title}</p>
+              <p className='text-lg text-blue-800'>{item.age}</p>
+            </div>
+          ))}
+        </div>
       </div>
+
+      {/* Awan Bawah */}
+      <Image
+        src={Awan}
+        alt='Awan Bawah'
+        width={1920}
+        height={1080}
+        className='absolute bottom-0 left-0 z-0 w-full rotate-180 object-cover'
+      />
     </div>
   );
 }

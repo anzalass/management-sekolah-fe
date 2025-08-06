@@ -18,25 +18,25 @@ export function VisionAndMission({ refVision, showVision }: Props) {
       transition={{ duration: 0.8, ease: 'easeOut' }}
       className='mt-20 bg-white px-4 py-10 sm:px-6 md:px-10 lg:px-20'
     >
-      <div className='mx-auto flex max-w-7xl flex-col gap-10 lg:flex-row lg:items-start lg:justify-between'>
+      <div className='mx-auto flex max-w-7xl flex-col gap-5 lg:flex-row lg:items-start lg:justify-center'>
         {/* Kolom Kiri */}
         <div className='hidden items-start justify-start gap-20 lg:flex lg:flex-col'>
           <h2
-            className='text-[64px] font-extrabold text-[#017BBD] sm:text-[100px] lg:text-[150px] xl:text-[200px]'
+            className='text-[64px] font-extrabold text-[#017BBD] sm:text-[100px] lg:text-[70px] xl:text-[100px]'
             style={{ fontFamily: "'Poetsen One', sans-serif" }}
           >
-            VISI
+            VISION
           </h2>
           <h2
-            className='mt-24 text-[64px] font-extrabold text-[#017BBD] sm:text-[100px] lg:text-[150px] xl:text-[200px]'
+            className='mt-10 text-[64px] font-extrabold text-[#017BBD] sm:text-[100px] lg:text-[70px] xl:text-[100px]'
             style={{ fontFamily: "'Poetsen One', sans-serif" }}
           >
-            MISI
+            MISSION
           </h2>
         </div>
 
         <div className='w-full text-center font-extrabold text-[#017BBD] lg:hidden'>
-          <h2 className='text-[50px]'>VISI MISI</h2>
+          <h2 className='text-[30px]'>VISSION AND MISSION</h2>
         </div>
 
         {/* Kolom Kanan */}
