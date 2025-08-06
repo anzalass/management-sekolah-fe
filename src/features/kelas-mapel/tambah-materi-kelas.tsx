@@ -12,9 +12,15 @@ import { Button } from '@/components/ui/button';
 import TextEditor from '@/components/text-editor';
 import 'react-quill/dist/quill.snow.css';
 import { useState } from 'react';
+import axios from 'axios';
+import { API } from '@/lib/server';
+import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 interface Materi {
   id: number;
+  idKelas: string;
   judul: string;
   konten: string;
   iframeSlide?: string;
@@ -26,44 +32,80 @@ interface Materi {
 interface ModalMateriProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  idKelas: string;
 }
 
 interface FormValues {
   judul: string;
+  prompt: string;
   konten: string;
   iframeSlide: string;
   iframeYoutube: string;
 }
 
-export default function ModalMateri({ open, onOpenChange }: ModalMateriProps) {
-  const { register, handleSubmit, control, reset, setValue } =
-    useForm<FormValues>({
-      defaultValues: {
-        judul: '',
-        konten: '',
-        iframeSlide: '',
-        iframeYoutube: ''
-      }
-    });
+export default function ModalMateri({
+  open,
+  onOpenChange,
+  idKelas
+}: ModalMateriProps) {
+  const { toggleTrigger } = useRenderTrigger();
 
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    setValue,
+    formState: { errors }
+  } = useForm<FormValues>({
+    defaultValues: {
+      judul: '',
+      prompt: '',
+      konten: '',
+      iframeSlide: '',
+      iframeYoutube: ''
+    }
+  });
+  const { data: session } = useSession();
   const [materiList, setMateriList] = useState<Materi[]>([]);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
-
-  const onSubmit = (data: FormValues) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const onSubmit = async (data: FormValues) => {
     if (!data.judul.trim() || !data.konten.trim()) return;
 
-    const newMateri: Materi = {
-      id: Date.now(),
-      judul: data.judul,
-      konten: data.konten,
-      iframeSlide: data.iframeSlide,
-      iframeYoutube: data.iframeYoutube,
-      pdfFile
-    };
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('judul', data.judul);
+      formData.append('idKelasMapel', idKelas);
+      formData.append('konten', data.konten);
+      formData.append('iframeGoogleSlide', data.iframeSlide);
+      formData.append('iframeYoutube', data.iframeYoutube);
 
-    setMateriList((prev) => [...prev, newMateri]);
-    reset();
-    setPdfFile(null);
+      if (pdfFile !== null) {
+        formData.append('pdf', pdfFile);
+      }
+
+      console.log('sasa pdf', pdfFile);
+
+      await axios.post(`${API}materi`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
+
+      toast.success('Berhasil membuat materi');
+      reset();
+      onOpenChange(false); // tutup modal setelah submit
+      toggleTrigger();
+    } catch (error) {
+      console.error('Gagal menyimpan materi:', error);
+      toast.error('Gagal menyimpan materi');
+    } finally {
+      setIsLoading(false);
+      setPdfFile(null);
+    }
   };
 
   const handleGenerateAI = () => {
@@ -80,7 +122,7 @@ export default function ModalMateri({ open, onOpenChange }: ModalMateriProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-3xl'>
+      <DialogContent className='h-screen max-w-7xl overflow-auto'>
         <DialogHeader>
           <DialogTitle>Tambah Materi</DialogTitle>
         </DialogHeader>
@@ -88,7 +130,18 @@ export default function ModalMateri({ open, onOpenChange }: ModalMateriProps) {
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           <div>
             <label>Judul Materi</label>
-            <Input {...register('judul')} />
+            <Input
+              {...register('judul', { required: 'Judul materi wajib diisi' })}
+            />
+            {errors.judul && (
+              <p className='text-sm text-red-500'>{errors.judul.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label>Prompt Materi By AI</label>
+            <Input {...register('prompt')} />
+            {/* Prompt tidak required, jadi tidak perlu pesan error */}
           </div>
 
           <div>
@@ -97,7 +150,11 @@ export default function ModalMateri({ open, onOpenChange }: ModalMateriProps) {
               name='konten'
               control={control}
               render={({ field }) => (
-                <TextEditor value={field.value} onChange={field.onChange} />
+                <TextEditor
+                  type='materi'
+                  value={field.value}
+                  onChange={field.onChange}
+                />
               )}
             />
           </div>
@@ -131,7 +188,9 @@ export default function ModalMateri({ open, onOpenChange }: ModalMateriProps) {
           </div>
 
           <div className='flex gap-2'>
-            <Button type='submit'>Simpan Materi</Button>
+            <Button type='submit' disabled={isLoading}>
+              {isLoading ? 'Menyimpan...' : 'Simpan Materi'}
+            </Button>
             <Button type='button' variant='outline' onClick={handleGenerateAI}>
               Generate Materi dengan AI
             </Button>

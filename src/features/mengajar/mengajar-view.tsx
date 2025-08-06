@@ -237,6 +237,8 @@ export default function MengajarViewPage() {
         setOpenModal={setOpenModal}
       />
 
+      <div className=''></div>
+
       <CardListIzin listIzin={dashboard?.perizinan} fetchData={dataDashboard} />
     </div>
   );

@@ -21,6 +21,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import Link from 'next/link';
 
 export default function SiswaHomeView() {
   const [search, setSearch] = useState('');
@@ -28,7 +29,7 @@ export default function SiswaHomeView() {
   const siswa = {
     nama: 'Rama Wijaya',
     nis: '20231234',
-    kelas: 'XII IPA 1',
+    kelas: 'Primary 3',
     foto: 'https://randomuser.me/api/portraits/men/75.jpg'
   };
 
@@ -59,39 +60,39 @@ export default function SiswaHomeView() {
   const dummyKelas: Kelas[] = [
     {
       id: 1,
-      nama: 'Fisika XII IPA 1',
-      waliKelas: 'Bu Rina',
+      nama: 'Primary 1 - Matematika Dasar',
+      waliKelas: 'Bu Ani',
       tahunAjaran: '2024/2025',
-      jumlahSiswa: 32,
+      jumlahSiswa: 25,
       imageUrl:
-        'https://images.unsplash.com/photo-1749741326969-e1676b3bce43?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Fisika
+        'https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0' // Belajar Matematika
     },
     {
       id: 2,
-      nama: 'Bahasa Indonesia XII IPS 2',
+      nama: 'Primary 2 - Bahasa Indonesia',
       waliKelas: 'Pak Budi',
       tahunAjaran: '2024/2025',
-      jumlahSiswa: 28,
+      jumlahSiswa: 27,
       imageUrl:
-        'https://images.unsplash.com/photo-1749741326969-e1676b3bce43?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+        'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0' // Anak membaca
     },
     {
       id: 3,
-      nama: 'Biologi XI IPA 3',
-      waliKelas: 'Bu Sari',
+      nama: 'Primary 3 - Ilmu Pengetahuan Alam',
+      waliKelas: 'Bu Sinta',
       tahunAjaran: '2024/2025',
       jumlahSiswa: 30,
       imageUrl:
-        'https://images.unsplash.com/photo-1749741326969-e1676b3bce43?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Biologi
+        'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8bmF0dXJlfGVufDB8fDB8fHww' // Anak eksperimen sains
     },
     {
       id: 4,
-      nama: 'PPKN X IPS 1',
-      waliKelas: 'Pak Andi',
+      nama: 'Primary 4 - Pendidikan Kewarganegaraan',
+      waliKelas: 'Pak Dedi',
       tahunAjaran: '2024/2025',
-      jumlahSiswa: 35,
+      jumlahSiswa: 28,
       imageUrl:
-        'https://images.unsplash.com/photo-1749741326969-e1676b3bce43?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Pendidikan / Hukum
+        'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0' // Anak belajar bersama
     }
   ];
 
@@ -115,9 +116,9 @@ export default function SiswaHomeView() {
   return (
     <div className='mx-auto max-w-4xl space-y-6 p-2 md:p-4'>
       {/* Profil Siswa */}
-      <Card className='flex items-center justify-between rounded-2xl border border-primary/30 bg-white p-4'>
+      <div className='flex items-center justify-between rounded-2xl bg-white'>
         <div>
-          <h2 className='text-lg font-bold text-gray-800'>
+          <h2 className='text-xl font-bold text-gray-800'>
             {siswa.nama}, {siswa.kelas}
           </h2>
         </div>
@@ -129,10 +130,10 @@ export default function SiswaHomeView() {
           />
           <BadgeCheck className='absolute bottom-0 right-0 h-4 w-4 rounded-full bg-white text-green-500 shadow' />
         </div>
-      </Card>
+      </div>
 
       {/* Absen Masuk & Pulang */}
-      <div className='flex flex-wrap gap-4'>
+      <div className='flex gap-4'>
         <Button
           className='w-full bg-green-600 text-white hover:bg-green-700 md:w-auto'
           onClick={() => handleAbsen('masuk')}
@@ -147,34 +148,52 @@ export default function SiswaHomeView() {
         </Button>
       </div>
       {/* Fitur Akses */}
-      <div className='grid grid-cols-2 gap-4 sm:grid-cols-3'>
+      <div className='grid grid-cols-4 items-center justify-center gap-3 sm:grid-cols-5 md:gap-4'>
         <Fitur
+          href='/siswa/pembayaran'
           icon={<CreditCardIcon className='text-blue-500' />}
           label='Pembayaran'
         />
-        <Fitur icon={<School className='text-black' />} label='Kelas' />
         <Fitur
+          href='/siswa/kelas'
+          icon={<School className='text-black' />}
+          label='Kelas'
+        />
+        <Fitur
+          href='/siswa/perizinan'
           icon={<ScrollTextIcon className='text-yellow-500' />}
           label='Perizinan'
         />
         <Fitur
+          href='/siswa/pengumuman'
           icon={<NewspaperIcon className='text-cyan-500' />}
           label='Pengumuman'
         />
         <Fitur
+          href='/siswa/pelanggaran'
           icon={<AlertTriangleIcon className='text-red-500' />}
           label='Pelanggaran'
         />
-        <Fitur icon={<Award className='text-green-500' />} label='Prestasi' />
         <Fitur
+          href='/siswa/prestasi'
+          icon={<Award className='text-green-500' />}
+          label='Prestasi'
+        />
+        <Fitur
+          href='/siswa/log-presensi'
           icon={<FileTextIcon className='text-purple-500' />}
           label='Log Presensi'
         />
         <Fitur
+          href='/siswa/log-tabungan'
           icon={<PiggyBankIcon className='text-pink-500' />}
-          label='Log Tabungan'
+          label='Tabungan'
         />
-        <Fitur icon={<BookOpen className='text-orange-500' />} label='Rapot' />
+        <Fitur
+          href='/siswa/rapot'
+          icon={<BookOpen className='text-orange-500' />}
+          label='Rapot'
+        />
       </div>
       {/* Daftar Kelas */}
       <Card className='border border-secondary p-2 shadow md:p-5'>
@@ -184,32 +203,34 @@ export default function SiswaHomeView() {
         <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
           {filteredKelas.length > 0 ? (
             filteredKelas.map((kelas) => (
-              <Card
-                key={kelas.id}
-                className='cursor-pointer overflow-hidden transition-all duration-200 hover:shadow-md'
-              >
-                <img
-                  src={kelas.imageUrl}
-                  alt={kelas.nama}
-                  className='h-32 w-full object-cover'
-                />
-                <CardHeader>
-                  <CardTitle className='text-lg font-semibold'>
-                    {kelas.nama}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className='space-y-2 text-sm text-muted-foreground'>
-                  <p>Wali Kelas: {kelas.waliKelas}</p>
-                  <p className='flex items-center gap-1'>
-                    <CalendarIcon className='h-4 w-4' />
-                    {kelas.tahunAjaran}
-                  </p>
-                  <p className='flex items-center gap-1'>
-                    <UsersIcon className='h-4 w-4' />
-                    {kelas.jumlahSiswa} siswa
-                  </p>
-                </CardContent>
-              </Card>
+              <Link href={'siswa/kelas/abc'}>
+                <Card
+                  key={kelas.id}
+                  className='cursor-pointer overflow-hidden transition-all duration-200 hover:shadow-md'
+                >
+                  <img
+                    src={kelas.imageUrl}
+                    alt={kelas.nama}
+                    className='h-32 w-full object-cover'
+                  />
+                  <CardHeader>
+                    <CardTitle className='text-lg font-semibold'>
+                      {kelas.nama}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className='space-y-2 text-sm text-muted-foreground'>
+                    <p>Wali Kelas: {kelas.waliKelas}</p>
+                    <p className='flex items-center gap-1'>
+                      <CalendarIcon className='h-4 w-4' />
+                      {kelas.tahunAjaran}
+                    </p>
+                    <p className='flex items-center gap-1'>
+                      <UsersIcon className='h-4 w-4' />
+                      {kelas.jumlahSiswa} siswa
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
             ))
           ) : (
             <p className='text-sm text-muted-foreground'>
@@ -267,18 +288,26 @@ export default function SiswaHomeView() {
   );
 }
 
-function Fitur({ icon, label }: { icon: React.ReactNode; label: string }) {
+function Fitur({
+  icon,
+  label,
+  href
+}: {
+  icon: React.ReactNode;
+  label: string;
+  href: string;
+}) {
   return (
-    <Button
-      variant='secondary'
-      className='flex flex-col items-center gap-2 rounded-xl border bg-background p-10 shadow-sm transition-transform hover:scale-105 hover:shadow-md'
+    <Link
+      href={href}
+      className='flex flex-col items-center gap-2 rounded-xl border bg-background p-2 shadow-sm transition-transform hover:scale-105 hover:shadow-md'
     >
-      <div className='flex h-10 w-10 items-center justify-center text-primary'>
+      <div className='flex h-5 w-5 items-center justify-center text-primary'>
         {icon}
       </div>
-      <span className='text-sm font-semibold text-muted-foreground'>
+      <span className='text-[10px] font-semibold text-muted-foreground md:text-sm'>
         {label}
       </span>
-    </Button>
+    </Link>
   );
 }

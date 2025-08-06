@@ -16,25 +16,26 @@ interface Summary {
   waktu: string;
 }
 
-interface Materi {
+interface Tugas {
   judul: string;
   konten: any;
+  deadline: string;
   iframeGoogleSlide: string;
   iframeYoutube: string;
   pdfUrl: string;
   summary: Summary[];
 }
 
-type IDMateri = {
+type IDTugas = {
   id: string;
 };
-export default function MateriView({ id }: IDMateri) {
-  const [materi, setMateri] = useState<Materi>();
+export default function TugasView({ id }: IDTugas) {
+  const [Tugas, setTugas] = useState<Tugas>();
 
   const getData = async () => {
     try {
-      const response = await axios.get(`${API}materi-summary/${id}`);
-      setMateri(response.data.data);
+      const response = await axios.get(`${API}tugas-summary/${id}`);
+      setTugas(response.data.data);
     } catch (error) {
       console.log(error);
     }
@@ -46,13 +47,13 @@ export default function MateriView({ id }: IDMateri) {
 
   return (
     <div className='space-y-8'>
-      {/* Section Materi */}
+      {/* Section Tugas */}
       <Card>
         <CardHeader>
-          <CardTitle>📘 {materi?.judul}</CardTitle>
+          <CardTitle>📘 {Tugas?.judul}</CardTitle>
         </CardHeader>
         <CardContent className='prose max-w-none dark:prose-invert'>
-          <div dangerouslySetInnerHTML={{ __html: materi?.konten }} />{' '}
+          <div dangerouslySetInnerHTML={{ __html: Tugas?.konten }} />{' '}
         </CardContent>
       </Card>
 
@@ -62,7 +63,7 @@ export default function MateriView({ id }: IDMateri) {
           <CardTitle>📋 Ringkasan Siswa</CardTitle>
         </CardHeader>
         <CardContent className='space-y-4'>
-          {materi?.summary?.length === 0 && (
+          {Tugas?.summary?.length === 0 && (
             <p className='text-sm text-muted-foreground'>
               Belum ada siswa yang mengumpulkan ringkasan.
             </p>
@@ -70,7 +71,7 @@ export default function MateriView({ id }: IDMateri) {
 
           <ScrollArea className='max-h-[300px] pr-2'>
             <div className='space-y-4'>
-              {materi?.summary?.map((s) => (
+              {Tugas?.summary?.map((s) => (
                 <div
                   key={s.id}
                   className='flex gap-4 rounded-md border p-3 shadow-sm transition hover:bg-muted/50'

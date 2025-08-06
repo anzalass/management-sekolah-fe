@@ -65,10 +65,10 @@ export default function DetailKelasView({ id }: DetailKelasId) {
   const [tab, setTab] = useState('materi');
 
   return (
-    <div className='mx-auto max-w-4xl space-y-6 p-4'>
+    <div className='mx-auto max-w-4xl space-y-6'>
       <div className='flex items-center justify-between'>
         <div>
-          <h1 className='text-2xl font-bold'>Detail Kelas: XII IPA 1</h1>
+          <h1 className='text-2xl font-bold'>Detail Kelas: Matematika</h1>
           <p className='text-sm text-muted-foreground'>
             Materi dan Tugas yang tersedia di kelas ini.
           </p>
@@ -83,24 +83,24 @@ export default function DetailKelasView({ id }: DetailKelasId) {
         </TabsList>
 
         {/* Materi */}
-        <TabsContent value='materi'>
-          <Card>
+        <TabsContent value='materi' className='p-0'>
+          <div className='p-0'>
             <CardHeader className='flex items-center gap-2'>
               <BookOpenText className='h-5 w-5 text-blue-500' />
               <CardTitle>Materi Kelas</CardTitle>
             </CardHeader>
-            <CardContent className='space-y-3'>
+            <CardContent className='space-y-4 p-2'>
               {dummyMateri.map((materi) => (
                 <div
                   key={materi.id}
                   className='rounded border p-3 transition hover:bg-muted'
                 >
                   <div className='flex items-start justify-between'>
-                    <div>
+                    <div className='w-[65%]'>
                       <h4 className='text-base font-semibold'>
                         {materi.judul}
                       </h4>
-                      <p className='my-2 text-sm text-muted-foreground'>
+                      <p className='my-2 mt-4 text-sm text-muted-foreground'>
                         {materi.konten}
                       </p>
                       <div className='mt-1 flex items-center gap-1 text-xs text-muted-foreground'>
@@ -110,7 +110,9 @@ export default function DetailKelasView({ id }: DetailKelasId) {
                     </div>
                     <Badge
                       className={
-                        materi.selesai ? 'bg-green-500' : 'bg-yellow-400'
+                        materi.selesai
+                          ? 'w-[35%] bg-green-500 text-xs'
+                          : 'w-[40%] bg-yellow-400 text-xs'
                       }
                     >
                       {materi.selesai ? 'Selesai' : 'Belum Selesai'}
@@ -119,7 +121,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
                 </div>
               ))}
             </CardContent>
-          </Card>
+          </div>
         </TabsContent>
 
         {/* Tugas */}

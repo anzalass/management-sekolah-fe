@@ -1,5 +1,6 @@
 'use client';
 
+import { useForm, Controller } from 'react-hook-form';
 import {
   Dialog,
   DialogContent,
@@ -8,103 +9,191 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Trash2 } from 'lucide-react';
+import TextEditor from '@/components/text-editor';
+import 'react-quill/dist/quill.snow.css';
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import axios from 'axios';
+import { API } from '@/lib/server';
+import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 interface Tugas {
   id: number;
+  idKelas: string;
   judul: string;
-  deskripsi: string;
+  konten: string;
+  iframeSlide?: string;
+  iframeYoutube?: string;
+  pdfFile?: File | null;
+  link?: string;
 }
 
 interface ModalTugasProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  idKelas: string;
 }
 
-export default function ModalTugas({ open, onOpenChange }: ModalTugasProps) {
-  const [judulTugas, setJudulTugas] = useState('');
-  const [deskripsiTugas, setDeskripsiTugas] = useState('');
-  const [tugasList, setTugasList] = useState<Tugas[]>([]);
+interface FormValues {
+  judul: string;
+  prompt: string;
+  konten: string;
+  deadline: string;
+  iframeSlide: string;
+  iframeYoutube: string;
+}
 
-  const handleAddTugas = () => {
-    if (!judulTugas.trim() || !deskripsiTugas.trim()) return;
+export default function ModalTugas({
+  open,
+  onOpenChange,
+  idKelas
+}: ModalTugasProps) {
+  const { toggleTrigger } = useRenderTrigger();
 
-    const newTugas: Tugas = {
-      id: Date.now(),
-      judul: judulTugas.trim(),
-      deskripsi: deskripsiTugas.trim()
-    };
+  const { register, handleSubmit, control, reset, setValue } =
+    useForm<FormValues>({
+      defaultValues: {
+        judul: '',
+        prompt: '',
+        konten: '',
+        iframeSlide: '',
+        iframeYoutube: '',
+        deadline: ''
+      }
+    });
+  const { data: session } = useSession();
+  const [TugasList, setTugasList] = useState<Tugas[]>([]);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const onSubmit = async (data: FormValues) => {
+    if (!data.judul.trim() || !data.konten.trim()) return;
 
-    setTugasList((prev) => [...prev, newTugas]);
-    setJudulTugas('');
-    setDeskripsiTugas('');
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('judul', data.judul);
+      formData.append('idKelasMapel', idKelas);
+      formData.append('konten', data.konten);
+      formData.append('deadline', data.deadline);
+      formData.append('iframeGoogleSlide', data.iframeSlide);
+      formData.append('iframeYoutube', data.iframeYoutube);
+
+      if (pdfFile !== null) {
+        formData.append('pdf', pdfFile);
+      }
+
+      await axios.post(`${API}tugas`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
+
+      toast.success('Berhasil membuat Tugas');
+      reset();
+      onOpenChange(false); // tutup modal setelah submit
+      toggleTrigger();
+    } catch (error) {
+      console.error('Gagal menyimpan Tugas:', error);
+      toast.error('Gagal menyimpan Tugas');
+    } finally {
+      setIsLoading(false);
+      setPdfFile(null);
+    }
+  };
+
+  const handleGenerateAI = () => {
+    setValue('judul', 'Pengantar Algoritma');
+    setValue(
+      'konten',
+      'Tugas ini membahas tentang konsep dasar algoritma dan logika.'
+    );
   };
 
   const handleDelete = (id: number) => {
-    setTugasList((prev) => prev.filter((tugas) => tugas.id !== id));
+    setTugasList((prev) => prev.filter((m) => m.id !== id));
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='max-w-2xl'>
+      <DialogContent className='h-screen max-w-5xl overflow-auto'>
         <DialogHeader>
           <DialogTitle>Tambah Tugas</DialogTitle>
         </DialogHeader>
 
-        <div className='space-y-4'>
+        <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           <div>
-            <Label>Judul Tugas</Label>
+            <label>Judul Tugas</label>
+            <Input {...register('judul')} />
+          </div>
+          <div>
+            <label>Prompt Tugas By AI</label>
+            <Input {...register('prompt')} />
+          </div>
+          <div>
+            <label>Deadline</label>
+            <Input type='date' {...register('deadline')} />
+          </div>
+
+          <div>
+            <label>Konten</label>
+            <Controller
+              name='konten'
+              control={control}
+              render={({ field }) => (
+                <TextEditor
+                  type='tugas'
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+          </div>
+
+          <div>
+            <label>Iframe Google Slide</label>
             <Input
-              value={judulTugas}
-              onChange={(e) => setJudulTugas(e.target.value)}
-              placeholder='Masukkan judul tugas'
+              {...register('iframeSlide')}
+              placeholder='URL iframe slide'
             />
           </div>
 
           <div>
-            <Label>Deskripsi</Label>
-            <Textarea
-              value={deskripsiTugas}
-              onChange={(e) => setDeskripsiTugas(e.target.value)}
-              placeholder='Masukkan deskripsi tugas'
+            <label>Iframe YouTube</label>
+            <Input
+              {...register('iframeYoutube')}
+              placeholder='URL iframe YouTube'
             />
           </div>
 
-          <div className='flex justify-end gap-2'>
-            <Button onClick={handleAddTugas}>Simpan Tugas</Button>
-          </div>
-
-          <div className='pt-4'>
-            <h4 className='text-md font-semibold'>Daftar Tugas</h4>
-            {tugasList.length === 0 ? (
-              <p className='text-sm text-muted-foreground'>Belum ada tugas.</p>
-            ) : (
-              <div className='space-y-2'>
-                {tugasList.map((tugas) => (
-                  <Card
-                    key={tugas.id}
-                    className='relative rounded-md p-4 shadow-sm'
-                  >
-                    <button
-                      onClick={() => handleDelete(tugas.id)}
-                      className='absolute right-2 top-2 text-gray-500 hover:text-red-500'
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                    <div className='font-semibold'>{tugas.judul}</div>
-                    <div className='text-sm text-muted-foreground'>
-                      {tugas.deskripsi}
-                    </div>
-                  </Card>
-                ))}
-              </div>
+          <div>
+            <label>Upload PDF</label>
+            <Input
+              type='file'
+              accept='application/pdf'
+              onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+            />
+            {pdfFile && (
+              <p className='text-sm text-muted-foreground'>{pdfFile.name}</p>
             )}
           </div>
-        </div>
+
+          <div className='flex gap-2'>
+            <Button type='submit' disabled={isLoading}>
+              {isLoading ? 'Menyimpan...' : 'Simpan Tugas'}
+            </Button>
+            <Button type='button' variant='outline' onClick={handleGenerateAI}>
+              Generate Tugas dengan AI
+            </Button>
+          </div>
+        </form>
+
+        {/* Optional preview */}
+        {/* <div
+          className='prose max-w-none mt-6'
+          dangerouslySetInnerHTML={{ __html: watch('konten') }}
+        ></div> */}
       </DialogContent>
     </Dialog>
   );

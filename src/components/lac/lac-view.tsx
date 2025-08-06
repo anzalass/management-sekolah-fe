@@ -35,8 +35,6 @@ import { Swiper as SwiperType } from 'swiper';
 import { Navigation, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import Footer from '../../components/layout/footer';
 import Image from 'next/image';
 import Navbar from '../../components/layout/navbar';
@@ -220,84 +218,81 @@ export default function LacView() {
         refCurriculum={refCurriculum}
       />
 
-      <div className='our-class max-h-auto relative mb-20 mt-[-45rem] md:mt-[10rem] lg:mt-0'>
+      {/* Konten OUR CLASS */}
+      <div className='relative overflow-hidden'>
         {/* Awan Atas */}
         <Image
-          width={1000}
-          height={1000}
           src={Awan2}
-          alt=''
-          className='img1 w-full md:mb-[15rem] lg:mb-0'
+          alt='Awan Atas'
+          width={1920}
+          height={1080}
+          className='absolute left-0 top-0 z-10 w-full object-cover'
         />
 
-        {/* Konten OUR CLASS */}
-        <div
-          className='bg2-lap px-4 py-7 md:h-auto lg:h-[170vh]'
-          style={{ marginTop: '-60rem' }}
-        >
+        {/* Konten */}
+        <div className='relative z-10 mx-auto mt-[25vh] h-[140vh] max-w-3xl px-4 py-20 sm:h-[180vh] lg:mt-[100vh] lg:h-[270vh]'>
           {/* OUR CLASS Title */}
-          <div className='mb-10 mt-10 flex justify-center'>
+          <div className='mb-16 flex justify-center'>
             <div
-              className='w-[200px] rounded-[30px] bg-white py-4 text-center text-4xl font-extrabold text-[#017BBD] shadow-md'
+              className='rounded-[30px] bg-white p-4 text-center text-4xl font-extrabold text-[#017BBD] shadow-md'
               style={{ fontFamily: "'Poetsen One', sans-serif" }}
             >
-              OUR <br /> CLASS
+              OUR CLASS
             </div>
           </div>
 
-          {/* Grid 2x2 */}
-          <div className='relative mx-auto mt-10 grid max-w-3xl grid-cols-2 gap-12'>
-            {/* Card 1 */}
-            <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 h-[100%] w-[100%] rounded-2xl border-[6px] border-blue-500 bg-white'>
-                <Image src={primary1} alt='Little Alley Preschool' />
+          {/* Grid Cards */}
+          <div className='grid grid-cols-2 gap-y-12 md:gap-10 lg:grid-cols-2'>
+            {[
+              {
+                image: primary1,
+                title: 'Primary 1'
+              },
+              {
+                image: primary2,
+                title: 'Primary 2'
+              },
+              {
+                image: primary3,
+                title: 'Primary 3'
+              },
+              {
+                image: primary4,
+                title: 'Primary 4'
+              },
+              {
+                image: primary5,
+                title: 'Primary 5'
+              },
+              {
+                image: primary6,
+                title: 'Primary 6'
+              }
+            ].map((item, index) => (
+              <div
+                key={index}
+                className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-105'
+              >
+                <div className='card mx-auto mb-4 flex w-[85%] max-w-md items-center justify-center overflow-hidden rounded-2xl border-[6px] border-blue-500 bg-white'>
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    className='h-full w-full object-cover'
+                  />
+                </div>
+                <p className='text-2xl font-bold text-blue-900'>{item.title}</p>
               </div>
-              <p className='text-2xl font-bold text-blue-800'>Primary 1</p>
-            </div>
-            <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 h-[100%] w-[100%] rounded-2xl border-[6px] border-blue-500 bg-white'>
-                <Image src={primary2} alt='Little Alley Preschool' />
-              </div>
-              <p className='text-2xl font-bold text-blue-800'>Primary 2</p>
-            </div>
-            <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 h-[100%] w-[100%] rounded-2xl border-[6px] border-blue-500 bg-white'>
-                <Image src={primary3} alt='Little Alley Preschool' />
-              </div>
-              <p className='text-2xl font-bold text-blue-800'>Primary 3</p>
-            </div>
-
-            {/* Card 2 */}
-            <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 h-[100%] w-[100%] rounded-2xl border-[6px] border-blue-500 bg-white'>
-                <Image src={primary4} alt='Little Alley Preschool' />
-              </div>
-              <p className='text-2xl font-bold text-blue-800'>Primary 4</p>
-            </div>
-
-            {/* Card 3 */}
-            <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 h-[100%] w-[100%] rounded-2xl border-[6px] border-blue-500 bg-white'>
-                <Image src={primary5} alt='Little Alley Preschool' />
-              </div>
-              <p className='text-2xl font-bold text-blue-800'>Primary 5</p>
-            </div>
-
-            {/* Card 4 */}
-            <div className='relative z-10 transform text-center transition-transform duration-300 hover:z-20 hover:scale-110'>
-              <div className='card mx-auto mb-4 h-[100%] w-[100%] rounded-2xl border-[6px] border-blue-500 bg-white'>
-                <Image src={primary6} alt='Little Alley Preschool' />
-              </div>
-              <p className='text-2xl font-bold text-blue-800'>Primary 6</p>
-            </div>
+            ))}
           </div>
         </div>
+
+        {/* Awan Bawah */}
         <Image
-          width={1000}
-          height={1000}
           src={Awan}
-          alt=''
-          className='img2 -mt-[68rem] w-full md:mt-[-45rem] lg:mt-[-65rem]'
+          alt='Awan Bawah'
+          width={1920}
+          height={1080}
+          className='absolute bottom-0 left-0 z-0 w-full rotate-180 object-cover'
         />
       </div>
 
@@ -360,7 +355,7 @@ export default function LacView() {
 
       {/* Curriculum */}
 
-      <div className='mx-auto mt-24 mt-[3rem] max-w-3xl px-4 py-8 lg:mt-0'>
+      <div className='mx-auto mt-24 max-w-3xl px-4 py-8 lg:mt-0'>
         <h2
           className='mb-6 text-center text-4xl font-extrabold text-[#017BBD]'
           style={{ fontFamily: "'Poetsen One', sans-serif" }}
@@ -368,7 +363,7 @@ export default function LacView() {
           OUR FACILITIES
         </h2>
 
-        <div className='mt-14 grid grid-cols-2 justify-items-center gap-x-4 gap-y-6'>
+        <div className='mt-14 grid grid-cols-1 justify-items-center gap-x-4 gap-y-6 md:grid-cols-2'>
           <Image
             width={1000}
             height={1000}
@@ -407,19 +402,12 @@ export default function LacView() {
           <Image
             width={1000}
             height={1000}
-            src={fasilitaslac6}
+            src={fasilitaslac7}
             alt='Facility 2'
             className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
-          <Image
-            width={1000}
-            height={1000}
-            src={fasilitaslac7}
-            alt='Facility 3'
-            className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
-          />
 
-          <div className='mb-6 mt-9 hidden w-72 text-sm leading-tight text-[#0066b3] lg:block'>
+          <div className='mx-auto mb-6 mt-9 block w-72 text-sm leading-tight text-[#0066b3]'>
             <p>
               Yayasan Tunas Anak Mulia is equipped with facilities and resources
               to enhance the learning experience:
@@ -431,14 +419,6 @@ export default function LacView() {
               <li>Center Playgrounds</li>
             </ul>
           </div>
-
-          <Image
-            width={1000}
-            height={1000}
-            src={fasilitaslac5}
-            alt='Facility 5'
-            className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
-          />
         </div>
       </div>
 
@@ -446,14 +426,6 @@ export default function LacView() {
         src={Garis}
         className='mt-10 mt-24 w-full'
         alt='Garis horizontal'
-      />
-
-      <Gallery gallery={gallery} />
-
-      <Testimonial
-        testimonials={testimonials}
-        setSwiperInstance={setSwiperInstance}
-        swiperInstance={swiperInstance}
       />
 
       <Footer />

@@ -155,7 +155,7 @@ export const navItems: NavItem[] = [
       },
       {
         title: 'Arsip dan Dokumen',
-        url: '/dashboard/master-data/ruangan',
+        url: '/dashboard/master-data/arsip',
         icon: 'userPen',
         shortcut: ['n', 'n']
       }
@@ -224,34 +224,6 @@ export const navItems: NavItem[] = [
       },
       {
         title: 'Riwayat Pembayaran Siswa',
-        url: '/dashboard/master-data/guru-staff',
-        icon: 'userPen',
-        shortcut: ['n', 'n']
-      }
-    ]
-  },
-  {
-    title: 'E - Tabungan',
-    url: '/dashboard/master-data/siswa',
-    icon: 'product',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [
-      {
-        title: 'Tabungan Siswa',
-        url: '/dashboard/master-data/anggaran',
-        icon: 'userPen',
-        shortcut: ['n', 'n']
-      },
-      {
-        title: 'Riwayat Menabung Siswa',
-        url: '/dashboard/master-data/guru-staff',
-        icon: 'userPen',
-        shortcut: ['n', 'n']
-      },
-
-      {
-        title: 'Riwayat Penarikan Siswa',
         url: '/dashboard/master-data/guru-staff',
         icon: 'userPen',
         shortcut: ['n', 'n']

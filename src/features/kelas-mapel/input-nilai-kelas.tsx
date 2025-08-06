@@ -1,131 +1,193 @@
-'use client';
-
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useForm } from 'react-hook-form';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { API } from '@/lib/server';
+import { toast } from 'sonner';
 
-interface Siswa {
-  id: number;
-  name: string;
-  nilai: Record<string, number>;
-}
+// Tipe Props
+type InputNilaiProps = {
+  idKelas: string;
+};
 
-export default function InputNilaiKelas() {
-  const [jenisPenilaian, setJenisPenilaian] = useState<string[]>([
-    'Tugas 1',
-    'UTS',
-    'UAS'
-  ]);
-  const [penilaianBaru, setPenilaianBaru] = useState('');
-  const [activePenilaian, setActivePenilaian] = useState('Tugas 1');
+// Tipe data nilai siswa
+type NilaiItem = {
+  id: string;
+  nama: string;
+  nilai: number;
+  jenisNilai: string;
+};
 
-  const [siswaList, setSiswaList] = useState<Siswa[]>([
-    { id: 1, name: 'Ali', nilai: {} },
-    { id: 2, name: 'Budi', nilai: {} },
-    { id: 3, name: 'Citra', nilai: {} },
-    { id: 4, name: 'Dewi', nilai: {} }
-  ]);
+// Tipe untuk form tambah jenis nilai
+type JenisNilaiForm = {
+  jenis: string;
+  bobot: number;
+};
 
-  const handleNilaiChange = (id: number, value: string) => {
-    const angka = parseFloat(value);
-    setSiswaList((prev) =>
-      prev.map((siswa) =>
-        siswa.id === id
-          ? {
-              ...siswa,
-              nilai: {
-                ...siswa.nilai,
-                [activePenilaian]: isNaN(angka) ? 0 : angka
-              }
-            }
-          : siswa
-      )
+export default function InputNilaiKelas({ idKelas }: InputNilaiProps) {
+  const { register, handleSubmit, reset } = useForm<JenisNilaiForm>();
+
+  const [listNilai, setListNilai] = useState<NilaiItem[]>([]);
+  const [fullNilaiList, setFullNilaiList] = useState<NilaiItem[]>([]);
+  const [jenisNilai, setJenisNilai] = useState<any[]>([]);
+  const [defaultJenisNilai, setDefaultJenisNilai] = useState<string>('');
+
+  // Ambil data jenis nilai + nilai siswa
+  const fetchJenisNilai = async () => {
+    try {
+      const res = await axios.get(`${API}penilaian/kelas/${idKelas}`);
+      const jenisData = res.data.jenisNilai;
+      const nilaiSiswa = res.data.nilaiSiswa ?? [];
+
+      setJenisNilai(jenisData);
+      setFullNilaiList(nilaiSiswa);
+
+      const jenisAwal = jenisData[0]?.jenis ?? '';
+      setDefaultJenisNilai(jenisAwal);
+
+      const filtered = nilaiSiswa.filter(
+        (item: NilaiItem) => item.jenisNilai === jenisAwal
+      );
+      setListNilai(filtered);
+    } catch (err) {
+      console.error('Gagal fetch data', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchJenisNilai();
+  }, [idKelas]);
+
+  useEffect(() => {
+    const filtered = fullNilaiList.filter(
+      (item: NilaiItem) => item.jenisNilai === defaultJenisNilai
     );
+    setListNilai(filtered);
+  }, [defaultJenisNilai, fullNilaiList]);
+
+  // Tambah jenis penilaian
+  const onSubmit = async (data: JenisNilaiForm) => {
+    try {
+      await axios.post(`${API}penilaian`, {
+        idKelasMapel: idKelas,
+        jenis: data.jenis,
+        bobot: Number(data.bobot)
+      });
+      reset();
+      fetchJenisNilai();
+    } catch (error: any) {
+      console.error(
+        error?.response?.data?.message ?? 'Gagal tambah jenis nilai'
+      );
+    }
   };
 
-  const handleTambahPenilaian = () => {
-    if (!penilaianBaru.trim() || jenisPenilaian.includes(penilaianBaru)) return;
-    setJenisPenilaian((prev) => [...prev, penilaianBaru]);
-    setActivePenilaian(penilaianBaru);
-    setPenilaianBaru('');
+  // Simpan nilai per siswa
+  const SimpanNilai = async (nilai: NilaiItem) => {
+    try {
+      await axios.put(`${API}nilai-siswa/${nilai.id}`, {
+        nilai: nilai.nilai
+      });
+      toast.success('Berhasil Menyimpan Nilai');
+    } catch (error) {
+      console.error('Gagal simpan nilai', error);
+    }
   };
 
-  const handleSimpan = () => {
-    console.log('Data nilai:', siswaList);
-    alert('Nilai berhasil disimpan!');
+  // Handle ubah nilai dari input
+  const handleChangeNilai = (index: number, newValue: string) => {
+    const parsedValue = parseInt(newValue);
+    const safeValue = isNaN(parsedValue) ? 0 : parsedValue;
+
+    const updated = [...listNilai];
+    updated[index] = { ...updated[index], nilai: safeValue };
+    setListNilai(updated);
+
+    // Juga update full list biar sinkron kalau ganti jenis nilai
+    const fullUpdated = fullNilaiList.map((item) =>
+      item.id === updated[index].id ? updated[index] : item
+    );
+    setFullNilaiList(fullUpdated);
   };
 
   return (
     <div className='space-y-6'>
       <h1 className='text-2xl font-bold'>Input Nilai Kelas</h1>
 
+      {/* Section Jenis Penilaian */}
       <Card>
         <CardHeader>
           <CardTitle>Jenis Penilaian</CardTitle>
         </CardHeader>
         <CardContent className='space-y-2'>
           <div className='flex flex-wrap gap-2'>
-            {jenisPenilaian.map((jenis) => (
+            {jenisNilai.map((d: any, i) => (
               <Button
-                key={jenis}
-                variant={jenis === activePenilaian ? 'default' : 'outline'}
-                onClick={() => setActivePenilaian(jenis)}
+                key={i}
+                variant={d.jenis === defaultJenisNilai ? 'default' : 'outline'}
+                onClick={() => setDefaultJenisNilai(d.jenis)}
               >
-                {jenis}
+                {d.jenis} - {d.bobot}%
               </Button>
             ))}
           </div>
-          <div className='flex gap-2 pt-2'>
+
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className='flex w-fit gap-2 pt-4'
+          >
             <Input
-              placeholder='Tambah jenis penilaian...'
-              value={penilaianBaru}
-              onChange={(e) => setPenilaianBaru(e.target.value)}
-              className='w-[200px]'
+              placeholder='Jenis penilaian'
+              {...register('jenis', { required: true })}
             />
-            <Button onClick={handleTambahPenilaian}>Tambah</Button>
-          </div>
+            <Input
+              type='number'
+              placeholder='Bobot (%)'
+              {...register('bobot', { required: true, min: 1, max: 100 })}
+            />
+            <Button type='submit'>Tambah</Button>
+          </form>
         </CardContent>
       </Card>
 
+      {/* Section Tabel Input Nilai */}
       <Card>
         <CardHeader>
-          <CardTitle>Input Nilai: {activePenilaian}</CardTitle>
+          <CardTitle>Input Nilai: {defaultJenisNilai}</CardTitle>
         </CardHeader>
         <CardContent>
           <table className='w-full border-collapse'>
             <thead>
-              <tr className='bg-gray-100 text-left'>
+              <tr className='bg-gray-100'>
                 <th className='border p-2'>No</th>
                 <th className='border p-2'>Nama</th>
                 <th className='border p-2'>Nilai</th>
+                <th className='border p-2'>Aksi</th>
               </tr>
             </thead>
             <tbody>
-              {siswaList.map((siswa, index) => (
-                <tr key={siswa.id}>
+              {listNilai.map((nilai, index) => (
+                <tr key={nilai.id}>
                   <td className='border p-2'>{index + 1}</td>
-                  <td className='border p-2'>{siswa.name}</td>
+                  <td className='border p-2'>{nilai.nama}</td>
                   <td className='border p-2'>
                     <Input
                       type='number'
                       min={0}
                       max={100}
-                      value={siswa.nilai[activePenilaian] ?? ''}
-                      onChange={(e) =>
-                        handleNilaiChange(siswa.id, e.target.value)
-                      }
+                      value={nilai.nilai}
+                      onChange={(e) => handleChangeNilai(index, e.target.value)}
                     />
+                  </td>
+                  <td className='border p-2'>
+                    <Button onClick={() => SimpanNilai(nilai)}>Simpan</Button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-
-          <div className='mt-4 flex justify-end'>
-            <Button onClick={handleSimpan}>Simpan Nilai</Button>
-          </div>
         </CardContent>
       </Card>
     </div>

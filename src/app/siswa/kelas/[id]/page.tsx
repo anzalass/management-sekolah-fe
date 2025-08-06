@@ -19,12 +19,12 @@ type PageProps = { params: { id: string } };
 
 export default async function Page({ params }: PageProps) {
   return (
-    <PageContainer scrollable>
+    <div className='p-2'>
       <div className='flex-1 space-y-4'>
         <Suspense fallback={<FormCardSkeleton />}>
           <DetailKelasView id={params.id} />
         </Suspense>
       </div>
-    </PageContainer>
+    </div>
   );
 }
