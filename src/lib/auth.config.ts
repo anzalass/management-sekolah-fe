@@ -7,6 +7,7 @@ console.log('✅ NEXTAUTH_SECRET is set:', !!process.env.NEXTAUTH_SECRET);
 
 declare module 'next-auth' {
   interface User {
+    idGuru: string;
     token: string;
     nip: string;
     nama: string;
@@ -14,6 +15,7 @@ declare module 'next-auth' {
   }
 
   interface JWT {
+    idGuru: string;
     token: string;
     nip: string;
     nama: string;
@@ -83,6 +85,7 @@ const authConfig = {
     async jwt({ token, user }: { token: JWT; user: User | undefined }) {
       if (user) {
         token.token = user.token;
+        token.idGuru = user.idGuru;
         token.nip = user.nip;
         token.nama = user.nama;
         token.jabatan = user.jabatan;
@@ -91,6 +94,8 @@ const authConfig = {
     },
     async session({ session, token }: { session: Session; token: JWT }) {
       session.user.token = token.token;
+      session.user.idGuru = token.idGuru;
+
       session.user.nip = token.nip;
       session.user.nama = token.nama;
       session.user.jabatan = token.jabatan;

@@ -30,7 +30,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Presensi Guru',
-    url: '/dashboard/pendaftaran',
+    url: '',
     icon: 'dashboard',
     isActive: false,
     shortcut: ['d', 'd'],

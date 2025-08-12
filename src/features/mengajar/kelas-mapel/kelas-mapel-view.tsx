@@ -17,7 +17,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/id';
 
 interface Student {
-  id: number;
+  id: string;
   nama: string;
   nis?: string;
   gender?: 'Laki-laki' | 'Perempuan';
@@ -90,10 +90,12 @@ export default function KelasMapelView({ id }: KelasMapelID) {
     console.log(filteredMasterSiswa);
   }, [searchTerm, masterSiswa, kelasSiswa]);
 
-  const handleAddSiswaToKelas = async (nis: string) => {
+  const handleAddSiswaToKelas = async (siswa: Student) => {
     try {
       const response = await axios.post(`${API}kelas-mapel/add-siswa`, {
-        nis,
+        idSiswa: siswa.id,
+        nisSiswa: siswa.nis,
+        namaSiswa: siswa.nama,
         idKelas: id // pastikan juga kirim ID kelasMapel
       });
 
@@ -157,7 +159,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
             {searchTerm.trim() !== '' && filteredMasterSiswa.length > 0 && (
               <div className='rounded border p-2'>
                 <ul className='space-y-1'>
-                  {filteredMasterSiswa.map((siswa) => (
+                  {filteredMasterSiswa?.map((siswa) => (
                     <li
                       key={siswa.nis}
                       className='flex items-center justify-between border-b pb-1 last:border-none last:pb-0'
@@ -167,7 +169,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
                       </span>
                       <Button
                         size='sm'
-                        onClick={() => handleAddSiswaToKelas(siswa.nis || '')}
+                        onClick={() => handleAddSiswaToKelas(siswa)}
                       >
                         Tambah
                       </Button>

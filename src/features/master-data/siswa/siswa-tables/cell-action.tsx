@@ -30,7 +30,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
   const onConfirm = async () => {
     try {
-      await axios.delete(`${API}user/delete-siswa/${data.nis}`);
+      await axios.delete(`${API}user/delete-siswa/${data.id}`);
       setOpen(false);
       toggleTrigger();
     } catch (error) {

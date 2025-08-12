@@ -90,6 +90,8 @@ export function DataTable<TData, TValue>({
     manualFiltering: true
   });
 
+  console.log('getHeaderGroups:', table.getHeaderGroups());
+
   return (
     <div className='flex flex-1 flex-col space-y-4'>
       <div className='relative flex flex-1'>

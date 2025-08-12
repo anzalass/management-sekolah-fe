@@ -38,7 +38,7 @@ export default async function Page(props: pageProps) {
       <PageContainer scrollable={false}>
         <div className='flex flex-1 flex-col space-y-4'>
           <div className='flex items-start justify-between'>
-            <Heading title='Pendaftaran Siswa' description='' />
+            <h1 className='text-base md:text-lg'>Pendaftaran Siswa</h1>
             <Link
               href='/admin-dashboard/pendaftaran/new'
               className={cn(buttonVariants(), 'text-xs md:text-sm')}

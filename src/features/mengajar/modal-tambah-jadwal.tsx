@@ -112,12 +112,11 @@ export default function ModalTambahJadwal({
 
   return (
     <Dialog open={openModal} onOpenChange={setOpenModal}>
+      {/* <DialogTitle>
+        {dataEdit ? 'Edit Jadwal Pelajaran' : 'Tambah Jadwal Pelajaran'}
+      </DialogTitle> */}
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>
-            {dataEdit ? 'Edit Jadwal Pelajaran' : 'Tambah Jadwal Pelajaran'}
-          </DialogTitle>
-        </DialogHeader>
+        <DialogHeader></DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           <div>
             <label htmlFor='jamMulai'>Jam Mulai</label>

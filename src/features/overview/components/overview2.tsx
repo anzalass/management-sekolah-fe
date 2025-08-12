@@ -147,16 +147,16 @@ export default function Overview2() {
                   data2.izinGuruHariIni.map((item: any, idx: number) => (
                     <li key={idx} className='flex items-center space-x-3'>
                       <img
-                        src={item.Guru.foto || '/default-profile.png'}
-                        alt={item.Guru.nama}
+                        src={item?.Guru?.foto || '/default-profile.png'}
+                        alt={item?.Guru?.nama}
                         className='h-10 w-10 rounded-full object-cover ring-2 ring-yellow-400'
                       />
                       <div>
                         <p className='text-lg font-semibold'>
-                          {item.Guru.nama}
+                          {item?.Guru?.nama}
                         </p>
                         <p className='text-base text-muted-foreground'>
-                          {item.keterangan} ({item.status})
+                          {item?.keterangan} ({item.status})
                         </p>
                       </div>
                     </li>

@@ -13,9 +13,9 @@ export const columns: ColumnDef<any>[] = [
     cell: ({ row }) => row.original.nama
   },
   {
-    accessorKey: 'nipGuru',
+    accessorKey: 'nip',
     header: 'NIP',
-    cell: ({ row }) => row.original.nipGuru
+    cell: ({ row }) => row.original.nip
   },
   {
     accessorKey: 'keterangan',

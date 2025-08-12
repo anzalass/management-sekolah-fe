@@ -5,7 +5,7 @@ import FormCardSkeleton from '@/components/form-card-skeleton';
 import PageContainer from '@/components/layout/page-container';
 
 const KelasMapelView = dynamic(
-  () => import('@/features/kelas-mapel/kelas-mapel-view'),
+  () => import('@/features/mengajar/kelas-mapel/kelas-mapel-view'),
   {
     loading: () => <FormCardSkeleton />
   }

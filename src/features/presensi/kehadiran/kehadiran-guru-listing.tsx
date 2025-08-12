@@ -15,7 +15,7 @@ export type KehadiranGuru = {
   jamMasuk: string; // format: "HH:mm:ss"
   jamPulang: string; // format: "HH:mm:ss"
   status: string;
-  guruId: string;
+  idGuru: string;
   nama: string;
   nip: string;
 };
@@ -46,7 +46,7 @@ export default function KehadiranGuruListingPage() {
             }
           }
         );
-        setData(response.data.data);
+        setData(response.data.data.data);
         setTotalData(response.data.total);
       } catch (error) {
         console.error('Error fetching kehadiran guru:', error);

@@ -16,6 +16,8 @@ import { useSession } from 'next-auth/react';
 
 type FormValues = {
   nama: string;
+  namaGuru: string;
+  nipGuru: string;
   ruangKelas: string;
 };
 
@@ -59,7 +61,14 @@ export default function ModalTambahKelas({
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
 
+    if (!session?.user) {
+      return;
+    }
+
     try {
+      setValue('namaGuru', session?.user?.nama);
+      setValue('nipGuru', session?.user?.nip);
+
       const response = await fetch(
         isEdit
           ? `${API}kelas-walikelas/update/${dataEdit?.id}`

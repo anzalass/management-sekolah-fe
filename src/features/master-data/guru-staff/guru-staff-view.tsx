@@ -2,18 +2,18 @@ import { API } from '@/lib/server';
 import GuruStaffForm from './guru-staff-form';
 import axios from 'axios';
 
-type NipType = {
-  nip: string;
+type IDGuruType = {
+  idGuru: string;
 };
 
-export default async function GuruStaffViewPage({ nip }: NipType) {
+export default async function GuruStaffViewPage({ idGuru }: IDGuruType) {
   let GuruStaff = null;
   let pageTitle = 'Tambah Guru dan Staff';
 
-  if (nip !== 'new') {
+  if (idGuru !== 'new') {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}user/get-guru/${nip}`);
+        const response = await axios.get(`${API}user/get-guru/${idGuru}`);
         return response.data.data;
       } catch (error) {}
     };
@@ -23,6 +23,10 @@ export default async function GuruStaffViewPage({ nip }: NipType) {
   }
 
   return (
-    <GuruStaffForm nip={nip} initialData={GuruStaff} pageTitle={pageTitle} />
+    <GuruStaffForm
+      idGuru={idGuru}
+      initialData={GuruStaff}
+      pageTitle={pageTitle}
+    />
   );
 }

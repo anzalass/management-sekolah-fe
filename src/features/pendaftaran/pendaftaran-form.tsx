@@ -85,9 +85,9 @@ export default function PendaftaranForm({
           toast.success('Pendaftaran berhasil disimpan');
         }
 
-        router.push('/admin-dashboard/pendaftaran');
+        router.push('/dashboard/pendaftaran');
       } catch (error) {
-        const axiosError = error as AxiosError;
+        const axiosError = error as any;
         const errorMessage =
           axiosError.response?.data?.message || 'Terjadi Kesalahan';
         toast.error(errorMessage);

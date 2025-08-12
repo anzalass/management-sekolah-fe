@@ -68,6 +68,7 @@ export default function ModalFormMaintenance({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTitle>Buat Tagihan</DialogTitle>
       <DialogTrigger asChild>
         <Button variant='ghost' className='w-full text-left'>
           Tagihan
@@ -75,9 +76,7 @@ export default function ModalFormMaintenance({
       </DialogTrigger>
 
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Buat Tagihan</DialogTitle>
-        </DialogHeader>
+        <DialogHeader></DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>

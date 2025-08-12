@@ -1,5 +1,5 @@
 import PageContainer from '@/components/layout/page-container';
-import TugasView from '@/features/kelas-mapel/tugas-view';
+import TugasView from '@/features/mengajar/kelas-mapel/tugas-view';
 
 type PageProps = {
   params: {

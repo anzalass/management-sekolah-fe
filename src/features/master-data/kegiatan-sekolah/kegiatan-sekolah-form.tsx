@@ -5,31 +5,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Form,
   FormControl,
-  FormField,
   FormItem,
   FormLabel,
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+
 import { Textarea } from '@/components/ui/textarea';
-import { Product } from '@/constants/mock-api';
-import { zodResolver } from '@hookform/resolvers/zod';
+
 import axios from 'axios';
-import { Trash } from 'lucide-react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useTransition } from 'react';
+import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import * as z from 'zod';
-import { S } from '@faker-js/faker/dist/airline-BcEu2nRk';
 import { API } from '@/lib/server';
 
 // Tipe Data Siswa
@@ -74,8 +62,6 @@ export default function KegiatanSekolahForm({
 
   // Handle Submit
   async function onSubmit(values: any) {
-    console.log(values.noTeleponOrtu);
-
     startTransition(async () => {
       try {
         if (id !== 'new') {
@@ -84,7 +70,7 @@ export default function KegiatanSekolahForm({
             { ...values },
             {
               headers: {
-                'Content-Type': 'multipart/form-data'
+                'Content-Type': 'application/json'
               }
             }
           );
@@ -105,7 +91,7 @@ export default function KegiatanSekolahForm({
         }
 
         router.push('/dashboard/master-data/kegiatan-sekolah');
-      } catch (error) {
+      } catch (error: any) {
         toast.error(error?.response?.data?.message || 'Terjadi Kesalahan');
       }
     });

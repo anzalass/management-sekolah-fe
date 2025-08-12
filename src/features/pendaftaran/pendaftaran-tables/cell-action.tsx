@@ -63,9 +63,7 @@ export const PendaftaranCellAction: React.FC<CellActionProps> = ({ data }) => {
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem
-            onClick={() =>
-              router.push(`/admin-dashboard/pendaftaran/${data.id}`)
-            }
+            onClick={() => router.push(`/dashboard/pendaftaran/${data.id}`)}
           >
             <Edit className='mr-2 h-4 w-4' /> Edit
           </DropdownMenuItem>

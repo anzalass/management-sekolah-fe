@@ -19,17 +19,13 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Product } from '@/constants/mock-api';
-import { zodResolver } from '@hookform/resolvers/zod';
+
 import axios from 'axios';
-import { Trash } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import * as z from 'zod';
-import { S } from '@faker-js/faker/dist/airline-BcEu2nRk';
 import { API } from '@/lib/server';
 
 // Tipe Data Siswa
@@ -149,7 +145,7 @@ export default function SiswaForm({
 
         router.push('/dashboard/master-data/siswa');
       } catch (error) {
-        toast.error(error?.response.data.message);
+        toast.error('Gagal');
       }
     });
   }

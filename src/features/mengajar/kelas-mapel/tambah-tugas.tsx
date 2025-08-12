@@ -18,7 +18,7 @@ import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
-interface Materi {
+interface Tugas {
   id: number;
   idKelas: string;
   judul: string;
@@ -29,7 +29,7 @@ interface Materi {
   link?: string;
 }
 
-interface ModalMateriProps {
+interface ModalTugasProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   idKelas: string;
@@ -39,35 +39,31 @@ interface FormValues {
   judul: string;
   prompt: string;
   konten: string;
+  deadline: string;
   iframeSlide: string;
   iframeYoutube: string;
 }
 
-export default function ModalMateri({
+export default function ModalTugas({
   open,
   onOpenChange,
   idKelas
-}: ModalMateriProps) {
+}: ModalTugasProps) {
   const { toggleTrigger } = useRenderTrigger();
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    reset,
-    setValue,
-    formState: { errors }
-  } = useForm<FormValues>({
-    defaultValues: {
-      judul: '',
-      prompt: '',
-      konten: '',
-      iframeSlide: '',
-      iframeYoutube: ''
-    }
-  });
+  const { register, handleSubmit, control, reset, setValue } =
+    useForm<FormValues>({
+      defaultValues: {
+        judul: '',
+        prompt: '',
+        konten: '',
+        iframeSlide: '',
+        iframeYoutube: '',
+        deadline: ''
+      }
+    });
   const { data: session } = useSession();
-  const [materiList, setMateriList] = useState<Materi[]>([]);
+  const [TugasList, setTugasList] = useState<Tugas[]>([]);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const onSubmit = async (data: FormValues) => {
@@ -79,6 +75,7 @@ export default function ModalMateri({
       formData.append('judul', data.judul);
       formData.append('idKelasMapel', idKelas);
       formData.append('konten', data.konten);
+      formData.append('deadline', data.deadline);
       formData.append('iframeGoogleSlide', data.iframeSlide);
       formData.append('iframeYoutube', data.iframeYoutube);
 
@@ -86,22 +83,20 @@ export default function ModalMateri({
         formData.append('pdf', pdfFile);
       }
 
-      console.log('sasa pdf', pdfFile);
-
-      await axios.post(`${API}materi`, formData, {
+      await axios.post(`${API}tugas`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
 
-      toast.success('Berhasil membuat materi');
+      toast.success('Berhasil membuat Tugas');
       reset();
       onOpenChange(false); // tutup modal setelah submit
       toggleTrigger();
     } catch (error) {
-      console.error('Gagal menyimpan materi:', error);
-      toast.error('Gagal menyimpan materi');
+      console.error('Gagal menyimpan Tugas:', error);
+      toast.error('Gagal menyimpan Tugas');
     } finally {
       setIsLoading(false);
       setPdfFile(null);
@@ -112,36 +107,32 @@ export default function ModalMateri({
     setValue('judul', 'Pengantar Algoritma');
     setValue(
       'konten',
-      'Materi ini membahas tentang konsep dasar algoritma dan logika.'
+      'Tugas ini membahas tentang konsep dasar algoritma dan logika.'
     );
   };
 
   const handleDelete = (id: number) => {
-    setMateriList((prev) => prev.filter((m) => m.id !== id));
+    setTugasList((prev) => prev.filter((m) => m.id !== id));
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='h-screen max-w-7xl overflow-auto'>
-        <DialogHeader>
-          <DialogTitle>Tambah Materi</DialogTitle>
-        </DialogHeader>
+      <DialogContent className='h-screen max-w-5xl overflow-auto'>
+        <p>Tambah Tugas</p>
+        <DialogHeader></DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           <div>
-            <label>Judul Materi</label>
-            <Input
-              {...register('judul', { required: 'Judul materi wajib diisi' })}
-            />
-            {errors.judul && (
-              <p className='text-sm text-red-500'>{errors.judul.message}</p>
-            )}
+            <label>Judul Tugas</label>
+            <Input {...register('judul')} />
           </div>
-
           <div>
-            <label>Prompt Materi By AI</label>
+            <label>Prompt Tugas By AI</label>
             <Input {...register('prompt')} />
-            {/* Prompt tidak required, jadi tidak perlu pesan error */}
+          </div>
+          <div>
+            <label>Deadline</label>
+            <Input type='date' {...register('deadline')} />
           </div>
 
           <div>
@@ -151,7 +142,7 @@ export default function ModalMateri({
               control={control}
               render={({ field }) => (
                 <TextEditor
-                  type='materi'
+                  type='tugas'
                   value={field.value}
                   onChange={field.onChange}
                 />
@@ -189,10 +180,10 @@ export default function ModalMateri({
 
           <div className='flex gap-2'>
             <Button type='submit' disabled={isLoading}>
-              {isLoading ? 'Menyimpan...' : 'Simpan Materi'}
+              {isLoading ? 'Menyimpan...' : 'Simpan Tugas'}
             </Button>
             <Button type='button' variant='outline' onClick={handleGenerateAI}>
-              Generate Materi dengan AI
+              Generate Tugas dengan AI
             </Button>
           </div>
         </form>

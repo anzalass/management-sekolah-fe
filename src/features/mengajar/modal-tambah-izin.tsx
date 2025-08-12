@@ -119,12 +119,11 @@ export default function ModalTambahIzin({
 
   return (
     <Dialog open={openModal} onOpenChange={setOpenModal}>
+      {/* <DialogTitle>
+        {dataIzin ? 'Edit Izin' : 'Form Pengajuan Izin'}
+      </DialogTitle> */}
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>
-            {dataIzin ? 'Edit Izin' : 'Form Pengajuan Izin'}
-          </DialogTitle>
-        </DialogHeader>
+        <DialogHeader></DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           <div>
             <label htmlFor='tanggal'>Tanggal</label>

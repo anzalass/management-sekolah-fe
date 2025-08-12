@@ -239,7 +239,7 @@ export default function MengajarViewPage() {
 
       <div className=''></div>
 
-      <CardListIzin listIzin={dashboard?.perizinan} fetchData={dataDashboard} />
+      <CardListIzin izin={dashboard?.perizinan} fetchData={dataDashboard} />
     </div>
   );
 }

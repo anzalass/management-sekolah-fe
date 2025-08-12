@@ -1,11 +1,11 @@
-import LapView from '@/components/lap/lap-view';
+import HomeView from '../../components/home/home-view';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Little Alley Preschool',
+  title: 'Little Alley',
   description: 'Sekolah Terbaik di Suvarna Sutera'
 };
 
 export default function Page() {
-  return <LapView />;
+  return <HomeView />;
 }

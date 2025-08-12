@@ -18,6 +18,8 @@ type FormValues = {
   namaMapel: string;
   kelas: string;
   ruangKelas: string;
+  namaGuru: string;
+  nipGuru: string;
 };
 
 type Props = {
@@ -60,8 +62,14 @@ export default function ModalTambahKelasMapel({
   }, [dataEdit, setValue, reset]);
 
   const onSubmit = async (data: FormValues) => {
+    if (!session?.user) {
+      return;
+    }
     setIsLoading(true);
     try {
+      setValue('namaGuru', session?.user?.nama);
+      setValue('nipGuru', session?.user?.nip);
+
       const res = await fetch(
         isEdit
           ? `${API}kelas-mapel/update/${dataEdit?.id}`

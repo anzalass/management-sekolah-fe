@@ -62,9 +62,9 @@ export default function ModalHapusKelas({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
+      <DialogTitle>Hapus Kelas</DialogTitle>
       <DialogContent className='max-w-md'>
         <DialogHeader>
-          <DialogTitle>Hapus Kelas</DialogTitle>
           <DialogDescription>
             Apakah kamu yakin ingin menghapus kelas ini? Tindakan ini tidak bisa
             dibatalkan.

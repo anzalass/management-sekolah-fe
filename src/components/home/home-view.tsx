@@ -180,7 +180,7 @@ export default function HomeView() {
         </div>
       </section>
 
-      <section className='bg-muted/40 py-12'>
+      <section className='bg-[#bde0fe] py-12'>
         <div className='container mx-auto px-4 md:px-6'>
           <Card className='mx-auto max-w-6xl shadow-lg'>
             <div className='flex flex-col md:flex-row'>
@@ -294,9 +294,9 @@ export default function HomeView() {
                   can grow academically and personally.
                 </p>
               </CardContent>
-              <CardFooter className='absolute bottom-3 right-3'>
-                <Link href={'/little-alley-preschool'}>
-                  <Button className='ml-auto' variant='outline'>
+              <CardFooter className='absolute bottom-1 w-full'>
+                <Link href={'/little-alley-preschool'} className='w-full'>
+                  <Button className='w-full' variant='outline'>
                     More
                   </Button>
                 </Link>
@@ -326,9 +326,9 @@ export default function HomeView() {
                   that matter to them.
                 </p>
               </CardContent>
-              <CardFooter className='absolute bottom-3 right-3'>
-                <Link href={'/little-alley-cyberschool'}>
-                  <Button className='ml-auto' variant='outline'>
+              <CardFooter className='absolute bottom-1 w-full'>
+                <Link href={'/little-alley-cyberschool'} className='w-full'>
+                  <Button className='w-full' variant='outline'>
                     More
                   </Button>
                 </Link>

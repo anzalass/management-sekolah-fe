@@ -15,7 +15,6 @@ import { useState } from 'react';
 import axios from 'axios';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
-import { TooltipTrigger } from '@radix-ui/react-tooltip';
 import { Tagihan } from './columns';
 
 interface CellActionProps {

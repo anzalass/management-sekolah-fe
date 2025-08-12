@@ -114,7 +114,9 @@ export default function ListKelasGuru({
               <div
                 key={idx}
                 className='cursor-pointer rounded-xl border border-muted p-5 shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md'
-                onClick={() => console.log('Klik wali kelas', kelas.id)}
+                onClick={() =>
+                  router.push(`/dashboard/mengajar/walikelas/${kelas.id}`)
+                }
               >
                 <div className='mb-1 flex items-center justify-between'>
                   <div className='text-base font-semibold'>{kelas.nama}</div>
