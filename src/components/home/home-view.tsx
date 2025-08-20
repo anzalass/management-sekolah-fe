@@ -27,6 +27,7 @@ import {
 } from '../ui/card';
 import { Button } from '../ui/button';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 interface NewsItem {
   image: string;
@@ -54,7 +55,7 @@ export default function HomeView() {
         setNews(response.data.data);
       })
       .catch((error) => {
-        console.error('Error fetching the news:', error);
+        toast.error('Error fetching the news:', error);
       });
   }, []);
 
@@ -71,7 +72,7 @@ export default function HomeView() {
         setTeachers(updatedTeachers);
       })
       .catch((error) => {
-        console.error('Error fetching teacher data:', error);
+        toast.error('Error fetching teacher data:', error);
       });
   }, []);
 

@@ -6,10 +6,20 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { API } from '@/lib/server';
 import { toast } from 'sonner';
+import { Pencil, Trash2 } from 'lucide-react';
+import ModalInputNilaiManual from './modal-input-manual';
 
 // Tipe Props
+interface Student {
+  id: string;
+  nama: string;
+  nis?: string;
+  gender?: 'Laki-laki' | 'Perempuan';
+  kelas?: string;
+}
 type InputNilaiProps = {
   idKelas: string;
+  listSiswa: Student[];
 };
 
 // Tipe data nilai siswa
@@ -26,9 +36,12 @@ type JenisNilaiForm = {
   bobot: number;
 };
 
-export default function InputNilaiKelas({ idKelas }: InputNilaiProps) {
+export default function InputNilaiKelas({
+  idKelas,
+  listSiswa
+}: InputNilaiProps) {
   const { register, handleSubmit, reset } = useForm<JenisNilaiForm>();
-
+  const [openModal, setOpenModal] = useState(false);
   const [listNilai, setListNilai] = useState<NilaiItem[]>([]);
   const [fullNilaiList, setFullNilaiList] = useState<NilaiItem[]>([]);
   const [jenisNilai, setJenisNilai] = useState<any[]>([]);
@@ -52,7 +65,7 @@ export default function InputNilaiKelas({ idKelas }: InputNilaiProps) {
       );
       setListNilai(filtered);
     } catch (err) {
-      console.error('Gagal fetch data', err);
+      toast.error('Gagal fetch data');
     }
   };
 
@@ -78,9 +91,47 @@ export default function InputNilaiKelas({ idKelas }: InputNilaiProps) {
       reset();
       fetchJenisNilai();
     } catch (error: any) {
-      console.error(
-        error?.response?.data?.message ?? 'Gagal tambah jenis nilai'
-      );
+      toast.error(error?.response?.data?.message ?? 'Gagal tambah jenis nilai');
+    }
+  };
+
+  // Tambah state untuk edit jenis nilai
+  const [editJenis, setEditJenis] = useState<{
+    id: string;
+    jenis: string;
+    bobot: number;
+  } | null>(null);
+
+  // Edit jenis nilai
+  const handleEditJenis = (item: any) => {
+    setEditJenis(item);
+  };
+
+  // Simpan edit jenis nilai
+  const handleUpdateJenis = async () => {
+    if (!editJenis) return;
+    try {
+      await axios.put(`${API}penilaian/${editJenis.id}`, {
+        jenis: editJenis.jenis,
+        bobot: Number(editJenis.bobot)
+      });
+      toast.success('Jenis penilaian berhasil diupdate');
+      setEditJenis(null);
+      fetchJenisNilai();
+    } catch (error) {
+      toast.error('Gagal update jenis nilai');
+    }
+  };
+
+  // Hapus jenis nilai
+  const handleDeleteJenis = async (id: string) => {
+    if (!confirm('Yakin hapus jenis penilaian ini?')) return;
+    try {
+      await axios.delete(`${API}penilaian/${id}`);
+      toast.success('Jenis penilaian berhasil dihapus');
+      fetchJenisNilai();
+    } catch (error) {
+      toast.error('Gagal hapus jenis nilai');
     }
   };
 
@@ -92,7 +143,7 @@ export default function InputNilaiKelas({ idKelas }: InputNilaiProps) {
       });
       toast.success('Berhasil Menyimpan Nilai');
     } catch (error) {
-      console.error('Gagal simpan nilai', error);
+      toast.error('Gagal simpan nilai');
     }
   };
 
@@ -114,7 +165,12 @@ export default function InputNilaiKelas({ idKelas }: InputNilaiProps) {
 
   return (
     <div className='space-y-6'>
-      <h1 className='text-2xl font-bold'>Input Nilai Kelas</h1>
+      <ModalInputNilaiManual
+        jenisNilaiList={jenisNilai}
+        siswaList={listSiswa}
+        idKelas={idKelas}
+        onSuccess={fetchJenisNilai} // supaya setelah simpan data langsung refresh
+      />
 
       {/* Section Jenis Penilaian */}
       <Card>
@@ -124,13 +180,81 @@ export default function InputNilaiKelas({ idKelas }: InputNilaiProps) {
         <CardContent className='space-y-2'>
           <div className='flex flex-wrap gap-2'>
             {jenisNilai.map((d: any, i) => (
-              <Button
+              <div
                 key={i}
-                variant={d.jenis === defaultJenisNilai ? 'default' : 'outline'}
-                onClick={() => setDefaultJenisNilai(d.jenis)}
+                className='flex items-center gap-2 rounded border px-2 py-1'
               >
-                {d.jenis} - {d.bobot}%
-              </Button>
+                {editJenis?.id === d.id ? (
+                  <>
+                    <Input
+                      value={editJenis?.jenis ?? ''}
+                      onChange={(e) => {
+                        if (editJenis) {
+                          setEditJenis({
+                            id: editJenis.id,
+                            jenis: e.target.value,
+                            bobot: editJenis.bobot
+                          });
+                        }
+                      }}
+                      className='w-24'
+                    />
+
+                    <Input
+                      type='number'
+                      value={editJenis?.bobot ?? 0}
+                      onChange={(e) => {
+                        if (editJenis) {
+                          setEditJenis({
+                            id: editJenis.id,
+                            jenis: editJenis.jenis,
+                            bobot: Number(e.target.value)
+                          });
+                        }
+                      }}
+                      className='w-20'
+                    />
+
+                    <Button size='sm' onClick={handleUpdateJenis}>
+                      Save
+                    </Button>
+                    <Button
+                      size='sm'
+                      variant='outline'
+                      onClick={() => setEditJenis(null)}
+                    >
+                      Cancel
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant={
+                        d.jenis === defaultJenisNilai ? 'default' : 'outline'
+                      }
+                      onClick={() => setDefaultJenisNilai(d.jenis)}
+                    >
+                      {d.jenis} - {d.bobot}%
+                    </Button>
+                    <div className='flex space-x-1'>
+                      <Button
+                        size='icon'
+                        variant='ghost'
+                        onClick={() => handleEditJenis(d)}
+                      >
+                        <Pencil size={15} />
+                      </Button>
+                      <Button
+                        size='icon'
+                        variant='ghost'
+                        onClick={() => handleDeleteJenis(d.id)}
+                      >
+                        <Trash2 size={15} />
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
             ))}
           </div>
 

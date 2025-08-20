@@ -1,6 +1,7 @@
 import { API } from '@/lib/server';
 import axios from 'axios';
 import DaftarInventarisForm from './daftar-inventaris-form';
+import { toast } from 'sonner';
 
 type IDDaftarInventaris = {
   id: string;
@@ -18,7 +19,7 @@ export default async function DaftarInventarisViewPage({
         const response = await axios.get(`${API}inventaris/get/${id}`);
         return response.data.data;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       }
     };
     const user = await fetchData();

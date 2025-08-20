@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
 import { Boxes, DoorOpen, LucideIcon, School, User, Users } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Overview2() {
   const { data: session } = useSession();
@@ -25,7 +26,7 @@ export default function Overview2() {
         }); // sesuaikan endpoint-mu
         setData(res.data.data);
       } catch (error) {
-        console.error('Failed to fetch dashboard:', error);
+        toast.error('Failed to fetch dashboard');
       }
     };
 

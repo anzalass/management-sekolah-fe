@@ -2,8 +2,7 @@ import axios from 'axios';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { API } from './server';
 import { JWT, Session, User } from 'next-auth';
-
-console.log('✅ NEXTAUTH_SECRET is set:', !!process.env.NEXTAUTH_SECRET);
+import { toast } from 'sonner';
 
 declare module 'next-auth' {
   interface User {
@@ -53,11 +52,11 @@ const authConfig = {
               jabatan: user.jabatan || 'Guru'
             };
           } else {
-            console.log('Login gagal: data tidak lengkap');
+            toast.error('Gagal login');
             return null;
           }
         } catch (error: any) {
-          console.error('Login error:', error.message || error);
+          toast.error('Login error:', error.message || error);
           throw new Error('NIP atau Password salah');
         }
       }

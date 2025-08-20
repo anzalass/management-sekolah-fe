@@ -8,18 +8,11 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { Clock, Trash2 } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { API } from '@/lib/server';
-
-const hariIniLabel = new Date().toLocaleDateString('id-ID', {
-  weekday: 'long',
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric'
-});
 
 const today = new Date()
   .toLocaleDateString('id-ID', {
@@ -35,6 +28,20 @@ type Props = {
 export default function ListJadwalGuru({ jadwalGuru, fetchData }: Props) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  const [dateStr, setDateStr] = useState('');
+
+  useEffect(() => {
+    const formatter = new Intl.DateTimeFormat('id-ID', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+    setDateStr(formatter.format(new Date()));
+  }, []);
+
+  if (!dateStr) return null; // avoid SSR mismatch
+
   const jadwalHariIni = jadwalGuru.filter(
     (jadwal) => jadwal.hari?.toLowerCase() === today
   );
@@ -47,7 +54,6 @@ export default function ListJadwalGuru({ jadwalGuru, fetchData }: Props) {
       fetchData();
     } catch (error) {
       toast.error('Gagal menghapus jadwal');
-      console.error(error);
     } finally {
       setDeletingId(null);
     }
@@ -57,7 +63,7 @@ export default function ListJadwalGuru({ jadwalGuru, fetchData }: Props) {
     <Card className='shadow-md'>
       <CardHeader className='flex flex-row items-center gap-2'>
         <Clock className='h-5 w-5 text-primary' />
-        <CardTitle>Jadwal Hari Ini ({hariIniLabel})</CardTitle>
+        <CardTitle>Jadwal Hari Ini ({dateStr})</CardTitle>
       </CardHeader>
       <CardContent>
         {jadwalHariIni.length > 0 ? (

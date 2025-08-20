@@ -1,6 +1,7 @@
 import { API } from '@/lib/server';
 import NewsForm from './news-form';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 type IDNewsType = {
   id: string;
@@ -16,7 +17,7 @@ export default async function NewsViewPage({ id }: IDNewsType) {
         const response = await axios.get(`${API}news/${id}`);
         return response.data.data;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       }
     };
 

@@ -18,6 +18,7 @@ import {
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { Mapel } from '../mapel-listing';
+import { toast } from 'sonner';
 
 interface CellActionProps {
   data: Mapel;
@@ -37,7 +38,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       window.location.reload();
       toggleTrigger();
     } catch (error) {
-      console.error('Failed to delete mapel:', error);
+      toast.error('Failed to delete mapel');
     } finally {
       setLoading(false);
     }

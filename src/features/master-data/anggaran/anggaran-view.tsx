@@ -1,6 +1,7 @@
 import { API } from '@/lib/server';
 import axios from 'axios';
 import AnggaranForm from './anggaran-form';
+import { toast } from 'sonner';
 
 type IDAnggaran = {
   id: string;
@@ -16,7 +17,7 @@ export default async function AnggaranViewPage({ id }: IDAnggaran) {
         const response = await axios.get(`${API}anggaran/get/${id}`);
         return response.data.data;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       }
     };
     const user = await fetchData();

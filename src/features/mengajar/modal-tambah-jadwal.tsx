@@ -103,7 +103,6 @@ export default function ModalTambahJadwal({
       setOpenModal(false);
       reset();
     } catch (err) {
-      console.error(err);
       toast.error('Terjadi kesalahan saat menyimpan');
     } finally {
       setIsLoading(false);

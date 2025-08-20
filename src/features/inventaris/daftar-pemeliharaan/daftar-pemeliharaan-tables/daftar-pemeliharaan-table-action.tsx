@@ -15,6 +15,7 @@ import {
 import { Ruangan } from '@/features/master-data/ruang/ruang-listing';
 import axios from 'axios';
 import { API } from '@/lib/server';
+import { toast } from 'sonner';
 
 export default function DaftarPemeliharaanInventarisTableAction() {
   const [isLoading, startTransition] = useTransition();
@@ -54,8 +55,8 @@ export default function DaftarPemeliharaanInventarisTableAction() {
       const response = await axios.get(`${API}ruang2`);
 
       setRuang(response.data.data);
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      toast.error(error);
     }
   };
 

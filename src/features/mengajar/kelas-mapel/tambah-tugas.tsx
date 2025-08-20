@@ -95,7 +95,6 @@ export default function ModalTugas({
       onOpenChange(false); // tutup modal setelah submit
       toggleTrigger();
     } catch (error) {
-      console.error('Gagal menyimpan Tugas:', error);
       toast.error('Gagal menyimpan Tugas');
     } finally {
       setIsLoading(false);

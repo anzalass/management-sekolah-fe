@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import axios from 'axios';
 import { API } from '@/lib/server';
+import { toast } from 'sonner';
 
 interface Summary {
   id: number;
@@ -36,7 +37,7 @@ export default function MateriView({ id }: IDMateri) {
       const response = await axios.get(`${API}materi-summary/${id}`);
       setMateri(response.data.data);
     } catch (error) {
-      console.log(error);
+      toast.error('Gagal menghapus data');
     }
   };
 

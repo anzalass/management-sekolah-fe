@@ -2,48 +2,51 @@
 
 import { DataTableResetFilter } from '@/components/ui/table/data-table-reset-filter';
 import { DataTableSearch } from '@/components/ui/table/data-table-search';
-import { usePengumumanTableFilters } from './use-daftar-tagihan-table-filters';
+import { useTagihanTableFilters } from './use-daftar-tagihan-table-filters';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import { useTransition } from 'react';
 
-export default function PengumumanTableAction() {
+export default function TagihanTableAction() {
   const [isLoading, startTransition] = useTransition();
 
   const {
     isAnyFilterActive,
-    tanggalFilter,
-    setTanggalFilter,
     resetFilters,
     setPage,
     namaFilter,
-    setNamaFilter
-  } = usePengumumanTableFilters();
+    setNamaFilter,
+    namaSiswaFilter,
+    setNamaSiswaFilter,
+    nisSiswaFilter,
+    setNisSiswaFilter,
+    waktuFilter,
+    setWaktuFilter
+  } = useTagihanTableFilters();
 
-  const handleChangeTanggal = (value: string) => {
-    setTanggalFilter(value, { startTransition });
+  const handleChangeWaktu = (value: string) => {
+    setWaktuFilter(value, { startTransition });
     setPage(1);
   };
 
   return (
-    <div className='grid grid-cols-1 items-center gap-4 md:grid-cols-4'>
+    <div className='grid grid-cols-1 items-center gap-4 md:grid-cols-5'>
       <DataTableSearch
-        searchKey='Nama'
+        searchKey='Judul Tagihan'
         searchQuery={namaFilter}
         setSearchQuery={setNamaFilter}
         setPage={setPage}
       />
-      <Input
-        type='date'
-        placeholder='Masukan Tanggal'
-        value={tanggalFilter}
-        onChange={(e) => handleChangeTanggal(e.target.value)}
+      <DataTableSearch
+        searchKey='Nama Siswa'
+        searchQuery={namaSiswaFilter}
+        setSearchQuery={setNamaSiswaFilter}
+        setPage={setPage}
+      />
+      <DataTableSearch
+        searchKey='NIS Siswa'
+        searchQuery={nisSiswaFilter}
+        setSearchQuery={setNisSiswaFilter}
+        setPage={setPage}
       />
 
       <DataTableResetFilter

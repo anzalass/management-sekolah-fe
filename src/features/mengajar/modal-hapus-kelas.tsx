@@ -54,7 +54,6 @@ export default function ModalHapusKelas({
       const errMsg =
         error?.response?.data?.message || 'Terjadi kesalahan saat menghapus';
       toast.error(errMsg);
-      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -62,7 +61,7 @@ export default function ModalHapusKelas({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogTitle>Hapus Kelas</DialogTitle>
+      <DialogTitle></DialogTitle>
       <DialogContent className='max-w-md'>
         <DialogHeader>
           <DialogDescription>

@@ -3,14 +3,8 @@ import { buttonVariants } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
-import AnggaranListingPage from '@/features/master-data/anggaran/anggaran-listing';
-import AnggaranTableAction from '@/features/master-data/anggaran/anggaran-tables/anggaran-table-action';
-import DaftarInventarisListingPage from '@/features/inventaris/daftar-inventaris/daftar-inventaris-listing';
-import DaftarInventarisTableAction from '@/features/inventaris/daftar-inventaris/daftar-inventaris-tables/daftar-inventaris-table-action';
-import KegiatanSekolahListingPage from '@/features/master-data/kegiatan-sekolah/kegiatan-sekolah-listing';
-import KegiatanSekolahTableAction from '@/features/master-data/kegiatan-sekolah/kegiatan-sekolah-tables/kegiatansekolah-table-action';
-import RuangListingPage from '@/features/master-data/ruang/ruang-listing';
-import RuangTableAction from '@/features/master-data/ruang/ruang-tables/ruang-table-action';
+import TagihanListingPage from '@/features/pembayaran/daftar-tagihan/daftar-tagihan-listing';
+import TagihanTableAction from '@/features/pembayaran/daftar-tagihan/daftar-tagihan-tables/daftar-tagihan-table-action';
 import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
 import { cn } from '@/lib/utils';
@@ -20,7 +14,7 @@ import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 
 export const metadata = {
-  title: 'Dashboard: Daftar Inventaris'
+  title: 'Dashboard: Daftar Tagihan'
 };
 
 type pageProps = {
@@ -40,21 +34,21 @@ export default async function Page(props: pageProps) {
       <PageContainer scrollable={false}>
         <div className='flex flex-1 flex-col space-y-4'>
           <div className='flex items-start justify-between'>
-            <Heading title='Daftar Inventaris' description='' />
+            <Heading title='Daftar Tagihan' description='' />
             <Link
-              href='/dashboard/inventaris/daftar-inventaris/new'
+              href='/dashboard/pembayaran/daftar-tagihan/new'
               className={cn(buttonVariants(), 'text-xs md:text-sm')}
             >
-              <Plus className='mr-2 h-4 w-4' /> Tambah Daftar Inventaris
+              <Plus className='mr-2 h-4 w-4' /> Tambah Daftar Tagihan
             </Link>
           </div>
           <Separator />
-          <DaftarInventarisTableAction />
+          <TagihanTableAction />
           <Suspense
             key={key}
             fallback={<DataTableSkeleton columnCount={5} rowCount={10} />}
           >
-            <DaftarInventarisListingPage />
+            <TagihanListingPage />
           </Suspense>
         </div>
       </PageContainer>

@@ -92,7 +92,6 @@ export default function ModalTambahKelas({
       setOpenModal(null);
       reset();
     } catch (err) {
-      console.error(err);
       toast.error('Terjadi kesalahan saat menyimpan');
     } finally {
       setIsLoading(false);

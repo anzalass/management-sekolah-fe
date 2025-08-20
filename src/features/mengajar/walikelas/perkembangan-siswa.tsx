@@ -43,7 +43,6 @@ interface FormValues {
 const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
   const [editId, setEditId] = useState<string | null>(null);
   const { trigger, toggleTrigger } = useRenderTrigger();
-  console.log('siswakelas', siswa);
 
   const { control, handleSubmit, reset, setValue } = useForm<FormValues>({
     defaultValues: {
@@ -55,7 +54,6 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
   const onSubmit = async (data: FormValues) => {
     try {
       const { idSiswa, nisSiswa, nama }: any = data.studentId; // udah langsung bisa ambil
-      console.log('dts', nisSiswa, idSiswa, nama);
 
       if (editId) {
         await axios.put(`${API}catatan-siswa/${editId}`, {
@@ -75,7 +73,6 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
       toggleTrigger();
       toast.success('Berhasil membuat catatan perkembangan siswa');
     } catch (error) {
-      console.log(error);
       toast.error('Gagal membuat catatan perkembangan siswa');
     }
 

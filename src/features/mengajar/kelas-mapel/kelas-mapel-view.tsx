@@ -65,14 +65,13 @@ export default function KelasMapelView({ id }: KelasMapelID) {
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
-      console.log(response2);
 
       setMasterSiswa(response.data.result.data);
       setKelasSiswa(response2?.data?.data.siswaKelas);
       setMateriList(response2?.data?.data.materiKelas);
       setTugasList(response2?.data?.data.tugasKelas);
     } catch (error) {
-      console.error('Gagal fetch siswa:', error);
+      toast.error('Gagal fetch siswa');
     }
   };
 
@@ -87,7 +86,6 @@ export default function KelasMapelView({ id }: KelasMapelID) {
         !kelasSiswa?.find((k: any) => k.Siswa.nis === s.nis) // jangan tampilkan yg sudah masuk kelas
     );
     setFilteredMasterSiswa(filtered);
-    console.log(filteredMasterSiswa);
   }, [searchTerm, masterSiswa, kelasSiswa]);
 
   const handleAddSiswaToKelas = async (siswa: Student) => {
@@ -103,7 +101,6 @@ export default function KelasMapelView({ id }: KelasMapelID) {
       fetchData();
       setSearchTerm('');
     } catch (error) {
-      console.error('Gagal menambahkan siswa:', error);
       toast.error('Gagal menambahkan siswa ke kelas');
     }
   };
@@ -114,7 +111,6 @@ export default function KelasMapelView({ id }: KelasMapelID) {
       toast.success('Berhasil menghapus siswa');
       toggleTrigger();
     } catch (error) {
-      console.log(error);
       toast.error('Gagal menghapus siswa');
     }
   };
@@ -125,7 +121,6 @@ export default function KelasMapelView({ id }: KelasMapelID) {
       toast.success('Berhasil menghapus materi');
       toggleTrigger();
     } catch (error) {
-      console.log(error);
       toast.error('Gagal menghapus materi');
     }
   };
@@ -136,7 +131,6 @@ export default function KelasMapelView({ id }: KelasMapelID) {
       toast.success('Berhasil menghapus tugas');
       toggleTrigger();
     } catch (error) {
-      console.log(error);
       toast.error('Gagal menghapus tugas');
     }
   };
@@ -303,7 +297,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
         </div>
       </div>
 
-      <InputNilaiKelas idKelas={id} />
+      <InputNilaiKelas listSiswa={kelasSiswa} idKelas={id} />
     </div>
   );
 }

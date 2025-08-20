@@ -8,6 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
 
 export type KehadiranGuru = {
   id: string;
@@ -47,9 +48,9 @@ export default function KehadiranGuruListingPage() {
           }
         );
         setData(response.data.data.data);
-        setTotalData(response.data.total);
+        setTotalData(response.data.data.total);
       } catch (error) {
-        console.error('Error fetching kehadiran guru:', error);
+        toast.error('Error fetching kehadiran guru');
       } finally {
         setLoading(false);
       }

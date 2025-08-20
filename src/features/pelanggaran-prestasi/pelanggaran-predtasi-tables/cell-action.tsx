@@ -1,4 +1,5 @@
 'use client';
+
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import {
@@ -8,32 +9,42 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Product } from '@/constants/data';
 import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import axios from 'axios';
 import { API } from '@/lib/server';
-import { useRenderTrigger } from '@/hooks/use-rendertrigger';
-import { KehadiranGuru } from '../kehadiran-guru-listing';
+import axios from 'axios';
+import { useSession } from 'next-auth/react';
+import { PelanggaranPrestasi } from './columns';
+import { toast } from 'sonner';
 
 interface CellActionProps {
-  data: KehadiranGuru;
+  data: PelanggaranPrestasi;
 }
 
-export const CellAction: React.FC<CellActionProps> = ({ data }) => {
+export const PelanggaranPrestasiCellAction: React.FC<CellActionProps> = ({
+  data
+}) => {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   const [open, setOpen] = useState(false);
-  const { trigger, toggleTrigger } = useRenderTrigger();
-
-  const onConfirm = async () => {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const token = session?.user?.token;
+  const onConfirmDelete = async () => {
+    setLoading(true);
     try {
-      await axios.delete(`${API}anggaran/delete/${data.id}`);
+      await axios.delete(`${API}pendaftaran/delete/${data.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       setOpen(false);
-      toggleTrigger();
+      window.location.reload();
     } catch (error) {
-      console.log(error);
+      toast.error('Error deleting Pelanggaran Prestasi');
+      setOpen(false);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -42,7 +53,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       <AlertModal
         isOpen={open}
         onClose={() => setOpen(false)}
-        onConfirm={onConfirm}
+        onConfirm={onConfirmDelete}
         loading={loading}
       />
       <DropdownMenu modal={false}>
@@ -54,13 +65,12 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
           <DropdownMenuItem
             onClick={() =>
-              router.push(`/dashboard/master-data/anggaran/${data.id}`)
+              router.push(`/dashboard/pelanggaran-prestasi/${data.id}`)
             }
           >
-            <Edit className='mr-2 h-4 w-4' /> Update
+            <Edit className='mr-2 h-4 w-4' /> Edit
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setOpen(true)}>
             <Trash className='mr-2 h-4 w-4' /> Delete

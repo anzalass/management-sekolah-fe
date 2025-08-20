@@ -36,7 +36,7 @@ export default function ArsipListingPage() {
         setData(response.data.data);
         setTotalData(response.data.total);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }

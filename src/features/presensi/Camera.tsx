@@ -86,7 +86,7 @@ export default function Camera({ open, setOpen, fetchData }: CameraProps) {
       fetchData();
       handleRefresh();
     } catch (err: any) {
-      console.error(err);
+      toast.error(err);
       toast.error(err.message || 'Terjadi kesalahan saat absen');
       setError(err.message || 'Terjadi kesalahan saat absen');
     } finally {

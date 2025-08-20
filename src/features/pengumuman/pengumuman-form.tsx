@@ -101,7 +101,7 @@ export default function PengumumanForm({
           toast.success('Data pengumuman berhasil disimpan');
         }
         router.push('/dashboard/master-data/pengumuman');
-      } catch (error) {
+      } catch (error: any) {
         toast.error(error?.response?.data?.message || 'Terjadi Kesalahan');
       }
     });

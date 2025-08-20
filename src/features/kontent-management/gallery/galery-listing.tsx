@@ -6,6 +6,7 @@ import { DataTable as GalleryTable } from '@/components/ui/table/data-table';
 import { columns } from './galery-tables/columns';
 import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
 
 export type Gallery = {
   id: string;
@@ -34,7 +35,7 @@ export default function GalleryListingPage() {
           setError('Data format is invalid');
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
         setError('An error occurred while fetching the gallery data');
       } finally {
         setLoading(false);

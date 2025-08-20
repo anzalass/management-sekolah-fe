@@ -45,6 +45,7 @@ import Testimonial from '../lap/testimonial';
 import axios from 'axios';
 import { API } from '@/lib/server';
 import Gallery from '../lap/gallery';
+import { toast } from 'sonner';
 
 const fadeIn = (direction = 'up', delay = 0) => {
   return {
@@ -137,7 +138,7 @@ export default function LacView() {
         setTestimonials(response.data.data);
       })
       .catch((error) => {
-        console.error('Error fetching the news:', error);
+        toast.error('Error fetching the news:', error);
       });
   }, []);
 
@@ -148,7 +149,7 @@ export default function LacView() {
         setGallery(response.data.data);
       })
       .catch((error) => {
-        console.error('Error fetching the news:', error);
+        toast.error('Error fetching the news:', error);
       });
   }, []);
 

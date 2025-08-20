@@ -4,6 +4,7 @@ import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { API } from '@/lib/server';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 type IDKelas = {
   idKelas: string;
@@ -31,11 +32,10 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
   const getData = async () => {
     try {
       const res = await axios.get(`${API}kehadiran/hari-ini/${idKelas}`);
-      console.log('pres', res.data);
 
       setDataKehadiran(res.data.data);
     } catch (error) {
-      console.log(error);
+      toast.error('Gagal mendapatkan data');
     }
   };
 
@@ -56,7 +56,7 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
       }
       toggleTrigger();
     } catch (error) {
-      console.log(error);
+      toast.error('Gagal absen');
     }
   };
 

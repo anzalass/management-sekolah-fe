@@ -61,8 +61,8 @@ export default function DaftarInventarisForm({
     try {
       const response = await axios.get(`${API}jenis-inventaris2`);
       setJenisInventaris(response.data.data);
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      toast.error(error);
     }
   };
 
@@ -71,8 +71,8 @@ export default function DaftarInventarisForm({
       const response = await axios.get(`${API}ruang2`);
 
       setRuang(response.data.data);
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      toast.error(error);
     }
   };
 
@@ -126,7 +126,7 @@ export default function DaftarInventarisForm({
         }
 
         router.push('/dashboard/inventaris/daftar-inventaris');
-      } catch (error) {
+      } catch (error: any) {
         toast.error(error?.response?.data?.message || 'Terjadi Kesalahan');
       }
     });

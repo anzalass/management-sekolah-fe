@@ -1,6 +1,7 @@
 import { API } from '@/lib/server';
 import GuruTemplateForm from './guru-tamplate-form';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 type IDGuruTemplateType = {
   id: string;
@@ -16,7 +17,7 @@ export default async function GuruTemplateViewPage({ id }: IDGuruTemplateType) {
         const response = await axios.get(`${API}guru-template/${id}`);
         return response.data.data;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       }
     };
 

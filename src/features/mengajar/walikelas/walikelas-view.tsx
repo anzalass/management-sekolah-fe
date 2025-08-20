@@ -13,6 +13,7 @@ import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import PresensiSiswa from './presensi-siswa';
+import Link from 'next/link';
 
 type IDKelas = {
   id: string;
@@ -83,19 +84,17 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
         }
       });
 
-      console.log('kelassss', response2.data);
       setMasterSiswa(response.data.result.data);
       setKelasSiswa(response2?.data);
       setPengumumanKelas(response3?.data?.data?.pengumuman);
       setCatatanPerkembangan(response3?.data?.data?.catatanMap);
     } catch (error) {
-      console.error('Gagal fetch siswa:', error);
+      toast.error('Gagal fetch siswa');
     }
   };
 
   useEffect(() => {
     fetchData();
-    console.log('siswaa dikelas', kelasSiswa);
   }, [trigger]);
 
   useEffect(() => {
@@ -105,7 +104,6 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
         !kelasSiswa?.find((k: any) => k?.Siswa?.nis === s?.nis) // jangan tampilkan yg sudah masuk kelas
     );
     setFilteredMasterSiswa(filtered);
-    console.log(filteredMasterSiswa);
   }, [searchTerm, masterSiswa, kelasSiswa]);
 
   const handleAddSiswaToKelas = async (siswa: Student2) => {
@@ -155,9 +153,26 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
       <div className='flex flex-wrap items-center justify-between gap-4'>
         <h1 className='text-2xl font-bold'>Dashboard Wali Kelas</h1>
         <div className='flex gap-2'>
-          <Button variant='default'>Rekap Absensi</Button>
-          <Button variant='default'>List Siswa</Button>
-          <Button variant='default'>Cetak Kartu Ujian</Button>
+          <Button asChild variant='default'>
+            <Link href={`/dashboard/mengajar/walikelas/${id}/rekap-absensi`}>
+              Rekap Absensi
+            </Link>
+          </Button>
+          <Button asChild variant='default'>
+            <Link href={`/dashboard/mengajar/walikelas/${id}/rekap-nilai`}>
+              Rekap Nilai
+            </Link>
+          </Button>
+          <Button asChild variant='default'>
+            <Link href={`/dashboard/mengajar/walikelas/${id}/list-siswa`}>
+              List Siswa
+            </Link>
+          </Button>
+          <Button asChild variant='default'>
+            <Link href={`/dashboard/mengajar/walikelas/${id}/kartu-ujian`}>
+              Cetak Kartu Ujian
+            </Link>
+          </Button>
         </div>
       </div>
 

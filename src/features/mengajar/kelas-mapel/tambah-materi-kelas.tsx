@@ -86,8 +86,6 @@ export default function ModalMateri({
         formData.append('pdf', pdfFile);
       }
 
-      console.log('sasa pdf', pdfFile);
-
       await axios.post(`${API}materi`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -100,7 +98,6 @@ export default function ModalMateri({
       onOpenChange(false); // tutup modal setelah submit
       toggleTrigger();
     } catch (error) {
-      console.error('Gagal menyimpan materi:', error);
       toast.error('Gagal menyimpan materi');
     } finally {
       setIsLoading(false);

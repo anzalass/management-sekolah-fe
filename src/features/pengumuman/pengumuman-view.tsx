@@ -1,6 +1,7 @@
 import { API } from '@/lib/server';
 import axios from 'axios';
 import PengumumanForm from './pengumuman-form';
+import { toast } from 'sonner';
 
 type IDPengumuman = {
   id: string;
@@ -16,7 +17,7 @@ export default async function PengumumanViewPage({ id }: IDPengumuman) {
         const response = await axios.get(`${API}pengumuman/get/${id}`);
         return response.data;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       }
     };
     const user = await fetchData();

@@ -63,7 +63,6 @@ export default function ModalFormMaintenance({
       setOpen(false);
       toggleTrigger();
     } catch (error) {
-      console.log(error);
       setLoading(false);
     }
   };

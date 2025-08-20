@@ -1,6 +1,7 @@
 import { API } from '@/lib/server';
 import TestimonialForm from './testimoni-form';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 type IDTestimonialType = {
   id: string;
@@ -16,7 +17,7 @@ export default async function TestimonialViewPage({ id }: IDTestimonialType) {
         const response = await axios.get(`${API}testimonials/${id}`);
         return response.data.data;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       }
     };
 

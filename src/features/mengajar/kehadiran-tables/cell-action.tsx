@@ -16,6 +16,7 @@ import axios from 'axios';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { KehadiranGuru } from '@/features/presensi/kehadiran/kehadiran-guru-listing';
+import { toast } from 'sonner';
 
 interface CellActionProps {
   data: KehadiranGuru;
@@ -33,7 +34,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       setOpen(false);
       toggleTrigger();
     } catch (error) {
-      console.log(error);
+      toast.error('Gagal menghapus data');
     }
   };
 

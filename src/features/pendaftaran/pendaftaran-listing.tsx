@@ -6,6 +6,8 @@ import { DataTable as PendaftaranTable } from '@/components/ui/table/data-table'
 import { columns } from './pendaftaran-tables/columns';
 import { API } from '@/lib/server';
 import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 export type Pendaftaran = {
   id: string;
@@ -29,6 +31,7 @@ export default function PendaftaranListingPage() {
   const [totalData, setTotalData] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { trigger, toggleTrigger } = useRenderTrigger();
 
   useEffect(() => {
     const fetchPendaftaran = async () => {
@@ -44,7 +47,7 @@ export default function PendaftaranListingPage() {
           setError('Data format is invalid');
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
         setError('An error occurred while fetching the registration data');
       } finally {
         setLoading(false);
@@ -52,7 +55,7 @@ export default function PendaftaranListingPage() {
     };
 
     fetchPendaftaran();
-  }, [page, pageLimit, search]);
+  }, [page, pageLimit, search, trigger]);
 
   if (error) {
     return <div>Error: {error}</div>;

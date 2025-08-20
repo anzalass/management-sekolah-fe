@@ -259,7 +259,7 @@ export default function GuruStaffForm({
 
       setData((prevData) => prevData.filter((r) => r.id !== id));
     } catch (error) {
-      console.log(error);
+      toast.error('Gagal menghapus data');
     }
   };
 

@@ -2,6 +2,7 @@ import { API } from '@/lib/server';
 import SiswaForm from './siswa-form';
 import GuruStaffForm from './siswa-form';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 type NisType = {
   nis: string;
@@ -17,7 +18,7 @@ export default async function SiswaViewPage({ nis }: NisType) {
         const response = await axios.get(`${API}user/get-siswa/${nis}`);
         return response.data.data;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       }
     };
     const user = await fetchData();

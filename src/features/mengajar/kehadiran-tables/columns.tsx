@@ -29,8 +29,6 @@ export const columns: ColumnDef<KehadiranGuru>[] = [
     accessorKey: 'tanggal',
     header: 'Tanggal',
     cell: ({ row }) => {
-      console.log('roww', row.original.tanggal);
-
       const date = new Date(row.original.tanggal);
       return new Intl.DateTimeFormat('id-ID', {
         day: '2-digit',

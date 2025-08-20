@@ -6,6 +6,7 @@ import { DataTable as TestimonialTable } from '@/components/ui/table/data-table'
 import { columns } from './testimoni-tables/columns';
 import { API } from '@/lib/server';
 import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 
 // Type for Testimonial
 export type Testimonial = {
@@ -41,7 +42,7 @@ export default function TestimonialListingPage() {
           setError('Data format is invalid');
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
         setError('An error occurred while fetching the testimonial data');
       } finally {
         setLoading(false);

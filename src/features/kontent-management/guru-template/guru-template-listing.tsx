@@ -6,6 +6,7 @@ import { DataTable as GuruTemplateTable } from '@/components/ui/table/data-table
 import { columns } from './guru-template-tables/column';
 import { API } from '@/lib/server';
 import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 
 export type GuruTemplate = {
   id: string;
@@ -40,7 +41,7 @@ export default function GuruTemplateListingPage() {
           setError('Data format is invalid');
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
         setError('An error occurred while fetching the guru template data');
       } finally {
         setLoading(false);

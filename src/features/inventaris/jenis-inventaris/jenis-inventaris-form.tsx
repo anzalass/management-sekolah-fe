@@ -87,7 +87,7 @@ export default function JenisInventarisForm({
         }
 
         router.push('/dashboard/inventaris/jenis-inventaris');
-      } catch (error) {
+      } catch (error: any) {
         toast.error(error?.response?.data?.message || 'Terjadi Kesalahan');
       }
     });

@@ -8,6 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
 import { Anggaran } from './anggaran-form';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import { toast } from 'sonner';
 
 export default function AnggaranListingPage() {
   const searchParams = useSearchParams();
@@ -33,7 +34,7 @@ export default function AnggaranListingPage() {
         setData(response.data.data);
         setTotalData(response.data.total);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       } finally {
         setLoading(false);
       }

@@ -56,7 +56,7 @@ export default function MengajarViewPage() {
         perizinan: data.perizinan
       });
     } catch (error) {
-      console.error('Gagal mengambil dashboard:', error);
+      toast.error('Gagal mengambil dashboard');
     }
   };
 

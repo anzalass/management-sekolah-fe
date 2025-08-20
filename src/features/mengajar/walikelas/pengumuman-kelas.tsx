@@ -72,7 +72,6 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
       toast.success('Berhasil membuat atau mengubah pengumuman');
     } catch (error) {
       toast.error('Gagal membuat atau mengubah pengumuman');
-      console.log(error);
     } finally {
       reset();
       setValue('konten', '');

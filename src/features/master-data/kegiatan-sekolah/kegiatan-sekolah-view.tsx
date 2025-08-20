@@ -2,6 +2,7 @@ import { API } from '@/lib/server';
 import KegiatanSekolahForm from './kegiatan-sekolah-form';
 import GuruStaffForm from './kegiatan-sekolah-form';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 type IDKegiatanType = {
   id: string;
@@ -17,7 +18,7 @@ export default async function KegiatanSekolahViewPage({ id }: IDKegiatanType) {
         const response = await axios.get(`${API}kegiatan-sekolah/get/${id}`);
         return response.data.data;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       }
     };
     const user = await fetchData();

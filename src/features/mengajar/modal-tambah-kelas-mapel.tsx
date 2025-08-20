@@ -93,7 +93,6 @@ export default function ModalTambahKelasMapel({
       setOpenModal(null);
       reset();
     } catch (error) {
-      console.error(error);
       toast.error('Terjadi kesalahan saat menyimpan');
     } finally {
       setIsLoading(false);

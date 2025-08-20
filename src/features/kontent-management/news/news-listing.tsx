@@ -6,6 +6,7 @@ import { DataTable as NewsTable } from '@/components/ui/table/data-table';
 import { columns } from './news-tables/column';
 import { API } from '@/lib/server';
 import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 
 export type News = {
   id: string;
@@ -41,7 +42,7 @@ export default function NewsListingPage() {
           setError('Data format is invalid');
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
         setError('An error occurred while fetching the news data');
       } finally {
         setLoading(false);

@@ -31,7 +31,6 @@ export const columnss: ColumnDef<Kehadiran>[] = [
     accessorKey: 'nama',
     header: 'nama',
     cell: ({ row }) => {
-      console.log('Row data:', row.original); // Ini bakal nge-log data baris lengkap
       return row.original?.nama;
     }
   }

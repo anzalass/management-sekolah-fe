@@ -4,24 +4,24 @@ import { searchParams } from '@/lib/searchparams';
 import { useQueryState } from 'nuqs';
 import { useCallback, useMemo } from 'react';
 
-export const CATEGORY_OPTIONS = [
-  { value: 'Electronics', label: 'Electronics' },
-  { value: 'Furniture', label: 'Furniture' },
-  { value: 'Clothing', label: 'Clothing' },
-  { value: 'Toys', label: 'Toys' },
-  { value: 'Groceries', label: 'Groceries' },
-  { value: 'Books', label: 'Books' },
-  { value: 'Jewelry', label: 'Jewelry' },
-  { value: 'Beauty Products', label: 'Beauty Products' }
-];
-export function usePengumumanTableFilters() {
+export function useTagihanTableFilters() {
   const [namaFilter, setNamaFilter] = useQueryState(
-    'nama',
+    'nama', // API expects "title" for nama
     searchParams.q.withOptions({ shallow: false }).withDefault('')
   );
 
-  const [tanggalFilter, setTanggalFilter] = useQueryState(
-    'tanggal',
+  const [namaSiswaFilter, setNamaSiswaFilter] = useQueryState(
+    'namaSiswa',
+    searchParams.q.withOptions({ shallow: false }).withDefault('')
+  );
+
+  const [nisSiswaFilter, setNisSiswaFilter] = useQueryState(
+    'nisSiswa',
+    searchParams.q.withOptions({ shallow: false }).withDefault('')
+  );
+
+  const [waktuFilter, setWaktuFilter] = useQueryState(
+    'waktu',
     searchParams.q.withOptions({ shallow: false }).withDefault('')
   );
 
@@ -30,24 +30,47 @@ export function usePengumumanTableFilters() {
     searchParams.page.withDefault(1)
   );
 
+  const [limit, setLimit] = useQueryState(
+    'limit',
+    searchParams.page.withDefault(10)
+  );
+
   const resetFilters = useCallback(() => {
     setNamaFilter(null);
-    setTanggalFilter(null);
+    setNamaSiswaFilter(null);
+    setNisSiswaFilter(null);
+    setWaktuFilter(null);
     setPage(1);
-  }, [setNamaFilter, setPage]);
+    setLimit(10);
+  }, [
+    setNamaFilter,
+    setNamaSiswaFilter,
+    setNisSiswaFilter,
+    setWaktuFilter,
+    setPage,
+    setLimit
+  ]);
 
   const isAnyFilterActive = useMemo(() => {
-    return !!namaFilter || !!tanggalFilter;
-  }, [namaFilter, tanggalFilter]);
+    return (
+      !!namaFilter || !!namaSiswaFilter || !!nisSiswaFilter || !!waktuFilter
+    );
+  }, [namaFilter, namaSiswaFilter, nisSiswaFilter, waktuFilter]);
 
   return {
     page,
     setPage,
+    limit,
+    setLimit,
     resetFilters,
     isAnyFilterActive,
     namaFilter,
     setNamaFilter,
-    tanggalFilter,
-    setTanggalFilter
+    namaSiswaFilter,
+    setNamaSiswaFilter,
+    nisSiswaFilter,
+    setNisSiswaFilter,
+    waktuFilter,
+    setWaktuFilter
   };
 }

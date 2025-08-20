@@ -41,9 +41,7 @@ export default function RekapAbsensiByKelasView({
       try {
         const res = await axios.get(`${API}rekap-absensi/${idKelas}`);
         setData(res.data);
-        console.log('dataa absen', res.data);
       } catch (error) {
-        console.log('first', error);
       } finally {
         setLoading(false);
       }

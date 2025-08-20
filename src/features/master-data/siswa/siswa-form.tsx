@@ -39,6 +39,7 @@ export type Siswa = {
   namaAyah: string;
   namaIbu: string;
   tahunLulus: string;
+  kelas: string;
   alamat: string;
   agama: string;
   jenisKelamin: string;
@@ -61,6 +62,7 @@ export default function SiswaForm({
 }) {
   const [loading, startTransition] = useTransition();
   const router = useRouter();
+  const [masterKelas, setMasterKelas] = useState<any[]>([]);
   const [fotoUrl, setFotoUrl] = useState<string | null>(
     initialData?.foto ?? null
   );
@@ -72,6 +74,7 @@ export default function SiswaForm({
     nis: initialData?.nis ?? '',
     nik: initialData?.nik ?? '',
     nama: initialData?.nama ?? '',
+    kelas: initialData?.kelas ?? '',
     jurusan: initialData?.jurusan ?? '',
     tempatLahir: initialData?.tempatLahir ?? '',
     tanggalLahir: initialData?.tanggalLahir
@@ -104,17 +107,26 @@ export default function SiswaForm({
     defaultValues: defaultValue
   });
 
+  useEffect(() => {
+    const getListKelas = async () => {
+      try {
+        const response = await axios.get(`${API}list-kelas`);
+        setMasterKelas(response.data.data);
+      } catch (error) {
+        toast.error('Gagal mendapatkan kelas');
+      }
+    };
+    getListKelas();
+  }, []);
+
   // Handle Submit
   async function onSubmit(values: any) {
-    console.log(values.noTeleponOrtu);
-
     startTransition(async () => {
       try {
         const data = new FormData();
         if (img) {
           data.append('foto', img);
         }
-        console.log(img);
 
         if (nis !== 'new') {
           await axios.put(
@@ -353,6 +365,37 @@ export default function SiswaForm({
                       </Select>
                       <FormMessage>
                         {form.formState.errors.jenisKelamin?.message}
+                      </FormMessage>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name='kelas'
+                  rules={{ required: 'Kelas wajib dipilih' }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Kelas</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder='Pilih Kelas' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {masterKelas?.map((d) => (
+                            <SelectItem key={d.id} value={d.namaKelas}>
+                              {d.namaKelas}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage>
+                        {form.formState.errors.kelas?.message}
                       </FormMessage>
                     </FormItem>
                   )}

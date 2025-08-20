@@ -42,12 +42,12 @@ export default function RekapNilaiTable({ idKelas }: RekapNilaiByKelasProps) {
   }, [idKelas]);
 
   return (
-    <div className='rounded-lg border p-4 shadow-sm'>
-      <Table>
+    <div className='w-full overflow-x-auto rounded-lg p-4 shadow-sm'>
+      <Table className='w-full overflow-x-auto'>
         <TableHeader>
           <TableRow>
             <TableHead className='w-[100px]'>NIS</TableHead>
-            <TableHead>Nama</TableHead>
+            <TableHead className='w-[20%]'>Nama</TableHead>
             {dynamicKeys.map((key) => (
               <TableHead key={key}>{key}</TableHead>
             ))}

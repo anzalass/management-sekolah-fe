@@ -79,7 +79,7 @@ export default function CardListIzin({ izin }: Props) {
       });
       setListIzin(res.data.data || []);
     } catch (error) {
-      console.error('Gagal fetch perizinan:', error);
+      toast.error('Gagal fetch perizinan');
       setListIzin([]);
     }
   };
@@ -94,9 +94,8 @@ export default function CardListIzin({ izin }: Props) {
         // { headers: { Authorization: `Bearer ${session.user.token}` } }
       );
       setDataKehadiran(res.data.data.data || []);
-      console.log('dt', res.data?.data);
     } catch (error) {
-      console.error('Gagal fetch kehadiran:', error);
+      toast.error('Gagal fetch kehadiran');
       setDataKehadiran([]);
     } finally {
       setLoadingKehadiran(false);
@@ -128,7 +127,6 @@ export default function CardListIzin({ izin }: Props) {
       fetchIzin();
     } catch (error) {
       toast.error('Gagal menghapus izin');
-      console.error(error);
     } finally {
       setDeletingId(null);
     }

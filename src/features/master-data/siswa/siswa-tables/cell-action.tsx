@@ -16,6 +16,7 @@ import { Siswa } from '../siswa-listing';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { API } from '@/lib/server';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 interface CellActionProps {
   data: Siswa;
@@ -34,7 +35,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       setOpen(false);
       toggleTrigger();
     } catch (error) {
-      console.log(error);
+      toast.error('Gagal menghapus data');
     }
   };
   return (

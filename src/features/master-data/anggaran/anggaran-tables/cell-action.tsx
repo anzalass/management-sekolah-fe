@@ -17,6 +17,7 @@ import axios from 'axios';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { TooltipTrigger } from '@radix-ui/react-tooltip';
+import { toast } from 'sonner';
 
 interface CellActionProps {
   data: Anggaran;
@@ -34,7 +35,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       setOpen(false);
       toggleTrigger();
     } catch (error) {
-      console.log(error);
+      toast.error('Gagal menghapus data');
     }
   };
 

@@ -2,19 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { DataTable as PengumumanTable } from '@/components/ui/table/data-table';
+import { DataTable as TagihanTable } from '@/components/ui/table/data-table';
 import { columns, Tagihan } from './daftar-tagihan-tables/columns';
 import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import { toast } from 'sonner';
 
-export default function PengumumanListingPage() {
+export default function TagihanListingPage() {
   const searchParams = useSearchParams();
   const page = searchParams.get('page') || '1';
   const search = searchParams.get('nama') || '';
-  const jenis = searchParams.get('jenis') || '';
-  const tanggal = searchParams.get('tanggal') || '';
-  const jumlah = searchParams.get('jumlah') || '';
+  const namaSiswa = searchParams.get('namaSiswa') || '';
+  const waktu = searchParams.get('waktu') || '';
+  const nisSiswa = searchParams.get('nisSiswa') || '';
   const pageLimit = searchParams.get('limit') || '10';
 
   const [data, setData] = useState<Tagihan[]>([]);
@@ -27,21 +28,19 @@ export default function PengumumanListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}pengumuman?page=${page}&pageSize=${pageLimit}&title=${search}&time=${tanggal}`
+          `${API}pembayaran?page=${page}&pageSize=${pageLimit}&nama=${search}&namaSiswa=${namaSiswa}&waktu=${waktu}&nis=${nisSiswa}`
         );
         setData(response.data.data);
         setTotalData(response.data.total);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       } finally {
         setLoading(false);
       }
     };
 
     fetch();
-  }, [page, search, jumlah, tanggal, trigger, jenis, pageLimit]);
+  }, [page, search, trigger, pageLimit, namaSiswa, nisSiswa, waktu]);
 
-  return (
-    <PengumumanTable columns={columns} data={data} totalItems={totalData} />
-  );
+  return <TagihanTable columns={columns} data={data} totalItems={totalData} />;
 }

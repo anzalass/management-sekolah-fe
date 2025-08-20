@@ -1,6 +1,7 @@
 import { API } from '@/lib/server';
 import axios from 'axios';
 import ArsipForm from './arsip-form';
+import { toast } from 'sonner';
 
 type IDArsip = {
   id: string;
@@ -16,7 +17,7 @@ export default async function ArsipViewPage({ id }: IDArsip) {
         const response = await axios.get(`${API}ruang/get/${id}`);
         return response.data;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       }
     };
     const user = await fetchData();

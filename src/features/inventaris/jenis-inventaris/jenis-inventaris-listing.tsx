@@ -8,6 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { JenisInventaris } from './jenis-inventaris-form';
+import { toast } from 'sonner';
 
 export default function JenisInventarisListingPage() {
   const searchParams = useSearchParams();
@@ -30,7 +31,7 @@ export default function JenisInventarisListingPage() {
         setData(response.data.data.data);
         setTotalData(response.data.data.totalData);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       } finally {
         setLoading(false);
       }

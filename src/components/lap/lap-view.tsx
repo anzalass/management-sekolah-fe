@@ -24,6 +24,7 @@ import { CurriculumSection } from './curriculum';
 import OurFacilities from './ourfacilities';
 import Gallery from './gallery';
 import Testimonial from './testimonial';
+import { toast } from 'sonner';
 
 const fadeIn = (direction = 'up', delay = 0) => {
   return {
@@ -93,7 +94,7 @@ export default function Lap() {
         setTestimonials(response.data.data);
       })
       .catch((error) => {
-        console.error('Error fetching the news:', error);
+        toast.error('Error fetching the news:', error);
       });
   }, []);
 
@@ -104,7 +105,7 @@ export default function Lap() {
         setGallery(response.data.data);
       })
       .catch((error) => {
-        console.error('Error fetching the news:', error);
+        toast.error('Error fetching the news:', error);
       });
   }, []);
 
