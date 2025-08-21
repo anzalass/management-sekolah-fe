@@ -1,4 +1,3 @@
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     remotePatterns: [
@@ -16,6 +15,11 @@ const nextConfig = {
         protocol: 'http',
         hostname: 'localhost',
         port: '5000'
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.yayasantunasanakmulia.sch.id',
+        port: ''
       }
     ],
     domains: [
@@ -24,16 +28,13 @@ const nextConfig = {
       'res.cloudinary.com',
       'storage.googleapis.com',
       'localhost',
-      'images.pexels.com',
-      'shanibacreative.com' // Add localhost to the domains list if needed
+      'api.yayasantunasanakmulia.sch.id'
     ]
   },
+
   transpilePackages: ['geist'],
 
-  // ✅ Skip TypeScript error saat build
-  typescript: {
-    ignoreBuildErrors: true
-  },
+  typescript: { ignoreBuildErrors: true },
   eslint: {
     ignoreDuringBuilds: true
   }
