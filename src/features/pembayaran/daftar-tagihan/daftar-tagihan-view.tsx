@@ -14,7 +14,9 @@ export default async function DaftarTagihannViewPage({ id }: IDTagiihan) {
   if (id !== 'new') {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}pembayaran/${id}`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}pembayaran/${id}`
+        );
         return response.data;
       } catch (error) {
         console.log(error);

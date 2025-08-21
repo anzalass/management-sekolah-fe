@@ -29,7 +29,9 @@ export default function GalleryListingPage() {
     const fetchGallery = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API}gallery`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}gallery`
+        );
         if (response.data && response.data.data) {
           setData(response.data.data);
           setTotalData(response.data.data.length);

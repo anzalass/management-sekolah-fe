@@ -42,8 +42,8 @@ export default function ModalHapusKelas({
 
       const endpoint =
         jenis === 'mapel'
-          ? `${API}kelas-mapel/delete/${idKelas}`
-          : `${API}kelas-walikelas/delete/${idKelas}`;
+          ? `${process.env.NEXT_PUBLIC_API_URL}kelas-mapel/delete/${idKelas}`
+          : `${process.env.NEXT_PUBLIC_API_URL}kelas-walikelas/delete/${idKelas}`;
 
       await axios.delete(endpoint);
 

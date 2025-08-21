@@ -34,7 +34,7 @@ export default function GuruTemplateListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}guru-template?page=${page}&pageSize=${pageLimit}&search=${search}`
+          `${process.env.NEXT_PUBLIC_API_URL}guru-template?page=${page}&pageSize=${pageLimit}&search=${search}`
         );
         if (response.data && response.data.data) {
           setData(response.data.data);

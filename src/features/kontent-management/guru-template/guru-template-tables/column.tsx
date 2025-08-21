@@ -6,7 +6,7 @@ import { GuruTemplate } from '../guru-template-listing'; // Adjust the import pa
 import { API } from '@/lib/server';
 import Image from 'next/image';
 
-const BASE_URL = `${API}view-image`; // API route to view images for GuruTemplate
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}view-image`; // API route to view images for GuruTemplate
 
 export const columns: ColumnDef<GuruTemplate>[] = [
   {

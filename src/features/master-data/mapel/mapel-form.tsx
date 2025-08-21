@@ -61,7 +61,7 @@ export default function MapelForm({
       try {
         if (id !== 'new') {
           await axios.put(
-            `${API}mapel/update/${id}`,
+            `${process.env.NEXT_PUBLIC_API_URL}mapel/update/${id}`,
             { ...values },
             {
               headers: {
@@ -73,7 +73,7 @@ export default function MapelForm({
           toast.success('Data Mapel berhasil diubah');
         } else {
           await axios.post(
-            `${API}mapel/create`,
+            `${process.env.NEXT_PUBLIC_API_URL}mapel/create`,
             {
               ...values
             },

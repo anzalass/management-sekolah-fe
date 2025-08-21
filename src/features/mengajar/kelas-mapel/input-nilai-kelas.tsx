@@ -52,7 +52,9 @@ export default function InputNilaiKelas({
   // Ambil data jenis nilai + nilai siswa
   const fetchJenisNilai = async () => {
     try {
-      const res = await axios.get(`${API}penilaian/kelas/${idKelas}`);
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}penilaian/kelas/${idKelas}`
+      );
       const jenisData = res.data.jenisNilai;
       const nilaiSiswa = res.data.nilaiSiswa ?? [];
 
@@ -85,7 +87,7 @@ export default function InputNilaiKelas({
   // Tambah jenis penilaian
   const onSubmit = async (data: JenisNilaiForm) => {
     try {
-      await axios.post(`${API}penilaian`, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}penilaian`, {
         idKelasMapel: idKelas,
         jenis: data.jenis,
         bobot: Number(data.bobot)
@@ -113,10 +115,13 @@ export default function InputNilaiKelas({
   const handleUpdateJenis = async () => {
     if (!editJenis) return;
     try {
-      await axios.put(`${API}penilaian/${editJenis.id}`, {
-        jenis: editJenis.jenis,
-        bobot: Number(editJenis.bobot)
-      });
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}penilaian/${editJenis.id}`,
+        {
+          jenis: editJenis.jenis,
+          bobot: Number(editJenis.bobot)
+        }
+      );
       toast.success('Jenis penilaian berhasil diupdate');
       setEditJenis(null);
       fetchJenisNilai();
@@ -128,7 +133,7 @@ export default function InputNilaiKelas({
   // Hapus jenis nilai
   const handleDeleteJenis = async (id: string) => {
     try {
-      await axios.delete(`${API}penilaian/${id}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}penilaian/${id}`);
       toast.success('Jenis penilaian berhasil dihapus');
       toggleTrigger();
       fetchJenisNilai();
@@ -140,9 +145,12 @@ export default function InputNilaiKelas({
   // Simpan nilai per siswa
   const SimpanNilai = async (nilai: NilaiItem) => {
     try {
-      await axios.put(`${API}nilai-siswa/${nilai.id}`, {
-        nilai: nilai.nilai
-      });
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}nilai-siswa/${nilai.id}`,
+        {
+          nilai: nilai.nilai
+        }
+      );
       toast.success('Berhasil Menyimpan Nilai');
     } catch (error) {
       toast.error('Gagal simpan nilai');
@@ -151,7 +159,9 @@ export default function InputNilaiKelas({
 
   const DeleteNilai = async (nilai: NilaiItem) => {
     try {
-      await axios.delete(`${API}nilai-siswa/${nilai.id}`);
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}nilai-siswa/${nilai.id}`
+      );
       toast.success('Berhasil menghapus Nilai');
       toggleTrigger();
     } catch (error) {

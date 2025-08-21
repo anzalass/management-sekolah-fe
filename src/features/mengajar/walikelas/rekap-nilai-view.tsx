@@ -29,7 +29,9 @@ export default function RekapNilaiTable({ idKelas }: RekapNilaiByKelasProps) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch(`${API}rekap-nilai-siswa/${idKelas}`);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}rekap-nilai-siswa/${idKelas}`
+      );
       const json = await res.json();
       setData(json.data);
 

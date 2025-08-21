@@ -29,7 +29,7 @@ export default function PengumumanListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}pengumuman?page=${page}&pageSize=${pageLimit}&title=${search}&time=${tanggal}`
+          `${process.env.NEXT_PUBLIC_API_URL}pengumuman?page=${page}&pageSize=${pageLimit}&title=${search}&time=${tanggal}`
         );
         setData(response.data.data);
         setTotalData(response.data.totaData);

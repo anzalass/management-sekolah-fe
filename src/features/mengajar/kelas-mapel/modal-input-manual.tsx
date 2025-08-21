@@ -73,7 +73,7 @@ export default function ModalInputNilaiManual({
   const onSubmit = async (data: FormValues) => {
     try {
       setLoading(true);
-      await axios.post(`${API}nilai-siswa`, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}nilai-siswa`, {
         idSiswa: data.idSiswa,
         idKelasDanMapel: idKelas,
         idJenisNilai: data.idJenisNilai,

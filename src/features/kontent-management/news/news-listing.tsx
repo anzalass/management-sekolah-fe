@@ -35,7 +35,7 @@ export default function NewsListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}news?page=${page}&pageSize=${pageLimit}&search=${search}`
+          `${process.env.NEXT_PUBLIC_API_URL}news?page=${page}&pageSize=${pageLimit}&search=${search}`
         );
         if (response.data && response.data.data) {
           setData(response.data.data);

@@ -56,7 +56,7 @@ interface TestimonialItem {
   description: string;
 }
 
-const BASE_URL = `${API}view-image`;
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}view-image`;
 
 export default function Lap() {
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
@@ -89,7 +89,7 @@ export default function Lap() {
 
   useEffect(() => {
     axios
-      .get(`${API}testimonials`)
+      .get(`${process.env.NEXT_PUBLIC_API_URL}testimonials`)
       .then((response) => {
         setTestimonials(response.data.data);
       })
@@ -100,7 +100,7 @@ export default function Lap() {
 
   useEffect(() => {
     axios
-      .get(`${API}gallery`)
+      .get(`${process.env.NEXT_PUBLIC_API_URL}gallery`)
       .then((response) => {
         setGallery(response.data.data);
       })

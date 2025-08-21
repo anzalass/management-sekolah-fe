@@ -13,7 +13,9 @@ export default async function GalleryViewPage({ id }: IDGalleryType) {
   if (id !== 'new') {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}gallery/${id}`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}gallery/${id}`
+        );
         return response.data.data;
       } catch (error) {
         toast.error('Error fetching data:', error);

@@ -110,7 +110,9 @@ export default function SiswaForm({
   useEffect(() => {
     const getListKelas = async () => {
       try {
-        const response = await axios.get(`${API}list-kelas`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}list-kelas`
+        );
         setMasterKelas(response.data.data);
       } catch (error) {
         toast.error('Gagal mendapatkan kelas');
@@ -130,7 +132,7 @@ export default function SiswaForm({
 
         if (nis !== 'new') {
           await axios.put(
-            `${API}user/update-siswa/${nis}`,
+            `${process.env.NEXT_PUBLIC_API_URL}user/update-siswa/${nis}`,
             { ...values, foto: img },
             {
               headers: {
@@ -141,7 +143,7 @@ export default function SiswaForm({
           toast.success('Data siswa berhasil diubah');
         } else {
           await axios.post(
-            `${API}user/create-siswa`,
+            `${process.env.NEXT_PUBLIC_API_URL}user/create-siswa`,
             {
               ...values,
               foto: img

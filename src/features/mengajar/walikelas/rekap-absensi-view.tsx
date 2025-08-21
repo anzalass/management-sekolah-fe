@@ -39,7 +39,9 @@ export default function RekapAbsensiByKelasView({
     const fetchRekap = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`${API}rekap-absensi/${idKelas}`);
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}rekap-absensi/${idKelas}`
+        );
         setData(res.data);
       } catch (error) {
       } finally {

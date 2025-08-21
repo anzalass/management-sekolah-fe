@@ -69,14 +69,22 @@ export default function BukuForm({
         }
 
         if (id !== 'new') {
-          await axios.put(`${API}buku/${id}`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-          });
+          await axios.put(
+            `${process.env.NEXT_PUBLIC_API_URL}buku/${id}`,
+            formData,
+            {
+              headers: { 'Content-Type': 'multipart/form-data' }
+            }
+          );
           toast.success('Data buku berhasil diperbarui');
         } else {
-          await axios.post(`${API}buku/`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-          });
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}buku/`,
+            formData,
+            {
+              headers: { 'Content-Type': 'multipart/form-data' }
+            }
+          );
           toast.success('Data buku berhasil disimpan');
         }
 

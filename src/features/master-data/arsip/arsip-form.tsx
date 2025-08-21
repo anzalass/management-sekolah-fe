@@ -58,10 +58,13 @@ export default function RuanganForm({
         }
 
         if (id !== 'new') {
-          await axios.put(`${API}ruang/update/${id}`, formData);
+          await axios.put(
+            `${process.env.NEXT_PUBLIC_API_URL}ruang/update/${id}`,
+            formData
+          );
           toast.success('Data Arsip berhasil diubah');
         } else {
-          await axios.post(`${API}arsip`, formData);
+          await axios.post(`${process.env.NEXT_PUBLIC_API_URL}arsip`, formData);
           toast.success('Data Arsip berhasil disimpan');
         }
 

@@ -14,7 +14,9 @@ export default async function ListKelasViewPage({ id }: IDListKelas) {
   if (id !== 'new') {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}list-kelas/get/${id}`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}list-kelas/get/${id}`
+        );
         return response.data.data;
       } catch (error) {
         toast.error('Error fetching data');

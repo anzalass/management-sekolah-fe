@@ -45,7 +45,7 @@ export default function GuruStaffListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}user/get-all-guru?page=${page}?pageSize=${pageLimit}&nama=${search}&nip=${nip}`
+          `${process.env.NEXT_PUBLIC_API_URL}user/get-all-guru?page=${page}?pageSize=${pageLimit}&nama=${search}&nip=${nip}`
         );
         setData(response.data.result.data);
         setTotalUser(response.data.result.total);

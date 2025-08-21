@@ -47,7 +47,7 @@ export default function SiswaListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}user/get-all-siswa?page=${page}&pageSize=${pageLimit}&nama=${search}&nip=${nis}&kelas${kelas}`
+          `${process.env.NEXT_PUBLIC_API_URL}user/get-all-siswa?page=${page}&pageSize=${pageLimit}&nama=${search}&nip=${nis}&kelas${kelas}`
         );
         setData(response.data.result.data);
         setTotalUser(response.data.result.total);

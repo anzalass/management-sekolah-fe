@@ -31,7 +31,7 @@ export default function PelanggaranPrestasiListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}pelanggaran-prestasi?page=${page}&pageSize=${pageLimit}&nama=${search}&nis=${nis}&waktu=${tanggal}&jenis=${jenis}`
+          `${process.env.NEXT_PUBLIC_API_URL}pelanggaran-prestasi?page=${page}&pageSize=${pageLimit}&nama=${search}&nis=${nis}&waktu=${tanggal}&jenis=${jenis}`
         );
         if (response.data) {
           setData(response.data.result.data);

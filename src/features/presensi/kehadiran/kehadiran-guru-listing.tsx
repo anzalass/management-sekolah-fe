@@ -40,7 +40,7 @@ export default function KehadiranGuruListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}kehadiran-guru?page=${page}&pageSize=${pageLimit}&nama=${search}&nip=${nip}&tanggal=${tanggal}`,
+          `${process.env.NEXT_PUBLIC_API_URL}kehadiran-guru?page=${page}&pageSize=${pageLimit}&nama=${search}&nip=${nip}&tanggal=${tanggal}`,
           {
             headers: {
               Authorization: `Bearer ${session?.user?.token}`

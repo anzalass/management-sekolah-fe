@@ -55,20 +55,28 @@ export default function GalleryForm({
         }
 
         if (id !== 'new') {
-          await axios.put(`${API}gallery/update/${id}`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`
+          await axios.put(
+            `${process.env.NEXT_PUBLIC_API_URL}gallery/update/${id}`,
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${token}`
+              }
             }
-          });
+          );
           toast.success('Gallery berhasil diperbarui');
         } else {
-          await axios.post(`${API}gallery/create`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}gallery/create`,
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${token}`
+              }
             }
-          });
+          );
           toast.success('Gallery berhasil disimpan');
         }
 

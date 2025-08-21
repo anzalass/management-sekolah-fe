@@ -62,20 +62,28 @@ export default function GuruTemplateForm({
         }
 
         if (id !== 'new') {
-          await axios.put(`${API}guru-template/update/${id}`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`
+          await axios.put(
+            `${process.env.NEXT_PUBLIC_API_URL}guru-template/update/${id}`,
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${token}`
+              }
             }
-          });
+          );
           toast.success('Guru Template berhasil diperbarui');
         } else {
-          await axios.post(`${API}guru-template/create`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}` // Ensure proper content type for file upload
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}guru-template/create`,
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${token}` // Ensure proper content type for file upload
+              }
             }
-          });
+          );
           toast.success('Guru Template berhasil disimpan');
         }
 

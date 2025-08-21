@@ -32,7 +32,7 @@ export default function DaftarPemeliharaanInventarisListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}pemeliharaan-inventaris?page=${page}&pageSize=${pageLimit}&nama=${search}&tanggal=${waktuPengadaan}&ruang=${ruang}&hargaBeli=${hargaBeli}&status=${status}`
+          `${process.env.NEXT_PUBLIC_API_URL}pemeliharaan-inventaris?page=${page}&pageSize=${pageLimit}&nama=${search}&tanggal=${waktuPengadaan}&ruang=${ruang}&hargaBeli=${hargaBeli}&status=${status}`
         );
         setData(response.data.data.data);
         setTotalData(response.data.data.totalData);

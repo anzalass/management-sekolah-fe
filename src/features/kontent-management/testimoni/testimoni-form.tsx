@@ -63,20 +63,28 @@ export default function TestimonialForm({
         }
 
         if (id !== 'new') {
-          await axios.put(`${API}testimonials/update/${id}`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`
+          await axios.put(
+            `${process.env.NEXT_PUBLIC_API_URL}testimonials/update/${id}`,
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${token}`
+              }
             }
-          });
+          );
           toast.success('Testimoni berhasil diperbarui');
         } else {
-          await axios.post(`${API}testimonials/create`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}testimonials/create`,
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${token}`
+              }
             }
-          });
+          );
           toast.success('Testimoni berhasil disimpan');
         }
 

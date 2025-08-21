@@ -83,7 +83,7 @@ export default function ModalMateri({
 
       if (pdfFile) formData.append('pdf', pdfFile);
 
-      await axios.post(`${API}materi`, formData, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}materi`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${session?.user?.token}`

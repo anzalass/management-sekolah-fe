@@ -19,11 +19,14 @@ export default function Overview2() {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const res = await axios.get(`${API}dashboard-overview`, {
-          headers: {
-            Authorization: `Bearer ${token}`
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}dashboard-overview`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
           }
-        }); // sesuaikan endpoint-mu
+        ); // sesuaikan endpoint-mu
         setData(res.data.data);
       } catch (error) {
         toast.error('Failed to fetch dashboard');

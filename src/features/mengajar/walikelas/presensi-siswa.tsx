@@ -31,7 +31,9 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
 
   const getData = async () => {
     try {
-      const res = await axios.get(`${API}kehadiran/hari-ini/${idKelas}`);
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}kehadiran/hari-ini/${idKelas}`
+      );
 
       setDataKehadiran(res.data.data);
     } catch (error) {
@@ -42,11 +44,14 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
   const toggleAbsensi = async (dataAbsen: Kehadiran, keterangan: string) => {
     try {
       if (dataAbsen.kehadiranSiswa.length > 0) {
-        await axios.put(`${API}kehadiran/${dataAbsen.kehadiranSiswa[0].id}`, {
-          keterangan: keterangan
-        });
+        await axios.put(
+          `${process.env.NEXT_PUBLIC_API_URL}kehadiran/${dataAbsen.kehadiranSiswa[0].id}`,
+          {
+            keterangan: keterangan
+          }
+        );
       } else {
-        await axios.post(`${API}kehadiran`, {
+        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}kehadiran`, {
           idSiswa: dataAbsen.id,
           namaSiswa: dataAbsen.nama,
           nisSiswa: dataAbsen.nis,

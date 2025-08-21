@@ -59,11 +59,13 @@ export default function PinjamBukuForm({ pageTitle }: { pageTitle: string }) {
   const [dataBuku, setDataBuku] = useState<Buku[]>([]);
 
   useEffect(() => {
-    axios.get(`${API}user/get-all-siswa`).then((res) => {
-      setSiswaList(res.data.result.data);
-    });
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_URL}user/get-all-siswa`)
+      .then((res) => {
+        setSiswaList(res.data.result.data);
+      });
 
-    axios.get(`${API}buku`).then((res) => {
+    axios.get(`${process.env.NEXT_PUBLIC_API_URL}buku`).then((res) => {
       setDataBuku(res.data.data);
     });
   }, []);
@@ -84,9 +86,13 @@ export default function PinjamBukuForm({ pageTitle }: { pageTitle: string }) {
   async function onSubmit(values: PinjamBuku) {
     startTransition(async () => {
       try {
-        await axios.post(`${API}peminjaman`, values, {
-          headers: { 'Content-Type': 'application/json' }
-        });
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}peminjaman`,
+          values,
+          {
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
 
         toast.success('Peminjaman buku berhasil disimpan');
         router.push('/dashboard/e-perpus/peminjaman');

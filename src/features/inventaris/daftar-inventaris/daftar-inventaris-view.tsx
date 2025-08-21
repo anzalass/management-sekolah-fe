@@ -16,7 +16,9 @@ export default async function DaftarInventarisViewPage({
   if (id !== 'new') {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}inventaris/get/${id}`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}inventaris/get/${id}`
+        );
         return response.data.data;
       } catch (error) {
         toast.error('Error fetching data');

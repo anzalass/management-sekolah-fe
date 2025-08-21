@@ -59,14 +59,17 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
       console.log('dasa', data);
 
       if (editId) {
-        await axios.put(`${API}catatan-siswa/${editId}`, {
-          idKelas: idKelas,
-          idSiswa: idSiswa,
-          content: data.keterangan
-        });
+        await axios.put(
+          `${process.env.NEXT_PUBLIC_API_URL}catatan-siswa/${editId}`,
+          {
+            idKelas: idKelas,
+            idSiswa: idSiswa,
+            content: data.keterangan
+          }
+        );
         setEditId(null);
       } else {
-        await axios.post(`${API}catatan-siswa`, {
+        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}catatan-siswa`, {
           idKelas: idKelas,
           idSiswa: data.studentId,
           content: data.keterangan
@@ -93,7 +96,9 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`${API}catatan-siswa/${id}`);
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}catatan-siswa/${id}`
+      );
       toggleTrigger();
       toast.success('Catatan berhasil dihapus');
     } catch {

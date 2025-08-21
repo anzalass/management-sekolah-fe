@@ -33,7 +33,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirm = async () => {
     try {
       setLoading(true);
-      await axios.delete(`${API}mapel/delete/${data.id}`);
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}mapel/delete/${data.id}`
+      );
       setOpen(false);
       window.location.reload();
       toggleTrigger();

@@ -83,8 +83,8 @@ export default function ModalTambahJadwal({
     try {
       const res = await fetch(
         isEdit
-          ? `${API}jadwal-mengajar/update/${dataEdit?.id}`
-          : `${API}jadwal-mengajar/create`,
+          ? `${process.env.NEXT_PUBLIC_API_URL}jadwal-mengajar/update/${dataEdit?.id}`
+          : `${process.env.NEXT_PUBLIC_API_URL}jadwal-mengajar/create`,
         {
           method: isEdit ? 'PUT' : 'POST',
           headers: {

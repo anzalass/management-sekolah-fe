@@ -95,8 +95,12 @@ export default function TagihanForm({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}user/get-all-siswa`);
-        const response2 = await axios.get(`${API}list-kelas`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}user/get-all-siswa`
+        );
+        const response2 = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}list-kelas`
+        );
 
         setMasterSiswa(response.data.result.data || []);
         setMasterKelas(response2.data.data);
@@ -133,14 +137,22 @@ export default function TagihanForm({
     startTransition(async () => {
       try {
         if (id !== 'new') {
-          await axios.put(`${API}pembayaran/${id}`, values, {
-            headers: { 'Content-Type': 'application/json' }
-          });
+          await axios.put(
+            `${process.env.NEXT_PUBLIC_API_URL}pembayaran/${id}`,
+            values,
+            {
+              headers: { 'Content-Type': 'application/json' }
+            }
+          );
           toast.success('Data tagihan berhasil diubah');
         } else {
-          await axios.post(`${API}pembayaran`, values, {
-            headers: { 'Content-Type': 'application/json' }
-          });
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}pembayaran`,
+            values,
+            {
+              headers: { 'Content-Type': 'application/json' }
+            }
+          );
           toast.success('Data tagihan berhasil disimpan');
         }
         router.push('/dashboard/pembayaran/daftar-tagihan');

@@ -15,7 +15,9 @@ export default async function SiswaViewPage({ nis }: NisType) {
   if (nis !== 'new') {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}user/get-siswa/${nis}`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}user/get-siswa/${nis}`
+        );
         return response.data.data;
       } catch (error) {
         toast.error('Error fetching data');

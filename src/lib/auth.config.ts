@@ -37,10 +37,13 @@ const authConfig = {
       },
       async authorize(credentials) {
         try {
-          const response = await axios.post(`${API}auth/login`, {
-            nip: credentials.nip,
-            password: credentials.password
-          });
+          const response = await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}auth/login`,
+            {
+              nip: credentials.nip,
+              password: credentials.password
+            }
+          );
 
           const user = response.data.data;
 

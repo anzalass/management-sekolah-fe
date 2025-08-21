@@ -31,7 +31,7 @@ export const PeminjamanCellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirmDelete = async () => {
     setLoading(true);
     try {
-      await axios.delete(`${API}buku/${data.id}`, {
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}buku/${data.id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

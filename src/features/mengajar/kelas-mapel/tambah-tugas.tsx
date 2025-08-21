@@ -83,7 +83,7 @@ export default function ModalTugas({
         formData.append('pdf', pdfFile);
       }
 
-      await axios.post(`${API}tugas`, formData, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}tugas`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${session?.user?.token}`

@@ -72,8 +72,8 @@ export default function ModalTambahKelas({
 
       const response = await fetch(
         isEdit
-          ? `${API}kelas-walikelas/update/${dataEdit?.id}`
-          : `${API}kelas-walikelas/create`,
+          ? `${process.env.NEXT_PUBLIC_API_URL}kelas-walikelas/update/${dataEdit?.id}`
+          : `${process.env.NEXT_PUBLIC_API_URL}kelas-walikelas/create`,
         {
           method: isEdit ? 'PUT' : 'POST',
           headers: {

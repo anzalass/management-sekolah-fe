@@ -35,7 +35,9 @@ export default function TugasView({ id }: IDTugas) {
 
   const getData = async () => {
     try {
-      const response = await axios.get(`${API}tugas-summary/${id}`);
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}tugas-summary/${id}`
+      );
       setTugas(response.data.data);
     } catch (error) {
       toast.error('Gagal mendapatkan data');

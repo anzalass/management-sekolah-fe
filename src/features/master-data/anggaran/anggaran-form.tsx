@@ -74,7 +74,7 @@ export default function AnggaranForm({
       try {
         if (id !== 'new') {
           await axios.put(
-            `${API}anggaran/update/${id}`,
+            `${process.env.NEXT_PUBLIC_API_URL}anggaran/update/${id}`,
             { ...values },
             {
               headers: {
@@ -85,7 +85,7 @@ export default function AnggaranForm({
           toast.success('Data anggaran berhasil diubah');
         } else {
           await axios.post(
-            `${API}anggaran/create`,
+            `${process.env.NEXT_PUBLIC_API_URL}anggaran/create`,
             {
               ...values
             },

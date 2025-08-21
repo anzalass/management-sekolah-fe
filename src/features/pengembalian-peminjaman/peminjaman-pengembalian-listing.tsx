@@ -30,7 +30,7 @@ export default function PeminjamanPengembalianListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}peminjaman?page=${page}&pageSize=${pageLimit}&nama=${search}&status=${status}`
+          `${process.env.NEXT_PUBLIC_API_URL}peminjaman?page=${page}&pageSize=${pageLimit}&nama=${search}&status=${status}`
         );
         if (response.data) {
           setData(response.data.data);

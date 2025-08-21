@@ -72,8 +72,8 @@ export default function ModalTambahKelasMapel({
 
       const res = await fetch(
         isEdit
-          ? `${API}kelas-mapel/update/${dataEdit?.id}`
-          : `${API}kelas-mapel/create`,
+          ? `${process.env.NEXT_PUBLIC_API_URL}kelas-mapel/update/${dataEdit?.id}`
+          : `${process.env.NEXT_PUBLIC_API_URL}kelas-mapel/create`,
         {
           method: isEdit ? 'PUT' : 'POST',
           headers: {

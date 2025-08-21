@@ -73,7 +73,7 @@ export default function PengumumanForm({
       try {
         if (id !== 'new') {
           await axios.put(
-            `${API}pengumuman/update/${id}`,
+            `${process.env.NEXT_PUBLIC_API_URL}pengumuman/update/${id}`,
             {
               ...values,
               content: content
@@ -87,7 +87,7 @@ export default function PengumumanForm({
           toast.success('Data pengumuman berhasil diubah');
         } else {
           await axios.post(
-            `${API}pengumuman/create`,
+            `${process.env.NEXT_PUBLIC_API_URL}pengumuman/create`,
             {
               ...values,
               content: content

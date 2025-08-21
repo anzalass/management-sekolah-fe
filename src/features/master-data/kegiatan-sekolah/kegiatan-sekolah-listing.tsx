@@ -36,7 +36,7 @@ export default function KegiatanSekolahListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}kegiatan-sekolah?page=${page}&pageSize=${pageLimit}&nama=${search}&ta=${ta}`
+          `${process.env.NEXT_PUBLIC_API_URL}kegiatan-sekolah?page=${page}&pageSize=${pageLimit}&nama=${search}&ta=${ta}`
         );
         setData(response.data.result.data);
         setTotalData(response.data.result.total);

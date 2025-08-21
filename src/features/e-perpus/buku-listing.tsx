@@ -28,7 +28,7 @@ export default function BukuListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}buku?page=${page}&pageSize=${pageLimit}&nama=${search}`
+          `${process.env.NEXT_PUBLIC_API_URL}buku?page=${page}&pageSize=${pageLimit}&nama=${search}`
         );
         if (response.data) {
           setData(response.data.data);
