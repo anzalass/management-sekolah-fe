@@ -33,7 +33,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
   const onDeleteConfirm = async () => {
     try {
-      await axios.delete(`${API}inventaris/delete/${data.id}`);
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}inventaris/delete/${data.id}`
+      );
       setOpenDelete(false);
       toggleTrigger();
     } catch (error) {}
@@ -44,7 +46,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
     if (openMaintenance) {
       const fetchData = async () => {
         try {
-          const response = await axios.get(`${API}inventaris/get/${data.id}`);
+          const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}inventaris/get/${data.id}`
+          );
           setInventaris(response.data.data);
         } catch (error) {
           toast.error('Error fetching data');

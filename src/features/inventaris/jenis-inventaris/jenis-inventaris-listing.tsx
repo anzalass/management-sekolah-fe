@@ -26,7 +26,7 @@ export default function JenisInventarisListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}jenis-inventaris?page=${page}&pageSize=${pageLimit}&nama=${search}`
+          `${process.env.NEXT_PUBLIC_API_URL}jenis-inventaris?page=${page}&pageSize=${pageLimit}&nama=${search}`
         );
         setData(response.data.data.data);
         setTotalData(response.data.data.totalData);

@@ -64,21 +64,29 @@ export default function NewsForm({
 
         if (id !== 'new') {
           // Update existing news
-          await axios.put(`${API}news/update/${id}`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`
+          await axios.put(
+            `${process.env.NEXT_PUBLIC_API_URL}news/update/${id}`,
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${token}`
+              }
             }
-          });
+          );
           toast.success('Berita berhasil diperbarui');
         } else {
           // Create new news
-          await axios.post(`${API}news/create`, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}news/create`,
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${token}`
+              }
             }
-          });
+          );
           toast.success('Berita berhasil disimpan');
         }
 

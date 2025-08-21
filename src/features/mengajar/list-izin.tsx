@@ -74,9 +74,12 @@ export default function CardListIzin({ izin }: Props) {
   const fetchIzin = async () => {
     if (!session?.user?.token) return;
     try {
-      const res = await axios.get(`${API}perizinan-guru`, {
-        headers: { Authorization: `Bearer ${session.user.token}` }
-      });
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}perizinan-guru`,
+        {
+          headers: { Authorization: `Bearer ${session.user.token}` }
+        }
+      );
       setListIzin(res.data.data || []);
     } catch (error) {
       toast.error('Gagal fetch perizinan');
@@ -90,7 +93,7 @@ export default function CardListIzin({ izin }: Props) {
     try {
       setLoadingKehadiran(true);
       const res = await axios.get(
-        `${API}kehadiran-guru?page=${page}&pageSize=${pageLimit}&nip=${session.user.nip}&tanggal=${tanggalKehadiran}`
+        `${process.env.NEXT_PUBLIC_API_URL}kehadiran-guru?page=${page}&pageSize=${pageLimit}&nip=${session.user.nip}&tanggal=${tanggalKehadiran}`
         // { headers: { Authorization: `Bearer ${session.user.token}` } }
       );
       setDataKehadiran(res.data.data.data || []);
@@ -120,9 +123,12 @@ export default function CardListIzin({ izin }: Props) {
   const handleDelete = async (id: string) => {
     setDeletingId(id);
     try {
-      await axios.delete(`${API}/perizinan-guru/delete/${id}`, {
-        headers: { Authorization: `Bearer ${session?.user?.token}` }
-      });
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/perizinan-guru/delete/${id}`,
+        {
+          headers: { Authorization: `Bearer ${session?.user?.token}` }
+        }
+      );
       toast.success('Data izin berhasil dihapus');
       fetchIzin();
     } catch (error) {

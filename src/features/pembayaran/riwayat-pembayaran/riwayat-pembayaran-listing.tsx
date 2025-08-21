@@ -31,7 +31,7 @@ export default function RiwayatPembayaranListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}riwayat-pembayaran?page=${page}&pageSize=${pageLimit}&namaTagihan=${search}&namaSiswa=${namaSiswa}&waktu=${waktu}&nisSiswa=${nisSiswa}`
+          `${process.env.NEXT_PUBLIC_API_URL}riwayat-pembayaran?page=${page}&pageSize=${pageLimit}&namaTagihan=${search}&namaSiswa=${namaSiswa}&waktu=${waktu}&nisSiswa=${nisSiswa}`
         );
         setData(response.data.result.data);
         setTotalData(response.data.total);

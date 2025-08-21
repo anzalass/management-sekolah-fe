@@ -31,11 +31,14 @@ export const KonselingCellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirmDelete = async () => {
     setLoading(true);
     try {
-      await axios.delete(`${API}konseling/${data.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}konseling/${data.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
-      });
+      );
       setOpen(false);
       window.location.reload();
     } catch (error) {

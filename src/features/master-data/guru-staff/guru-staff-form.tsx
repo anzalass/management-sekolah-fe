@@ -182,15 +182,24 @@ export default function GuruStaffForm({
 
         let res;
         if (idGuru !== 'new') {
-          res = await axios.put(`${API}user/update-guru/${idGuru}`, data);
+          res = await axios.put(
+            `${process.env.NEXT_PUBLIC_API_URL}user/update-guru/${idGuru}`,
+            data
+          );
         } else {
-          res = await axios.post(`${API}user/create-guru`, data);
+          res = await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}user/create-guru`,
+            data
+          );
         }
 
         if (res.status === 201) {
-          await axios.post(`${API}user/create-riwayat-pendidikan/${idGuru}`, {
-            data: riwayatPendidikanGuruArr
-          });
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}user/create-riwayat-pendidikan/${idGuru}`,
+            {
+              data: riwayatPendidikanGuruArr
+            }
+          );
         }
 
         toast.success(
@@ -255,7 +264,9 @@ export default function GuruStaffForm({
 
   const hapusRiwayatPendidikan = async (id: string) => {
     try {
-      await axios.delete(`${API}user/delete-riwayat-pendidikan/${id}`);
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}user/delete-riwayat-pendidikan/${id}`
+      );
 
       setData((prevData) => prevData.filter((r) => r.id !== id));
     } catch (error) {

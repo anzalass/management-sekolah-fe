@@ -27,7 +27,7 @@ export default function KonselingListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}konseling?page=${page}&pageSize=${pageLimit}&nama=${search}&nis=${nis}&tanggal=${tanggal}`
+          `${process.env.NEXT_PUBLIC_API_URL}konseling?page=${page}&pageSize=${pageLimit}&nama=${search}&nis=${nis}&tanggal=${tanggal}`
         );
         if (response.data && response.data.data) {
           setData(response.data.data);

@@ -38,7 +38,7 @@ export default function PendaftaranListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}pendaftaran?page=${page}&pageSize=${pageLimit}&search=${search}`
+          `${process.env.NEXT_PUBLIC_API_URL}pendaftaran?page=${page}&pageSize=${pageLimit}&search=${search}`
         );
         if (response.data && response.data.data) {
           setData(response.data.data);

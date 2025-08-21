@@ -62,7 +62,7 @@ export default function JenisInventarisForm({
       try {
         if (id !== 'new') {
           await axios.put(
-            `${API}jenis-inventaris/update/${id}`,
+            `${process.env.NEXT_PUBLIC_API_URL}jenis-inventaris/update/${id}`,
             { ...values },
             {
               headers: {
@@ -73,7 +73,7 @@ export default function JenisInventarisForm({
           toast.success('Data jenis inventaris berhasil diubah');
         } else {
           await axios.post(
-            `${API}jenis-inventaris/create`,
+            `${process.env.NEXT_PUBLIC_API_URL}jenis-inventaris/create`,
             {
               ...values
             },

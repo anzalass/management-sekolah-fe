@@ -91,8 +91,8 @@ export default function ModalTambahIzin({
 
       const response = await fetch(
         dataIzin
-          ? `${API}perizinan-guru/update/${dataIzin.id}`
-          : `${API}perizinan-guru/create`,
+          ? `${process.env.NEXT_PUBLIC_API_URL}perizinan-guru/update/${dataIzin.id}`
+          : `${process.env.NEXT_PUBLIC_API_URL}perizinan-guru/create`,
         {
           method: dataIzin ? 'PUT' : 'POST',
           headers: {

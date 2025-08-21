@@ -29,7 +29,7 @@ export default function DaftarInventarisListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}inventaris?page=${page}&pageSize=${pageLimit}&nama=${search}&waktuPengadaan=${waktuPengadaan}&ruang=${ruang}&hargaBeli=${hargaBeli}`
+          `${process.env.NEXT_PUBLIC_API_URL}inventaris?page=${page}&pageSize=${pageLimit}&nama=${search}&waktuPengadaan=${waktuPengadaan}&ruang=${ruang}&hargaBeli=${hargaBeli}`
         );
         setData(response.data.data.data);
         setTotalData(response.data.data.count);

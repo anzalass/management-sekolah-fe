@@ -55,15 +55,18 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
     try {
       if (editId) {
         // Edit
-        await axios.put(`${API}pengumuman-kelas/${editId}`, {
-          idKelas: id,
-          title: data.judul,
-          content: data.konten
-        });
+        await axios.put(
+          `${process.env.NEXT_PUBLIC_API_URL}pengumuman-kelas/${editId}`,
+          {
+            idKelas: id,
+            title: data.judul,
+            content: data.konten
+          }
+        );
 
         setEditId(null);
       } else {
-        await axios.post(`${API}pengumuman-kelas`, {
+        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}pengumuman-kelas`, {
           idKelas: id,
           title: data.judul,
           content: data.konten
@@ -91,7 +94,9 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`${API}pengumuman-kelas/${id}`);
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}pengumuman-kelas/${id}`
+      );
       toast.success('Berhasil menghapus pengumuman');
       toggleTrigger();
     } catch (error) {

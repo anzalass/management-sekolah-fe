@@ -72,9 +72,11 @@ export default function KonselingForm({
   });
 
   useEffect(() => {
-    axios.get(`${API}user/get-all-siswa`).then((res) => {
-      setSiswaList(res.data.result.data);
-    });
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_URL}user/get-all-siswa`)
+      .then((res) => {
+        setSiswaList(res.data.result.data);
+      });
   }, []);
 
   async function onSubmit(values: Konseling) {
@@ -85,10 +87,16 @@ export default function KonselingForm({
         };
 
         if (id !== 'new') {
-          await axios.put(`${API}konseling/${id}`, payload);
+          await axios.put(
+            `${process.env.NEXT_PUBLIC_API_URL}konseling/${id}`,
+            payload
+          );
           toast.success('Data konseling berhasil diperbarui');
         } else {
-          await axios.post(`${API}konseling/`, payload);
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}konseling/`,
+            payload
+          );
           toast.success('Data konseling berhasil disimpan');
         }
 

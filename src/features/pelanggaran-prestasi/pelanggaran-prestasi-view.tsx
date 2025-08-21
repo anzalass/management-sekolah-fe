@@ -15,7 +15,9 @@ export default async function PelanggaranPrestasiViewPage({
   if (id !== 'new') {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}pelanggaran-prestasi/${id}`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}pelanggaran-prestasi/${id}`
+        );
         return response.data;
       } catch (error) {
         toast.error('Error fetching data');

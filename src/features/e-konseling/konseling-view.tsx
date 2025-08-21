@@ -13,7 +13,9 @@ export default async function KonselingViewPage({ id }: IDKonselingType) {
   if (id !== 'new') {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}konseling/${id}`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}konseling/${id}`
+        );
         return response.data;
       } catch (error) {
         toast.error('Error fetching data');

@@ -26,7 +26,7 @@ export default function ListKelasListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}list-kelas?page=${page}&pageSize=${pageLimit}&nama=${search}`
+          `${process.env.NEXT_PUBLIC_API_URL}list-kelas?page=${page}&pageSize=${pageLimit}&nama=${search}`
         );
         setData(response.data.data);
         setTotalData(response.data.total);

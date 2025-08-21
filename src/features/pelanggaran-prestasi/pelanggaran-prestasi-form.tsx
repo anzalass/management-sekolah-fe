@@ -83,9 +83,11 @@ export default function PelanggaranPrestasiForm({
   });
 
   useEffect(() => {
-    axios.get(`${API}user/get-all-siswa`).then((res) => {
-      setSiswaList(res.data.result.data);
-    });
+    axios
+      .get(`${process.env.NEXT_PUBLIC_API_URL}user/get-all-siswa`)
+      .then((res) => {
+        setSiswaList(res.data.result.data);
+      });
   }, []);
 
   async function onSubmit(values: PelanggaranForm) {
@@ -98,10 +100,16 @@ export default function PelanggaranPrestasiForm({
         };
 
         if (id !== 'new') {
-          await axios.put(`${API}pelanggaran-prestasi/${id}`, payload);
+          await axios.put(
+            `${process.env.NEXT_PUBLIC_API_URL}pelanggaran-prestasi/${id}`,
+            payload
+          );
           toast.success('Data berhasil diperbarui');
         } else {
-          await axios.post(`${API}pelanggaran-prestasi`, payload);
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}pelanggaran-prestasi`,
+            payload
+          );
           toast.success('Data berhasil disimpan');
         }
 

@@ -50,10 +50,16 @@ export default function RuanganForm({
     startTransition(async () => {
       try {
         if (id !== 'new') {
-          await axios.put(`${API}ruang/update/${id}`, values);
+          await axios.put(
+            `${process.env.NEXT_PUBLIC_API_URL}ruang/update/${id}`,
+            values
+          );
           toast.success('Data ruangan berhasil diubah');
         } else {
-          await axios.post(`${API}ruang/create`, values);
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}ruang/create`,
+            values
+          );
           toast.success('Data ruangan berhasil disimpan');
         }
 

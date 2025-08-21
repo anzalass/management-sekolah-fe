@@ -13,7 +13,9 @@ export default async function GuruStaffViewPage({ idGuru }: IDGuruType) {
   if (idGuru !== 'new') {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}user/get-guru/${idGuru}`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}user/get-guru/${idGuru}`
+        );
         return response.data.data;
       } catch (error) {}
     };

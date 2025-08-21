@@ -59,12 +59,17 @@ export default function KelasMapelView({ id }: KelasMapelID) {
   const [filteredMasterSiswa, setFilteredMasterSiswa] = useState<Student[]>([]);
   const fetchData = async () => {
     try {
-      const response = await axios.get(`${API}user/get-all-siswa`);
-      const response2 = await axios.get(`${API}dashboard-kelas-mapel/${id}`, {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}user/get-all-siswa`
+      );
+      const response2 = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}dashboard-kelas-mapel/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${session?.user?.token}`
+          }
         }
-      });
+      );
 
       setMasterSiswa(response.data.result.data);
       setKelasSiswa(response2?.data?.data.siswaKelas);
@@ -90,12 +95,15 @@ export default function KelasMapelView({ id }: KelasMapelID) {
 
   const handleAddSiswaToKelas = async (siswa: Student) => {
     try {
-      const response = await axios.post(`${API}kelas-mapel/add-siswa`, {
-        idSiswa: siswa.id,
-        nisSiswa: siswa.nis,
-        namaSiswa: siswa.nama,
-        idKelas: id // pastikan juga kirim ID kelasMapel
-      });
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}kelas-mapel/add-siswa`,
+        {
+          idSiswa: siswa.id,
+          nisSiswa: siswa.nis,
+          namaSiswa: siswa.nama,
+          idKelas: id // pastikan juga kirim ID kelasMapel
+        }
+      );
 
       toast.success('Siswa berhasil ditambahkan ke kelas');
       fetchData();
@@ -107,7 +115,9 @@ export default function KelasMapelView({ id }: KelasMapelID) {
 
   const hapusSiswa = async (id: any) => {
     try {
-      await axios.delete(`${API}kelas-mapel/remove-siswa/${id}`);
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}kelas-mapel/remove-siswa/${id}`
+      );
       toast.success('Berhasil menghapus siswa');
       toggleTrigger();
     } catch (error) {
@@ -117,7 +127,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
 
   const hapusMateri = async (id: any) => {
     try {
-      await axios.delete(`${API}materi/${id}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}materi/${id}`);
       toast.success('Berhasil menghapus materi');
       toggleTrigger();
     } catch (error) {
@@ -127,7 +137,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
 
   const hapusTugas = async (id: any) => {
     try {
-      await axios.delete(`${API}tugas/${id}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}tugas/${id}`);
       toast.success('Berhasil menghapus tugas');
       toggleTrigger();
     } catch (error) {

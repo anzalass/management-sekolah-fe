@@ -29,7 +29,7 @@ function ActionCell({ id }: { id: string }) {
 
   const handleKembalikan = async () => {
     try {
-      await axios.post(`${API}pengembalian/${id}`);
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}pengembalian/${id}`);
       toggleTrigger();
     } catch (error) {
       toast.error('Gagal mengembalikan');
@@ -38,7 +38,7 @@ function ActionCell({ id }: { id: string }) {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`${API}peminjaman/${id}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}peminjaman/${id}`);
       toggleTrigger();
     } catch (error) {
       toast.error('Gagal Menghapus');

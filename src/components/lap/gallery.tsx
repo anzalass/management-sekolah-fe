@@ -11,7 +11,7 @@ interface GalleryProps {
 }
 
 export default function Gallery({ gallery }: GalleryProps) {
-  const BASE_URL = `${API}view-image`;
+  const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}view-image`;
 
   return (
     <div className='bg-white px-4 py-10 text-center md:px-16'>

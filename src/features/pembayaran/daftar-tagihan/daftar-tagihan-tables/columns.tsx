@@ -89,9 +89,12 @@ export const columns: ColumnDef<Tagihan>[] = [
 
       const handleBayar = async (tipe: 'Cash' | 'Transfer') => {
         try {
-          await axios.post(`${API}bayar-tagihan/${id}`, {
-            metodeBayar: tipe
-          });
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}bayar-tagihan/${id}`,
+            {
+              metodeBayar: tipe
+            }
+          );
           toast.success(`Pembayaran ${tipe} berhasil!`);
           toggleTrigger();
         } catch (error) {

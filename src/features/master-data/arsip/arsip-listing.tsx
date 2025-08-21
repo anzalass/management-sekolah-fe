@@ -31,7 +31,7 @@ export default function ArsipListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}arsip?page=${page}&pageSize=${pageLimit}&namaBerkas=${search}&keterangan=${keterangan}&tanggal=${tanggal}`
+          `${process.env.NEXT_PUBLIC_API_URL}arsip?page=${page}&pageSize=${pageLimit}&namaBerkas=${search}&keterangan=${keterangan}&tanggal=${tanggal}`
         );
         setData(response.data.data);
         setTotalData(response.data.total);

@@ -41,7 +41,7 @@ interface GuruTemplate {
   imageUrl?: string;
 }
 
-const BASE_URL = `${API}view-image`;
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}view-image`;
 
 export default function HomeView() {
   const [index, setIndex] = useState(0);
@@ -50,7 +50,7 @@ export default function HomeView() {
 
   useEffect(() => {
     axios
-      .get(`${API}news`)
+      .get(`${process.env.NEXT_PUBLIC_API_URL}news`)
       .then((response) => {
         setNews(response.data.data);
       })
@@ -61,7 +61,7 @@ export default function HomeView() {
 
   useEffect(() => {
     axios
-      .get(`${API}guru-template`)
+      .get(`${process.env.NEXT_PUBLIC_API_URL}guru-template`)
       .then((response) => {
         const updatedTeachers = response.data.data.map(
           (teacher: GuruTemplate) => ({
@@ -141,7 +141,7 @@ export default function HomeView() {
         <div className='container mx-auto px-4 md:px-6'>
           <p className='mx-auto mb-10 max-w-3xl text-justify text-lg font-medium text-muted-foreground md:text-center'>
             <span className='font-semibold'>
-              Yayasan Tunas Anak Mulia (YTAM)
+              Yayasan Tunas Anak Mulia (YTAM) {process.env.NEXT_PUBLIC_API_URL}
             </span>{' '}
             is an educational institution dedicated to nurturing young minds
             through our preschool and tutoring programs. Since our founding in

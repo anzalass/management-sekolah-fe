@@ -78,20 +78,28 @@ export default function PendaftaranForm({
         };
 
         if (id !== 'new') {
-          await axios.put(`${API}pendaftaran/update/${id}`, jsonData, {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
+          await axios.put(
+            `${process.env.NEXT_PUBLIC_API_URL}pendaftaran/update/${id}`,
+            jsonData,
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+              }
             }
-          });
+          );
           toast.success('Pendaftaran berhasil diperbarui');
         } else {
-          await axios.post(`${API}pendaftaran/`, jsonData, {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}pendaftaran/`,
+            jsonData,
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+              }
             }
-          });
+          );
           toast.success('Pendaftaran berhasil disimpan');
         }
 

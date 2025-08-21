@@ -15,7 +15,9 @@ export default async function RuanganViewPage({ id }: IDRuang) {
   if (id !== 'new') {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}ruang/get/${id}`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}ruang/get/${id}`
+        );
         return response.data;
       } catch (error) {
         toast.error('Error fetching data');

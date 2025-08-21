@@ -29,7 +29,7 @@ export default function MapelListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}mapel?page=${page}&pageSize=${pageLimit}&nama=${search}`
+          `${process.env.NEXT_PUBLIC_API_URL}mapel?page=${page}&pageSize=${pageLimit}&nama=${search}`
         );
         setData(response.data.result.data);
         setTotalData(response.data.result.total);

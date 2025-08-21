@@ -58,7 +58,10 @@ export default function ModalFormMaintenance({
   const onSubmit = async (data: any) => {
     try {
       setLoading(true);
-      await axios.post(`${API}pemeliharaan-inventaris/create`, data);
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}pemeliharaan-inventaris/create`,
+        data
+      );
       setLoading(false);
       setOpen(false);
       toggleTrigger();

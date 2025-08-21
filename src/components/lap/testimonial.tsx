@@ -6,7 +6,7 @@ import { API } from '@/lib/server';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
-const BASE_URL = `${API}view-image`;
+const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}view-image`;
 
 interface TestimonialItem {
   parentName: string;

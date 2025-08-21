@@ -14,7 +14,9 @@ export default async function TestimonialViewPage({ id }: IDTestimonialType) {
   if (id !== 'new') {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}testimonials/${id}`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}testimonials/${id}`
+        );
         return response.data.data;
       } catch (error) {
         toast.error('Error fetching data');

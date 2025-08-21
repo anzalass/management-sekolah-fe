@@ -34,7 +34,9 @@ export default function MateriView({ id }: IDMateri) {
 
   const getData = async () => {
     try {
-      const response = await axios.get(`${API}materi-summary/${id}`);
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}materi-summary/${id}`
+      );
       setMateri(response.data.data);
     } catch (error) {
       toast.error('Gagal menghapus data');

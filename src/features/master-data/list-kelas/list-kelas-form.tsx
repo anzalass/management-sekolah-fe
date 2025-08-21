@@ -46,14 +46,22 @@ export default function ListKelasForm({
     startTransition(async () => {
       try {
         if (id !== 'new') {
-          await axios.put(`${API}kelas/update/${id}`, values, {
-            headers: { 'Content-Type': 'application/json' }
-          });
+          await axios.put(
+            `${process.env.NEXT_PUBLIC_API_URL}kelas/update/${id}`,
+            values,
+            {
+              headers: { 'Content-Type': 'application/json' }
+            }
+          );
           toast.success('Kelas berhasil diubah');
         } else {
-          await axios.post(`${API}list-kelas`, values, {
-            headers: { 'Content-Type': 'application/json' }
-          });
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}list-kelas`,
+            values,
+            {
+              headers: { 'Content-Type': 'application/json' }
+            }
+          );
           toast.success('Kelas berhasil dibuat');
         }
         router.push('/dashboard/master-data/list-kelas');

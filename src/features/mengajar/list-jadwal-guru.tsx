@@ -49,7 +49,9 @@ export default function ListJadwalGuru({ jadwalGuru, fetchData }: Props) {
   const handleDelete = async (id: string) => {
     setDeletingId(id);
     try {
-      await axios.delete(`${API}jadwal-mengajar/delete/${id}`);
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}jadwal-mengajar/delete/${id}`
+      );
       toast.success('Jadwal berhasil dihapus');
       fetchData();
     } catch (error) {

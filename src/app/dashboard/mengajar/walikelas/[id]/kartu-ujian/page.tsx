@@ -27,11 +27,14 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     const getSiswa = async () => {
       try {
         // ganti endpoint sesuai punyamu, mis. /api/v1/kelas/:idKelas/siswa
-        const response2 = await axios.get(`${API}kelas-walikelas/siswa/${id}`, {
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
+        const response2 = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}kelas-walikelas/siswa/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session?.user?.token}`
+            }
           }
-        });
+        );
         setSiswa(response2.data || []);
       } catch (e) {
         toast.error('Gagal mendapatkan siswa');

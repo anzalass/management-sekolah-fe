@@ -34,11 +34,14 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirm = async () => {
     setLoading(true);
     try {
-      await axios.delete(`${API}guru-template/${data.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}guru-template/${data.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
-      });
+      );
       setOpen(false);
       toggleTrigger();
     } catch (error) {

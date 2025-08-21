@@ -34,7 +34,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
   const onDeleteConfirm = async () => {
     try {
-      await axios.delete(`${API}inventaris/delete/${data.id}`);
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}inventaris/delete/${data.id}`
+      );
       setOpenDelete(false);
       toggleTrigger();
     } catch (error) {}
@@ -43,7 +45,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const selesaiMaintenence = async () => {
     try {
       await axios.put(
-        `${API}/pemeliharaan-inventaris/update-status/${data.id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/pemeliharaan-inventaris/update-status/${data.id}`,
         {
           status: 'Selesai Di Maintenence'
         }

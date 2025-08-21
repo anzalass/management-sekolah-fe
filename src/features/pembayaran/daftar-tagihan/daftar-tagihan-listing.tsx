@@ -28,7 +28,7 @@ export default function TagihanListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}pembayaran?page=${page}&pageSize=${pageLimit}&nama=${search}&namaSiswa=${namaSiswa}&waktu=${waktu}&nis=${nisSiswa}`
+          `${process.env.NEXT_PUBLIC_API_URL}pembayaran?page=${page}&pageSize=${pageLimit}&nama=${search}&namaSiswa=${namaSiswa}&waktu=${waktu}&nis=${nisSiswa}`
         );
         setData(response.data.data);
         setTotalData(response.data.total);

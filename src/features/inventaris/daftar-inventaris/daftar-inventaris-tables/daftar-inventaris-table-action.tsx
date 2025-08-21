@@ -47,7 +47,9 @@ export default function DaftarInventarisTableAction() {
 
   const getAllRuang = async () => {
     try {
-      const response = await axios.get(`${API}ruang2`);
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}ruang2`
+      );
 
       setRuang(response.data.data);
     } catch (error: any) {

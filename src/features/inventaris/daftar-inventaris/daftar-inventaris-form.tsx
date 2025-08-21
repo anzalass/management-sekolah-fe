@@ -59,7 +59,9 @@ export default function DaftarInventarisForm({
 
   const getAllJenisInventaris = async () => {
     try {
-      const response = await axios.get(`${API}jenis-inventaris2`);
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}jenis-inventaris2`
+      );
       setJenisInventaris(response.data.data);
     } catch (error: any) {
       toast.error(error);
@@ -68,7 +70,9 @@ export default function DaftarInventarisForm({
 
   const getAllRuang = async () => {
     try {
-      const response = await axios.get(`${API}ruang2`);
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}ruang2`
+      );
 
       setRuang(response.data.data);
     } catch (error: any) {
@@ -101,7 +105,7 @@ export default function DaftarInventarisForm({
       try {
         if (id !== 'new') {
           await axios.put(
-            `${API}inventaris/update/${id}`,
+            `${process.env.NEXT_PUBLIC_API_URL}inventaris/update/${id}`,
             { ...values },
             {
               headers: {
@@ -112,7 +116,7 @@ export default function DaftarInventarisForm({
           toast.success('Data jenis inventaris berhasil diubah');
         } else {
           await axios.post(
-            `${API}inventaris/create`,
+            `${process.env.NEXT_PUBLIC_API_URL}inventaris/create`,
             {
               ...values
             },

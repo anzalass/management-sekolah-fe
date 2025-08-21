@@ -30,13 +30,16 @@ export default function MengajarViewPage() {
 
   const dataDashboard = async () => {
     try {
-      const response = await fetch(`${API}dashboard-mengajar`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}dashboard-mengajar`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
         }
-      });
+      );
 
       if (!response.ok) {
         const errRes = await response.json();
@@ -82,17 +85,20 @@ export default function MengajarViewPage() {
 
   const absenPulang = async () => {
     try {
-      const response = await fetch(`${API}absen-pulang`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        },
-        body: JSON.stringify({
-          lat: '-6.09955851839959',
-          long: '106.51911493230111'
-        })
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}absen-pulang`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          },
+          body: JSON.stringify({
+            lat: '-6.09955851839959',
+            long: '106.51911493230111'
+          })
+        }
+      );
 
       if (!response.ok) {
         const result = await response.json();

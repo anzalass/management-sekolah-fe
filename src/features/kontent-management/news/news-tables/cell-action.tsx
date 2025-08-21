@@ -36,7 +36,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirm = async () => {
     setLoading(true);
     try {
-      await axios.delete(`${API}news/${data.id}`, {
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}news/${data.id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

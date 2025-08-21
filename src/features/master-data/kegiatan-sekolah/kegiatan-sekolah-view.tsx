@@ -15,7 +15,9 @@ export default async function KegiatanSekolahViewPage({ id }: IDKegiatanType) {
   if (id !== 'new') {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}kegiatan-sekolah/get/${id}`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}kegiatan-sekolah/get/${id}`
+        );
         return response.data.data;
       } catch (error) {
         toast.error('Error fetching data');

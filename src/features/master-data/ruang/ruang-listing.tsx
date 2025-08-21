@@ -29,7 +29,7 @@ export default function RuangListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}ruang?page=${page}&pageSize=${pageLimit}&nama=${search}`
+          `${process.env.NEXT_PUBLIC_API_URL}ruang?page=${page}&pageSize=${pageLimit}&nama=${search}`
         );
         setData(response.data.data);
         setTotalData(response.data.total);

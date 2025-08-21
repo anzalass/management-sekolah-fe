@@ -66,7 +66,7 @@ export default function KegiatanSekolahForm({
       try {
         if (id !== 'new') {
           await axios.put(
-            `${API}kegiatan-sekolah/update/${id}`,
+            `${process.env.NEXT_PUBLIC_API_URL}kegiatan-sekolah/update/${id}`,
             { ...values },
             {
               headers: {
@@ -77,7 +77,7 @@ export default function KegiatanSekolahForm({
           toast.success('Data kegiatan sekolah berhasil diubah');
         } else {
           await axios.post(
-            `${API}kegiatan-sekolah/create`,
+            `${process.env.NEXT_PUBLIC_API_URL}kegiatan-sekolah/create`,
             {
               ...values
             },

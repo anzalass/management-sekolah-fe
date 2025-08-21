@@ -29,7 +29,7 @@ export default function AnggaranListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}anggaran?page=${page}&pageSize=${pageLimit}&nama=${search}&jenis=${jenis}&tanggal=${tanggal}&jumlah=${jumlah}`
+          `${process.env.NEXT_PUBLIC_API_URL}anggaran?page=${page}&pageSize=${pageLimit}&nama=${search}&jenis=${jenis}&tanggal=${tanggal}&jumlah=${jumlah}`
         );
         setData(response.data.data);
         setTotalData(response.data.total);

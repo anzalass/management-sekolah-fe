@@ -67,13 +67,16 @@ export default function Camera({ open, setOpen, fetchData }: CameraProps) {
       formData.append('lat', '-6.09955851839959');
       formData.append('long', '106.51911493230111');
 
-      const response = await fetch(`${API}absen-masuk`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}absen-masuk`,
+        {
+          method: 'POST',
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${session?.user?.token}`
+          }
         }
-      });
+      );
 
       if (!response.ok) {
         const result = await response.json();

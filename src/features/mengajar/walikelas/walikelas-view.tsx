@@ -72,17 +72,25 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
   );
   const fetchData = async () => {
     try {
-      const response = await axios.get(`${API}user/get-all-siswa`);
-      const response2 = await axios.get(`${API}kelas-walikelas/siswa/${id}`, {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}user/get-all-siswa`
+      );
+      const response2 = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}kelas-walikelas/siswa/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${session?.user?.token}`
+          }
         }
-      });
-      const response3 = await axios.get(`${API}dashboard-walikelas/${id}`, {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
+      );
+      const response3 = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}dashboard-walikelas/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${session?.user?.token}`
+          }
         }
-      });
+      );
 
       setMasterSiswa(response.data.result.data);
       setKelasSiswa(response2?.data);
@@ -108,12 +116,15 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
 
   const handleAddSiswaToKelas = async (siswa: Student2) => {
     try {
-      const response = await axios.post(`${API}kelas-walikelas/add`, {
-        nisSiswa: siswa.nis,
-        namaSiswa: siswa.nama,
-        idSiswa: siswa.id,
-        idKelas: id // pastikan juga kirim ID kelasMapel
-      });
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}kelas-walikelas/add`,
+        {
+          nisSiswa: siswa.nis,
+          namaSiswa: siswa.nama,
+          idSiswa: siswa.id,
+          idKelas: id // pastikan juga kirim ID kelasMapel
+        }
+      );
 
       toast.success('Siswa berhasil ditambahkan ke kelas');
       toggleTrigger();
@@ -131,7 +142,7 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
   //   async function fetchAbsensi() {
   //     setLoading(true);
   //     try {
-  //       const res = await fetch(`${API}/absensi/${id}`); // sesuaikan endpoint-nya
+  //       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/absensi/${id}`); // sesuaikan endpoint-nya
   //       if (!res.ok) throw new Error('Failed to fetch absensi data');
   //       const json = await res.json();
   //       setData(json);

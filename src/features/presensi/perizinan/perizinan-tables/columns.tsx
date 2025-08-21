@@ -105,7 +105,9 @@ export const columns: ColumnDef<any>[] = [
       const handleApprove = async () => {
         setLoading(true);
         try {
-          await axios.put(`${API}perizinan-guru/acc/${id}`);
+          await axios.put(
+            `${process.env.NEXT_PUBLIC_API_URL}perizinan-guru/acc/${id}`
+          );
           toggleTrigger();
         } catch (error: any) {
           toast.error(error);
@@ -117,7 +119,9 @@ export const columns: ColumnDef<any>[] = [
       const handleReject = async () => {
         setLoading(true);
         try {
-          await axios.put(`${API}perizinan-guru/reject/${id}`);
+          await axios.put(
+            `${process.env.NEXT_PUBLIC_API_URL}perizinan-guru/reject/${id}`
+          );
           toggleTrigger();
         } catch (error: any) {
           toast.error(error);

@@ -13,7 +13,9 @@ export default async function PeminjamanPengembalianForm({ id }: IDBukuType) {
   if (id !== 'new') {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}Buku/${id}`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}Buku/${id}`
+        );
         return response.data.data;
       } catch (error) {
         toast.error('Error fetching data:');
