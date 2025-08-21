@@ -13,6 +13,7 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 type FormValues = {
   nama: string;
@@ -105,7 +106,9 @@ export default function ModalTambahKelas({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Edit Kelas' : 'Tambah Kelas'}</DialogTitle>
+          <VisuallyHidden>
+            <DialogTitle>{isEdit ? 'Edit Kelas' : 'Tambah Kelas'}</DialogTitle>
+          </VisuallyHidden>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-3'>
           <div>

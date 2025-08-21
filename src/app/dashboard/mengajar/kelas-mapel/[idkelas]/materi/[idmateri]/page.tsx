@@ -8,7 +8,7 @@ type PageProps = {
   };
 };
 
-export default function Page({ params }: PageProps) {
+export default async function Page({ params }: PageProps) {
   return (
     <PageContainer scrollable>
       <div className='flex-1 space-y-4'>

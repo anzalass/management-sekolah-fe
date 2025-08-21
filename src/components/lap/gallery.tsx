@@ -25,14 +25,13 @@ export default function Gallery({ gallery }: GalleryProps) {
         <div className='animate-scroll-images flex gap-4'>
           {gallery.concat(gallery).map((item, index) => {
             // Extract the image URL here
-            const imageUrl = `${BASE_URL}/${item.image.split('/').pop()}`;
 
             return (
               <div key={index} className='flex-shrink-0'>
                 <Image
                   width={1000}
                   height={1000}
-                  src={imageUrl} // Use imageUrl here
+                  src={item.image} // Use imageUrl here
                   alt={`Facility ${index + 1}`}
                   className='h-40 w-64 rounded-lg object-cover shadow'
                 />

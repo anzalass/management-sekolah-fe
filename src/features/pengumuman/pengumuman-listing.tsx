@@ -32,7 +32,7 @@ export default function PengumumanListingPage() {
           `${API}pengumuman?page=${page}&pageSize=${pageLimit}&title=${search}&time=${tanggal}`
         );
         setData(response.data.data);
-        setTotalData(response.data.total);
+        setTotalData(response.data.totaData);
       } catch (error) {
         toast.error('Error fetching data');
       } finally {

@@ -7,6 +7,7 @@ import { columns } from './testimoni-tables/columns';
 import { API } from '@/lib/server';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 // Type for Testimonial
 export type Testimonial = {
@@ -27,6 +28,7 @@ export default function TestimonialListingPage() {
   const [totalData, setTotalData] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { trigger, toggleTrigger } = useRenderTrigger();
 
   useEffect(() => {
     const fetchTestimonials = async () => {
@@ -50,7 +52,7 @@ export default function TestimonialListingPage() {
     };
 
     fetchTestimonials();
-  }, [page, pageLimit, search]);
+  }, [page, pageLimit, trigger, search]);
 
   if (error) {
     return <div>Error: {error}</div>;

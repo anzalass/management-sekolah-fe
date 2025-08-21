@@ -17,17 +17,8 @@ import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
-
-interface Materi {
-  id: number;
-  idKelas: string;
-  judul: string;
-  konten: string;
-  iframeSlide?: string;
-  iframeYoutube?: string;
-  pdfFile?: File | null;
-  link?: string;
-}
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import { GoogleGenAI } from '@google/genai';
 
 interface ModalMateriProps {
   open: boolean;
@@ -49,6 +40,10 @@ export default function ModalMateri({
   idKelas
 }: ModalMateriProps) {
   const { toggleTrigger } = useRenderTrigger();
+  const { data: session } = useSession();
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [editorInstance, setEditorInstance] = useState<any>(null);
 
   const {
     register,
@@ -56,6 +51,7 @@ export default function ModalMateri({
     control,
     reset,
     setValue,
+    watch,
     formState: { errors }
   } = useForm<FormValues>({
     defaultValues: {
@@ -66,10 +62,13 @@ export default function ModalMateri({
       iframeYoutube: ''
     }
   });
-  const { data: session } = useSession();
-  const [materiList, setMateriList] = useState<Materi[]>([]);
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+
+  const promptValue = watch('prompt');
+
+  const ai = new GoogleGenAI({
+    apiKey: 'AIzaSyAaiszp38RzeZquyKjOsB3kbDVIVc7eRvc'
+  });
+
   const onSubmit = async (data: FormValues) => {
     if (!data.judul.trim() || !data.konten.trim()) return;
 
@@ -82,9 +81,7 @@ export default function ModalMateri({
       formData.append('iframeGoogleSlide', data.iframeSlide);
       formData.append('iframeYoutube', data.iframeYoutube);
 
-      if (pdfFile !== null) {
-        formData.append('pdf', pdfFile);
-      }
+      if (pdfFile) formData.append('pdf', pdfFile);
 
       await axios.post(`${API}materi`, formData, {
         headers: {
@@ -95,7 +92,7 @@ export default function ModalMateri({
 
       toast.success('Berhasil membuat materi');
       reset();
-      onOpenChange(false); // tutup modal setelah submit
+      onOpenChange(false);
       toggleTrigger();
     } catch (error) {
       toast.error('Gagal menyimpan materi');
@@ -105,22 +102,44 @@ export default function ModalMateri({
     }
   };
 
-  const handleGenerateAI = () => {
-    setValue('judul', 'Pengantar Algoritma');
-    setValue(
-      'konten',
-      'Materi ini membahas tentang konsep dasar algoritma dan logika.'
-    );
-  };
+  const generateAireal = async () => {
+    if (!promptValue.trim()) {
+      toast.error('Prompt tidak boleh kosong');
+      return;
+    }
 
-  const handleDelete = (id: number) => {
-    setMateriList((prev) => prev.filter((m) => m.id !== id));
+    setIsLoading(true);
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemma-3-27b-it',
+        contents: `${promptValue}, output nya html aja gausa ada css nya` // gunakan prompt dari input
+      });
+
+      console.log(response.text);
+
+      if (response.text && editorInstance) {
+        // langsung set konten di editor
+        editorInstance.commands.setContent(response.text);
+        // update form value juga
+        console.log(response.text);
+
+        setValue('konten', response.text);
+        toast.success('Konten AI berhasil dibuat');
+      }
+    } catch (err) {
+      toast.error('Gagal generate konten AI');
+      console.log(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='h-screen max-w-7xl overflow-auto'>
-        <p>Tambah Materi</p>
+        <VisuallyHidden>
+          <DialogTitle>Tambah Materi</DialogTitle>
+        </VisuallyHidden>
         <DialogHeader></DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
@@ -136,8 +155,10 @@ export default function ModalMateri({
 
           <div>
             <label>Prompt Materi By AI</label>
-            <Input {...register('prompt')} />
-            {/* Prompt tidak required, jadi tidak perlu pesan error */}
+            <Input
+              {...register('prompt')}
+              placeholder='Contoh: Materi Pencernaan'
+            />
           </div>
 
           <div>
@@ -150,6 +171,7 @@ export default function ModalMateri({
                   type='materi'
                   value={field.value}
                   onChange={field.onChange}
+                  editorRef={setEditorInstance} // pasang editorRef supaya bisa set content dari luar
                 />
               )}
             />
@@ -187,17 +209,16 @@ export default function ModalMateri({
             <Button type='submit' disabled={isLoading}>
               {isLoading ? 'Menyimpan...' : 'Simpan Materi'}
             </Button>
-            <Button type='button' variant='outline' onClick={handleGenerateAI}>
-              Generate Materi dengan AI
+            <Button
+              type='button'
+              variant='outline'
+              disabled={isLoading}
+              onClick={generateAireal}
+            >
+              {isLoading ? 'Loading...' : 'Generate Materi By AI'}
             </Button>
           </div>
         </form>
-
-        {/* Optional preview */}
-        {/* <div
-          className='prose max-w-none mt-6'
-          dangerouslySetInnerHTML={{ __html: watch('konten') }}
-        ></div> */}
       </DialogContent>
     </Dialog>
   );

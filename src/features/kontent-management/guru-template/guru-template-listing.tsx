@@ -7,6 +7,7 @@ import { columns } from './guru-template-tables/column';
 import { API } from '@/lib/server';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 export type GuruTemplate = {
   id: string;
@@ -21,6 +22,7 @@ export default function GuruTemplateListingPage() {
   const page = searchParams.get('page') || '1';
   const search = searchParams.get('search') || '';
   const pageLimit = searchParams.get('limit') || '10';
+  const { trigger, toggleTrigger } = useRenderTrigger();
 
   const [data, setData] = useState<GuruTemplate[]>([]);
   const [totalData, setTotalData] = useState(0);
@@ -49,7 +51,7 @@ export default function GuruTemplateListingPage() {
     };
 
     fetchGuruTemplates();
-  }, [page, pageLimit, search]);
+  }, [page, pageLimit, search, trigger]);
 
   if (error) {
     return <div>Error: {error}</div>;

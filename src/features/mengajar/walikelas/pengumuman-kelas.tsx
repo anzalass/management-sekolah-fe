@@ -18,6 +18,7 @@ import { API } from '@/lib/server';
 import { toast } from 'sonner';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { PengumumanKelasType } from './walikelas-view';
+import { Pencil, Trash2 } from 'lucide-react';
 
 interface Pengumuman {
   id: number;
@@ -88,7 +89,15 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
     setEditId(id);
   };
 
-  const handleDelete = (id: string) => {};
+  const handleDelete = async (id: string) => {
+    try {
+      await axios.delete(`${API}pengumuman-kelas/${id}`);
+      toast.success('Berhasil menghapus pengumuman');
+      toggleTrigger();
+    } catch (error) {
+      toast.error('Gagal menghapus pengumuman');
+    }
+  };
 
   return (
     <Card>
@@ -128,9 +137,9 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
             {pengumuman.map((p) => (
               <Card
                 key={p.id}
-                className='relative flex shadow-sm transition-shadow hover:shadow-md'
+                className='relative flex rounded-xl shadow-sm transition-shadow hover:shadow-md'
               >
-                <CardHeader className='pb-2'>
+                <CardHeader className=''>
                   <CardTitle className='text-base font-semibold'>
                     {p.title}
                   </CardTitle>
@@ -140,15 +149,22 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
                 </CardHeader>
 
                 <CardFooter className='absolute -right-2 top-4 flex justify-end gap-2'>
-                  <Button size='sm' onClick={() => handleEdit(p.id)}>
-                    Edit
-                  </Button>
                   <Button
-                    size='sm'
+                    size='icon'
+                    variant='outline'
+                    className='h-8 w-8 rounded-full'
+                    onClick={() => handleEdit(p.id)}
+                  >
+                    <Pencil className='h-4 w-4' />
+                  </Button>
+
+                  <Button
+                    size='icon'
                     variant='destructive'
+                    className='h-8 w-8 rounded-full'
                     onClick={() => handleDelete(p.id)}
                   >
-                    Hapus
+                    <Trash2 className='h-4 w-4' />
                   </Button>
                 </CardFooter>
               </Card>

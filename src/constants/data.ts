@@ -72,7 +72,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Konten Management',
-    url: '/dashboard/content-management/news',
+    url: '',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
@@ -106,7 +106,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Master Data',
-    url: '/dashboard/master-data/siswa',
+    url: '',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
@@ -141,12 +141,12 @@ export const navItems: NavItem[] = [
         icon: 'userPen',
         shortcut: ['n', 'n']
       },
-      {
-        title: 'Mata Pelajaran',
-        url: '/dashboard/master-data/mata-pelajaran',
-        icon: 'userPen',
-        shortcut: ['n', 'n']
-      },
+      // {
+      //   title: 'Mata Pelajaran',
+      //   url: '/dashboard/master-data/mata-pelajaran',
+      //   icon: 'userPen',
+      //   shortcut: ['n', 'n']
+      // },
       {
         title: 'Pengumuman',
         url: '/dashboard/master-data/pengumuman',
@@ -211,7 +211,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'E - Pembayaran',
-    url: '/dashboard/master-data/siswa',
+    url: '',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,

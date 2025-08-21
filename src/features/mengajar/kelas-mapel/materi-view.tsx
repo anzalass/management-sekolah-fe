@@ -20,8 +20,8 @@ interface Summary {
 interface Materi {
   judul: string;
   konten: any;
-  iframeGoogleSlide: string;
-  iframeYoutube: string;
+  iframeGoogleSlide: any;
+  iframeYoutube: any;
   pdfUrl: string;
   summary: Summary[];
 }
@@ -54,6 +54,16 @@ export default function MateriView({ id }: IDMateri) {
         </CardHeader>
         <CardContent className='prose max-w-none dark:prose-invert'>
           <div dangerouslySetInnerHTML={{ __html: materi?.konten }} />{' '}
+          <div className='mx-auto w-full items-center justify-center'>
+            <div
+              className='mx-auto mb-10'
+              dangerouslySetInnerHTML={{ __html: materi?.iframeYoutube }}
+            />{' '}
+            <div
+              className='mx-auto'
+              dangerouslySetInnerHTML={{ __html: materi?.iframeGoogleSlide }}
+            />{' '}
+          </div>
         </CardContent>
       </Card>
 

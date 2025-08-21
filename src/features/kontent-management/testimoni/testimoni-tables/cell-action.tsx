@@ -42,11 +42,8 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       });
       setOpen(false);
       toggleTrigger();
-      window.location.reload();
     } catch (error) {
       toast.error('Gagal menghapus data');
-    } finally {
-      setLoading(false);
     }
   };
 

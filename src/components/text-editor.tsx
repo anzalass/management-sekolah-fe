@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useCallback } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -18,18 +19,22 @@ import {
   Link2,
   List,
   ListOrdered,
-  Code,
   ImageIcon
 } from 'lucide-react';
-import { useCallback } from 'react';
 
 interface TextEditorProps {
   value: string;
   onChange: (value: string) => void;
   type: string;
+  editorRef?: (editor: any) => void; // biar parent bisa dapetin editor instance
 }
 
-export default function TextEditor({ value, onChange, type }: TextEditorProps) {
+export default function TextEditor({
+  value,
+  onChange,
+  type,
+  editorRef
+}: TextEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -38,9 +43,7 @@ export default function TextEditor({ value, onChange, type }: TextEditorProps) {
         orderedList: false,
         listItem: false
       }),
-      Heading.configure({
-        levels: [1, 2, 3, 4, 5, 6]
-      }),
+      Heading.configure({ levels: [1, 2, 3, 4, 5, 6] }),
       Underline,
       Link.configure({ openOnClick: false }),
       Image,
@@ -60,6 +63,20 @@ export default function TextEditor({ value, onChange, type }: TextEditorProps) {
       }
     }
   });
+
+  // Kasih instance editor ke parent
+  useEffect(() => {
+    if (editorRef && editor) {
+      editorRef(editor);
+    }
+  }, [editor, editorRef]);
+
+  // Sync kalau value dari luar berubah
+  useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value);
+    }
+  }, [value, editor]);
 
   const setLink = useCallback(() => {
     const previousUrl = editor?.getAttributes('link').href;
@@ -90,6 +107,7 @@ export default function TextEditor({ value, onChange, type }: TextEditorProps) {
     <div className='h-[50vh] overflow-auto rounded-md border bg-white p-2'>
       <div className='mb-2 flex flex-wrap gap-2 border-b pb-2'>
         <button
+          type='button'
           onClick={() => editor?.chain().focus().toggleBold().run()}
           className='btn'
         >
@@ -106,36 +124,38 @@ export default function TextEditor({ value, onChange, type }: TextEditorProps) {
             H{level}
           </button>
         ))}
-
         <button
+          type='button'
           onClick={() => editor?.chain().focus().toggleItalic().run()}
           className='btn'
         >
           <Italic size={16} />
         </button>
         <button
+          type='button'
           onClick={() => editor?.chain().focus().toggleUnderline().run()}
           className='btn'
         >
           <UnderlineIcon size={16} />
         </button>
-        <button onClick={setLink} className='btn'>
+        <button type='button' onClick={setLink} className='btn'>
           <Link2 size={16} />
         </button>
         <button
+          type='button'
           onClick={() => editor?.chain().focus().toggleBulletList().run()}
           className='btn'
         >
           <List size={16} />
         </button>
         <button
+          type='button'
           onClick={() => editor?.chain().focus().toggleOrderedList().run()}
           className='btn'
         >
           <ListOrdered size={16} />
         </button>
-
-        <button onClick={addImage} className='btn'>
+        <button type='button' onClick={addImage} className='btn'>
           <ImageIcon size={16} />
         </button>
       </div>

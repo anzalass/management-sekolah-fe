@@ -176,9 +176,23 @@ export default function SiswaForm({
             <div className='space-y-6'>
               {/* Foto */}
               <FormItem>
-                <FormLabel>Foto</FormLabel>
+                <FormLabel>Foto {'Maksimal 4 Mb'}</FormLabel>
                 <FormControl>
-                  <Input type='file' onChange={handleFileChange} />
+                  <Input
+                    type='file'
+                    accept='image/png, image/jpeg, image/jpg'
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        if (file.size > 5 * 1024 * 1024) {
+                          toast.error('Ukuran file maksimal 5 MB!');
+                          e.target.value = ''; // reset input
+                          return;
+                        }
+                        handleFileChange(e);
+                      }
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -408,12 +422,7 @@ export default function SiswaForm({
                     <Input
                       type='number'
                       placeholder='Masukkan Tahun Lulus...'
-                      {...form.register('tahunLulus', {
-                        max: {
-                          value: new Date().getFullYear(),
-                          message: `Tahun lulus tidak boleh lebih dari ${new Date().getFullYear()}`
-                        }
-                      })}
+                      {...form.register('tahunLulus')}
                     />
                   </FormControl>
                   <FormMessage>

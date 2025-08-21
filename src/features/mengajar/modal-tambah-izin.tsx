@@ -14,6 +14,7 @@ import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 type FormValues = {
   tanggal: string;
@@ -118,9 +119,11 @@ export default function ModalTambahIzin({
 
   return (
     <Dialog open={openModal} onOpenChange={setOpenModal}>
-      {/* <DialogTitle>
-        {dataIzin ? 'Edit Izin' : 'Form Pengajuan Izin'}
-      </DialogTitle> */}
+      <VisuallyHidden>
+        <DialogTitle>
+          {dataIzin ? 'Edit Izin' : 'Form Pengajuan Izin'}
+        </DialogTitle>
+      </VisuallyHidden>
       <DialogContent>
         <DialogHeader></DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>

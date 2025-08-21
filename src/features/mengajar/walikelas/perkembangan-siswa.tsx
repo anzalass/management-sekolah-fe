@@ -23,6 +23,7 @@ import { API } from '@/lib/server';
 import { toast } from 'sonner';
 import { CatatanPerkembanganSiswaType } from './walikelas-view';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import { Pencil, Trash2 } from 'lucide-react';
 
 interface Student2 {
   id: string;
@@ -36,13 +37,14 @@ type Props = {
 };
 
 interface FormValues {
-  studentId: any;
+  studentId: string;
   keterangan: string;
 }
 
 const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
   const [editId, setEditId] = useState<string | null>(null);
-  const { trigger, toggleTrigger } = useRenderTrigger();
+
+  const { toggleTrigger } = useRenderTrigger();
 
   const { control, handleSubmit, reset, setValue } = useForm<FormValues>({
     defaultValues: {
@@ -54,6 +56,7 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
   const onSubmit = async (data: FormValues) => {
     try {
       const { idSiswa, nisSiswa, nama }: any = data.studentId; // udah langsung bisa ambil
+      console.log('dasa', data);
 
       if (editId) {
         await axios.put(`${API}catatan-siswa/${editId}`, {
@@ -65,7 +68,7 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
       } else {
         await axios.post(`${API}catatan-siswa`, {
           idKelas: idKelas,
-          idSiswa: idSiswa,
+          idSiswa: data.studentId,
           content: data.keterangan
         });
       }
@@ -83,16 +86,20 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
     const catatan = catatanList.find((c) => c.id === id);
     if (!catatan) return;
 
-    // cari object siswa yang sesuai
-    const siswaObj = siswa.find((s) => s.id === catatan.idSiswa);
-    if (!siswaObj) return;
-
-    setValue('studentId', siswaObj); // set ke object siswa
+    setValue('studentId', catatan.idSiswa); // pakai id aja
     setValue('keterangan', catatan.catatan);
     setEditId(id);
   };
 
-  const handleDelete = (id: string) => {};
+  const handleDelete = async (id: string) => {
+    try {
+      await axios.delete(`${API}catatan-siswa/${id}`);
+      toggleTrigger();
+      toast.success('Catatan berhasil dihapus');
+    } catch {
+      toast.error('Gagal menghapus catatan');
+    }
+  };
 
   return (
     <Card className='mb-[200px]'>
@@ -107,16 +114,13 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
             control={control}
             rules={{ required: 'Pilih siswa wajib diisi' }}
             render={({ field }) => (
-              <Select
-                value={field.value ? JSON.stringify(field.value) : ''}
-                onValueChange={(val) => field.onChange(JSON.parse(val))}
-              >
+              <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger className='w-full'>
                   <SelectValue placeholder='Pilih siswa' />
                 </SelectTrigger>
                 <SelectContent>
-                  {siswa?.map((s: Student2) => (
-                    <SelectItem key={s.id} value={JSON.stringify(s)}>
+                  {siswa?.map((s: any) => (
+                    <SelectItem key={s.id} value={s.idSiswa}>
                       {s.namaSiswa}
                     </SelectItem>
                   ))}
@@ -150,29 +154,36 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
         ) : (
           <div className='grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4'>
             {catatanList.map((c) => (
-              <div key={c.id} className='3'>
-                <Card className='relative flex shadow-sm transition-shadow hover:shadow-md'>
-                  <CardHeader className='pb-2'>
-                    <CardTitle className='text-base font-semibold'>
-                      {c.nama}
-                    </CardTitle>
-                    <p className='text-base'>{c.catatan}</p>
-                  </CardHeader>
+              <Card
+                key={c.id}
+                className='relative flex rounded-xl shadow-sm transition-shadow hover:shadow-md'
+              >
+                <CardHeader>
+                  <CardTitle className='text-base font-semibold'>
+                    {c.nama}
+                  </CardTitle>
+                  <span className='text-xs text-gray-500'>{c.catatan}</span>
+                </CardHeader>
 
-                  <CardFooter className='absolute -right-2 top-4 flex justify-end gap-2'>
-                    <Button size='sm' onClick={() => handleEdit(c.id)}>
-                      Edit
-                    </Button>
-                    <Button
-                      size='sm'
-                      variant='destructive'
-                      onClick={() => handleDelete(c.id)}
-                    >
-                      Hapus
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </div>
+                <CardFooter className='absolute -right-2 top-4 flex gap-2'>
+                  <Button
+                    size='icon'
+                    variant='outline'
+                    className='h-8 w-8 rounded-full'
+                    onClick={() => handleEdit(c.id)}
+                  >
+                    <Pencil className='h-4 w-4' />
+                  </Button>
+                  <Button
+                    size='icon'
+                    variant='destructive'
+                    className='h-8 w-8 rounded-full'
+                    onClick={() => handleDelete(c.id)}
+                  >
+                    <Trash2 className='h-4 w-4' />
+                  </Button>
+                </CardFooter>
+              </Card>
             ))}
           </div>
         )}

@@ -4,6 +4,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { Testimonial } from '../testimoni-listing';
 import { API } from '@/lib/server';
+import Image from 'next/image';
 
 const BASE_URL = `${API}view-image`;
 
@@ -19,12 +20,23 @@ export const columns: ColumnDef<Testimonial>[] = [
     cell: ({ row }) => row.original.description
   },
   {
-    accessorKey: 'image',
+    accessorKey: 'image', // Foto
     header: 'Image',
     cell: ({ row }) => {
-      const imageUrl = `${BASE_URL}/${row.original.image.split('/')[1]}`;
+      const imageUrl =
+        row.original.image ||
+        'https://ik.imagekit.io/o3afko3h0/default-image.jpg?updatedAt=1739253554742'; // Ganti dengan gambar default
+
       return (
-        <img src={imageUrl} alt='Testimonial Image' width={50} height={50} />
+        <div className='relative h-16 w-16'>
+          <Image
+            src={imageUrl}
+            alt='Guru'
+            layout='fill'
+            objectFit='cover'
+            className='rounded-md'
+          />
+        </div>
       );
     }
   },

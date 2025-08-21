@@ -8,6 +8,7 @@ import { API } from '@/lib/server';
 import { toast } from 'sonner';
 import { Pencil, Trash2 } from 'lucide-react';
 import ModalInputNilaiManual from './modal-input-manual';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 // Tipe Props
 interface Student {
@@ -46,6 +47,7 @@ export default function InputNilaiKelas({
   const [fullNilaiList, setFullNilaiList] = useState<NilaiItem[]>([]);
   const [jenisNilai, setJenisNilai] = useState<any[]>([]);
   const [defaultJenisNilai, setDefaultJenisNilai] = useState<string>('');
+  const { trigger, toggleTrigger } = useRenderTrigger();
 
   // Ambil data jenis nilai + nilai siswa
   const fetchJenisNilai = async () => {
@@ -71,14 +73,14 @@ export default function InputNilaiKelas({
 
   useEffect(() => {
     fetchJenisNilai();
-  }, [idKelas]);
+  }, [idKelas, trigger]);
 
   useEffect(() => {
     const filtered = fullNilaiList.filter(
       (item: NilaiItem) => item.jenisNilai === defaultJenisNilai
     );
     setListNilai(filtered);
-  }, [defaultJenisNilai, fullNilaiList]);
+  }, [defaultJenisNilai, fullNilaiList, trigger]);
 
   // Tambah jenis penilaian
   const onSubmit = async (data: JenisNilaiForm) => {
@@ -125,10 +127,10 @@ export default function InputNilaiKelas({
 
   // Hapus jenis nilai
   const handleDeleteJenis = async (id: string) => {
-    if (!confirm('Yakin hapus jenis penilaian ini?')) return;
     try {
       await axios.delete(`${API}penilaian/${id}`);
       toast.success('Jenis penilaian berhasil dihapus');
+      toggleTrigger();
       fetchJenisNilai();
     } catch (error) {
       toast.error('Gagal hapus jenis nilai');
@@ -142,6 +144,16 @@ export default function InputNilaiKelas({
         nilai: nilai.nilai
       });
       toast.success('Berhasil Menyimpan Nilai');
+    } catch (error) {
+      toast.error('Gagal simpan nilai');
+    }
+  };
+
+  const DeleteNilai = async (nilai: NilaiItem) => {
+    try {
+      await axios.delete(`${API}nilai-siswa/${nilai.id}`);
+      toast.success('Berhasil menghapus Nilai');
+      toggleTrigger();
     } catch (error) {
       toast.error('Gagal simpan nilai');
     }
@@ -165,13 +177,6 @@ export default function InputNilaiKelas({
 
   return (
     <div className='space-y-6'>
-      <ModalInputNilaiManual
-        jenisNilaiList={jenisNilai}
-        siswaList={listSiswa}
-        idKelas={idKelas}
-        onSuccess={fetchJenisNilai} // supaya setelah simpan data langsung refresh
-      />
-
       {/* Section Jenis Penilaian */}
       <Card>
         <CardHeader>
@@ -279,7 +284,15 @@ export default function InputNilaiKelas({
       {/* Section Tabel Input Nilai */}
       <Card>
         <CardHeader>
-          <CardTitle>Input Nilai: {defaultJenisNilai}</CardTitle>
+          <div className='flex justify-between'>
+            <CardTitle>Input Nilai: {defaultJenisNilai}</CardTitle>
+            <ModalInputNilaiManual
+              jenisNilaiList={jenisNilai}
+              siswaList={listSiswa}
+              idKelas={idKelas}
+              onSuccess={fetchJenisNilai} // supaya setelah simpan data langsung refresh
+            />
+          </div>
         </CardHeader>
         <CardContent>
           <table className='w-full border-collapse'>
@@ -305,8 +318,14 @@ export default function InputNilaiKelas({
                       onChange={(e) => handleChangeNilai(index, e.target.value)}
                     />
                   </td>
-                  <td className='border p-2'>
+                  <td className='space-x-2 border p-2'>
                     <Button onClick={() => SimpanNilai(nilai)}>Simpan</Button>
+                    <Button
+                      className='bg-red-600 text-white hover:bg-red-700'
+                      onClick={() => DeleteNilai(nilai)}
+                    >
+                      Hapus
+                    </Button>
                   </td>
                 </tr>
               ))}

@@ -33,7 +33,7 @@ interface Student {
 }
 
 interface FormValues {
-  jenisNilai: string;
+  idJenisNilai: string;
   idSiswa: string;
   nilai: number;
 }
@@ -62,24 +62,30 @@ export default function ModalInputNilaiManual({
     reset
   } = useForm<FormValues>({
     defaultValues: {
-      jenisNilai: '',
+      idJenisNilai: '',
       idSiswa: '',
       nilai: 0
     }
   });
 
+  console.log(siswaList);
+
   const onSubmit = async (data: FormValues) => {
     try {
       setLoading(true);
       await axios.post(`${API}nilai-siswa`, {
-        idKelas,
-        ...data
+        idSiswa: data.idSiswa,
+        idKelasDanMapel: idKelas,
+        idJenisNilai: data.idJenisNilai,
+        nilai: data.nilai
       });
       toast.success('Nilai berhasil disimpan');
       setOpen(false);
       reset();
       onSuccess?.();
     } catch (err) {
+      console.log(err);
+
       toast.error('Gagal menyimpan nilai');
     } finally {
       setLoading(false);
@@ -102,7 +108,7 @@ export default function ModalInputNilaiManual({
             <Label>Jenis Nilai</Label>
             <Select
               onValueChange={(value) =>
-                setValue('jenisNilai', value, { shouldValidate: true })
+                setValue('idJenisNilai', value, { shouldValidate: true })
               }
             >
               <SelectTrigger>
@@ -110,20 +116,20 @@ export default function ModalInputNilaiManual({
               </SelectTrigger>
               <SelectContent>
                 {jenisNilaiList.map((jn) => (
-                  <SelectItem key={jn.id} value={jn.jenis}>
+                  <SelectItem key={jn.id} value={jn.id}>
                     {jn.jenis} - {jn.bobot}%
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {errors.jenisNilai && (
+            {errors.idJenisNilai && (
               <p className='mt-1 text-sm text-red-500'>
                 Jenis nilai wajib dipilih
               </p>
             )}
             <input
               type='hidden'
-              {...register('jenisNilai', { required: true })}
+              {...register('idJenisNilai', { required: true })}
             />
           </div>
 
@@ -139,9 +145,9 @@ export default function ModalInputNilaiManual({
                 <SelectValue placeholder='Pilih siswa' />
               </SelectTrigger>
               <SelectContent>
-                {siswaList?.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>
-                    {s.nama} - {s.nis}
+                {siswaList?.map((s: any) => (
+                  <SelectItem key={s.id} value={s.Siswa.id}>
+                    {s.Siswa.nis} - {s.Siswa.nama}
                   </SelectItem>
                 ))}
               </SelectContent>

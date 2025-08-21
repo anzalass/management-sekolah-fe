@@ -66,7 +66,7 @@ export default function HomeView() {
         const updatedTeachers = response.data.data.map(
           (teacher: GuruTemplate) => ({
             ...teacher,
-            imageUrl: `${BASE_URL}/${teacher.image.split('/').pop()}`
+            imageUrl: teacher.image
           })
         );
         setTeachers(updatedTeachers);
