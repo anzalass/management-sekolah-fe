@@ -2,11 +2,11 @@ import axios from 'axios';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { API } from './server';
 import { JWT, Session, User } from 'next-auth';
-
-console.log('✅ NEXTAUTH_SECRET is set:', !!process.env.NEXTAUTH_SECRET);
+import { toast } from 'sonner';
 
 declare module 'next-auth' {
   interface User {
+    idGuru: string;
     token: string;
     nip: string;
     nama: string;
@@ -14,6 +14,7 @@ declare module 'next-auth' {
   }
 
   interface JWT {
+    idGuru: string;
     token: string;
     nip: string;
     nama: string;
@@ -51,11 +52,11 @@ const authConfig = {
               jabatan: user.jabatan || 'Guru'
             };
           } else {
-            console.log('Login gagal: data tidak lengkap');
+            toast.error('Gagal login');
             return null;
           }
         } catch (error: any) {
-          console.error('Login error:', error.message || error);
+          toast.error('Login error:', error.message || error);
           throw new Error('NIP atau Password salah');
         }
       }
@@ -83,6 +84,7 @@ const authConfig = {
     async jwt({ token, user }: { token: JWT; user: User | undefined }) {
       if (user) {
         token.token = user.token;
+        token.idGuru = user.idGuru;
         token.nip = user.nip;
         token.nama = user.nama;
         token.jabatan = user.jabatan;
@@ -91,6 +93,8 @@ const authConfig = {
     },
     async session({ session, token }: { session: Session; token: JWT }) {
       session.user.token = token.token;
+      session.user.idGuru = token.idGuru;
+
       session.user.nip = token.nip;
       session.user.nama = token.nama;
       session.user.jabatan = token.jabatan;

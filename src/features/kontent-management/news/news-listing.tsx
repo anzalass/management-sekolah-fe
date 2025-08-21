@@ -6,6 +6,8 @@ import { DataTable as NewsTable } from '@/components/ui/table/data-table';
 import { columns } from './news-tables/column';
 import { API } from '@/lib/server';
 import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 export type News = {
   id: string;
@@ -21,6 +23,7 @@ export default function NewsListingPage() {
   const page = searchParams.get('page') || '1';
   const search = searchParams.get('search') || '';
   const pageLimit = searchParams.get('limit') || '10';
+  const { trigger, toggleTrigger } = useRenderTrigger();
 
   const [data, setData] = useState<News[]>([]);
   const [totalData, setTotalData] = useState(0);
@@ -41,7 +44,7 @@ export default function NewsListingPage() {
           setError('Data format is invalid');
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
         setError('An error occurred while fetching the news data');
       } finally {
         setLoading(false);
@@ -49,7 +52,7 @@ export default function NewsListingPage() {
     };
 
     fetchNews();
-  }, [page, pageLimit, search]);
+  }, [page, pageLimit, search, trigger]);
 
   if (error) {
     return <div>Error: {error}</div>;

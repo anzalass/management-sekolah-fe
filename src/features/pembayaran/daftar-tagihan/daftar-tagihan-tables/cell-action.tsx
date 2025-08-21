@@ -15,8 +15,8 @@ import { useState } from 'react';
 import axios from 'axios';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
-import { TooltipTrigger } from '@radix-ui/react-tooltip';
 import { Tagihan } from './columns';
+import { toast } from 'sonner';
 
 interface CellActionProps {
   data: Tagihan;
@@ -30,11 +30,11 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
   const onConfirm = async () => {
     try {
-      await axios.delete(`${API}pengumuman/delete/${data.id}`);
+      await axios.delete(`${API}pembayaran/${data.id}`);
       setOpen(false);
       toggleTrigger();
     } catch (error) {
-      console.log(error);
+      toast.error('Gagal menghapus data');
     }
   };
 
@@ -58,7 +58,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
           <DropdownMenuItem
             onClick={() =>
-              router.push(`/dashboard/master-data/pengumuman/${data.id}`)
+              router.push(`/dashboard/pembayaran/daftar-tagihan/${data.id}`)
             }
           >
             <Edit className='mr-2 h-4 w-4' /> Update

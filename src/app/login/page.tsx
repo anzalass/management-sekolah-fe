@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import SignInViewPage from '@/features/auth/components/sigin-view';
 import { Suspense } from 'react';
+import { toast } from 'sonner';
 
 export const metadata: Metadata = {
   title: 'Authentication | Sign In',
@@ -23,7 +24,7 @@ export default async function Page() {
       stars = data.stargazers_count || stars;
     }
   } catch (error) {
-    console.error('Error fetching GitHub stars:', error);
+    toast.error('Error fetching GitHub stars');
   }
 
   // 🛠 Bungkus Client Component di <Suspense>

@@ -11,22 +11,22 @@ import Awan2 from '../../../public/awan2.png';
 
 export default function OurClass() {
   return (
-    <div className='relative overflow-hidden'>
+    <div className='relative overflow-hidden bg-[#bde0fe] py-20'>
       {/* Awan Atas */}
-      <Image
+      {/* <Image
         src={Awan2}
         alt='Awan Atas'
         width={1920}
         height={1080}
         className='absolute left-0 top-0 z-10 w-full object-cover'
-      />
+      /> */}
 
       {/* Konten */}
-      <div className='relative z-10 mx-auto mt-[25vh] h-[200vh] max-w-5xl px-4 py-20 sm:h-[200vh] lg:mt-[100vh] lg:h-[250vh]'>
+      <div className='relative z-10 mx-auto max-w-5xl px-4'>
         {/* OUR CLASS Title */}
         <div className='mb-16 flex justify-center'>
           <div
-            className='rounded-[30px] bg-white p-4 text-center text-4xl font-extrabold text-[#017BBD] shadow-md'
+            className='rounded-[30px] p-4 text-center text-4xl font-extrabold text-[#017BBD] shadow-md'
             style={{ fontFamily: "'Poetsen One', sans-serif" }}
           >
             OUR CLASS
@@ -76,13 +76,13 @@ export default function OurClass() {
       </div>
 
       {/* Awan Bawah */}
-      <Image
+      {/* <Image
         src={Awan}
         alt='Awan Bawah'
         width={1920}
         height={1080}
         className='absolute bottom-0 left-0 z-0 w-full rotate-180 object-cover'
-      />
+      /> */}
     </div>
   );
 }

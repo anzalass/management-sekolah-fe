@@ -1,4 +1,5 @@
 'use client';
+import { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
@@ -34,17 +35,23 @@ export default function RichTextEditor({ content, onChange }: any) {
       Image,
       ImageResize
     ],
-    content: content,
+    content,
     editorProps: {
       attributes: {
-        class: 'min-h-[156px] border rounded-md  py-2 px-3'
+        class: 'min-h-[156px] border rounded-md py-2 px-3'
       }
     },
     onUpdate: ({ editor }) => {
-      console.log(editor.getHTML());
       onChange(editor.getHTML());
     }
   });
+
+  // Sinkronkan content dari luar setiap kali berubah
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content || '', false);
+    }
+  }, [content, editor]);
 
   return (
     <div>

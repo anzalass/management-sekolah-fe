@@ -17,6 +17,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
 
 interface CellActionProps {
   data: GuruTemplate;
@@ -40,9 +41,8 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       });
       setOpen(false);
       toggleTrigger();
-      window.location.reload();
     } catch (error) {
-      console.log(error);
+      toast.error('Gagal menghapus data');
     } finally {
       setLoading(false);
     }

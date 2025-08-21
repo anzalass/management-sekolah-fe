@@ -18,9 +18,6 @@ import { API } from '@/lib/server';
 import { toast } from 'sonner';
 import { useSession } from 'next-auth/react';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
-import { DataTable as KehadiranGuruTable } from '@/components/ui/table/data-table';
-import { columns } from './kehadiran-tables/columns';
-import { KehadiranGuru } from '../presensi/kehadiran/kehadiran-guru-listing';
 
 type Izin = {
   id: string;
@@ -30,9 +27,14 @@ type Izin = {
   status: 'disetujui' | 'menunggu' | 'ditolak';
 };
 
-type Props = {
-  listIzin: Izin[];
-  fetchData: () => void;
+export type KehadiranGuru = {
+  id: string;
+  tanggal: string;
+  jamMasuk?: string;
+  jamPulang?: string;
+  status: string;
+  nama: string;
+  nip: string;
 };
 
 const statusColor = {
@@ -41,104 +43,136 @@ const statusColor = {
   ditolak: 'bg-red-100 text-red-700'
 };
 
-export default function CardListIzin({ listIzin, fetchData }: Props) {
+type Props = {
+  izin: Izin[];
+  fetchData: () => void;
+};
+export default function CardListIzin({ izin }: Props) {
   const { data: session } = useSession();
-  const [toogleChange, setToogleChange] = useState('perizinan');
-
-  const [data, setData] = useState<KehadiranGuru[]>([]);
-  const [totalData, setTotalData] = useState(0);
-  const [loading, setLoading] = useState(true);
   const { trigger, toggleTrigger } = useRenderTrigger();
+  // Toggle antara 'perizinan' atau 'kehadiran'
+  const [toggleTab, setToggleTab] = useState<'perizinan' | 'kehadiran'>(
+    'perizinan'
+  );
 
-  // filter states
-  const [search, setSearch] = useState('');
+  // Data izin
+  const [listIzin, setListIzin] = useState<Izin[]>([]);
+  const [searchIzin, setSearchIzin] = useState('');
   const [statusFilter, setStatusFilter] = useState<
     'semua' | 'disetujui' | 'menunggu' | 'ditolak'
   >('semua');
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [nip, setNip] = useState('');
-  const [tanggal, setTanggal] = useState('');
+
+  // Data kehadiran
+  const [dataKehadiran, setDataKehadiran] = useState<KehadiranGuru[]>([]);
+  const [tanggalKehadiran, setTanggalKehadiran] = useState('');
   const [pageLimit, setPageLimit] = useState(10);
   const [page, setPage] = useState(1);
+  const [loadingKehadiran, setLoadingKehadiran] = useState(false);
 
+  // --- Fungsi fetch data izin ---
+  const fetchIzin = async () => {
+    if (!session?.user?.token) return;
+    try {
+      const res = await axios.get(`${API}perizinan-guru`, {
+        headers: { Authorization: `Bearer ${session.user.token}` }
+      });
+      setListIzin(res.data.data || []);
+    } catch (error) {
+      toast.error('Gagal fetch perizinan');
+      setListIzin([]);
+    }
+  };
+
+  // --- Fungsi fetch data kehadiran ---
+  const fetchKehadiran = async () => {
+    if (!session?.user?.token) return;
+    try {
+      setLoadingKehadiran(true);
+      const res = await axios.get(
+        `${API}kehadiran-guru?page=${page}&pageSize=${pageLimit}&nip=${session.user.nip}&tanggal=${tanggalKehadiran}`
+        // { headers: { Authorization: `Bearer ${session.user.token}` } }
+      );
+      setDataKehadiran(res.data.data.data || []);
+    } catch (error) {
+      toast.error('Gagal fetch kehadiran');
+      setDataKehadiran([]);
+    } finally {
+      setLoadingKehadiran(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchIzin();
+  }, [session, trigger]);
+
+  useEffect(() => {
+    fetchKehadiran();
+  }, [
+    session,
+    page,
+    pageLimit,
+    tanggalKehadiran ?? '', // jamin selalu ada nilai
+    trigger
+  ]);
+
+  // Hapus izin
   const handleDelete = async (id: string) => {
     setDeletingId(id);
     try {
-      await axios.delete(`${API}/perizinan-guru/delete/${id}`);
+      await axios.delete(`${API}/perizinan-guru/delete/${id}`, {
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
+      });
       toast.success('Data izin berhasil dihapus');
-      fetchData();
+      fetchIzin();
     } catch (error) {
       toast.error('Gagal menghapus izin');
-      console.error(error);
     } finally {
       setDeletingId(null);
     }
   };
 
-  useEffect(() => {
-    const fetch = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(
-          `${API}kehadiran-guru?page=${page}&pageSize=${pageLimit}&nip=${nip}&tanggal=${tanggal}`,
-          {
-            headers: {
-              Authorization: `Bearer ${session?.user?.token}`
-            }
-          }
-        );
-        setData(response.data.data);
-        setTotalData(response.data.total);
-      } catch (error) {
-        console.error('Error fetching kehadiran guru:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetch();
-  }, [page, nip, tanggal, pageLimit, trigger]);
-
-  const filteredList = useMemo(() => {
+  // Filter izin berdasarkan search dan status
+  const filteredIzin = useMemo(() => {
     return listIzin.filter((izin) => {
       const cocokStatus =
         statusFilter === 'semua' || izin.status === statusFilter;
       const cocokSearch = izin.keterangan
         .toLowerCase()
-        .includes(search.toLowerCase());
+        .includes(searchIzin.toLowerCase());
       return cocokStatus && cocokSearch;
     });
-  }, [listIzin, search, statusFilter]);
+  }, [listIzin, searchIzin, statusFilter]);
 
   return (
     <Card className='space-y-6 p-5'>
-      <div className='flex space-x-3'>
-        <Button onClick={() => setToogleChange('perizinan')}>Perizinan</Button>
-        <Button onClick={() => setToogleChange('kehadiran')}>Kehadiran</Button>
+      {/* Tab toggle */}
+      <div className='mb-4 flex space-x-3'>
+        <Button
+          variant={toggleTab === 'perizinan' ? 'default' : 'outline'}
+          onClick={() => setToggleTab('perizinan')}
+        >
+          Perizinan
+        </Button>
+        <Button
+          variant={toggleTab === 'kehadiran' ? 'default' : 'outline'}
+          onClick={() => setToggleTab('kehadiran')}
+        >
+          Kehadiran
+        </Button>
       </div>
 
-      {toogleChange === 'perizinan' ? (
-        <div className=''>
-          {/* FILTER IZIN */}
-          <div className='flex flex-col gap-4 md:flex-row md:items-center'>
+      {toggleTab === 'perizinan' ? (
+        <>
+          {/* Filter Perizinan */}
+          <div className='mb-4 flex flex-col gap-4 md:flex-row md:items-center'>
             <div className='relative w-full md:w-1/2'>
               <Search className='absolute left-3 top-2.5 h-4 w-4 text-muted-foreground' />
               <Input
                 placeholder='Cari berdasarkan keterangan...'
                 className='pl-10'
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-
-            <div className='relative w-full md:w-1/2'>
-              <Search className='absolute left-3 top-2.5 h-4 w-4 text-muted-foreground' />
-              <Input
-                placeholder='Cari berdasarkan Tanggal...'
-                className='pl-10'
-                type='Tanggal'
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                value={searchIzin}
+                onChange={(e) => setSearchIzin(e.target.value)}
               />
             </div>
 
@@ -146,7 +180,7 @@ export default function CardListIzin({ listIzin, fetchData }: Props) {
               value={statusFilter}
               onValueChange={(val) => setStatusFilter(val as any)}
             >
-              <SelectTrigger className='w-full md:w-52'>
+              <SelectTrigger>
                 <SelectValue placeholder='Filter status' />
               </SelectTrigger>
               <SelectContent>
@@ -158,14 +192,14 @@ export default function CardListIzin({ listIzin, fetchData }: Props) {
             </Select>
           </div>
 
-          {/* LIST IZIN */}
-          {filteredList.length === 0 ? (
+          {/* List Perizinan */}
+          {filteredIzin.length === 0 ? (
             <p className='text-center text-muted-foreground'>
               Tidak ada data izin yang cocok.
             </p>
           ) : (
-            <div className='mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
-              {filteredList.map((izin) => (
+            <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
+              {filteredIzin.map((izin) => (
                 <Card
                   key={izin.id}
                   className='rounded-2xl border border-muted shadow-sm transition hover:shadow-md'
@@ -212,28 +246,24 @@ export default function CardListIzin({ listIzin, fetchData }: Props) {
               ))}
             </div>
           )}
-        </div>
+        </>
       ) : (
-        <div className=''>
-          {/* FILTER KEHADIRAN */}
-          <div className='mt-6 grid grid-cols-1 gap-4 md:grid-cols-4'>
-            <Input
-              placeholder='Filter NIP'
-              value={nip}
-              onChange={(e) => setNip(e.target.value)}
-            />
+        <>
+          {/* Filter Kehadiran */}
+          <div className='mb-4 flex gap-4'>
             <Input
               type='date'
               placeholder='Tanggal'
-              value={tanggal}
-              onChange={(e) => setTanggal(e.target.value)}
+              value={tanggalKehadiran}
+              onChange={(e) => setTanggalKehadiran(e.target.value)}
+              className='max-w-[180px]'
             />
             <Select
               value={String(pageLimit)}
               onValueChange={(val) => setPageLimit(Number(val))}
             >
               <SelectTrigger>
-                <SelectValue placeholder='Limit per halaman' />
+                <SelectValue placeholder='Limit / halaman' />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='5'>5</SelectItem>
@@ -245,18 +275,87 @@ export default function CardListIzin({ listIzin, fetchData }: Props) {
               type='number'
               placeholder='Halaman'
               value={page}
-              onChange={(e) => setPage(Number(e.target.value))}
               min={1}
+              onChange={(e) => setPage(Number(e.target.value))}
+              className='max-w-[80px]'
             />
           </div>
-
-          {/* TABLE KEHADIRAN */}
-          <KehadiranGuruTable
-            columns={columns}
-            data={data}
-            totalItems={totalData}
-          />
-        </div>
+          <div className='mx-auto w-[100%] overflow-x-auto'>
+            <div className='overflow-x-auto'>
+              <table className='w-full border-collapse overflow-x-auto border border-gray-200'>
+                <thead className='bg-gray-100'>
+                  <tr>
+                    <th className='w-[20%] whitespace-nowrap border border-gray-300 px-4 py-2 text-left'>
+                      Tanggal
+                    </th>
+                    <th className='w-[40%] whitespace-nowrap border border-gray-300 px-4 py-2 text-left'>
+                      Nama
+                    </th>
+                    <th className='w-[40%] whitespace-nowrap border border-gray-300 px-4 py-2 text-left'>
+                      NIP
+                    </th>
+                    <th className='w-[40%] whitespace-nowrap border border-gray-300 px-4 py-2 text-left'>
+                      Jam Masuk
+                    </th>
+                    <th className='w-[40%] whitespace-nowrap border border-gray-300 px-4 py-2 text-left'>
+                      Jam Pulang
+                    </th>
+                    <th className='w-[40%] whitespace-nowrap border border-gray-300 px-4 py-2 text-left'>
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loadingKehadiran ? (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className='border border-gray-300 px-4 py-6 text-center'
+                      >
+                        Loading...
+                      </td>
+                    </tr>
+                  ) : dataKehadiran.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className='border border-gray-300 px-4 py-6 text-center text-gray-500'
+                      >
+                        Tidak ada data kehadiran
+                      </td>
+                    </tr>
+                  ) : (
+                    dataKehadiran?.map((item) => (
+                      <tr
+                        key={item.id}
+                        className='odd:bg-white even:bg-gray-50 hover:bg-gray-100'
+                      >
+                        <td className='whitespace-nowrap border border-gray-300 px-4 py-2'>
+                          {new Date(item.tanggal).toLocaleDateString('id-ID')}
+                        </td>
+                        <td className='whitespace-nowrap border border-gray-300 px-4 py-2'>
+                          {item.nama}
+                        </td>
+                        <td className='whitespace-nowrap border border-gray-300 px-4 py-2'>
+                          {item.nip}
+                        </td>
+                        <td className='whitespace-nowrap border border-gray-300 px-4 py-2'>
+                          {item.jamMasuk ?? '-'}
+                        </td>
+                        <td className='whitespace-nowrap border border-gray-300 px-4 py-2'>
+                          {item.jamPulang ?? '-'}
+                        </td>
+                        <td className='whitespace-nowrap border border-gray-300 px-4 py-2'>
+                          {item.status}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
       )}
     </Card>
   );

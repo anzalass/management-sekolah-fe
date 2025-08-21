@@ -19,17 +19,13 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Product } from '@/constants/mock-api';
-import { zodResolver } from '@hookform/resolvers/zod';
+
 import axios from 'axios';
-import { Trash } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import * as z from 'zod';
-import { S } from '@faker-js/faker/dist/airline-BcEu2nRk';
 import { API } from '@/lib/server';
 
 // Tipe Data Siswa
@@ -43,6 +39,7 @@ export type Siswa = {
   namaAyah: string;
   namaIbu: string;
   tahunLulus: string;
+  kelas: string;
   alamat: string;
   agama: string;
   jenisKelamin: string;
@@ -65,6 +62,7 @@ export default function SiswaForm({
 }) {
   const [loading, startTransition] = useTransition();
   const router = useRouter();
+  const [masterKelas, setMasterKelas] = useState<any[]>([]);
   const [fotoUrl, setFotoUrl] = useState<string | null>(
     initialData?.foto ?? null
   );
@@ -76,6 +74,7 @@ export default function SiswaForm({
     nis: initialData?.nis ?? '',
     nik: initialData?.nik ?? '',
     nama: initialData?.nama ?? '',
+    kelas: initialData?.kelas ?? '',
     jurusan: initialData?.jurusan ?? '',
     tempatLahir: initialData?.tempatLahir ?? '',
     tanggalLahir: initialData?.tanggalLahir
@@ -108,17 +107,26 @@ export default function SiswaForm({
     defaultValues: defaultValue
   });
 
+  useEffect(() => {
+    const getListKelas = async () => {
+      try {
+        const response = await axios.get(`${API}list-kelas`);
+        setMasterKelas(response.data.data);
+      } catch (error) {
+        toast.error('Gagal mendapatkan kelas');
+      }
+    };
+    getListKelas();
+  }, []);
+
   // Handle Submit
   async function onSubmit(values: any) {
-    console.log(values.noTeleponOrtu);
-
     startTransition(async () => {
       try {
         const data = new FormData();
         if (img) {
           data.append('foto', img);
         }
-        console.log(img);
 
         if (nis !== 'new') {
           await axios.put(
@@ -149,7 +157,7 @@ export default function SiswaForm({
 
         router.push('/dashboard/master-data/siswa');
       } catch (error) {
-        toast.error(error?.response.data.message);
+        toast.error('Gagal');
       }
     });
   }
@@ -168,9 +176,23 @@ export default function SiswaForm({
             <div className='space-y-6'>
               {/* Foto */}
               <FormItem>
-                <FormLabel>Foto</FormLabel>
+                <FormLabel>Foto {'Maksimal 4 Mb'}</FormLabel>
                 <FormControl>
-                  <Input type='file' onChange={handleFileChange} />
+                  <Input
+                    type='file'
+                    accept='image/png, image/jpeg, image/jpg'
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        if (file.size > 5 * 1024 * 1024) {
+                          toast.error('Ukuran file maksimal 5 MB!');
+                          e.target.value = ''; // reset input
+                          return;
+                        }
+                        handleFileChange(e);
+                      }
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -362,6 +384,37 @@ export default function SiswaForm({
                   )}
                 />
 
+                <FormField
+                  control={form.control}
+                  name='kelas'
+                  rules={{ required: 'Kelas wajib dipilih' }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Kelas</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder='Pilih Kelas' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {masterKelas?.map((d) => (
+                            <SelectItem key={d.id} value={d.namaKelas}>
+                              {d.namaKelas}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage>
+                        {form.formState.errors.kelas?.message}
+                      </FormMessage>
+                    </FormItem>
+                  )}
+                />
+
                 {/* Tahun Lulus */}
                 <FormItem>
                   <FormLabel>Tahun Lulus</FormLabel>
@@ -369,12 +422,7 @@ export default function SiswaForm({
                     <Input
                       type='number'
                       placeholder='Masukkan Tahun Lulus...'
-                      {...form.register('tahunLulus', {
-                        max: {
-                          value: new Date().getFullYear(),
-                          message: `Tahun lulus tidak boleh lebih dari ${new Date().getFullYear()}`
-                        }
-                      })}
+                      {...form.register('tahunLulus')}
                     />
                   </FormControl>
                   <FormMessage>

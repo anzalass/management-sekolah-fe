@@ -26,7 +26,7 @@ export function AboutUs({
       initial={{ opacity: 0, x: -100 }}
       animate={showAbout ? { opacity: 1, x: 0 } : {}}
       transition={{ duration: 0.8 }}
-      className='relative mx-auto px-4 py-20 lg:max-w-7xl'
+      className='relative mx-auto bg-[#bde0fe] px-4 py-20 lg:max-w-7xl'
       id='about'
     >
       <div className='flex flex-col-reverse items-center justify-between gap-10 md:flex-row md:gap-20'>

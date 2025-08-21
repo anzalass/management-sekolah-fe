@@ -13,9 +13,12 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 type FormValues = {
   nama: string;
+  namaGuru: string;
+  nipGuru: string;
   ruangKelas: string;
 };
 
@@ -59,7 +62,14 @@ export default function ModalTambahKelas({
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
 
+    if (!session?.user) {
+      return;
+    }
+
     try {
+      setValue('namaGuru', session?.user?.nama);
+      setValue('nipGuru', session?.user?.nip);
+
       const response = await fetch(
         isEdit
           ? `${API}kelas-walikelas/update/${dataEdit?.id}`
@@ -83,7 +93,6 @@ export default function ModalTambahKelas({
       setOpenModal(null);
       reset();
     } catch (err) {
-      console.error(err);
       toast.error('Terjadi kesalahan saat menyimpan');
     } finally {
       setIsLoading(false);
@@ -97,7 +106,9 @@ export default function ModalTambahKelas({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Edit Kelas' : 'Tambah Kelas'}</DialogTitle>
+          <VisuallyHidden>
+            <DialogTitle>{isEdit ? 'Edit Kelas' : 'Tambah Kelas'}</DialogTitle>
+          </VisuallyHidden>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-3'>
           <div>

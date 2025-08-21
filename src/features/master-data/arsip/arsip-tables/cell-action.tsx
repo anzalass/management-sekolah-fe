@@ -16,6 +16,7 @@ import axios from 'axios';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { Arsip } from '../arsip-listing';
+import { toast } from 'sonner';
 
 interface CellActionProps {
   data: Arsip;
@@ -34,7 +35,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       window.location.reload();
       toggleTrigger();
     } catch (error) {
-      console.error('Failed to delete mapel:', error);
+      toast.error('Failed to delete mapel');
     } finally {
       setLoading(false);
     }

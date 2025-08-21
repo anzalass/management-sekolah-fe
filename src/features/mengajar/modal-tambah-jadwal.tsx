@@ -20,6 +20,7 @@ import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 type Props = {
   openModal: boolean;
@@ -103,7 +104,6 @@ export default function ModalTambahJadwal({
       setOpenModal(false);
       reset();
     } catch (err) {
-      console.error(err);
       toast.error('Terjadi kesalahan saat menyimpan');
     } finally {
       setIsLoading(false);
@@ -112,12 +112,13 @@ export default function ModalTambahJadwal({
 
   return (
     <Dialog open={openModal} onOpenChange={setOpenModal}>
+      <VisuallyHidden>
+        <DialogTitle>
+          {dataEdit ? 'Edit Jadwal Pelajaran' : 'Tambah Jadwal Pelajaran'}
+        </DialogTitle>
+      </VisuallyHidden>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>
-            {dataEdit ? 'Edit Jadwal Pelajaran' : 'Tambah Jadwal Pelajaran'}
-          </DialogTitle>
-        </DialogHeader>
+        <DialogHeader></DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           <div>
             <label htmlFor='jamMulai'>Jam Mulai</label>

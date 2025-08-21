@@ -16,7 +16,7 @@ export function CurriculumSection({ refCurriculum, inViewCurriculum }: Props) {
       ref={refCurriculum}
       initial='hidden'
       animate={inViewCurriculum ? 'show' : 'hidden'}
-      className='mx-auto mt-24 max-w-7xl px-4 py-16'
+      className='mx-auto mt-24 max-w-7xl bg-[#bde0fe] py-16'
     >
       <h2
         className='mb-12 text-center text-4xl font-extrabold text-[#017BBD]'

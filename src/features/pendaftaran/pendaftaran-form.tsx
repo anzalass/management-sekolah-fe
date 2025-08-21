@@ -19,11 +19,19 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
 // Tipe Data Pendaftaran
 export type Pendaftaran = {
   studentName: string;
   parentName: string;
+  kategori: string;
   email: string;
   phoneNumber: string;
   yourLocation: string;
@@ -45,6 +53,7 @@ export default function PendaftaranForm({
 
   const defaultValue = {
     studentName: initialData?.studentName || '',
+    kategori: initialData?.kategori || '',
     parentName: initialData?.parentName || '',
     email: initialData?.email || '',
     phoneNumber: initialData?.phoneNumber || '',
@@ -64,7 +73,8 @@ export default function PendaftaranForm({
           parentName: values.parentName,
           email: values.email,
           phoneNumber: values.phoneNumber,
-          yourLocation: values.yourLocation
+          yourLocation: values.yourLocation,
+          kategori: values.kategori
         };
 
         if (id !== 'new') {
@@ -85,9 +95,9 @@ export default function PendaftaranForm({
           toast.success('Pendaftaran berhasil disimpan');
         }
 
-        router.push('/admin-dashboard/pendaftaran');
+        router.push('/dashboard/pendaftaran');
       } catch (error) {
-        const axiosError = error as AxiosError;
+        const axiosError = error as any;
         const errorMessage =
           axiosError.response?.data?.message || 'Terjadi Kesalahan';
         toast.error(errorMessage);
@@ -140,6 +150,38 @@ export default function PendaftaranForm({
                     {form.formState.errors.parentName?.message}
                   </FormMessage>
                 </FormItem>
+
+                <FormField
+                  control={form.control}
+                  name='kategori'
+                  rules={{ required: 'Jenis Kelas wajib dipilih' }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Pilih Jenis Kategori</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder='Pilih Jenis Kelas' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value='LAC'>
+                            Little Alley Cyberschool
+                          </SelectItem>
+                          <SelectItem value='LAP'>
+                            Little Alley Preschool
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage>
+                        {form.formState.errors.kategori?.message}
+                      </FormMessage>
+                    </FormItem>
+                  )}
+                />
 
                 {/* Email */}
                 <FormItem>

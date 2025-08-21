@@ -8,6 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { Inventaris } from './daftar-inventaris-form';
+import { toast } from 'sonner';
 
 export default function DaftarInventarisListingPage() {
   const searchParams = useSearchParams();
@@ -31,9 +32,9 @@ export default function DaftarInventarisListingPage() {
           `${API}inventaris?page=${page}&pageSize=${pageLimit}&nama=${search}&waktuPengadaan=${waktuPengadaan}&ruang=${ruang}&hargaBeli=${hargaBeli}`
         );
         setData(response.data.data.data);
-        setTotalData(response.data.data.totalData);
+        setTotalData(response.data.data.count);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       } finally {
         setLoading(false);
       }

@@ -18,6 +18,7 @@ import { Testimonial } from '../testimoni-listing';
 import axios from 'axios';
 import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
 
 interface CellActionProps {
   data: Testimonial;
@@ -41,11 +42,8 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       });
       setOpen(false);
       toggleTrigger();
-      window.location.reload();
     } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
+      toast.error('Gagal menghapus data');
     }
   };
 

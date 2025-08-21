@@ -14,7 +14,7 @@ export default async function Page(props: PageProps) {
     <PageContainer scrollable>
       <div className='flex-1 space-y-4'>
         <Suspense fallback={<FormCardSkeleton />}>
-          <GuruStaffViewPage nip={params.nip} />
+          <GuruStaffViewPage idGuru={params.nip} />
         </Suspense>
       </div>
     </PageContainer>

@@ -7,6 +7,7 @@ import { columns } from './siswa-tables/columns';
 import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import { toast } from 'sonner';
 
 export type Siswa = {
   id: string;
@@ -46,12 +47,12 @@ export default function SiswaListingPage() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${API}user/get-all-siswa?page=${page}?pageSize=${pageLimit}&nama=${search}&nip=${nis}&kelas${kelas}`
+          `${API}user/get-all-siswa?page=${page}&pageSize=${pageLimit}&nama=${search}&nip=${nis}&kelas${kelas}`
         );
         setData(response.data.result.data);
         setTotalUser(response.data.result.total);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       } finally {
         setLoading(false);
       }

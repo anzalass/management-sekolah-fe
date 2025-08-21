@@ -24,6 +24,7 @@ import { CurriculumSection } from './curriculum';
 import OurFacilities from './ourfacilities';
 import Gallery from './gallery';
 import Testimonial from './testimonial';
+import { toast } from 'sonner';
 
 const fadeIn = (direction = 'up', delay = 0) => {
   return {
@@ -93,7 +94,7 @@ export default function Lap() {
         setTestimonials(response.data.data);
       })
       .catch((error) => {
-        console.error('Error fetching the news:', error);
+        toast.error('Error fetching the news:', error);
       });
   }, []);
 
@@ -104,7 +105,7 @@ export default function Lap() {
         setGallery(response.data.data);
       })
       .catch((error) => {
-        console.error('Error fetching the news:', error);
+        toast.error('Error fetching the news:', error);
       });
   }, []);
 
@@ -112,18 +113,24 @@ export default function Lap() {
     <div className='lap md:overflow-x-hidden'>
       <Navbar />
       <Jumbotron />
-      <AboutUs
-        content='Little Alley is a refresh kindergarten curriculum framework that highlights teaching and learning principles that are relevant for developing competencies of young children. We believe that every child is a unique learner with unlimited potential waiting to be unlocked. Kidsroom is designed to provide a nurturing and inspiring environment where children can grow academically and personally.'
-        refAbout={refAbout}
-        showAbout={showAbout}
-      />
+      <div className='w-full bg-[#bde0fe]'>
+        <AboutUs
+          content='Little Alley is a refresh kindergarten curriculum framework that highlights teaching and learning principles that are relevant for developing competencies of young children. We believe that every child is a unique learner with unlimited potential waiting to be unlocked. Kidsroom is designed to provide a nurturing and inspiring environment where children can grow academically and personally.'
+          refAbout={refAbout}
+          showAbout={showAbout}
+        />
+      </div>
       <VisionAndMission refVision={refVision} showVision={showVision} />
+
       <OurClass />
       <WhyLittleAlley refWhy={refWhy} showWhy={showWhy} />
-      <CurriculumSection
-        inViewCurriculum={inViewCurriculum}
-        refCurriculum={refCurriculum}
-      />
+
+      <div className='w-full bg-[#bde0fe]'>
+        <CurriculumSection
+          inViewCurriculum={inViewCurriculum}
+          refCurriculum={refCurriculum}
+        />
+      </div>
 
       <OurFacilities />
 

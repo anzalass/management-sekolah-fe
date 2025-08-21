@@ -30,14 +30,14 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Presensi Guru',
-    url: '/dashboard/pendaftaran',
+    url: '',
     icon: 'dashboard',
     isActive: false,
     shortcut: ['d', 'd'],
     items: [
       {
         title: 'Kehadiran Guru',
-        url: '/dashboard/presensi/presensi',
+        url: '/dashboard/presensi/kehadiran',
         icon: 'userPen',
         shortcut: ['n', 'n']
       },
@@ -72,7 +72,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Konten Management',
-    url: '/dashboard/content-management/news',
+    url: '',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
@@ -106,7 +106,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Master Data',
-    url: '/dashboard/master-data/siswa',
+    url: '',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
@@ -130,17 +130,23 @@ export const navItems: NavItem[] = [
         shortcut: ['n', 'n']
       },
       {
+        title: 'List Kelas',
+        url: '/dashboard/master-data/list-kelas',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
+      {
         title: 'Kegiatan Sekolah',
         url: '/dashboard/master-data/kegiatan-sekolah',
         icon: 'userPen',
         shortcut: ['n', 'n']
       },
-      {
-        title: 'Mata Pelajaran',
-        url: '/dashboard/master-data/mata-pelajaran',
-        icon: 'userPen',
-        shortcut: ['n', 'n']
-      },
+      // {
+      //   title: 'Mata Pelajaran',
+      //   url: '/dashboard/master-data/mata-pelajaran',
+      //   icon: 'userPen',
+      //   shortcut: ['n', 'n']
+      // },
       {
         title: 'Pengumuman',
         url: '/dashboard/master-data/pengumuman',
@@ -163,26 +169,20 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'E - Konseling',
-    url: '/dashboard/konseling/data-siswa',
+    url: '',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
     items: [
       {
         title: 'Data Konseling Siswa',
-        url: '/dashboard/konseling/data-siswa',
+        url: '/dashboard/e-konseling',
         icon: 'userPen',
         shortcut: ['n', 'n']
       },
       {
-        title: 'Pelanggaran Siswa',
-        url: '/dashboard/konseling/pelanggaran',
-        icon: 'userPen',
-        shortcut: ['n', 'n']
-      },
-      {
-        title: 'Prestasi Siswa',
-        url: '/dashboard/konseling/prestasi',
+        title: 'Pelanggaran Prestasi Siswa',
+        url: '/dashboard/pelanggaran-prestasi',
         icon: 'userPen',
         shortcut: ['n', 'n']
       }
@@ -190,20 +190,20 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'E - Perpus',
-    url: '/dashboard/master-data/siswa',
+    url: '',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
     items: [
       {
         title: 'Data Buku',
-        url: '/dashboard/master-data/anggaran',
+        url: '/dashboard/e-perpus',
         icon: 'userPen',
         shortcut: ['n', 'n']
       },
       {
         title: 'Peminjaman dan Pengembalian Buku',
-        url: '/dashboard/master-data/guru-staff',
+        url: '/dashboard/peminjaman-pengembalian',
         icon: 'userPen',
         shortcut: ['n', 'n']
       }
@@ -211,20 +211,20 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'E - Pembayaran',
-    url: '/dashboard/master-data/siswa',
+    url: '',
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
     items: [
       {
         title: 'Daftar Tagihan Siswa',
-        url: '/dashboard/master-data/anggaran',
+        url: '/dashboard/pembayaran/daftar-tagihan',
         icon: 'userPen',
         shortcut: ['n', 'n']
       },
       {
         title: 'Riwayat Pembayaran Siswa',
-        url: '/dashboard/master-data/guru-staff',
+        url: '/dashboard/pembayaran/riwayat-pembayaran',
         icon: 'userPen',
         shortcut: ['n', 'n']
       }

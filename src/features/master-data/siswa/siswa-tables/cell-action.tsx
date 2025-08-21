@@ -16,6 +16,7 @@ import { Siswa } from '../siswa-listing';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { API } from '@/lib/server';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 interface CellActionProps {
   data: Siswa;
@@ -30,11 +31,11 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
   const onConfirm = async () => {
     try {
-      await axios.delete(`${API}user/delete-siswa/${data.nis}`);
+      await axios.delete(`${API}user/delete-siswa/${data.id}`);
       setOpen(false);
       toggleTrigger();
     } catch (error) {
-      console.log(error);
+      toast.error('Gagal menghapus data');
     }
   };
   return (

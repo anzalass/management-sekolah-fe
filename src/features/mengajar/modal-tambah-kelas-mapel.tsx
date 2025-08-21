@@ -18,6 +18,8 @@ type FormValues = {
   namaMapel: string;
   kelas: string;
   ruangKelas: string;
+  namaGuru: string;
+  nipGuru: string;
 };
 
 type Props = {
@@ -60,8 +62,14 @@ export default function ModalTambahKelasMapel({
   }, [dataEdit, setValue, reset]);
 
   const onSubmit = async (data: FormValues) => {
+    if (!session?.user) {
+      return;
+    }
     setIsLoading(true);
     try {
+      setValue('namaGuru', session?.user?.nama);
+      setValue('nipGuru', session?.user?.nip);
+
       const res = await fetch(
         isEdit
           ? `${API}kelas-mapel/update/${dataEdit?.id}`
@@ -85,7 +93,6 @@ export default function ModalTambahKelasMapel({
       setOpenModal(null);
       reset();
     } catch (error) {
-      console.error(error);
       toast.error('Terjadi kesalahan saat menyimpan');
     } finally {
       setIsLoading(false);
@@ -100,7 +107,7 @@ export default function ModalTambahKelasMapel({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? 'Edit Kelas Mapell' : 'Tambah Kelas Mapell'}
+            {isEdit ? 'Edit Kelas Mapel' : 'Tambah Kelas Mapel'}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-3'>

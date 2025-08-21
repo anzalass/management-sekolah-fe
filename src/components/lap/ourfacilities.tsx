@@ -74,26 +74,19 @@ export default function OurFacilities() {
           alt='Facility 4'
           className='w-[100%] transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
         />
-        <div className='mb-6 mt-9 hidden w-[100%] text-sm leading-tight text-[#0066b3] lg:block'>
-          <p>
+
+        <div className='mb-6 mt-9 block w-[100%]'>
+          <p className='text-base leading-relaxed text-[#0066b3] md:text-xl'>
             Yayasan Tunas Anak Mulia is equipped with facilities and resources
             to enhance the learning experience:
           </p>
-          <ul className='mt-2 list-inside list-disc space-y-1'>
+          <ul className='mt-2 list-inside list-disc space-y-1 text-base leading-relaxed text-[#0066b3] md:text-xl'>
             <li>Spacious and Safe Learning</li>
             <li>Environment Well-Equipped</li>
             <li>Classrooms Library and Resource</li>
             <li>Center Playgrounds</li>
           </ul>
         </div>
-
-        <Image
-          width={1000}
-          height={1000}
-          src={Fasilitas5}
-          alt='Facility 5'
-          className='w-[100%] transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
-        />
       </div>
     </div>
   );

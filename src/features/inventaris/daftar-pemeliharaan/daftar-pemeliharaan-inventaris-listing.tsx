@@ -10,6 +10,7 @@ import {
 import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import { toast } from 'sonner';
 
 export default function DaftarPemeliharaanInventarisListingPage() {
   const searchParams = useSearchParams();
@@ -36,7 +37,7 @@ export default function DaftarPemeliharaanInventarisListingPage() {
         setData(response.data.data.data);
         setTotalData(response.data.data.totalData);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       } finally {
         setLoading(false);
       }

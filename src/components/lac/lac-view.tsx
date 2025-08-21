@@ -45,6 +45,7 @@ import Testimonial from '../lap/testimonial';
 import axios from 'axios';
 import { API } from '@/lib/server';
 import Gallery from '../lap/gallery';
+import { toast } from 'sonner';
 
 const fadeIn = (direction = 'up', delay = 0) => {
   return {
@@ -137,7 +138,7 @@ export default function LacView() {
         setTestimonials(response.data.data);
       })
       .catch((error) => {
-        console.error('Error fetching the news:', error);
+        toast.error('Error fetching the news:', error);
       });
   }, []);
 
@@ -148,7 +149,7 @@ export default function LacView() {
         setGallery(response.data.data);
       })
       .catch((error) => {
-        console.error('Error fetching the news:', error);
+        toast.error('Error fetching the news:', error);
       });
   }, []);
 
@@ -162,7 +163,7 @@ export default function LacView() {
       <Navbar />
       <div className='bg-lac relative z-0 flex flex-wrap items-start justify-center gap-10 bg-cover bg-center p-4 pt-28'>
         <div className='absolute inset-0 z-0 bg-black bg-opacity-40'></div>
-        <div className='tes relative z-10 ml-[-35px] flex w-full flex-col items-start p-10 text-white md:w-1/2 lg:ml-0 lg:ml-[-100px]'>
+        <div className='tes relative z-10 ml-[-35px] flex w-full flex-col items-start p-10 text-white md:w-1/2'>
           <h1
             className='pb-7 text-3xl font-bold sm:text-4xl md:text-5xl'
             style={{ fontFamily: "'Poetsen One', sans-serif" }}
@@ -205,32 +206,37 @@ export default function LacView() {
         </div>
       </div>
 
-      <AboutUs
-        refAbout={refAbout}
-        showAbout={showAbout}
-        content={
-          'Little Alley Cyberschool is an online school built for active, curious, and creative children. We move beyond textbook learning, offering a full day of hands-on activities that let students explore, create, and grow. Here, students lead their own learning journey, while teachers serve as facilitators—guiding, supporting, and helping each child discover their unique strengths. We use technology as a tool to connect learners with real-world experiences and meaningful projects, encouraging independence, critical thinking, and personal growth. Little Alley is a flexible, engaging space where children are free to be themselves and learn in ways that matter to them.'
-        }
-      />
+      <div className='w-full bg-[#bde0fe]'>
+        <AboutUs
+          refAbout={refAbout}
+          showAbout={showAbout}
+          content={
+            'Little Alley Cyberschool is an online school built for active, curious, and creative children. We move beyond textbook learning, offering a full day of hands-on activities that let students explore, create, and grow. Here, students lead their own learning journey, while teachers serve as facilitators—guiding, supporting, and helping each child discover their unique strengths. We use technology as a tool to connect learners with real-world experiences and meaningful projects, encouraging independence, critical thinking, and personal growth. Little Alley is a flexible, engaging space where children are free to be themselves and learn in ways that matter to them.'
+          }
+        />
+      </div>
       <VisionAndMission refVision={refVision} showVision={showVision} />
-      <CurriculumSection
-        inViewCurriculum={inViewCurriculum}
-        refCurriculum={refCurriculum}
-      />
+
+      <div className='w-full bg-[#bde0fe]'>
+        <CurriculumSection
+          inViewCurriculum={inViewCurriculum}
+          refCurriculum={refCurriculum}
+        />
+      </div>
 
       {/* Konten OUR CLASS */}
-      <div className='relative overflow-hidden'>
+      <div className='relative overflow-hidden py-16'>
         {/* Awan Atas */}
-        <Image
+        {/* <Image
           src={Awan2}
           alt='Awan Atas'
           width={1920}
           height={1080}
           className='absolute left-0 top-0 z-10 w-full object-cover'
-        />
+        /> */}
 
         {/* Konten */}
-        <div className='relative z-10 mx-auto mt-[25vh] h-[140vh] max-w-3xl px-4 py-20 sm:h-[180vh] lg:mt-[100vh] lg:h-[270vh]'>
+        <div className='relative z-10 mx-auto max-w-3xl'>
           {/* OUR CLASS Title */}
           <div className='mb-16 flex justify-center'>
             <div
@@ -287,13 +293,13 @@ export default function LacView() {
         </div>
 
         {/* Awan Bawah */}
-        <Image
+        {/* <Image
           src={Awan}
           alt='Awan Bawah'
           width={1920}
           height={1080}
           className='absolute bottom-0 left-0 z-0 w-full rotate-180 object-cover'
-        />
+        /> */}
       </div>
 
       <motion.div
@@ -301,7 +307,7 @@ export default function LacView() {
         initial={{ opacity: 0, y: 60 }}
         animate={showWhy ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8, ease: 'easeOut' }}
-        className='quetions mx-auto mt-5 max-w-7xl px-1 py-12'
+        className='mx-auto mt-5 max-w-7xl px-2 py-12'
       >
         <h2
           className='title-font text-center text-4xl font-extrabold leading-tight text-[#017BBD]'
@@ -314,8 +320,8 @@ export default function LacView() {
           </span>
         </h2>
 
-        <div className='mt-10 flex flex-col space-y-10 md:flex-row md:items-center md:justify-center md:space-x-[-55px] lg:space-x-20 lg:space-y-0'>
-          <div className='order-1 mx-auto flex max-w-[180px] flex-col items-center justify-center md:order-none md:max-w-none lg:mx-0'>
+        <div className='mt-10 flex flex-col items-center space-y-10 md:flex-row md:items-center md:justify-center md:space-x-10 lg:space-x-20'>
+          <div className='flex max-w-[180px] flex-col items-center justify-center'>
             <Image
               width={1000}
               height={1000}
@@ -325,7 +331,7 @@ export default function LacView() {
             />
           </div>
 
-          <div className='order-2 max-w-xl text-center text-sm leading-relaxed text-[#0B6CBF] sm:text-base md:order-none'>
+          <div className='max-w-xl text-center text-sm leading-relaxed text-[#0B6CBF] sm:text-base md:text-left'>
             Little Alley Cyberschool As a fully internet-based school, all
             classes, exams, and announcements are conducted through email and
             our official website. This makes it easy for both students and
@@ -333,15 +339,16 @@ export default function LacView() {
           </div>
         </div>
 
-        <div className='mt-10 flex flex-col space-y-10 md:flex-row md:items-center md:justify-center md:space-x-10 lg:space-x-20 lg:space-y-0'>
-          <p className='order-2 max-w-xl text-center text-sm leading-relaxed text-[#0B6CBF] sm:text-base md:order-none'>
+        <div className='mt-10 flex flex-col items-center space-y-10 md:flex-row md:items-center md:justify-center md:space-x-10 lg:space-x-20'>
+          <div className='max-w-xl text-center text-sm leading-relaxed text-[#0B6CBF] sm:text-base md:text-right'>
             Little Alley Cyberschool offers a modern and flexible learning
             experience designed for today’s students. We use the IB-based
             curriculum from Swiss, carefully tailored to help each child grow
             through their unique interests and talents. Our approach encourages
             curiosity, independence, and lifelong learning.
-          </p>
-          <div className='order-1 mx-auto flex max-w-[180px] flex-col items-center justify-center md:order-none md:max-w-none lg:mx-0'>
+          </div>
+
+          <div className='flex max-w-[180px] flex-col items-center justify-center'>
             <Image
               width={1000}
               height={1000}
@@ -369,42 +376,42 @@ export default function LacView() {
             height={1000}
             src={fasilitaslac1}
             alt='Facility 1'
-            className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
+            className='w-full transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
           <Image
             width={1000}
             height={1000}
             src={fasilitaslac2}
             alt='Facility 2'
-            className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
+            className='w-full transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
           <Image
             width={1000}
             height={1000}
             src={fasilitaslac3}
             alt='Facility 3'
-            className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
+            className='w-full transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
           <Image
             width={1000}
             height={1000}
             src={fasilitaslac4}
             alt='Facility 4'
-            className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
+            className='w-full transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
           <Image
             width={1000}
             height={1000}
             src={fasilitaslac5}
             alt='Facility 1'
-            className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
+            className='w-full transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
           <Image
             width={1000}
             height={1000}
             src={fasilitaslac7}
             alt='Facility 2'
-            className='w-72 transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
+            className='w-full transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />
 
           <div className='mx-auto mb-6 mt-9 block w-72 text-sm leading-tight text-[#0066b3]'>

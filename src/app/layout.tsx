@@ -11,8 +11,8 @@ import './globals.css';
 import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';
 
 export const metadata: Metadata = {
-  title: 'Little Alley',
-  description: 'Basic dashboard with Next.js and Shadcn',
+  title: 'Little Alley School',
+  description: 'Yayasan Anak Tunas Mulia',
   icons: {
     icon: '/vercel.svg' // path ke favicon
   }

@@ -36,8 +36,6 @@ export default function RegisterView() {
       return;
     }
 
-    console.log('Asas');
-
     data.kategori = selectedProgram; // Tambahkan ke data yang dikirim
 
     try {
@@ -55,9 +53,9 @@ export default function RegisterView() {
       } else {
         toast.error('Gagal melakukan pendaftaran');
       }
-    } catch (error) {
+    } catch (error: any) {
       alert('Error submitting form');
-      console.error(error);
+      toast.error(error);
     }
   };
 

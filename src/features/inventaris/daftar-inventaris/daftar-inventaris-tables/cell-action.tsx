@@ -17,6 +17,7 @@ import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { Inventaris } from '../daftar-inventaris-form';
 import ModalFormMaintenance from '../modal-form-maintenence';
+import { toast } from 'sonner';
 
 interface CellActionProps {
   data: Inventaris;
@@ -35,9 +36,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       await axios.delete(`${API}inventaris/delete/${data.id}`);
       setOpenDelete(false);
       toggleTrigger();
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
 
   // Fetch data ketika modal maintenance dibuka
@@ -48,7 +47,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           const response = await axios.get(`${API}inventaris/get/${data.id}`);
           setInventaris(response.data.data);
         } catch (error) {
-          console.error('Error fetching data:', error);
+          toast.error('Error fetching data');
         }
       };
       fetchData();

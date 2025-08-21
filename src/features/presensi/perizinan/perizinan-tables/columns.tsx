@@ -5,6 +5,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import axios from 'axios';
 import { Clock } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 export const columns: ColumnDef<any>[] = [
   {
@@ -13,9 +14,9 @@ export const columns: ColumnDef<any>[] = [
     cell: ({ row }) => row.original.nama
   },
   {
-    accessorKey: 'nipGuru',
+    accessorKey: 'nip',
     header: 'NIP',
-    cell: ({ row }) => row.original.nipGuru
+    cell: ({ row }) => row.original.nip
   },
   {
     accessorKey: 'keterangan',
@@ -106,8 +107,8 @@ export const columns: ColumnDef<any>[] = [
         try {
           await axios.put(`${API}perizinan-guru/acc/${id}`);
           toggleTrigger();
-        } catch (error) {
-          console.error(error);
+        } catch (error: any) {
+          toast.error(error);
         } finally {
           setLoading(false);
         }
@@ -118,8 +119,8 @@ export const columns: ColumnDef<any>[] = [
         try {
           await axios.put(`${API}perizinan-guru/reject/${id}`);
           toggleTrigger();
-        } catch (error) {
-          console.error(error);
+        } catch (error: any) {
+          toast.error(error);
         } finally {
           setLoading(false);
         }

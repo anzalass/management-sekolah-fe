@@ -16,6 +16,7 @@ import axios from 'axios';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { PemeliharaanInventaris } from './columns';
+import { toast } from 'sonner';
 
 interface CellActionProps {
   data: PemeliharaanInventaris;
@@ -36,9 +37,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       await axios.delete(`${API}inventaris/delete/${data.id}`);
       setOpenDelete(false);
       toggleTrigger();
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
 
   const selesaiMaintenence = async () => {
@@ -52,7 +51,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       setOpenMaintenance(false);
       toggleTrigger();
     } catch (error) {
-      console.error('Error selesai maintenance:', error);
+      toast.error('Error selesai maintenance');
     }
   };
 

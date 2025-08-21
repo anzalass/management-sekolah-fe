@@ -84,7 +84,7 @@ export default function NewsForm({
 
         router.push('/dashboard/content-management/news');
       } catch (error) {
-        const axiosError = error as AxiosError;
+        const axiosError = error as any;
         const errorMessage =
           axiosError.response?.data?.message || 'Terjadi Kesalahan';
         toast.error(errorMessage);

@@ -8,6 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
 import { Pengumuman } from './pengumuman-form';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import { toast } from 'sonner';
 
 export default function PengumumanListingPage() {
   const searchParams = useSearchParams();
@@ -31,9 +32,9 @@ export default function PengumumanListingPage() {
           `${API}pengumuman?page=${page}&pageSize=${pageLimit}&title=${search}&time=${tanggal}`
         );
         setData(response.data.data);
-        setTotalData(response.data.total);
+        setTotalData(response.data.totaData);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       } finally {
         setLoading(false);
       }

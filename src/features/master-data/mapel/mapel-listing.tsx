@@ -6,6 +6,7 @@ import { DataTable as RuanganTable } from '@/components/ui/table/data-table';
 import { columns } from './mapel-tables/columns';
 import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
+import { toast } from 'sonner';
 
 export type Mapel = {
   id: string;
@@ -33,7 +34,7 @@ export default function MapelListingPage() {
         setData(response.data.result.data);
         setTotalData(response.data.result.total);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       } finally {
         setLoading(false);
       }

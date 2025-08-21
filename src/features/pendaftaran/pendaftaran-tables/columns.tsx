@@ -11,6 +11,7 @@ export const columns: ColumnDef<Pendaftaran>[] = [
   {
     accessorKey: 'studentName',
     header: 'Student Name',
+    size: 500,
     cell: ({ row }) => row.original.studentName
   },
   {

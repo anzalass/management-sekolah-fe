@@ -27,6 +27,7 @@ import {
 } from '../ui/card';
 import { Button } from '../ui/button';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 interface NewsItem {
   image: string;
@@ -54,7 +55,7 @@ export default function HomeView() {
         setNews(response.data.data);
       })
       .catch((error) => {
-        console.error('Error fetching the news:', error);
+        toast.error('Error fetching the news:', error);
       });
   }, []);
 
@@ -65,13 +66,13 @@ export default function HomeView() {
         const updatedTeachers = response.data.data.map(
           (teacher: GuruTemplate) => ({
             ...teacher,
-            imageUrl: `${BASE_URL}/${teacher.image.split('/').pop()}`
+            imageUrl: teacher.image
           })
         );
         setTeachers(updatedTeachers);
       })
       .catch((error) => {
-        console.error('Error fetching teacher data:', error);
+        toast.error('Error fetching teacher data:', error);
       });
   }, []);
 
@@ -180,7 +181,7 @@ export default function HomeView() {
         </div>
       </section>
 
-      <section className='bg-muted/40 py-12'>
+      <section className='bg-[#bde0fe] py-12'>
         <div className='container mx-auto px-4 md:px-6'>
           <Card className='mx-auto max-w-6xl shadow-lg'>
             <div className='flex flex-col md:flex-row'>
@@ -294,9 +295,9 @@ export default function HomeView() {
                   can grow academically and personally.
                 </p>
               </CardContent>
-              <CardFooter className='absolute bottom-3 right-3'>
-                <Link href={'/little-alley-preschool'}>
-                  <Button className='ml-auto' variant='outline'>
+              <CardFooter className='absolute bottom-1 w-full'>
+                <Link href={'/little-alley-preschool'} className='w-full'>
+                  <Button className='w-full' variant='outline'>
                     More
                   </Button>
                 </Link>
@@ -326,9 +327,9 @@ export default function HomeView() {
                   that matter to them.
                 </p>
               </CardContent>
-              <CardFooter className='absolute bottom-3 right-3'>
-                <Link href={'/little-alley-cyberschool'}>
-                  <Button className='ml-auto' variant='outline'>
+              <CardFooter className='absolute bottom-1 w-full'>
+                <Link href={'/little-alley-cyberschool'} className='w-full'>
+                  <Button className='w-full' variant='outline'>
                     More
                   </Button>
                 </Link>

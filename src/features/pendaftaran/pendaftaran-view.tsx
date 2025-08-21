@@ -1,6 +1,7 @@
 import { API } from '@/lib/server';
 import PendaftaranForm from './pendaftaran-form';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 type IDPendaftaranType = {
   id: string;
@@ -15,7 +16,7 @@ export default async function PendaftaranViewPage({ id }: IDPendaftaranType) {
         const response = await axios.get(`${API}pendaftaran/${id}`);
         return response.data.data;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       }
     };
 

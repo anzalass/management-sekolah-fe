@@ -41,7 +41,6 @@ export default function Testimonial({
         <Swiper
           onSwiper={(swiper) => {
             setSwiperInstance(swiper);
-            console.log('Swiper instance set:', swiper);
           }}
           modules={[Navigation, Autoplay]}
           spaceBetween={20}

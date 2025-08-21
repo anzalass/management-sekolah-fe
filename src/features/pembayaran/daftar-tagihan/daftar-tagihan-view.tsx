@@ -1,30 +1,29 @@
 import { API } from '@/lib/server';
 import axios from 'axios';
-import PengumumanForm from './pengumuman-form';
+import TagihanForm from './daftar-tagihan-form';
+import { toast } from 'sonner';
 
-type IDPengumuman = {
+type IDTagiihan = {
   id: string;
 };
 
-export default async function DaftarTagihannViewPage({ id }: IDPengumuman) {
-  let Pengumuman = null;
-  let pageTitle = 'Tambah Pengumuman';
+export default async function DaftarTagihannViewPage({ id }: IDTagiihan) {
+  let Tagihan = null;
+  let pageTitle = 'Tambah Tagihan';
 
   if (id !== 'new') {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API}pengumuman/get/${id}`);
+        const response = await axios.get(`${API}pembayaran/${id}`);
         return response.data;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.log(error);
       }
     };
     const user = await fetchData();
-    Pengumuman = user;
-    pageTitle = 'Ubah Pengumuman';
+    Tagihan = user;
+    pageTitle = `Ubah Tagihan ${Tagihan.namaSiswa} - ${Tagihan.nisSiswa}`;
   }
 
-  return (
-    <PengumumanForm id={id} initialData={Pengumuman} pageTitle={pageTitle} />
-  );
+  return <TagihanForm id={id} initialData={Tagihan} pageTitle={pageTitle} />;
 }

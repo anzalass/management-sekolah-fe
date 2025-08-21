@@ -8,6 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
 
 export type PerizinanGuru = {
   id: string;
@@ -49,7 +50,7 @@ export default function PerizinanGuruListingPage() {
         setData(response.data.data);
         setTotalData(response.data.total);
       } catch (error) {
-        console.error('Error fetching kehadiran guru:', error);
+        toast.error('Error fetching kehadiran guru:');
       } finally {
         setLoading(false);
       }

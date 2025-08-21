@@ -54,7 +54,6 @@ export default function ModalHapusKelas({
       const errMsg =
         error?.response?.data?.message || 'Terjadi kesalahan saat menghapus';
       toast.error(errMsg);
-      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -62,9 +61,9 @@ export default function ModalHapusKelas({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
+      <DialogTitle></DialogTitle>
       <DialogContent className='max-w-md'>
         <DialogHeader>
-          <DialogTitle>Hapus Kelas</DialogTitle>
           <DialogDescription>
             Apakah kamu yakin ingin menghapus kelas ini? Tindakan ini tidak bisa
             dibatalkan.

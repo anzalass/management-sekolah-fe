@@ -81,7 +81,7 @@ export default function GuruTemplateForm({
 
         router.push('/dashboard/content-management/guru-template');
       } catch (error) {
-        const axiosError = error as AxiosError;
+        const axiosError = error as any;
         const errorMessage =
           axiosError.response?.data?.message || 'Terjadi Kesalahan';
         toast.error(errorMessage);

@@ -21,7 +21,7 @@ const AllCameras: React.FC = () => {
     navigator.mediaDevices
       .enumerateDevices()
       .then((devices) => handleDevices(devices as MediaDeviceInfo[]))
-      .catch((error) => console.error('Failed to enumerate devices:', error));
+      .catch((error) => toast.error('Failed to enumerate devices:', error));
   }, [handleDevices]);
 
   return (

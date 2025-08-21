@@ -103,11 +103,11 @@ const guruStaffSchema = z.object({
 
 export default function GuruStaffForm({
   initialData,
-  nip,
+  idGuru,
   pageTitle
 }: {
   initialData: GuruStaff | null;
-  nip: string;
+  idGuru: string;
   pageTitle: string;
 }) {
   const defaultValue = {
@@ -181,27 +181,26 @@ export default function GuruStaffForm({
         data.append('status', values.status);
 
         let res;
-        if (nip !== 'new') {
-          res = await axios.put(`${API}user/update-guru/${nip}`, data);
+        if (idGuru !== 'new') {
+          res = await axios.put(`${API}user/update-guru/${idGuru}`, data);
         } else {
           res = await axios.post(`${API}user/create-guru`, data);
         }
 
         if (res.status === 201) {
-          await axios.post(
-            `${API}user/create-riwayat-pendidikan/${values.nip}`,
-            { data: riwayatPendidikanGuruArr }
-          );
+          await axios.post(`${API}user/create-riwayat-pendidikan/${idGuru}`, {
+            data: riwayatPendidikanGuruArr
+          });
         }
 
         toast.success(
-          nip !== 'new'
+          idGuru !== 'new'
             ? 'Berhasil mengubah data Guru / Staff'
             : 'Berhasil menambahkan data Guru / Staff'
         );
 
         router.push('/dashboard/master-data/guru-staff');
-      } catch (error) {
+      } catch (error: any) {
         toast.error(error?.response.data.message || 'Terjadi Kesalahan');
       }
     });
@@ -260,7 +259,7 @@ export default function GuruStaffForm({
 
       setData((prevData) => prevData.filter((r) => r.id !== id));
     } catch (error) {
-      console.log(error);
+      toast.error('Gagal menghapus data');
     }
   };
 
@@ -597,7 +596,7 @@ export default function GuruStaffForm({
                       </FormControl>
                       <SelectContent>
                         <SelectItem value='Aktif'>Aktif</SelectItem>
-                        <SelectItem value='Tidak Aktif'>Tidak Aktif</SelectItem>
+                        <SelectItem value='NonAktif'>Tidak Aktif</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

@@ -1,6 +1,11 @@
 import LapView from '@/components/lap/lap-view';
-import React from 'react';
+import { Metadata } from 'next';
 
-export default function page() {
+export const metadata: Metadata = {
+  title: 'Little Alley Preschool',
+  description: 'Sekolah Terbaik di Suvarna Sutera'
+};
+
+export default function Page() {
   return <LapView />;
 }

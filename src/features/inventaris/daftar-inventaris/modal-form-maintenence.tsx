@@ -63,13 +63,15 @@ export default function ModalFormMaintenance({
       setOpen(false);
       toggleTrigger();
     } catch (error) {
-      console.log(error);
       setLoading(false);
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTitle>
+        Form Maintenance {inventaris.nama} in {inventaris.ruang}
+      </DialogTitle>
       <DialogTrigger asChild>
         <Button variant='ghost' className='w-full text-left'>
           Maintenance
@@ -77,11 +79,7 @@ export default function ModalFormMaintenance({
       </DialogTrigger>
 
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>
-            Form Maintenance {inventaris.nama} in {inventaris.ruang}
-          </DialogTitle>
-        </DialogHeader>
+        <DialogHeader></DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>

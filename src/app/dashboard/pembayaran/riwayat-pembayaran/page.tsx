@@ -18,6 +18,8 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
+import RiwayatPembayaranListingPage from '@/features/pembayaran/riwayat-pembayaran/riwayat-pembayaran-listing';
+import RiwayatPembayaranTableAction from '@/features/pembayaran/riwayat-pembayaran/riwayat-pembayaran-tables/riwayat-pembayaran-table-action';
 
 export const metadata = {
   title: 'Dashboard: Daftar Inventaris'
@@ -40,21 +42,21 @@ export default async function Page(props: pageProps) {
       <PageContainer scrollable={false}>
         <div className='flex flex-1 flex-col space-y-4'>
           <div className='flex items-start justify-between'>
-            <Heading title='Daftar Inventaris' description='' />
-            <Link
+            <Heading title='Riwayat Pembayaran' description='' />
+            {/* <Link
               href='/dashboard/inventaris/daftar-inventaris/new'
               className={cn(buttonVariants(), 'text-xs md:text-sm')}
             >
               <Plus className='mr-2 h-4 w-4' /> Tambah Daftar Inventaris
-            </Link>
+            </Link> */}
           </div>
           <Separator />
-          <DaftarInventarisTableAction />
+          <RiwayatPembayaranTableAction />
           <Suspense
             key={key}
             fallback={<DataTableSkeleton columnCount={5} rowCount={10} />}
           >
-            <DaftarInventarisListingPage />
+            <RiwayatPembayaranListingPage />
           </Suspense>
         </div>
       </PageContainer>

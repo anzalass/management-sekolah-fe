@@ -4,24 +4,29 @@ import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { Gallery } from '../galery-listing';
 import { API } from '@/lib/server';
+import Image from 'next/image';
 
 const BASE_URL = `${API}view-image`;
 
 export const columns: ColumnDef<Gallery>[] = [
   {
-    accessorKey: 'image',
+    accessorKey: 'image', // Foto
     header: 'Image',
     cell: ({ row }) => {
-      // Constructing the image URL
-      const imageUrl = `${BASE_URL}/${row.original.image.split('/')[1]}`;
+      const imageUrl =
+        row.original.image ||
+        'https://ik.imagekit.io/o3afko3h0/default-image.jpg?updatedAt=1739253554742'; // Ganti dengan gambar default
+
       return (
-        <img
-          src={imageUrl}
-          alt='Gallery Image'
-          width={100}
-          height={100}
-          style={{ objectFit: 'cover' }}
-        />
+        <div className='relative h-16 w-16'>
+          <Image
+            src={imageUrl}
+            alt='Guru'
+            layout='fill'
+            objectFit='cover'
+            className='rounded-md'
+          />
+        </div>
       );
     }
   },

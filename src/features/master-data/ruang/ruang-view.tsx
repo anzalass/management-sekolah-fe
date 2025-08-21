@@ -2,6 +2,7 @@ import { API } from '@/lib/server';
 import KegiatanSekolahForm from './ruang-form';
 import axios from 'axios';
 import RuanganForm from './ruang-form';
+import { toast } from 'sonner';
 
 type IDRuang = {
   id: string;
@@ -17,7 +18,7 @@ export default async function RuanganViewPage({ id }: IDRuang) {
         const response = await axios.get(`${API}ruang/get/${id}`);
         return response.data;
       } catch (error) {
-        console.error('Error fetching data:', error);
+        toast.error('Error fetching data');
       }
     };
     const user = await fetchData();

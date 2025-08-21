@@ -16,6 +16,8 @@ import { useState } from 'react';
 import { API } from '@/lib/server';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 interface CellActionProps {
   data: Pendaftaran;
@@ -24,6 +26,8 @@ interface CellActionProps {
 export const PendaftaranCellAction: React.FC<CellActionProps> = ({ data }) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const { trigger, toggleTrigger } = useRenderTrigger();
+
   const router = useRouter();
   const { data: session } = useSession();
   const token = session?.user?.token;
@@ -36,9 +40,9 @@ export const PendaftaranCellAction: React.FC<CellActionProps> = ({ data }) => {
         }
       });
       setOpen(false);
-      window.location.reload();
+      toggleTrigger();
     } catch (error) {
-      console.error('Error deleting Pendaftaran:', error);
+      toast.error('Error deleting Pendaftaran');
       setOpen(false);
     } finally {
       setLoading(false);
@@ -63,9 +67,7 @@ export const PendaftaranCellAction: React.FC<CellActionProps> = ({ data }) => {
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem
-            onClick={() =>
-              router.push(`/admin-dashboard/pendaftaran/${data.id}`)
-            }
+            onClick={() => router.push(`/dashboard/pendaftaran/${data.id}`)}
           >
             <Edit className='mr-2 h-4 w-4' /> Edit
           </DropdownMenuItem>

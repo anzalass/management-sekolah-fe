@@ -1,63 +1,132 @@
 'use client';
 import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
+import axios from 'axios';
+import { Button } from '@/components/ui/button';
+import { API } from '@/lib/server';
+import { toast } from 'sonner';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 export type Tagihan = {
   id: string;
-  nama_tagihan: string;
+  nama: string;
+  namaSiswa: string;
+  nisSiswa: string;
+  waktu: Date;
+  jatuhTempo: Date;
+  status: string;
   keterangan: string;
-  nis: string;
-  nama_siswa: string;
-  total_tagihan: number;
-  tanggal_bayar: Date;
+  nominal: number;
 };
 
 export const columns: ColumnDef<Tagihan>[] = [
   {
-    accessorKey: 'title', // NIP
-    header: 'Judul',
-    cell: ({ row }) => row.original.nama_tagihan
+    accessorKey: 'nama',
+    header: 'Nama Tagihan',
+    cell: ({ row }) => row.original.nama
   },
   {
-    accessorKey: 'keterangan', // NIP
-    header: 'Keterangan',
-    cell: ({ row }) => row.original.keterangan
-  },
-  {
-    accessorKey: 'nis', // NIP
+    accessorKey: 'nisSiswa',
     header: 'NIS',
-    cell: ({ row }) => row.original.nis
+    cell: ({ row }) => row.original.nisSiswa
   },
   {
-    accessorKey: 'total_tagihan', // NIP
-    header: 'Total Tagihan',
-    cell: ({ row }) => row.original.total_tagihan
+    accessorKey: 'namaSiswa',
+    header: 'Nama Siswa',
+    cell: ({ row }) => row.original.namaSiswa
   },
   {
-    accessorKey: 'time',
-    header: 'Tanggal',
+    accessorKey: 'nominal',
+    header: 'Nominal',
+    cell: ({ row }) =>
+      new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR'
+      }).format(row.original.nominal)
+  },
+  {
+    accessorKey: 'waktu',
+    header: 'Tanggal Dibuat',
     cell: ({ row }) => {
-      const formatTanggal = (date?: string | Date) => {
-        const time = date ? new Date(date) : null;
-        if (!time || isNaN(time.getTime())) {
-          return 'Tanggal tidak valid';
-        }
-
-        return new Intl.DateTimeFormat('id-ID', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric'
-        }).format(time);
-      };
-
-      // Ambil data 'tanggal' dari baris
-      const tanggal = row.getValue('time');
-      return formatTanggal(row.original.tanggal_bayar);
+      const time = new Date(row.original.waktu);
+      return new Intl.DateTimeFormat('id-ID', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      }).format(time);
     }
   },
+  {
+    accessorKey: 'jatuhTempo',
+    header: 'Jatuh Tempo',
+    cell: ({ row }) => {
+      const time = new Date(row.original.jatuhTempo);
+      return new Intl.DateTimeFormat('id-ID', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      }).format(time);
+    }
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    cell: ({ row }) => row.original.status
+  },
+  {
+    accessorKey: 'keterangan',
+    header: 'Keterangan',
+    cell: ({ row }) => row.original.keterangan || '-'
+  },
 
   {
-    id: 'actions', // Actions (untuk tombol aksi seperti edit, delete)
+    accessorKey: 'bayar',
+    header: 'Bayar',
+    cell: ({ row }) => {
+      const { status, id } = row.original;
+
+      const { toggleTrigger } = useRenderTrigger(); // pindahkan ke sini
+
+      const handleBayar = async (tipe: 'Cash' | 'Transfer') => {
+        try {
+          await axios.post(`${API}bayar-tagihan/${id}`, {
+            metodeBayar: tipe
+          });
+          toast.success(`Pembayaran ${tipe} berhasil!`);
+          toggleTrigger();
+        } catch (error) {
+          toast.success('Gagal melakukan pembayaran');
+        }
+      };
+
+      return (
+        <div className='flex gap-2'>
+          {status === 'Belum Dibayar' ? (
+            <>
+              <Button
+                size='sm'
+                className='bg-green-500 hover:bg-green-600'
+                onClick={() => handleBayar('Cash')}
+              >
+                Cash
+              </Button>
+              <Button
+                size='sm'
+                className='bg-blue-500 hover:bg-blue-600'
+                onClick={() => handleBayar('Transfer')}
+              >
+                Transfer
+              </Button>
+            </>
+          ) : (
+            <p>Sudah Bayar</p>
+          )}
+        </div>
+      );
+    }
+  },
+  {
+    id: 'actions',
     header: 'Actions',
     cell: ({ row }) => <CellAction data={row.original} />
   }
