@@ -19,6 +19,8 @@ import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { API } from '@/lib/server';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 // Tipe Data Siswa
 export type KegiatanSekolah = {
@@ -60,30 +62,33 @@ export default function KegiatanSekolahForm({
     defaultValues: defaultValue
   });
 
+  const { data: session } = useSession();
   // Handle Submit
   async function onSubmit(values: any) {
     startTransition(async () => {
       try {
         if (id !== 'new') {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}kegiatan-sekolah/update/${id}`,
+          await api.put(
+            `kegiatan-sekolah/update/${id}`,
             { ...values },
             {
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.user?.token}`
               }
             }
           );
           toast.success('Data kegiatan sekolah berhasil diubah');
         } else {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}kegiatan-sekolah/create`,
+          await api.post(
+            `kegiatan-sekolah/create`,
             {
               ...values
             },
             {
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.user?.token}`
               }
             }
           );

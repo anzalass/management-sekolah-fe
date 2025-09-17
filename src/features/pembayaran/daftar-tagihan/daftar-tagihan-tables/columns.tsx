@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { API } from '@/lib/server';
 import { toast } from 'sonner';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export type Tagihan = {
   id: string;
@@ -86,19 +88,26 @@ export const columns: ColumnDef<Tagihan>[] = [
       const { status, id } = row.original;
 
       const { toggleTrigger } = useRenderTrigger(); // pindahkan ke sini
+      const { data: session } = useSession();
 
       const handleBayar = async (tipe: 'Cash' | 'Transfer') => {
         try {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}bayar-tagihan/${id}`,
+          await api.post(
+            `bayar-tagihan/${id}`,
             {
               metodeBayar: tipe
+            },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.user?.token}`
+              }
             }
           );
           toast.success(`Pembayaran ${tipe} berhasil!`);
           toggleTrigger();
-        } catch (error) {
-          toast.success('Gagal melakukan pembayaran');
+        } catch (error: any) {
+          toast.error(error.response?.data?.message || 'Terjadi kesalahan');
         }
       };
 

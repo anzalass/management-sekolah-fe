@@ -11,6 +11,7 @@ declare module 'next-auth' {
     nip: string;
     nama: string;
     jabatan: string;
+    idKelas: string;
   }
 
   interface JWT {
@@ -19,6 +20,7 @@ declare module 'next-auth' {
     nip: string;
     nama: string;
     jabatan: string;
+    idKelas: string;
   }
 
   interface Session {
@@ -33,7 +35,8 @@ const authConfig = {
       name: 'Credentials',
       credentials: {
         nip: { label: 'NIP', type: 'text' },
-        password: { label: 'Password', type: 'password' }
+        password: { label: 'Password', type: 'password' },
+        type: { label: 'type', type: 'text' }
       },
       async authorize(credentials) {
         try {
@@ -41,7 +44,8 @@ const authConfig = {
             `${process.env.NEXT_PUBLIC_API_URL}auth/login`,
             {
               nip: credentials.nip,
-              password: credentials.password
+              password: credentials.password,
+              type: credentials.type
             }
           );
 
@@ -52,7 +56,9 @@ const authConfig = {
               token: user.token,
               nip: user.nip,
               nama: user.nama,
-              jabatan: user.jabatan || 'Guru'
+              jabatan: user.jabatan || 'Guru',
+              idKelas: user.idKelas,
+              idGuru: user?.idGuru
             };
           } else {
             toast.error('Gagal login');
@@ -91,16 +97,22 @@ const authConfig = {
         token.nip = user.nip;
         token.nama = user.nama;
         token.jabatan = user.jabatan;
+        token.idKelas = user.idKelas;
       }
       return token;
     },
     async session({ session, token }: { session: Session; token: JWT }) {
       session.user.token = token.token;
       session.user.idGuru = token.idGuru;
-
+      session.user.idKelas = token.idKelas;
       session.user.nip = token.nip;
       session.user.nama = token.nama;
       session.user.jabatan = token.jabatan;
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', token.token || '');
+      }
+
       return session;
     }
   }

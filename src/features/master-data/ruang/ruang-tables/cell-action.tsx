@@ -17,12 +17,15 @@ import axios from 'axios';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 interface CellActionProps {
   data: Ruangan;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -30,14 +33,17 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirm = async () => {
     try {
       setLoading(true);
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}ruang/delete/${data.id}`
-      );
+      await api.delete(`ruang/delete/${data.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       setOpen(false);
       window.location.reload();
       toggleTrigger();
-    } catch (error) {
-      toast.error('Failed to delete mapel');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     } finally {
       setLoading(false);
     }

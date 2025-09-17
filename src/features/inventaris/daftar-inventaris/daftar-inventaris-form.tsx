@@ -32,6 +32,8 @@ import {
 } from '@/components/ui/select';
 import { JenisInventaris } from '../jenis-inventaris/jenis-inventaris-form';
 import { Ruangan } from '@/features/master-data/ruang/ruang-listing';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export type Inventaris = {
   id: string;
@@ -59,24 +61,30 @@ export default function DaftarInventarisForm({
 
   const getAllJenisInventaris = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}jenis-inventaris2`
-      );
+      const response = await api.get(`jenis-inventaris2`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       setJenisInventaris(response.data.data);
     } catch (error: any) {
-      toast.error(error);
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
   const getAllRuang = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}ruang2`
-      );
+      const response = await api.get(`ruang2`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
 
       setRuang(response.data.data);
     } catch (error: any) {
-      toast.error(error);
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
@@ -99,30 +107,33 @@ export default function DaftarInventarisForm({
   const form = useForm({
     defaultValues: defaultValue
   });
+  const { data: session } = useSession();
 
   async function onSubmit(values: any) {
     startTransition(async () => {
       try {
         if (id !== 'new') {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}inventaris/update/${id}`,
+          await api.put(
+            `inventaris/update/${id}`,
             { ...values },
             {
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.user?.token}`
               }
             }
           );
           toast.success('Data jenis inventaris berhasil diubah');
         } else {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}inventaris/create`,
+          await api.post(
+            `inventaris/create`,
             {
               ...values
             },
             {
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.user?.token}`
               }
             }
           );

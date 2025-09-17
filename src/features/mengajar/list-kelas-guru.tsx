@@ -8,6 +8,7 @@ import { BookOpen, GraduationCap, Users, Trash2, Pencil } from 'lucide-react';
 import ModalHapusKelas from './modal-hapus-kelas';
 import ModalTambahKelas from './modal-tambah-kelas';
 import ModalTambahKelasMapel from './modal-tambah-kelas-mapel';
+import Image from 'next/image';
 
 type Props = {
   setOpenModal: (val: string | null) => void;
@@ -114,46 +115,62 @@ export default function ListKelasGuru({
               <div
                 key={idx}
                 className='cursor-pointer rounded-xl border border-muted p-5 shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md'
-                onClick={() =>
-                  router.push(`/dashboard/mengajar/walikelas/${kelas.id}`)
-                }
+                onClick={() => router.push(`/mengajar/walikelas/${kelas.id}`)}
               >
-                <div className='mb-1 flex items-center justify-between'>
-                  <div className='text-base font-semibold'>{kelas.nama}</div>
-                  <div className='flex items-center gap-1'>
-                    <Button
-                      variant='ghost'
-                      size='icon'
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openEditModalKelas({
-                          id: kelas.id,
-                          nama: kelas.nama,
-                          ruangKelas: kelas.ruangKelas
-                        });
-                      }}
-                    >
-                      <Pencil className='h-4 w-4 text-primary' />
-                    </Button>
-                    <Button
-                      variant='ghost'
-                      size='icon'
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openDeleteModal(kelas.id, 'wali');
-                      }}
-                    >
-                      <Trash2 className='h-4 w-4 text-destructive' />
-                    </Button>
+                <div className='flex items-start gap-4'>
+                  {/* Image di kiri */}
+                  <div className='h-[100px] w-[100px] flex-shrink-0 overflow-hidden rounded-lg bg-muted'>
+                    <Image
+                      src={kelas.banner || '/default-banner.jpg'} // ganti sesuai field di DB / fallback
+                      alt={kelas.nama[0]}
+                      width={1000}
+                      height={1000}
+                      className='h-full w-full object-cover'
+                    />
                   </div>
-                </div>
-                <div className='text-sm text-muted-foreground'>
-                  Tahun Ajaran:{' '}
-                  <span className='font-medium'>{kelas.tahunAjaran}</span>
-                </div>
-                <div className='mt-2 flex items-center text-sm text-muted-foreground'>
-                  <Users className='mr-1 h-4 w-4 text-muted-foreground' />
-                  {kelas.jumlahSiswa} siswa
+
+                  {/* Konten kanan */}
+                  <div className='flex-1'>
+                    <div className='mb-1 flex items-center justify-between'>
+                      <div className='text-base font-semibold'>
+                        {kelas.nama}
+                      </div>
+                      <div className='flex items-center gap-1'>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openEditModalKelas({
+                              id: kelas.id,
+                              nama: kelas.nama,
+                              ruangKelas: kelas.ruangKelas
+                            });
+                          }}
+                        >
+                          <Pencil className='h-4 w-4 text-primary' />
+                        </Button>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openDeleteModal(kelas.id, 'wali');
+                          }}
+                        >
+                          <Trash2 className='h-4 w-4 text-destructive' />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className='text-sm text-muted-foreground'>
+                      Tahun Ajaran:{' '}
+                      <span className='font-medium'>{kelas.tahunAjaran}</span>
+                    </div>
+                    <div className='mt-2 flex items-center text-sm text-muted-foreground'>
+                      <Users className='mr-1 h-4 w-4 text-muted-foreground' />
+                      {kelas.jumlahSiswa} siswa
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
@@ -183,49 +200,64 @@ export default function ListKelasGuru({
             {kelasMapel.map((item, idx) => (
               <div
                 key={idx}
-                onClick={() =>
-                  router.push(`/dashboard/mengajar/kelas-mapel/${item.id}`)
-                }
+                onClick={() => router.push(`/mengajar/kelas-mapel/${item.id}`)}
                 className='cursor-pointer rounded-xl border border-muted p-5 shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md'
               >
-                <div className='mb-1 flex items-center justify-between'>
-                  <div className='text-base font-semibold'>
-                    {item.namaMapel}
+                <div className='flex items-start gap-4'>
+                  {/* Image di kiri */}
+                  <div className='h-[100px] w-[100px] flex-shrink-0 overflow-hidden rounded-lg bg-muted'>
+                    <Image
+                      src={item.banner || '/default-banner.jpg'} // fallback jika belum ada
+                      alt={item.namaMapel}
+                      width={1000}
+                      height={1000}
+                      className='h-full w-full object-cover'
+                    />
                   </div>
-                  <div className='flex items-center gap-1'>
-                    <Button
-                      variant='ghost'
-                      size='icon'
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openEditModalMapel({
-                          id: item.id,
-                          namaMapel: item.namaMapel,
-                          ruangKelas: item.ruangKelas,
-                          kelas: item.kelas
-                        });
-                      }}
-                    >
-                      <Pencil className='h-4 w-4 text-primary' />
-                    </Button>
-                    <Button
-                      variant='ghost'
-                      size='icon'
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openDeleteModal(item.id, 'mapel');
-                      }}
-                    >
-                      <Trash2 className='h-4 w-4 text-destructive' />
-                    </Button>
+
+                  {/* Konten kanan */}
+                  <div className='flex-1'>
+                    <div className='mb-1 flex items-center justify-between'>
+                      <div className='text-base font-semibold'>
+                        {item.namaMapel}
+                      </div>
+                      <div className='flex items-center gap-1'>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openEditModalMapel({
+                              id: item.id,
+                              namaMapel: item.namaMapel,
+                              ruangKelas: item.ruangKelas,
+                              kelas: item.kelas
+                            });
+                          }}
+                        >
+                          <Pencil className='h-4 w-4 text-primary' />
+                        </Button>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openDeleteModal(item.id, 'mapel');
+                          }}
+                        >
+                          <Trash2 className='h-4 w-4 text-destructive' />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className='text-sm text-muted-foreground'>
+                      Kelas: <span className='font-medium'>{item.kelas}</span>
+                    </div>
+                    <div className='mt-2 flex items-center text-sm text-muted-foreground'>
+                      <Users className='mr-1 h-4 w-4 text-muted-foreground' />
+                      {item.jumlahSiswa} siswa
+                    </div>
                   </div>
-                </div>
-                <div className='text-sm text-muted-foreground'>
-                  Kelas: <span className='font-medium'>{item.kelas}</span>
-                </div>
-                <div className='mt-2 flex items-center text-sm text-muted-foreground'>
-                  <Users className='mr-1 h-4 w-4 text-muted-foreground' />
-                  {item.jumlahSiswa} siswa
                 </div>
               </div>
             ))}

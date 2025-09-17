@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
@@ -10,7 +10,10 @@ import {
   SelectContent,
   SelectItem
 } from '@/components/ui/select';
-import { CalendarIcon, SearchIcon } from 'lucide-react';
+import { CalendarIcon, SearchIcon, StepBack } from 'lucide-react';
+import Image from 'next/image';
+import { useSession } from 'next-auth/react';
+import api from '@/lib/api';
 
 interface Pelanggaran {
   id: number;
@@ -52,31 +55,68 @@ const dummyPelanggaran: Pelanggaran[] = [
 ];
 
 export default function PelanggaranView() {
+  const { data: session } = useSession();
   const [search, setSearch] = useState('');
   const [filterTanggal, setFilterTanggal] = useState('');
   const [filterJenis, setFilterJenis] = useState('');
+  const [pelanggaran, setPelanggaran] = useState<any[]>([]);
 
-  const filtered = dummyPelanggaran
-    .filter(
-      (p) =>
-        p.judul.toLowerCase().includes(search.toLowerCase()) ||
-        p.deskripsi.toLowerCase().includes(search.toLowerCase())
-    )
+  const fetchData = async () => {
+    const res = await api.get('siswa/pelanggaran', {
+      headers: {
+        Authorization: `Bearer ${session?.user?.token}`
+      }
+    });
+    setPelanggaran(res.data.data);
+
+    console.log(res.data);
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
+  const filtered = pelanggaran
+    .filter((p) => p.keterangan.toLowerCase().includes(search.toLowerCase()))
     .filter((p) => (filterTanggal ? p.tanggal === filterTanggal : true))
-    .filter((p) => (filterJenis ? p.jenis === filterJenis : true));
+    .filter((p) => {
+      if (!filterJenis) return true;
+
+      if (filterJenis === 'Berat') return p.poin > 70;
+      if (filterJenis === 'Sedang') return p.poin > 25 && p.poin <= 70;
+      if (filterJenis === 'Ringan') return p.poin <= 25;
+
+      return true;
+    });
 
   return (
-    <div className='mx-auto max-w-4xl space-y-6 p-4'>
-      <div>
-        <h1 className='text-2xl font-bold'>Riwayat Pelanggaran</h1>
-        <p className='text-sm text-muted-foreground'>
-          Daftar pelanggaran yang pernah dilakukan siswa, berdasarkan kategori
-          dan tanggal.
-        </p>
+    <div className='mx-auto w-full space-y-6'>
+      <div className='relative flex h-[10vh] w-full items-center justify-between rounded-b-3xl bg-gradient-to-r from-blue-400 to-blue-600 p-6 text-white'>
+        {/* Tombol Back */}
+        <button
+          onClick={() => window.history.back()}
+          className='flex items-center gap-1 text-white hover:opacity-80'
+        >
+          <StepBack />
+        </button>
+
+        {/* Title */}
+        <h1 className='text-lg font-semibold'>Pelanggaran</h1>
+
+        {/* Foto Profil User */}
+        <div className='h-10 w-10 overflow-hidden rounded-full border-2 border-white'>
+          <Image
+            src={`https://ui-avatars.com/api/?name=${
+              session?.user?.nama?.split(' ')[0]?.[0] || ''
+            }+${session?.user?.nama?.split(' ')[1]?.[0] || ''}&background=random&format=png`}
+            alt='Foto User'
+            width={100}
+            height={100}
+            className='h-full w-full object-cover'
+          />
+        </div>
       </div>
 
       {/* Filter */}
-      <div className='flex flex-col gap-4 sm:flex-row'>
+      <div className='flex flex-col gap-4 p-4 sm:flex-row'>
         <div className='relative w-full'>
           <SearchIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
           <Input
@@ -111,31 +151,43 @@ export default function PelanggaranView() {
       </div>
 
       {/* List Pelanggaran */}
-      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+      <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2'>
         {filtered.length > 0 ? (
-          filtered.map((item) => (
+          filtered.map((item, i) => (
             <Card key={item.id} className='border shadow-sm'>
               <CardHeader>
                 <div className='flex items-center justify-between'>
-                  <CardTitle className='text-lg'>{item.judul}</CardTitle>
+                  <CardTitle className='text-lg'>
+                    Pelanggaran : {i + 1}
+                  </CardTitle>
                   <span
                     className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                      item.jenis === 'Berat'
+                      item.poin >= 70
                         ? 'bg-red-100 text-red-600'
-                        : item.jenis === 'Sedang'
+                        : item.poin <= 70 && item.poin >= 25
                           ? 'bg-yellow-100 text-yellow-700'
                           : 'bg-green-100 text-green-700'
                     }`}
                   >
-                    {item.jenis}
+                    {item.poin >= 70
+                      ? 'Berat'
+                      : item.poin <= 70 && item.poin >= 25
+                        ? 'Sedang'
+                        : 'Ringan'}
                   </span>
                 </div>
               </CardHeader>
+
               <CardContent className='space-y-2 text-sm text-muted-foreground'>
-                <p>{item.deskripsi}</p>
-                <p className='text-right text-xs font-medium text-primary'>
-                  {item.tanggal}
+                <p>
+                  {' '}
+                  {new Date(item?.waktu).toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                  })}
                 </p>
+                <p>{item.keterangan}</p>
               </CardContent>
             </Card>
           ))

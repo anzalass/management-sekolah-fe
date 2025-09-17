@@ -48,7 +48,7 @@ import { Icons } from '../icons';
 import { NavItem } from 'types';
 
 export const company = {
-  name: 'Acme Inc',
+  name: 'Little Alley',
   logo: GalleryVerticalEnd,
   plan: 'Enterprise'
 };
@@ -78,6 +78,14 @@ export default function AppSidebar() {
             })
           : []
       }));
+  };
+
+  const handleLogout = () => {
+    // Kalau simpan sesuatu di localStorage, hapus manual
+    localStorage.removeItem('token');
+
+    // Hapus session next-auth (cookie)
+    signOut({ callbackUrl: '/login' });
   };
 
   const filteredNavItems = filterNavItemsByRole(navItems, jabatan);
@@ -224,7 +232,7 @@ export default function AppSidebar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem
-                    onClick={() => signOut()}
+                    onClick={() => handleLogout()}
                     className='space-x-4'
                   >
                     <LogOut size={18} />

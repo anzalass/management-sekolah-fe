@@ -20,6 +20,8 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { API } from '@/lib/server';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export type Arsip = {
   namaBerkas: string;
@@ -38,7 +40,7 @@ export default function RuanganForm({
 }) {
   const [loading, startTransition] = useTransition();
   const router = useRouter();
-
+  const { data: session } = useSession();
   const form = useForm<Arsip>({
     defaultValues: {
       namaBerkas: initialData?.namaBerkas || '',
@@ -58,21 +60,26 @@ export default function RuanganForm({
         }
 
         if (id !== 'new') {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}ruang/update/${id}`,
-            formData
-          );
+          await api.put(`ruang/update/${id}`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          });
           toast.success('Data Arsip berhasil diubah');
         } else {
-          await axios.post(`${process.env.NEXT_PUBLIC_API_URL}arsip`, formData);
+          await api.post(`arsip`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          });
           toast.success('Data Arsip berhasil disimpan');
         }
 
         router.push('/dashboard/master-data/arsip');
       } catch (error: any) {
-        toast.error(
-          error?.response?.data?.message || 'Terjadi kesalahan saat menyimpan'
-        );
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       }
     });
   }

@@ -31,6 +31,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 // Tipe Data Siswa
 export type Anggaran = {
@@ -68,30 +70,34 @@ export default function AnggaranForm({
     defaultValues: defaultValue
   });
 
+  const { data: session } = useSession();
+
   // Handle Submit
   async function onSubmit(values: any) {
     startTransition(async () => {
       try {
         if (id !== 'new') {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}anggaran/update/${id}`,
+          await api.put(
+            `anggaran/update/${id}`,
             { ...values },
             {
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.user?.token}`
               }
             }
           );
           toast.success('Data anggaran berhasil diubah');
         } else {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}anggaran/create`,
+          await api.post(
+            `anggaran/create`,
             {
               ...values
             },
             {
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.user?.token}`
               }
             }
           );
@@ -99,11 +105,8 @@ export default function AnggaranForm({
         }
 
         router.push('/dashboard/master-data/anggaran');
-      } catch (error) {
-        const axiosError = error as AxiosError<{ message?: string }>;
-        const errorMessage =
-          axiosError.response?.data?.message || 'Terjadi Kesalahan';
-        toast.error(errorMessage);
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       }
     });
   }

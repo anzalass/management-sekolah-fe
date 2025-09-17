@@ -13,6 +13,8 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import React, { useState } from 'react';
 import { API } from '@/lib/server';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 type Props = {
   open: boolean;
@@ -30,7 +32,7 @@ export default function ModalHapusKelas({
   jenis
 }: Props) {
   const [loading, setLoading] = useState(false);
-
+  const { data: session } = useSession();
   const handleDelete = async () => {
     if (!idKelas) {
       toast.error('ID Kelas tidak tersedia');
@@ -42,18 +44,21 @@ export default function ModalHapusKelas({
 
       const endpoint =
         jenis === 'mapel'
-          ? `${process.env.NEXT_PUBLIC_API_URL}kelas-mapel/delete/${idKelas}`
-          : `${process.env.NEXT_PUBLIC_API_URL}kelas-walikelas/delete/${idKelas}`;
+          ? `kelas-mapel/delete/${idKelas}`
+          : `kelas-walikelas/delete/${idKelas}`;
 
-      await axios.delete(endpoint);
+      await api.delete(endpoint, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
 
       toast.success('Kelas berhasil dihapus');
       fetchData();
       onClose();
     } catch (error: any) {
-      const errMsg =
-        error?.response?.data?.message || 'Terjadi kesalahan saat menghapus';
-      toast.error(errMsg);
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     } finally {
       setLoading(false);
     }

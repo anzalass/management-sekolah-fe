@@ -24,6 +24,8 @@ import { toast } from 'sonner';
 import { CatatanPerkembanganSiswaType } from './walikelas-view';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { Pencil, Trash2 } from 'lucide-react';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 interface Student2 {
   id: string;
@@ -43,7 +45,7 @@ interface FormValues {
 
 const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
   const [editId, setEditId] = useState<string | null>(null);
-
+  const { data: session } = useSession();
   const { toggleTrigger } = useRenderTrigger();
 
   const { control, handleSubmit, reset, setValue } = useForm<FormValues>({
@@ -59,27 +61,41 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
       console.log('dasa', data);
 
       if (editId) {
-        await axios.put(
-          `${process.env.NEXT_PUBLIC_API_URL}catatan-siswa/${editId}`,
+        await api.put(
+          `catatan-siswa/${editId}`,
           {
             idKelas: idKelas,
-            idSiswa: idSiswa,
+            idSiswa: data.studentId,
             content: data.keterangan
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
           }
         );
         setEditId(null);
       } else {
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}catatan-siswa`, {
-          idKelas: idKelas,
-          idSiswa: data.studentId,
-          content: data.keterangan
-        });
+        await api.post(
+          `catatan-siswa`,
+          {
+            idKelas: idKelas,
+            idSiswa: data.studentId,
+            content: data.keterangan
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          }
+        );
       }
 
       toggleTrigger();
-      toast.success('Berhasil membuat catatan perkembangan siswa');
-    } catch (error) {
-      toast.error('Gagal membuat catatan perkembangan siswa');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
 
     reset();
@@ -96,9 +112,12 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}catatan-siswa/${id}`
-      );
+      await api.delete(`catatan-siswa/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       toggleTrigger();
       toast.success('Catatan berhasil dihapus');
     } catch {

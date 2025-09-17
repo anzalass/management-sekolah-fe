@@ -17,6 +17,8 @@ import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { KehadiranGuru } from '@/features/presensi/kehadiran/kehadiran-guru-listing';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 interface CellActionProps {
   data: KehadiranGuru;
@@ -27,16 +29,19 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const { trigger, toggleTrigger } = useRenderTrigger();
-
+  const { data: session } = useSession();
   const onConfirm = async () => {
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}anggaran/delete/${data.id}`
-      );
+      await api.delete(`anggaran/delete/${data.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       setOpen(false);
       toggleTrigger();
-    } catch (error) {
-      toast.error('Gagal menghapus data');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 

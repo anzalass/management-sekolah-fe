@@ -7,6 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import axios from 'axios';
 import { API } from '@/lib/server';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 interface Summary {
   id: number;
@@ -31,15 +33,19 @@ type IDMateri = {
 };
 export default function MateriView({ id }: IDMateri) {
   const [materi, setMateri] = useState<Materi>();
+  const { data: session } = useSession();
 
   const getData = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}materi-summary/${id}`
-      );
+      const response = await api.get(`materi-summary/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       setMateri(response.data.data);
-    } catch (error) {
-      toast.error('Gagal menghapus data');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 

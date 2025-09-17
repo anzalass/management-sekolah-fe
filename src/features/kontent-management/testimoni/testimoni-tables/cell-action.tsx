@@ -19,6 +19,7 @@ import axios from 'axios';
 import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
+import api from '@/lib/api';
 
 interface CellActionProps {
   data: Testimonial;
@@ -35,18 +36,16 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirm = async () => {
     setLoading(true);
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}testimonials/${data.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+      await api.delete(`testimonials/${data.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
         }
-      );
+      });
       setOpen(false);
       toggleTrigger();
-    } catch (error) {
-      toast.error('Gagal menghapus data');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 

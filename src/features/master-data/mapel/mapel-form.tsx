@@ -24,6 +24,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
+import api from '@/lib/api';
 
 // Tipe Data Siswa
 export type Mapel = {
@@ -60,27 +61,27 @@ export default function MapelForm({
     startTransition(async () => {
       try {
         if (id !== 'new') {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}mapel/update/${id}`,
+          await api.put(
+            `mapel/update/${id}`,
             { ...values },
             {
               headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${session?.user?.token}`
               }
             }
           );
           toast.success('Data Mapel berhasil diubah');
         } else {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}mapel/create`,
+          await api.post(
+            `mapel/create`,
             {
               ...values
             },
             {
               headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${session?.user?.token}`
               }
             }
           );
@@ -88,7 +89,7 @@ export default function MapelForm({
         }
 
         router.push('/dashboard/master-data/mata-pelajaran');
-      } catch (error) {
+      } catch (error: any) {
         toast.error(error?.response?.data?.message || 'Terjadi Kesalahan');
       }
     });

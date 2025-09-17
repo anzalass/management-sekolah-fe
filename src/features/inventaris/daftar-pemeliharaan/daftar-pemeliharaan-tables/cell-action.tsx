@@ -17,6 +17,8 @@ import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { PemeliharaanInventaris } from './columns';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 interface CellActionProps {
   data: PemeliharaanInventaris;
@@ -31,29 +33,41 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   ); // State untuk menyimpan data inventaris
   const router = useRouter();
   const { toggleTrigger } = useRenderTrigger();
+  const { data: session } = useSession();
 
   const onDeleteConfirm = async () => {
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}inventaris/delete/${data.id}`
-      );
+      await api.delete(`inventaris/delete/${data.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       setOpenDelete(false);
       toggleTrigger();
-    } catch (error) {}
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
+    }
   };
 
   const selesaiMaintenence = async () => {
     try {
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/pemeliharaan-inventaris/update-status/${data.id}`,
+      await api.put(
+        `/pemeliharaan-inventaris/update-status/${data.id}`,
         {
           status: 'Selesai Di Maintenence'
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
         }
       );
       setOpenMaintenance(false);
       toggleTrigger();
-    } catch (error) {
-      toast.error('Error selesai maintenance');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 

@@ -18,6 +18,8 @@ import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { TooltipTrigger } from '@radix-ui/react-tooltip';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 interface CellActionProps {
   data: Pengumuman;
@@ -28,16 +30,19 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const { trigger, toggleTrigger } = useRenderTrigger();
+  const { data: session } = useSession();
 
   const onConfirm = async () => {
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}pengumuman/delete/${data.id}`
-      );
+      await api.delete(`pengumuman/delete/${data.id}`, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       setOpen(false);
       toggleTrigger();
-    } catch (error) {
-      toast.error('Gagal menghapus data');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 

@@ -7,6 +7,8 @@ import { columns, Konseling } from './konseling-tables/columns';
 import { API } from '@/lib/server';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export default function KonselingListingPage() {
   const searchParams = useSearchParams();
@@ -14,6 +16,7 @@ export default function KonselingListingPage() {
   const search = searchParams.get('nama') || '';
   const nis = searchParams.get('nis') || '';
   const tanggal = searchParams.get('tanggal') || '';
+  const { data: session } = useSession();
 
   const pageLimit = searchParams.get('limit') || '10';
 
@@ -26,8 +29,14 @@ export default function KonselingListingPage() {
     const fetchKonseling = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}konseling?page=${page}&pageSize=${pageLimit}&nama=${search}&nis=${nis}&tanggal=${tanggal}`
+        const response = await api.get(
+          `konseling?page=${page}&pageSize=${pageLimit}&nama=${search}&nis=${nis}&tanggal=${tanggal}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          }
         );
         if (response.data && response.data.data) {
           setData(response.data.data);
@@ -35,8 +44,8 @@ export default function KonselingListingPage() {
         } else {
           setError('Data format is invalid');
         }
-      } catch (error) {
-        toast.error('Error fetching data');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
         setError('An error occurred while fetching the registration data');
       } finally {
         setLoading(false);
@@ -44,11 +53,9 @@ export default function KonselingListingPage() {
     };
 
     fetchKonseling();
-  }, [page, pageLimit, search]);
+  }, [page, pageLimit, search, nis, tanggal]);
 
-  // if (error) {
-  //   return <div>Error: {error}</div>;
-  // }
-
-  return <KonselingTable columns={columns} data={data} totalItems={0} />;
+  return (
+    <KonselingTable columns={columns} data={data} totalItems={totalData} />
+  );
 }

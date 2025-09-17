@@ -17,6 +17,8 @@ import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { PelanggaranPrestasi } from './columns';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 interface CellActionProps {
   data: PelanggaranPrestasi;
@@ -26,6 +28,7 @@ export const PelanggaranPrestasiCellAction: React.FC<CellActionProps> = ({
   data
 }) => {
   const [loading, setLoading] = useState(false);
+  const { trigger, toggleTrigger } = useRenderTrigger();
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const { data: session } = useSession();
@@ -33,18 +36,16 @@ export const PelanggaranPrestasiCellAction: React.FC<CellActionProps> = ({
   const onConfirmDelete = async () => {
     setLoading(true);
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}pendaftaran/delete/${data.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+      await api.delete(`pelanggaran-prestasi/${data.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
         }
-      );
+      });
       setOpen(false);
-      window.location.reload();
-    } catch (error) {
-      toast.error('Error deleting Pelanggaran Prestasi');
+      toggleTrigger();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       setOpen(false);
     } finally {
       setLoading(false);

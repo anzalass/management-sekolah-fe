@@ -16,6 +16,8 @@ import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { toast } from 'sonner';
 import { ListKelas } from '../list-kelas-form';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 interface CellActionProps {
   data: ListKelas;
@@ -26,16 +28,20 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const { trigger, toggleTrigger } = useRenderTrigger();
+  const { data: session } = useSession();
 
   const onConfirm = async () => {
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}list-kelas/${data.id}`
-      );
+      await api.delete(`list-kelas/${data.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       setOpen(false);
       toggleTrigger();
-    } catch (error) {
-      toast.error('Gagal menghapus data');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 

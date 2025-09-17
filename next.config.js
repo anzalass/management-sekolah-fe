@@ -28,7 +28,9 @@ const nextConfig = {
       'res.cloudinary.com',
       'storage.googleapis.com',
       'localhost',
-      'api.yayasantunasanakmulia.sch.id'
+      'api.yayasantunasanakmulia.sch.id',
+      'ui-avatars.com',
+      'via.placeholder.com'
     ]
   },
 

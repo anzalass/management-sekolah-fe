@@ -10,6 +10,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { API } from '@/lib/server';
+import api from '@/lib/api';
 
 type NilaiRecord = {
   idSiswa: string;
@@ -29,13 +30,11 @@ export default function RekapNilaiTable({ idKelas }: RekapNilaiByKelasProps) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}rekap-nilai-siswa/${idKelas}`
-      );
-      const json = await res.json();
-      setData(json.data);
+      const res = await api.get(`rekap-nilai-siswa/${idKelas}`);
+      const json = await res.data;
+      setData(json?.data);
 
-      if (json.data.length > 0) {
+      if (json?.data.length > 0) {
         setDynamicKeys(Object.keys(json.data[0].nilai));
       }
     };

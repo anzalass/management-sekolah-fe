@@ -6,6 +6,8 @@ import axios from 'axios';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 // type sesuai model Prisma
 export type Peminjaman = {
@@ -26,22 +28,31 @@ export type Peminjaman = {
 // Komponen khusus untuk actions biar bisa pakai hooks
 function ActionCell({ id }: { id: string }) {
   const { toggleTrigger } = useRenderTrigger();
+  const { data: session } = useSession();
 
   const handleKembalikan = async () => {
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}pengembalian/${id}`);
+      await api.post(`pengembalian/${id}`, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       toggleTrigger();
-    } catch (error) {
-      toast.error('Gagal mengembalikan');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}peminjaman/${id}`);
+      await api.delete(`peminjaman/${id}`, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       toggleTrigger();
-    } catch (error) {
-      toast.error('Gagal Menghapus');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 

@@ -22,6 +22,8 @@ import { Label } from '@/components/ui/label';
 import axios from 'axios';
 import { API } from '@/lib/server';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 type JenisNilai = { id: string; jenis: string; bobot: number };
 interface Student {
@@ -53,7 +55,7 @@ export default function ModalInputNilaiManual({
 }: ModalInputNilaiProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const { data: session } = useSession();
   const {
     register,
     handleSubmit,
@@ -73,12 +75,21 @@ export default function ModalInputNilaiManual({
   const onSubmit = async (data: FormValues) => {
     try {
       setLoading(true);
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}nilai-siswa`, {
-        idSiswa: data.idSiswa,
-        idKelasDanMapel: idKelas,
-        idJenisNilai: data.idJenisNilai,
-        nilai: data.nilai
-      });
+      await api.post(
+        `nilai-siswa`,
+        {
+          idSiswa: data.idSiswa,
+          idKelasDanMapel: idKelas,
+          idJenisNilai: data.idJenisNilai,
+          nilai: data.nilai
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        }
+      );
       toast.success('Nilai berhasil disimpan');
       setOpen(false);
       reset();

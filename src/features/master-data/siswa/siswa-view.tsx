@@ -3,6 +3,8 @@ import SiswaForm from './siswa-form';
 import GuruStaffForm from './siswa-form';
 import axios from 'axios';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { auth } from '@/lib/auth';
 
 type NisType = {
   nis: string;
@@ -13,14 +15,18 @@ export default async function SiswaViewPage({ nis }: NisType) {
   let pageTitle = 'Tambah Siswa';
 
   if (nis !== 'new') {
+    const session = await auth();
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}user/get-siswa/${nis}`
-        );
+        const response = await api.get(`user/get-siswa/${nis}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        });
         return response.data.data;
-      } catch (error) {
-        toast.error('Error fetching data');
+      } catch (error: any) {
+        console.log(error.response?.data?.message || 'Terjadi kesalahan');
       }
     };
     const user = await fetchData();

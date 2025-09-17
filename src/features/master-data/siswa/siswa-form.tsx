@@ -27,12 +27,15 @@ import { useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { API } from '@/lib/server';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 // Tipe Data Siswa
 export type Siswa = {
   nis: string;
   nik: string;
   nama: string;
+  password: string;
   jurusan: string;
   tempatLahir: string;
   tanggalLahir: string;
@@ -60,6 +63,7 @@ export default function SiswaForm({
   nis: string;
   pageTitle: string;
 }) {
+  const { data: session } = useSession();
   const [loading, startTransition] = useTransition();
   const router = useRouter();
   const [masterKelas, setMasterKelas] = useState<any[]>([]);
@@ -71,6 +75,7 @@ export default function SiswaForm({
 
   // Default Values dengan Fallback
   const defaultValue = {
+    password: initialData?.password ?? '',
     nis: initialData?.nis ?? '',
     nik: initialData?.nik ?? '',
     nama: initialData?.nama ?? '',
@@ -110,12 +115,15 @@ export default function SiswaForm({
   useEffect(() => {
     const getListKelas = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}list-kelas`
-        );
+        const response = await api.get(`list-kelas`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        });
         setMasterKelas(response.data.data);
-      } catch (error) {
-        toast.error('Gagal mendapatkan kelas');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       }
     };
     getListKelas();
@@ -131,26 +139,28 @@ export default function SiswaForm({
         }
 
         if (nis !== 'new') {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}user/update-siswa/${nis}`,
+          await api.put(
+            `user/update-siswa/${nis}`,
             { ...values, foto: img },
             {
               headers: {
-                'Content-Type': 'multipart/form-data'
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${session?.user?.token}`
               }
             }
           );
           toast.success('Data siswa berhasil diubah');
         } else {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}user/create-siswa`,
+          await api.post(
+            `user/create-siswa`,
             {
               ...values,
               foto: img
             },
             {
               headers: {
-                'Content-Type': 'multipart/form-data'
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${session?.user?.token}`
               }
             }
           );
@@ -158,8 +168,8 @@ export default function SiswaForm({
         }
 
         router.push('/dashboard/master-data/siswa');
-      } catch (error) {
-        toast.error('Gagal');
+      } catch (error: any) {
+        toast.error(error?.response.data.message || 'Terjadi Kesalahan');
       }
     });
   }
@@ -264,6 +274,24 @@ export default function SiswaForm({
                       placeholder='Masukkan Nama Lengkap...'
                       {...form.register('nama', {
                         required: 'Nama wajib diisi',
+                        minLength: {
+                          value: 3,
+                          message: 'Nama minimal 3 karakter'
+                        }
+                      })}
+                    />
+                  </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.nama?.message}
+                  </FormMessage>
+                </FormItem>
+
+                <FormItem>
+                  <FormLabel>Password </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder='Masukkan Password...'
+                      {...form.register('password', {
                         minLength: {
                           value: 3,
                           message: 'Nama minimal 3 karakter'

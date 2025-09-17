@@ -8,6 +8,8 @@ import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export type Siswa = {
   id: string;
@@ -41,18 +43,25 @@ export default function SiswaListingPage() {
   const [totalUser, setTotalUser] = useState(0);
   const [loading, setLoading] = useState(true);
   const { trigger, toggleTrigger } = useRenderTrigger();
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetchSiswa = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}user/get-all-siswa?page=${page}&pageSize=${pageLimit}&nama=${search}&nip=${nis}&kelas${kelas}`
+        const response = await api.get(
+          `user/get-all-siswa?page=${page}&pageSize=${pageLimit}&nama=${search}&nip=${nis}&kelas${kelas}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          }
         );
         setData(response.data.result.data);
         setTotalUser(response.data.result.total);
-      } catch (error) {
-        toast.error('Error fetching data');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       } finally {
         setLoading(false);
       }

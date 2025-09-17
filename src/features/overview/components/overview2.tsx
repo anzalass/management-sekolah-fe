@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import Link from 'next/link';
 import PageContainer from '@/components/layout/page-container';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
 import { Boxes, DoorOpen, LucideIcon, School, User, Users } from 'lucide-react';
 import { toast } from 'sonner';
+import api from '@/lib/api';
 
 export default function Overview2() {
   const { data: session } = useSession();
@@ -19,17 +19,14 @@ export default function Overview2() {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}dashboard-overview`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
+        const res = await api.get(`dashboard-overview`, {
+          headers: {
+            Authorization: `Bearer ${session?.user?.token}`
           }
-        ); // sesuaikan endpoint-mu
+        });
         setData(res.data.data);
-      } catch (error) {
-        toast.error('Failed to fetch dashboard');
+      } catch (error: any) {
+        toast.error(error?.response.data.message || 'Terjadi Kesalahan');
       }
     };
 
@@ -51,11 +48,13 @@ export default function Overview2() {
       <div className='flex flex-1 flex-col space-y-5'>
         <div className='my-5 flex flex-col items-center justify-between space-y-2 md:flex-row'>
           <h2 className='text-2xl font-bold tracking-tight'>
-            Hi, Welcome back 👋
+            Hi, Welcome back {session?.user?.nama} 👋
           </h2>
           <div className='flex space-x-3'>
             <Link href={'/dashboard/mengajar'}>
-              <Button className='text-xs md:text-sm'>Dashboard Mengajar</Button>
+              <Button className='text-xs md:text-sm'>
+                Dashboard Mengajar {session?.user?.nama}
+              </Button>
             </Link>
           </div>
         </div>
@@ -113,7 +112,10 @@ export default function Overview2() {
                     .map((item: any, idx: number) => (
                       <li key={idx} className='flex items-center space-x-3'>
                         <img
-                          src={item?.Guru?.foto}
+                          src={
+                            item?.Guru?.foto ||
+                            'https://res.cloudinary.com/dyofh7ecq/image/upload/v1741067315/samples/landscapes/beach-boat.jpg'
+                          }
                           alt={item.Guru.nama}
                           className='h-10 w-10 rounded-full object-cover ring-2 ring-primary'
                         />
@@ -151,7 +153,10 @@ export default function Overview2() {
                   data2.izinGuruHariIni.map((item: any, idx: number) => (
                     <li key={idx} className='flex items-center space-x-3'>
                       <img
-                        src={item?.Guru?.foto || '/default-profile.png'}
+                        src={
+                          item?.Guru?.foto ||
+                          'https://res.cloudinary.com/dyofh7ecq/image/upload/v1741067315/samples/landscapes/beach-boat.jpg'
+                        }
                         alt={item?.Guru?.nama}
                         className='h-10 w-10 rounded-full object-cover ring-2 ring-yellow-400'
                       />

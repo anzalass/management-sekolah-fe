@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
   Table,
   TableBody,
@@ -10,9 +9,12 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { API } from '@/lib/server';
-import { Card } from '@/components/ui/card';
-import { Eye, FileText, Notebook } from 'lucide-react';
+import { Notebook, Search } from 'lucide-react';
+import api from '@/lib/api';
+import { toast } from 'sonner';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { Input } from '@/components/ui/input';
 
 interface RekapAbsensi {
   idSiswa: string | null;
@@ -33,17 +35,26 @@ export default function RekapAbsensiByKelasView({
   idKelas
 }: RekapAbsensiByKelasProps) {
   const [data, setData] = useState<RekapAbsensi[]>([]);
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
+
+  // filter state
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     const fetchRekap = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}rekap-absensi/${idKelas}`
-        );
+        const res = await api.get(`rekap-absensi/${idKelas}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        });
+
         setData(res.data);
-      } catch (error) {
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       } finally {
         setLoading(false);
       }
@@ -52,13 +63,28 @@ export default function RekapAbsensiByKelasView({
     fetchRekap();
   }, [idKelas]);
 
+  // filter nama
+  const filteredData = data.filter((item) =>
+    item.namaSiswa.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className='p-4'>
-      <h2 className='mb-4 text-xl font-semibold'>Rekap Absensi Kelas</h2>
+    <div className='space-y-4 p-4'>
+      {/* Search */}
+      <div className='flex w-full items-center justify-between gap-2'>
+        <h2 className='text-xl font-semibold'>Rekap Absensi Kelas</h2>
+        <Input
+          placeholder='Cari nama siswa...'
+          value={search}
+          className='w-[30%]'
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <Card className='p-5'>
+        <div>
           <Table className='overflow-hidden rounded-xl border border-gray-200 shadow-sm'>
             <TableHeader>
               <TableRow className='bg-gray-100'>
@@ -75,28 +101,40 @@ export default function RekapAbsensiByKelasView({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((item) => (
-                <TableRow
-                  key={item.idSiswa || item.nisSiswa}
-                  className='transition-colors hover:bg-gray-50'
-                >
-                  <TableCell>{item.namaSiswa}</TableCell>
-                  <TableCell>{item.nisSiswa}</TableCell>
-                  <TableCell>{item.hadir}</TableCell>
-                  <TableCell>{item.izin}</TableCell>
-                  <TableCell>{item.sakit}</TableCell>
-                  <TableCell>{item.alpa}</TableCell>
-                  <TableCell className='font-semibold text-gray-800'>
-                    {item.total}
-                  </TableCell>
-                  <TableCell>
-                    <Notebook size={16} color='blue' />
+              {filteredData.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className='py-4 text-center'>
+                    Tidak ada data
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                filteredData.map((item) => (
+                  <TableRow
+                    key={item.idSiswa || item.nisSiswa}
+                    className='transition-colors hover:bg-gray-50'
+                  >
+                    <TableCell>{item.namaSiswa}</TableCell>
+                    <TableCell>{item.nisSiswa}</TableCell>
+                    <TableCell>{item.hadir}</TableCell>
+                    <TableCell>{item.izin}</TableCell>
+                    <TableCell>{item.sakit}</TableCell>
+                    <TableCell>{item.alpa}</TableCell>
+                    <TableCell className='font-semibold text-gray-800'>
+                      {item.total}
+                    </TableCell>
+                    <TableCell>
+                      <Link
+                        href={`/dashboard/mengajar/walikelas/${idKelas}/rekap-absensi/${item.idSiswa}`}
+                      >
+                        <Notebook size={16} color='blue' />
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
-        </Card>
+        </div>
       )}
     </div>
   );

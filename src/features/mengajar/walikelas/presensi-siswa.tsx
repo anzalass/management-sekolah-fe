@@ -1,8 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import api from '@/lib/api';
 import { API } from '@/lib/server';
 import axios from 'axios';
+import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -26,42 +28,56 @@ type DetailKehadiran = {
 };
 
 export default function PresensiSiswa({ idKelas }: IDKelas) {
+  const { data: session } = useSession();
   const [dataKehadiran, setDataKehadiran] = useState<Kehadiran[]>();
   const { trigger, toggleTrigger } = useRenderTrigger();
 
   const getData = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}kehadiran/hari-ini/${idKelas}`
-      );
+      const res = await api.get(`kehadiran/hari-ini/${idKelas}`);
 
       setDataKehadiran(res.data.data);
-    } catch (error) {
-      toast.error('Gagal mendapatkan data');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
   const toggleAbsensi = async (dataAbsen: Kehadiran, keterangan: string) => {
     try {
       if (dataAbsen.kehadiranSiswa.length > 0) {
-        await axios.put(
-          `${process.env.NEXT_PUBLIC_API_URL}kehadiran/${dataAbsen.kehadiranSiswa[0].id}`,
+        await api.put(
+          `kehadiran/${dataAbsen.kehadiranSiswa[0].id}`,
           {
             keterangan: keterangan
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
           }
         );
       } else {
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}kehadiran`, {
-          idSiswa: dataAbsen.id,
-          namaSiswa: dataAbsen.nama,
-          nisSiswa: dataAbsen.nis,
-          idKelas: idKelas,
-          keterangan: keterangan
-        });
+        await api.post(
+          `kehadiran`,
+          {
+            idSiswa: dataAbsen.id,
+            namaSiswa: dataAbsen.nama,
+            nisSiswa: dataAbsen.nis,
+            idKelas: idKelas,
+            keterangan: keterangan
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          }
+        );
       }
       toggleTrigger();
-    } catch (error) {
-      toast.error('Gagal absen');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 

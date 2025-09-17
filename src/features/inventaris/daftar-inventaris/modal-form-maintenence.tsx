@@ -31,6 +31,9 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import api from '@/lib/api';
+import { toast } from 'sonner';
+import { useSession } from 'next-auth/react';
 
 export default function ModalFormMaintenance({
   inventaris,
@@ -43,6 +46,7 @@ export default function ModalFormMaintenance({
 }) {
   const [loading, setLoading] = useState(false);
   const { toggleTrigger } = useRenderTrigger();
+  const { data: session } = useSession();
 
   const form = useForm({
     defaultValues: {
@@ -58,15 +62,17 @@ export default function ModalFormMaintenance({
   const onSubmit = async (data: any) => {
     try {
       setLoading(true);
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}pemeliharaan-inventaris/create`,
-        data
-      );
+      await api.post(`pemeliharaan-inventaris/create`, data, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       setLoading(false);
       setOpen(false);
       toggleTrigger();
-    } catch (error) {
-      setLoading(false);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 

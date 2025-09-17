@@ -20,6 +20,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
+import api from '@/lib/api';
 
 // Tipe Data Guru Template
 export type GuruTemplate = {
@@ -62,37 +63,26 @@ export default function GuruTemplateForm({
         }
 
         if (id !== 'new') {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}guru-template/update/${id}`,
-            formData,
-            {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-                Authorization: `Bearer ${token}`
-              }
+          await api.put(`guru-template/update/${id}`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${session?.user?.token}`
             }
-          );
+          });
           toast.success('Guru Template berhasil diperbarui');
         } else {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}guru-template/create`,
-            formData,
-            {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-                Authorization: `Bearer ${token}` // Ensure proper content type for file upload
-              }
+          await api.post(`guru-template/create`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${session?.user?.token}`
             }
-          );
+          });
           toast.success('Guru Template berhasil disimpan');
         }
 
         router.push('/dashboard/content-management/guru-template');
-      } catch (error) {
-        const axiosError = error as any;
-        const errorMessage =
-          axiosError.response?.data?.message || 'Terjadi Kesalahan';
-        toast.error(errorMessage);
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       }
     });
   }

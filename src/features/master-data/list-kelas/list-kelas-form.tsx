@@ -16,6 +16,8 @@ import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { API } from '@/lib/server';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export type ListKelas = {
   id: string;
@@ -42,26 +44,26 @@ export default function ListKelasForm({
     defaultValues
   });
 
+  const { data: session } = useSession();
+
   async function onSubmit(values: any) {
     startTransition(async () => {
       try {
         if (id !== 'new') {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}kelas/update/${id}`,
-            values,
-            {
-              headers: { 'Content-Type': 'application/json' }
+          await api.put(`kelas/update/${id}`, values, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
             }
-          );
+          });
           toast.success('Kelas berhasil diubah');
         } else {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}list-kelas`,
-            values,
-            {
-              headers: { 'Content-Type': 'application/json' }
+          await api.post(`list-kelas`, values, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
             }
-          );
+          });
           toast.success('Kelas berhasil dibuat');
         }
         router.push('/dashboard/master-data/list-kelas');

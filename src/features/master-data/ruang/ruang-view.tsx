@@ -3,6 +3,8 @@ import KegiatanSekolahForm from './ruang-form';
 import axios from 'axios';
 import RuanganForm from './ruang-form';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { auth } from '@/lib/auth';
 
 type IDRuang = {
   id: string;
@@ -11,16 +13,19 @@ type IDRuang = {
 export default async function RuanganViewPage({ id }: IDRuang) {
   let Ruang = null;
   let pageTitle = 'Tambah Ruang';
-
+  const session = await auth();
   if (id !== 'new') {
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}ruang/get/${id}`
-        );
+        const response = await api.get(`ruang/get/${id}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        });
         return response.data;
-      } catch (error) {
-        toast.error('Error fetching data');
+      } catch (error: any) {
+        console.error(error.response?.data?.message || 'Terjadi kesalahan');
       }
     };
     const user = await fetchData();

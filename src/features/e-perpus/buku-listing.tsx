@@ -8,6 +8,8 @@ import { API } from '@/lib/server';
 import { useSearchParams } from 'next/navigation';
 import { Buku, columns } from './buku-tables/columns';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export default function BukuListingPage() {
   const searchParams = useSearchParams();
@@ -17,6 +19,7 @@ export default function BukuListingPage() {
   const penerbit = searchParams.get('penerbit') || '';
   const tahunTerbit = searchParams.get('tahunTerbit') || '';
   const pageLimit = searchParams.get('limit') || '10';
+  const { data: session } = useSession();
 
   const [data, setData] = useState<Buku[]>([]);
   const [totalData, setTotalData] = useState(0);
@@ -27,17 +30,23 @@ export default function BukuListingPage() {
     const fetchBuku = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}buku?page=${page}&pageSize=${pageLimit}&nama=${search}`
+        const response = await api.get(
+          `buku?page=${page}&pageSize=${pageLimit}&nama=${search}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          }
         );
         if (response.data) {
           setData(response.data.data);
-          setTotalData(response.data.total);
+          setTotalData(response.data.pagination.total);
         } else {
           setError('Data format is invalid');
         }
-      } catch (error) {
-        toast.error('Error fetching data');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
         setError('Terjadi kesalahan saat mengambil data buku');
       } finally {
         setLoading(false);

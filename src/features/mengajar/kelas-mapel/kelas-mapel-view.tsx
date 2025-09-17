@@ -15,6 +15,8 @@ import { useSession } from 'next-auth/react';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
+import api from '@/lib/api';
+import CatatanAkhirSiswa from './catatan-akhir';
 
 interface Student {
   id: string;
@@ -59,24 +61,25 @@ export default function KelasMapelView({ id }: KelasMapelID) {
   const [filteredMasterSiswa, setFilteredMasterSiswa] = useState<Student[]>([]);
   const fetchData = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}user/get-all-siswa`
-      );
-      const response2 = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}dashboard-kelas-mapel/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
-          }
+      const response = await api.get(`user/get-all-siswa`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
         }
-      );
+      });
+      const response2 = await api.get(`dashboard-kelas-mapel/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
 
       setMasterSiswa(response.data.result.data);
       setKelasSiswa(response2?.data?.data.siswaKelas);
       setMateriList(response2?.data?.data.materiKelas);
       setTugasList(response2?.data?.data.tugasKelas);
-    } catch (error) {
-      toast.error('Gagal fetch siswa');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
@@ -95,53 +98,72 @@ export default function KelasMapelView({ id }: KelasMapelID) {
 
   const handleAddSiswaToKelas = async (siswa: Student) => {
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}kelas-mapel/add-siswa`,
+      const response = await api.post(
+        `kelas-mapel/add-siswa`,
         {
           idSiswa: siswa.id,
           nisSiswa: siswa.nis,
           namaSiswa: siswa.nama,
           idKelas: id // pastikan juga kirim ID kelasMapel
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
         }
       );
 
       toast.success('Siswa berhasil ditambahkan ke kelas');
       fetchData();
       setSearchTerm('');
-    } catch (error) {
-      toast.error('Gagal menambahkan siswa ke kelas');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
   const hapusSiswa = async (id: any) => {
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}kelas-mapel/remove-siswa/${id}`
-      );
+      await api.delete(`kelas-mapel/remove-siswa/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       toast.success('Berhasil menghapus siswa');
       toggleTrigger();
-    } catch (error) {
-      toast.error('Gagal menghapus siswa');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
   const hapusMateri = async (id: any) => {
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}materi/${id}`);
+      await api.delete(`materi/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       toast.success('Berhasil menghapus materi');
       toggleTrigger();
-    } catch (error) {
-      toast.error('Gagal menghapus materi');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
   const hapusTugas = async (id: any) => {
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}tugas/${id}`);
+      await api.delete(`tugas/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       toast.success('Berhasil menghapus tugas');
       toggleTrigger();
-    } catch (error) {
-      toast.error('Gagal menghapus tugas');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
@@ -308,6 +330,8 @@ export default function KelasMapelView({ id }: KelasMapelID) {
       </div>
 
       <InputNilaiKelas listSiswa={kelasSiswa} idKelas={id} />
+
+      <CatatanAkhirSiswa listSiswa={kelasSiswa} idKelasMapel={id} />
     </div>
   );
 }

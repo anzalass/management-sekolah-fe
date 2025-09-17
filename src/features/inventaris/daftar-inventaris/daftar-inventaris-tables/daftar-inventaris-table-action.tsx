@@ -16,10 +16,13 @@ import { Ruangan } from '@/features/master-data/ruang/ruang-listing';
 import axios from 'axios';
 import { API } from '@/lib/server';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export default function DaftarInventarisTableAction() {
   const [isLoading, startTransition] = useTransition();
   const [ruang, setRuang] = useState<Ruangan[]>([]);
+  const { data: session } = useSession();
 
   const {
     isAnyFilterActive,
@@ -47,13 +50,16 @@ export default function DaftarInventarisTableAction() {
 
   const getAllRuang = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}ruang2`
-      );
+      const response = await api.get(`ruang2`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
 
       setRuang(response.data.data);
     } catch (error: any) {
-      toast.error(error);
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 

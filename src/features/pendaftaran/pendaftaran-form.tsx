@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import api from '@/lib/api';
 
 // Tipe Data Pendaftaran
 export type Pendaftaran = {
@@ -78,37 +79,26 @@ export default function PendaftaranForm({
         };
 
         if (id !== 'new') {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}pendaftaran/update/${id}`,
-            jsonData,
-            {
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
-              }
+          await api.put(`pendaftaran/update/${id}`, jsonData, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
             }
-          );
+          });
           toast.success('Pendaftaran berhasil diperbarui');
         } else {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}pendaftaran/`,
-            jsonData,
-            {
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
-              }
+          await api.post(`pendaftaran/`, jsonData, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
             }
-          );
+          });
           toast.success('Pendaftaran berhasil disimpan');
         }
 
         router.push('/dashboard/pendaftaran');
-      } catch (error) {
-        const axiosError = error as any;
-        const errorMessage =
-          axiosError.response?.data?.message || 'Terjadi Kesalahan';
-        toast.error(errorMessage);
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       }
     });
   }

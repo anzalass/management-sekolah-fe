@@ -14,6 +14,9 @@ import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import PresensiSiswa from './presensi-siswa';
 import Link from 'next/link';
+import api from '@/lib/api';
+import JadwalPelajaran from './jadwalPelajaran';
+import PerizinanSiswaView from './perizinan-siswa-view';
 
 type IDKelas = {
   id: string;
@@ -72,32 +75,31 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
   );
   const fetchData = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}user/get-all-siswa`
-      );
-      const response2 = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}kelas-walikelas/siswa/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
-          }
+      const response = await api.get(`user/get-all-siswa`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
         }
-      );
-      const response3 = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}dashboard-walikelas/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
-          }
+      });
+      const response2 = await api.get(`kelas-walikelas/siswa/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
         }
-      );
+      });
+      const response3 = await api.get(`dashboard-walikelas/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
 
       setMasterSiswa(response.data.result.data);
       setKelasSiswa(response2?.data);
       setPengumumanKelas(response3?.data?.data?.pengumuman);
       setCatatanPerkembangan(response3?.data?.data?.catatanMap);
-    } catch (error) {
-      toast.error('Gagal fetch siswa');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
@@ -116,21 +118,27 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
 
   const handleAddSiswaToKelas = async (siswa: Student2) => {
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}kelas-walikelas/add`,
+      const response = await api.post(
+        `kelas-walikelas/add`,
         {
           nisSiswa: siswa.nis,
           namaSiswa: siswa.nama,
           idSiswa: siswa.id,
           idKelas: id // pastikan juga kirim ID kelasMapel
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
         }
       );
 
       toast.success('Siswa berhasil ditambahkan ke kelas');
       toggleTrigger();
       setSearchTerm('');
-    } catch (error) {
-      toast.error('Gagal menambahkan siswa ke kelas');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
@@ -142,7 +150,7 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
   //   async function fetchAbsensi() {
   //     setLoading(true);
   //     try {
-  //       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/absensi/${id}`); // sesuaikan endpoint-nya
+  //       const res = await fetch(`/absensi/${id}`); // sesuaikan endpoint-nya
   //       if (!res.ok) throw new Error('Failed to fetch absensi data');
   //       const json = await res.json();
   //       setData(json);
@@ -186,9 +194,15 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
           </Button>
         </div>
       </div>
-
+      <div className='w-[100%] overflow-x-scroll'>
+        <PerizinanSiswaView idKelas={id} />
+      </div>
       <div className='w-[100%] overflow-x-scroll'>
         <PresensiSiswa idKelas={id} />
+      </div>
+
+      <div className='w-[100%] overflow-x-scroll'>
+        <JadwalPelajaran idKelas={id} />
       </div>
 
       <Card className='w-full'>

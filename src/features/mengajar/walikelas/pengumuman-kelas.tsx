@@ -19,6 +19,8 @@ import { toast } from 'sonner';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { PengumumanKelasType } from './walikelas-view';
 import { Pencil, Trash2 } from 'lucide-react';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 interface Pengumuman {
   id: number;
@@ -41,6 +43,7 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
   const [editId, setEditId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { trigger, toggleTrigger } = useRenderTrigger();
+  const { data: session } = useSession();
 
   const { register, handleSubmit, reset, control, setValue } =
     useForm<FormValues>({
@@ -55,27 +58,42 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
     try {
       if (editId) {
         // Edit
-        await axios.put(
-          `${process.env.NEXT_PUBLIC_API_URL}pengumuman-kelas/${editId}`,
+        await api.put(
+          `pengumuman-kelas/${editId}`,
           {
             idKelas: id,
             title: data.judul,
             content: data.konten
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
           }
         );
 
         setEditId(null);
       } else {
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}pengumuman-kelas`, {
-          idKelas: id,
-          title: data.judul,
-          content: data.konten
-        });
+        await api.post(
+          `pengumuman-kelas`,
+          {
+            idKelas: id,
+            title: data.judul,
+            content: data.konten
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          }
+        );
       }
 
       toast.success('Berhasil membuat atau mengubah pengumuman');
-    } catch (error) {
-      toast.error('Gagal membuat atau mengubah pengumuman');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     } finally {
       reset();
       setValue('konten', '');
@@ -94,13 +112,16 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}pengumuman-kelas/${id}`
-      );
+      await api.delete(`pengumuman-kelas/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       toast.success('Berhasil menghapus pengumuman');
       toggleTrigger();
-    } catch (error) {
-      toast.error('Gagal menghapus pengumuman');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 

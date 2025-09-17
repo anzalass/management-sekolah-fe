@@ -8,6 +8,8 @@ import { API } from '@/lib/server';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export type News = {
   id: string;
@@ -24,7 +26,7 @@ export default function NewsListingPage() {
   const search = searchParams.get('search') || '';
   const pageLimit = searchParams.get('limit') || '10';
   const { trigger, toggleTrigger } = useRenderTrigger();
-
+  const { data: session } = useSession();
   const [data, setData] = useState<News[]>([]);
   const [totalData, setTotalData] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -34,8 +36,14 @@ export default function NewsListingPage() {
     const fetchNews = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}news?page=${page}&pageSize=${pageLimit}&search=${search}`
+        const response = await api.get(
+          `news?page=${page}&pageSize=${pageLimit}&search=${search}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          }
         );
         if (response.data && response.data.data) {
           setData(response.data.data);
@@ -43,8 +51,8 @@ export default function NewsListingPage() {
         } else {
           setError('Data format is invalid');
         }
-      } catch (error) {
-        toast.error('Error fetching data');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
         setError('An error occurred while fetching the news data');
       } finally {
         setLoading(false);

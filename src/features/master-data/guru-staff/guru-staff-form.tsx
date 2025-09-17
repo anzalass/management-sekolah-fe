@@ -29,6 +29,8 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
 import { API } from '@/lib/server';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export type GuruStaff = {
   nip: string;
@@ -110,6 +112,7 @@ export default function GuruStaffForm({
   idGuru: string;
   pageTitle: string;
 }) {
+  const { data: session } = useSession();
   const defaultValue = {
     nip: initialData?.nip,
     nik: initialData?.nik,
@@ -182,22 +185,32 @@ export default function GuruStaffForm({
 
         let res;
         if (idGuru !== 'new') {
-          res = await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}user/update-guru/${idGuru}`,
-            data
-          );
+          res = await api.put(`user/update-guru/${idGuru}`, data, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          });
         } else {
-          res = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}user/create-guru`,
-            data
-          );
+          res = await api.post(`user/create-guru`, data, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          });
         }
 
         if (res.status === 201) {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}user/create-riwayat-pendidikan/${idGuru}`,
+          await api.post(
+            `user/create-riwayat-pendidikan/${idGuru}`,
             {
               data: riwayatPendidikanGuruArr
+            },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.user?.token}`
+              }
             }
           );
         }
@@ -264,13 +277,16 @@ export default function GuruStaffForm({
 
   const hapusRiwayatPendidikan = async (id: string) => {
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}user/delete-riwayat-pendidikan/${id}`
-      );
+      await api.delete(`user/delete-riwayat-pendidikan/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
 
       setData((prevData) => prevData.filter((r) => r.id !== id));
-    } catch (error) {
-      toast.error('Gagal menghapus data');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 

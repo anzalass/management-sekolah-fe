@@ -7,6 +7,8 @@ import { columns } from './ruang-tables/columns';
 import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export type Ruangan = {
   id: string;
@@ -19,7 +21,7 @@ export default function RuangListingPage() {
   const page = searchParams.get('page') || '1';
   const search = searchParams.get('nama') || '';
   const pageLimit = searchParams.get('limit') || '10';
-
+  const { data: session } = useSession();
   const [data, setData] = useState<Ruangan[]>([]);
   const [totalData, setTotalData] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -28,13 +30,19 @@ export default function RuangListingPage() {
     const fetch = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}ruang?page=${page}&pageSize=${pageLimit}&nama=${search}`
+        const response = await api.get(
+          `ruang?page=${page}&pageSize=${pageLimit}&nama=${search}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          }
         );
         setData(response.data.data);
         setTotalData(response.data.total);
-      } catch (error) {
-        toast.error('Error fetching data');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       } finally {
         setLoading(false);
       }

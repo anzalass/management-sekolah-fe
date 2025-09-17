@@ -7,19 +7,11 @@ export const metadata = {
   title: 'Dashboard : Detail Kelas'
 };
 
-export async function generateStaticParams() {
-  const data = [{ id: '1' }, { id: '2' }, { id: '3' }];
-
-  return data.map((kelas) => ({
-    id: kelas.id
-  }));
-}
-
 type PageProps = { params: { id: string } };
 
 export default async function Page({ params }: PageProps) {
   return (
-    <div className='p-2'>
+    <div className=''>
       <div className='flex-1 space-y-4'>
         <Suspense fallback={<FormCardSkeleton />}>
           <DetailKelasView id={params.id} />

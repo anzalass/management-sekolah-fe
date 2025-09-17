@@ -20,6 +20,8 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { API } from '@/lib/server';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export type Ruangan = {
   nama: string;
@@ -35,6 +37,7 @@ export default function RuanganForm({
   id: string;
   pageTitle: string;
 }) {
+  const { data: session } = useSession();
   const [loading, startTransition] = useTransition();
   const router = useRouter();
 
@@ -50,24 +53,26 @@ export default function RuanganForm({
     startTransition(async () => {
       try {
         if (id !== 'new') {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}ruang/update/${id}`,
-            values
-          );
+          await api.put(`ruang/update/${id}`, values, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          });
           toast.success('Data ruangan berhasil diubah');
         } else {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}ruang/create`,
-            values
-          );
+          await api.post(`ruang/create`, values, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          });
           toast.success('Data ruangan berhasil disimpan');
         }
 
         router.push('/dashboard/master-data/ruangan');
       } catch (error: any) {
-        toast.error(
-          error?.response?.data?.message || 'Terjadi kesalahan saat menyimpan'
-        );
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       }
     });
   }

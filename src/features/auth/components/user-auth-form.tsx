@@ -43,6 +43,7 @@ export default function UserAuthForm() {
     const result = await signIn('credentials', {
       nip: data.nip,
       password: data.password,
+      type: 'Guru',
       redirect: false,
       callbackUrl: callbackUrl || '/dashboard'
     });
