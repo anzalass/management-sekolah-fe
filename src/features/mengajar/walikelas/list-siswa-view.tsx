@@ -54,6 +54,7 @@ export default function ListSiswaView({ idKelas }: Props) {
       await api.delete(`kelas-walikelas/remove/${id}`);
       setData((prev) => prev.filter((s) => s.idSiswa !== id));
       toast.success('Siswa berhasil dihapus');
+      getSiswa();
     } catch (error: any) {
       toast.error(error?.response?.data?.message);
     }
@@ -131,17 +132,17 @@ export default function ListSiswaView({ idKelas }: Props) {
                   <Button
                     size='sm'
                     variant='destructive'
-                    onClick={() => handleRemove(item.idSiswa)}
+                    onClick={() => handleRemove(item.id)}
                   >
                     Remove
                   </Button>
                   <Link
-                    href={`/dashboard/mengajar/walikelas/${idKelas}/rekap-absensi/${item.idSiswa}`}
+                    href={`/mengajar/walikelas/${idKelas}/rekap-absensi/${item.idSiswa}`}
                   >
                     <Button size='sm'>Detail Absen</Button>
                   </Link>
                   <Link
-                    href={`/dashboard/mengajar/walikelas/${idKelas}/list-siswa/${item.idSiswa}`}
+                    href={`/mengajar/walikelas/${idKelas}/list-siswa/${item.idSiswa}`}
                   >
                     <Button size='sm'>Rapot</Button>
                   </Link>

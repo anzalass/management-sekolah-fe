@@ -9,6 +9,14 @@ import { API } from '@/lib/server';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog';
+import { AlertDialogHeader } from '@/components/ui/alert-dialog';
 
 interface Summary {
   id: number;
@@ -25,15 +33,32 @@ interface Materi {
   iframeGoogleSlide: any;
   iframeYoutube: any;
   pdfUrl: string;
-  summary: Summary[];
+  SummaryTugas: Summary[];
 }
 
 type IDMateri = {
   id: string;
 };
+
+function stripHtml(html = '') {
+  if (!html) return '';
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  return div.textContent || div.innerText || '';
+}
+
+/** potong jadi preview */
+function excerptFromHtml(html = '', maxLen = 120) {
+  const text = stripHtml(html).trim();
+  if (text.length <= maxLen) return text;
+  return text.slice(0, maxLen).trim() + '...';
+}
 export default function TugasView({ id }: IDMateri) {
   const [materi, setMateri] = useState<Materi>();
   const { data: session } = useSession();
+
+  const items = materi?.SummaryTugas || [];
+  const [openItem, setOpenItem] = useState<any>(null);
 
   const getData = async () => {
     try {
@@ -71,6 +96,16 @@ export default function TugasView({ id }: IDMateri) {
               className='mx-auto'
               dangerouslySetInnerHTML={{ __html: materi?.iframeGoogleSlide }}
             />{' '}
+            {materi?.pdfUrl && (
+              <a
+                href={materi.pdfUrl}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-blue-600 hover:underline'
+              >
+                Lihat PDF
+              </a>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -81,29 +116,51 @@ export default function TugasView({ id }: IDMateri) {
           <CardTitle>📋 Ringkasan Siswa</CardTitle>
         </CardHeader>
         <CardContent className='space-y-4'>
-          {materi?.summary?.length === 0 && (
+          {materi?.SummaryTugas?.length === 0 && (
             <p className='text-sm text-muted-foreground'>
               Belum ada siswa yang mengumpulkan ringkasan.
             </p>
           )}
 
           <ScrollArea className='max-h-[300px] pr-2'>
-            <div className='space-y-4'>
-              {materi?.summary?.map((s) => (
-                <div
+            <div className='grid grid-cols-4 space-y-4'>
+              {materi?.SummaryTugas.map((s: any) => (
+                <Dialog
                   key={s.id}
-                  className='flex gap-4 rounded-md border p-3 shadow-sm transition hover:bg-muted/50'
+                  open={openItem?.id === s.id}
+                  onOpenChange={(open) => setOpenItem(open ? s : null)}
                 >
-                  <Avatar>
-                    <AvatarImage src={s.fotoSiswa} />
-                    <AvatarFallback>{s.nama.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div className='space-y-1'>
-                    <div className='text-sm font-semibold'>{s.nama}</div>
-                    <p className='text-sm text-muted-foreground'>{s.content}</p>
-                    <p className='text-xs text-muted-foreground'>{s.waktu}</p>
-                  </div>
-                </div>
+                  <DialogTrigger asChild>
+                    <Card className='cursor-pointer transition hover:bg-muted/50'>
+                      <CardHeader className='flex flex-row items-center gap-4'>
+                        <Avatar>
+                          <AvatarImage src={s.fotoSiswa} />
+                          <AvatarFallback>{s.nama?.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className='text-sm font-semibold'>{s.nama}</div>
+                          <div className='text-xs text-muted-foreground'>
+                            {s.waktu}
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className='text-sm text-muted-foreground'>
+                          {excerptFromHtml(s?.content, 120)}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </DialogTrigger>
+                  <DialogContent className='max-w-3xl'>
+                    <AlertDialogHeader>
+                      <DialogTitle>{s.nama}</DialogTitle>
+                      <DialogDescription>{s.waktu}</DialogDescription>
+                    </AlertDialogHeader>
+                    <div className='prose mt-4 max-h-[70vh] overflow-auto'>
+                      <div dangerouslySetInnerHTML={{ __html: s?.content }} />
+                    </div>
+                  </DialogContent>
+                </Dialog>
               ))}
             </div>
           </ScrollArea>

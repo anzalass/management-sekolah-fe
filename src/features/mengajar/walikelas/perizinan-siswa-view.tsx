@@ -13,6 +13,13 @@ import { Button } from '@/components/ui/button';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { useSession } from 'next-auth/react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog';
 
 interface Perizinan {
   id: string;
@@ -35,6 +42,8 @@ type Props = {
 export default function PerizinanSiswaView({ idKelas }: Props) {
   const [data, setData] = useState<Perizinan[]>([]);
   const { data: session } = useSession();
+  const [selectedBukti, setSelectedBukti] = useState<string | null>(null);
+
   const fetchData = async () => {
     try {
       const res = await api.get(`perizinan-siswa-hari-ini/${idKelas}`, {
@@ -149,14 +158,37 @@ export default function PerizinanSiswaView({ idKelas }: Props) {
                 </TableCell>
                 <TableCell>
                   {izin.bukti ? (
-                    <a
-                      href={izin.bukti}
-                      target='_blank'
-                      rel='noopener noreferrer'
-                      className='text-blue-600 hover:underline'
+                    <Dialog
+                      open={selectedBukti === izin.bukti}
+                      onOpenChange={(open) =>
+                        setSelectedBukti(open ? izin.bukti : null)
+                      }
                     >
-                      Lihat
-                    </a>
+                      <DialogTrigger asChild>
+                        <button className='text-blue-600 hover:underline'>
+                          Lihat
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className='max-w-2xl'>
+                        <DialogHeader>
+                          <DialogTitle>Bukti Perizinan</DialogTitle>
+                        </DialogHeader>
+                        <div className='mt-4'>
+                          {izin.bukti.endsWith('.pdf') ? (
+                            <iframe
+                              src={izin.bukti}
+                              className='h-[500px] w-full rounded-md'
+                            />
+                          ) : (
+                            <img
+                              src={izin.bukti}
+                              alt='Bukti'
+                              className='mx-auto max-h-[500px] w-auto rounded-md'
+                            />
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   ) : (
                     '-'
                   )}

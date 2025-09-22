@@ -4,66 +4,95 @@ import authConfig from '@/lib/auth.config';
 const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
-  // kalau belum login redirect ke /login
+  const path = req.nextUrl.pathname; // ambil url sekarang
+
+  // Kalau belum login redirect ke /login kecuali ke /login /login-siswa
   if (!req.auth) {
+    // biarin kalau dia akses /login atau /login-siswa
+    if (path.startsWith('/login-siswa') || path.startsWith('/login')) {
+      return; // boleh akses login
+    }
+
     const url = req.url.replace(req.nextUrl.pathname, '/login');
     return Response.redirect(url);
   }
 
-  const jabatan = req.auth.user?.jabatan; // role/jabatan user
-  const pathname = req.nextUrl.pathname;
+  // === Sudah login tapi ke /login atau /login-siswa ===
+  const jabatan = req.auth.user?.jabatan;
 
-  // 1️⃣ Role siswa tidak boleh akses dashboard & mengajar
-  if (jabatan === 'Siswa') {
-    if (pathname.startsWith('/dashboard') || pathname.startsWith('/mengajar')) {
-      const url = req.url.replace(req.nextUrl.pathname, '/unauthorized');
-      return Response.redirect(url);
-    }
-  }
-
-  // 2️⃣ Mapping akses dashboard khusus untuk guru tertentu
-  const dashboardAccess: any = {
-    'Guru BK': ['/dashboard/e-konseling', '/dashboard/pelanggaran-prestasi'],
-    'Guru Perpus': [
-      '/dashboard/e-perpus',
-      '/dashboard/peminjaman-pengembalian'
-    ],
-    'Guru Tata Usaha': ['/dashboard/pembayaran']
-  };
-
-  // kalau dia guru BK, perpus, TU cek path dashboard nya
-  if (dashboardAccess[jabatan]) {
-    // kalau dia akses dashboard tapi path nya bukan yang diizinkan
-    if (
-      pathname.startsWith('/dashboard') &&
-      !dashboardAccess[jabatan].some((allowed: any) =>
-        pathname.startsWith(allowed)
-      )
+  if (path === '/login' || path === '/login-siswa') {
+    // tentukan redirect default berdasarkan jabatan
+    let redirectTo = '/dashboard';
+    if (jabatan === 'Siswa') redirectTo = '/siswa';
+    else if (
+      jabatan === 'Guru BK' ||
+      jabatan === 'Guru TU' ||
+      jabatan === 'Guru Perpus' ||
+      jabatan?.startsWith('Guru')
     ) {
-      // redirect unauthorized
-      const url = req.url.replace(req.nextUrl.pathname, '/unauthorized');
-      return Response.redirect(url);
+      redirectTo = '/mengajar';
+    }
+
+    return Response.redirect(new URL(redirectTo, req.url));
+  }
+
+  // ========== RULE AKSES ==========
+
+  // Siswa: hanya boleh /siswa
+  if (jabatan === 'Siswa') {
+    if (path.startsWith('/mengajar') || path.startsWith('/dashboard')) {
+      return Response.redirect(new URL('/unauthorized', req.url));
     }
   }
 
-  // 3️⃣ Untuk jabatan selain Guru BK, Guru Perpus, Guru Tata Usaha
-  // misalnya guru biasa (Guru Mapel), boleh mengajar tapi dashboard selain default juga dilarang
+  // Selain Siswa dilarang akses /siswa
+  if (jabatan !== 'Siswa' && path.startsWith('/siswa')) {
+    return Response.redirect(new URL('/unauthorized', req.url));
+  }
+
+  // Selain Kepala Sekolah dilarang akses /dashboard
+  if (jabatan !== 'Kepala Sekolah' && path.startsWith('/dashboard')) {
+    return Response.redirect(new URL('/unauthorized', req.url));
+  }
+
+  // Selain Guru TU dilarang akses pembayaran
   if (
-    !dashboardAccess[jabatan] && // bukan Guru BK/Perpus/TU
-    !['Siswa'].includes(jabatan) // bukan siswa
+    jabatan !== 'Guru TU' &&
+    (path.startsWith('/mengajar/pembayaran/riwayat-pembayaran') ||
+      path.startsWith('/mengajar/pembayaran/daftar-tagihan'))
   ) {
-    // guru biasa → boleh mengajar
-    if (pathname.startsWith('/dashboard')) {
-      // larang semua dashboard selain default (karena guru biasa ga punya akses dashboard)
-      const url = req.url.replace(req.nextUrl.pathname, '/unauthorized');
-      return Response.redirect(url);
-    }
+    return Response.redirect(new URL('/unauthorized', req.url));
   }
 
-  // kalau lolos semua, akses diizinkan
+  // Selain Guru BK dilarang akses e-konseling
+  if (
+    jabatan !== 'Guru BK' &&
+    (path.startsWith('/mengajar/e-konseling/konseling-siswa') ||
+      path.startsWith('/mengajar/e-konseling/pelanggaran-prestasi'))
+  ) {
+    return Response.redirect(new URL('/unauthorized', req.url));
+  }
+
+  // Selain Guru Perpus dilarang akses e-perpus
+  if (
+    jabatan !== 'Guru Perpus' &&
+    (path.startsWith('/mengajar/e-perpus/data-buku') ||
+      path.startsWith('/mengajar/e-perpus/peminjaman-pengembalian'))
+  ) {
+    return Response.redirect(new URL('/unauthorized', req.url));
+  }
+
+  // Kalau lolos semua rule, lanjut
   return;
 });
 
+// matcher supaya middleware jalan di semua route yang butuh proteksi
 export const config = {
-  matcher: ['/dashboard/:path*', '/mengajar/:path*'] // proteksi semua route dashboard & mengajar
+  matcher: [
+    '/dashboard/:path*',
+    '/mengajar/:path*',
+    '/siswa/:path*',
+    '/login',
+    '/login-siswa'
+  ]
 };

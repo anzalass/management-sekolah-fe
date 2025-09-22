@@ -21,6 +21,8 @@ import {
 } from '@/components/ui/sheet';
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
+import BottomNav from '../bottom-nav';
+import NavbarSiswa from '../navbar-siswa';
 
 interface Summary {
   id: string;
@@ -113,6 +115,9 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
   return (
     <div className='w-full space-y-6'>
       {/* Header */}
+      <NavbarSiswa title='Detail Materi' />
+      <BottomNav />
+
       <div className='relative flex h-[10vh] w-full items-center justify-between rounded-b-3xl bg-gradient-to-r from-blue-400 to-blue-600 p-6 text-white'>
         <div className='flex items-center gap-3'>
           {/* Sidebar trigger on mobile */}
@@ -234,6 +239,17 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
                       }}
                     />
                   </div>
+                )}
+
+                {materi?.pdfUrl && (
+                  <a
+                    href={materi.pdfUrl}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='text-blue-600 hover:underline'
+                  >
+                    Lihat PDF
+                  </a>
                 )}
               </div>
             </CardContent>

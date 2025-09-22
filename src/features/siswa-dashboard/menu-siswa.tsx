@@ -10,7 +10,8 @@ import {
   CalendarClock,
   ClipboardList,
   MoreHorizontal,
-  BookCopy
+  BookCopy,
+  CalendarCheck
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -81,15 +82,27 @@ export default function MenuFiturSiswa() {
       color: 'text-pink-500'
     },
     {
-      href: '/siswa/nilai',
+      href: '/siswa/nilai-siswa',
       icon: <ClipboardList />,
       label: 'Nilai Siswa',
       color: 'text-teal-500'
     },
     {
-      href: '/siswa/perpus',
+      href: '/siswa/perpustakaan',
       icon: <BookCopy />,
       label: 'Perpustakaan',
+      color: 'text-black'
+    },
+    {
+      href: '/siswa/perpustakaan',
+      icon: <BookCopy />,
+      label: 'Weekly Activity',
+      color: 'text-black'
+    },
+    {
+      href: '/siswa/weekly-activity',
+      icon: <CalendarCheck />,
+      label: 'Weekly Activity',
       color: 'text-black'
     }
   ];

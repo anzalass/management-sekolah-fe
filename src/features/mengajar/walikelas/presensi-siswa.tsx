@@ -88,11 +88,11 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
   return (
     <Card className='w-full overflow-x-auto'>
       <CardHeader>
-        <CardTitle>Absensi Hari Inii</CardTitle>
+        <CardTitle>Absensi Hari Ini</CardTitle>
       </CardHeader>
       <div className='w-full overflow-x-auto rounded-lg p-5 shadow'>
         <table className='w-full border text-left text-sm'>
-          <thead className='bg-gray-100'>
+          <thead className=''>
             <tr>
               <th className='border p-2'>Nama</th>
               <th className='border p-2'>Kehadiran</th>
@@ -122,27 +122,27 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
                 <td className='p-2'>
                   <div className='flex gap-2 overflow-x-auto whitespace-nowrap pb-2'>
                     <Button
-                      className='shrink-0'
+                      className='shrink-0 bg-green-500'
                       onClick={() => toggleAbsensi(student, 'Hadir')}
                     >
                       Hadir
                     </Button>
                     <Button
-                      className='shrink-0'
+                      className='shrink-0 bg-yellow-500'
                       onClick={() => toggleAbsensi(student, 'Izin')}
                       variant='outline'
                     >
                       Izin
                     </Button>
                     <Button
-                      className='shrink-0'
+                      className='shrink-0 bg-blue-500'
                       onClick={() => toggleAbsensi(student, 'Sakit')}
                       variant='outline'
                     >
                       Sakit
                     </Button>
                     <Button
-                      className='shrink-0'
+                      className='shrink-0 bg-red-500'
                       onClick={() => toggleAbsensi(student, 'Tanpa Keterangan')}
                       variant='outline'
                     >

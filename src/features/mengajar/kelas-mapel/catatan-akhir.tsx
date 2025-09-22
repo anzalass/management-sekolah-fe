@@ -131,7 +131,7 @@ export default function CatatanAkhirSiswa({
   return (
     <div className='space-y-6'>
       {/* List Catatan */}
-      <div className='rounded-lg bg-white p-4 shadow'>
+      <div className='rounded-lg p-4 shadow'>
         <div className='mb-4 flex items-center justify-between'>
           <h3 className='text-lg font-semibold'>Daftar Catatan Akhir Siswa</h3>
           <Input
@@ -179,7 +179,7 @@ export default function CatatanAkhirSiswa({
       </div>
 
       {/* Form Tambah/Edit Catatan */}
-      <div className='rounded-lg bg-white p-4 shadow'>
+      <div className='rounded-lg p-4 shadow'>
         <h3 className='mb-4 text-lg font-semibold'>
           {editingId ? 'Edit Catatan' : 'Tambah Catatan'}
         </h3>

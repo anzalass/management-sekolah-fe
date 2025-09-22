@@ -51,7 +51,7 @@ export default function Overview2() {
             Hi, Welcome back {session?.user?.nama} 👋
           </h2>
           <div className='flex space-x-3'>
-            <Link href={'/dashboard/mengajar'}>
+            <Link href={'/mengajar'}>
               <Button className='text-xs md:text-sm'>
                 Dashboard Mengajar {session?.user?.nama}
               </Button>

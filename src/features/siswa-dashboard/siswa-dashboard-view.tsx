@@ -16,7 +16,8 @@ import {
   BadgeCheck,
   School,
   CalendarIcon,
-  UsersIcon
+  UsersIcon,
+  Lock
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,8 +31,16 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import { Autoplay, Pagination } from 'swiper/modules';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import MenuFiturSiswa from './menu-siswa';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { useRouter } from 'next/navigation';
+import BottomNav from './bottom-nav';
 
 export interface Kelas {
   id: string;
@@ -63,6 +72,7 @@ interface Pengumuman {
 }
 
 export default function SiswaHomeView() {
+  const router = useRouter();
   const { data: session } = useSession();
   const [search, setSearch] = useState('');
   const [kelas, setKelas] = useState<Kelas[]>([]);
@@ -113,30 +123,53 @@ export default function SiswaHomeView() {
 
   console.log(avatarUrl);
 
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/login-siswa' });
+  };
+
+  const handleChangePassword = () => {
+    router.push('/siswa/ubah-password');
+  };
+
   return (
     <div className='mx-auto'>
       {/* Profil Siswa */}
       <div className='relative bg-gradient-to-r from-blue-400 to-blue-600 p-6 text-white'>
         <div className='flex items-center justify-between'>
+          {/* Left side */}
           <div>
             <h2 className='text-lg font-bold md:text-2xl'>
               Hi, {session?.user?.nama}
             </h2>
             <p className='text-sm opacity-90'>{session?.user?.nip}</p>
           </div>
-          <div className='relative'>
-            {/* foto siswa */}
-            <div className='h-12 w-12 overflow-hidden rounded-full border-2'>
-              <Image
-                src={session?.user?.foto || avatarUrl}
-                alt='Foto Siswa'
-                width={100}
-                height={100}
-                className='h-full w-full object-cover'
-              />
-            </div>
-            <BadgeCheck className='absolute bottom-0 right-0 h-5 w-5 rounded-full bg-white text-green-500 shadow' />
-          </div>
+
+          {/* Right side */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className='relative h-12 w-12 overflow-hidden rounded-full border-2 ring-offset-background focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2'>
+                <Image
+                  src={session?.user?.foto || avatarUrl}
+                  alt='Foto Siswa'
+                  width={100}
+                  height={100}
+                  className='h-full w-full object-cover'
+                />
+                <BadgeCheck className='absolute bottom-0 right-0 h-5 w-5 rounded-full bg-white text-green-500 shadow' />
+              </button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align='end' className='w-48'>
+              <DropdownMenuItem onClick={handleChangePassword}>
+                <Lock className='mr-2 h-4 w-4 text-blue-500' />
+                <span>Ubah Password</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className='mr-2 h-4 w-4 text-red-500' />
+                <span>Logout</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -236,9 +269,10 @@ export default function SiswaHomeView() {
                   className='rounded-lg border bg-blue-50 p-3 text-sm shadow-sm transition hover:bg-blue-100'
                 >
                   <div className='font-semibold'>{info.title}</div>
-                  <p className='text-xs text-muted-foreground'>
-                    {info.content}
-                  </p>
+                  <div
+                    className='text-xs text-muted-foreground'
+                    dangerouslySetInnerHTML={{ __html: info?.content }}
+                  ></div>
                 </div>
               ))
             ) : (
@@ -249,6 +283,7 @@ export default function SiswaHomeView() {
           </CardContent>
         </Card>
       </div>
+      <BottomNav />
     </div>
   );
 }

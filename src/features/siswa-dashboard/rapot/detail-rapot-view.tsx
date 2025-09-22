@@ -20,6 +20,7 @@ type Props = {
 
 export default function DetailRapotView({ idKelas }: Props) {
   const { data: session } = useSession();
+
   const [tahunAjaran, setTahunAjaran] = useState('');
   const [data, setData] = useState<any>();
   const getTahunAjaran = async () => {
@@ -51,9 +52,13 @@ export default function DetailRapotView({ idKelas }: Props) {
     getData();
   }, [tahunAjaran !== '']);
 
+  const downloadRapot = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}rapot3?idKelas=${idKelas}&idSiswa=${session?.user?.idGuru}&tahunAjaran=${tahunAjaran}`;
+  };
+
   return (
     <div className='mx-auto w-full space-y-6 p-5'>
-      <Button>Download PDF</Button>
+      <Button onClick={downloadRapot}>Download PDF</Button>
       {/* Header Sekolah */}
       <div className='space-y-1 text-center'>
         <h1 className='text-xl font-bold'>Laporan Hasil Belajar</h1>{' '}
@@ -77,10 +82,6 @@ export default function DetailRapotView({ idKelas }: Props) {
           <div>
             <p className='font-semibold'>Kelas:</p>
             <p>{data?.siswa?.kelas}</p>
-          </div>
-          <div>
-            <p className='font-semibold'>ID Siswa:</p>
-            <p>{data?.siswa?.id}</p>
           </div>
         </CardContent>
       </Card>

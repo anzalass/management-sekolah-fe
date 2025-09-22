@@ -20,6 +20,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import TextEditor from '@/components/text-editor';
+import BottomNav from '../bottom-nav';
+import NavbarSiswa from '../navbar-siswa';
 
 interface Summary {
   id: string; // ubah ke string biar konsisten sama prisma UUID
@@ -126,6 +128,10 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
   return (
     <div className='w-full space-y-6'>
       {/* Header */}
+
+      <NavbarSiswa title='Detail Tugas' />
+      <BottomNav />
+
       <div className='relative flex h-[10vh] w-full items-center justify-between rounded-b-3xl bg-gradient-to-r from-blue-400 to-blue-600 p-6 text-white'>
         <div className='flex items-center gap-3'>
           {/* Sidebar trigger on mobile */}
@@ -249,6 +255,16 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
                       }}
                     />
                   </div>
+                )}
+                {tugas?.pdfUrl && (
+                  <a
+                    href={tugas.pdfUrl}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='text-blue-600 hover:underline'
+                  >
+                    Lihat PDF
+                  </a>
                 )}
               </div>
             </CardContent>

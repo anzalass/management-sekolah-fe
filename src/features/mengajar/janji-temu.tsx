@@ -13,6 +13,8 @@ import { Button } from '@/components/ui/button';
 import { CalendarIcon, User, UserCheck } from 'lucide-react';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface JanjiTemu {
   id: string;
@@ -30,13 +32,18 @@ interface JanjiTemu {
 export default function JanjiTemuView() {
   const [data, setData] = useState<JanjiTemu[]>([]);
   const { data: session } = useSession();
+
+  // filter state
+  const [searchNama, setSearchNama] = useState('');
+  const [searchTanggal, setSearchTanggal] = useState('');
+
   const fetchData = async () => {
     try {
       const res = await api.get('/janji-temu-guru', {
         headers: {
           Authorization: `Bearer ${session?.user?.token}`
         }
-      }); // sesuaikan endpoint API kamu
+      });
       setData(res.data.data);
     } catch (err) {
       console.error(err);
@@ -47,14 +54,8 @@ export default function JanjiTemuView() {
     try {
       await api.put(
         `/janji-temu-status/${id}`,
-        {
-          status: 'setujui'
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
-          }
-        }
+        { status: 'setujui' },
+        { headers: { Authorization: `Bearer ${session?.user?.token}` } }
       );
       fetchData();
     } catch (err) {
@@ -66,14 +67,8 @@ export default function JanjiTemuView() {
     try {
       await api.put(
         `/janji-temu/${id}`,
-        {
-          status: 'tolak'
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
-          }
-        }
+        { status: 'tolak' },
+        { headers: { Authorization: `Bearer ${session?.user?.token}` } }
       );
       fetchData();
     } catch (err) {
@@ -85,12 +80,43 @@ export default function JanjiTemuView() {
     fetchData();
   }, []);
 
+  // filter logic
+  const filteredData = data.filter((item) => {
+    const matchNama = item.siswaNama
+      ?.toLowerCase()
+      .includes(searchNama.toLowerCase());
+    const matchTanggal = searchTanggal
+      ? new Date(item.waktu).toISOString().slice(0, 10) === searchTanggal
+      : true;
+    return matchNama && matchTanggal;
+  });
+
   return (
     <div className='space-y-4'>
       <h1 className='mb-4 text-xl font-bold'>📅 Daftar Janji Temu</h1>
 
-      {data.length > 0 ? (
-        data.map((item) => (
+      {/* Filter bar */}
+      <div className='mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:gap-4'>
+        <div className='flex flex-col'>
+          <Input
+            id='nama'
+            placeholder='Nama Siswa'
+            value={searchNama}
+            onChange={(e) => setSearchNama(e.target.value)}
+          />
+        </div>
+        <div className='flex flex-col'>
+          <Input
+            id='tanggal'
+            type='date'
+            value={searchTanggal}
+            onChange={(e) => setSearchTanggal(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {filteredData.length > 0 ? (
+        filteredData.map((item) => (
           <Card key={item.id} className='border shadow-sm'>
             <CardHeader className='flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between'>
               <CardTitle className='flex flex-col text-base font-semibold sm:flex-row sm:items-center sm:gap-2'>

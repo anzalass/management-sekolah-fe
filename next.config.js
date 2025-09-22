@@ -30,7 +30,8 @@ const nextConfig = {
       'localhost',
       'api.yayasantunasanakmulia.sch.id',
       'ui-avatars.com',
-      'via.placeholder.com'
+      'via.placeholder.com',
+      'static.wikia.nocookie.net'
     ]
   },
 

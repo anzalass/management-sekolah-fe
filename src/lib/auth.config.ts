@@ -12,6 +12,7 @@ declare module 'next-auth' {
     nama: string;
     jabatan: string;
     idKelas: string;
+    foto: string;
   }
 
   interface JWT {
@@ -21,6 +22,7 @@ declare module 'next-auth' {
     nama: string;
     jabatan: string;
     idKelas: string;
+    foto: string;
   }
 
   interface Session {
@@ -58,7 +60,8 @@ const authConfig = {
               nama: user.nama,
               jabatan: user.jabatan || 'Guru',
               idKelas: user.idKelas,
-              idGuru: user?.idGuru
+              idGuru: user?.idGuru,
+              foto: user?.foto
             };
           } else {
             toast.error('Gagal login');
@@ -98,6 +101,7 @@ const authConfig = {
         token.nama = user.nama;
         token.jabatan = user.jabatan;
         token.idKelas = user.idKelas;
+        token.foto = user.foto;
       }
       return token;
     },
@@ -108,6 +112,7 @@ const authConfig = {
       session.user.nip = token.nip;
       session.user.nama = token.nama;
       session.user.jabatan = token.jabatan;
+      session.user.foto = token.foto;
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('token', token.token || '');

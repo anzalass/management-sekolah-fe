@@ -52,7 +52,7 @@ export default function Navbar() {
             Little Alley CyberSchool
           </Link>
           <Link
-            href='/siswa'
+            href='/login-siswa'
             className='rounded-full bg-black px-4 py-2 text-center text-white hover:bg-gray-800'
           >
             Student Apps

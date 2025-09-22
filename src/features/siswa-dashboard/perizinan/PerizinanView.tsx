@@ -31,6 +31,8 @@ import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import api from '@/lib/api';
 import { toast } from 'sonner';
+import NavbarSiswa from '../navbar-siswa';
+import BottomNav from '../bottom-nav';
 
 interface Izin {
   id: string;
@@ -134,31 +136,8 @@ export default function Perizinan() {
 
   return (
     <div className='mx-auto space-y-2'>
-      <div className='flex items-center justify-between'>
-        <div className='relative flex h-[10vh] w-full items-center justify-between rounded-b-3xl bg-gradient-to-r from-blue-400 to-blue-600 p-6 text-white'>
-          {/* Tombol Back */}
-          <button
-            onClick={() => window.history.back()}
-            className='flex items-center gap-1 text-white hover:opacity-80'
-          >
-            <StepBack />
-          </button>
-
-          <h1 className='text-lg font-semibold'>Perizinan</h1>
-
-          <div className='h-10 w-10 overflow-hidden rounded-full border-2 border-white'>
-            <Image
-              src={`https://ui-avatars.com/api/?name=${
-                session?.user?.nama?.split(' ')[0]?.[0] || ''
-              }+${session?.user?.nama?.split(' ')[1]?.[0] || ''}&background=random&format=png`}
-              alt='Foto User'
-              width={100}
-              height={100}
-              className='h-full w-full object-cover'
-            />
-          </div>
-        </div>
-      </div>
+      <NavbarSiswa title='Perizinan Siswa' />
+      <BottomNav />
 
       {/* Button + Filter */}
       <div className='flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between'>

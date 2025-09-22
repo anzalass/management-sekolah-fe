@@ -21,6 +21,14 @@ export const navItems: NavItem[] = [
     items: []
   },
   {
+    title: 'Data Sekolah',
+    url: '/dashboard/data-sekolah',
+    icon: 'dashboard',
+    isActive: false,
+    shortcut: ['d', 'd'],
+    items: []
+  },
+  {
     title: 'Pendaftaran Siswaa',
     url: '/dashboard/pendaftaran',
     icon: 'dashboard',
@@ -176,13 +184,13 @@ export const navItems: NavItem[] = [
     items: [
       {
         title: 'Data Konseling Siswa',
-        url: '/dashboard/e-konseling',
+        url: '/dashboard/e-konseling/konseling-siswa',
         icon: 'userPen',
         shortcut: ['n', 'n']
       },
       {
         title: 'Pelanggaran Prestasi Siswa',
-        url: '/dashboard/pelanggaran-prestasi',
+        url: '/dashboard/e-konseling/pelanggaran-prestasi',
         icon: 'userPen',
         shortcut: ['n', 'n']
       }
@@ -197,13 +205,13 @@ export const navItems: NavItem[] = [
     items: [
       {
         title: 'Data Buku',
-        url: '/dashboard/e-perpus',
+        url: '/dashboard/e-perpus/data-buku',
         icon: 'userPen',
         shortcut: ['n', 'n']
       },
       {
         title: 'Peminjaman dan Pengembalian Buku',
-        url: '/dashboard/peminjaman-pengembalian',
+        url: '/dashboard/e-perpus/peminjaman-pengembalian',
         icon: 'userPen',
         shortcut: ['n', 'n']
       }

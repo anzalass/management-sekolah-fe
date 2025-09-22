@@ -124,7 +124,7 @@ export default function RekapAbsensiByKelasView({
                     </TableCell>
                     <TableCell>
                       <Link
-                        href={`/dashboard/mengajar/walikelas/${idKelas}/rekap-absensi/${item.idSiswa}`}
+                        href={`/mengajar/walikelas/${idKelas}/rekap-absensi/${item.idSiswa}`}
                       >
                         <Notebook size={16} color='blue' />
                       </Link>

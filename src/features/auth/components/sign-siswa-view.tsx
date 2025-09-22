@@ -40,7 +40,7 @@ export default function SignSiswaView() {
 
   return (
     <div className='flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-100 via-white to-blue-50 px-4'>
-      <Card className='w-full max-w-md rounded-2xl shadow-lg'>
+      <div className='w-full max-w-md rounded-2xl'>
         <CardHeader className='space-y-2 text-center'>
           <CardTitle className='text-2xl font-bold text-blue-700'>
             Login Siswa
@@ -87,13 +87,13 @@ export default function SignSiswaView() {
             <Button
               type='submit'
               disabled={isSubmitting}
-              className='w-full rounded-lg bg-blue-600 py-2 font-semibold text-white shadow hover:bg-blue-700'
+              className='w-full rounded-full bg-blue-600 py-2 font-semibold text-white shadow hover:bg-blue-700'
             >
               {isSubmitting ? 'Loading...' : 'Login'}
             </Button>
           </form>
         </CardContent>
-      </Card>
+      </div>
     </div>
   );
 }

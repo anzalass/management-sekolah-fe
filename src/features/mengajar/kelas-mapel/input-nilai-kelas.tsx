@@ -342,10 +342,10 @@ export default function InputNilaiKelas({
         <CardContent>
           <table className='w-full border-collapse'>
             <thead>
-              <tr className='bg-gray-100'>
+              <tr className=''>
                 <th className='border p-2'>No</th>
                 <th className='border p-2'>Nama</th>
-                <th className='border p-2'>Nilai</th>
+                <th className='w-[25%] border p-2'>Nilai</th>
                 <th className='border p-2'>Aksi</th>
               </tr>
             </thead>
@@ -353,17 +353,20 @@ export default function InputNilaiKelas({
               {listNilai.map((nilai, index) => (
                 <tr key={nilai.id}>
                   <td className='border p-2'>{index + 1}</td>
-                  <td className='border p-2'>{nilai.nama}</td>
+                  <td className='border p-2'>
+                    {nilai.nama} Lorem ipsum, dolor sit amet consectetur
+                  </td>
                   <td className='border p-2'>
                     <Input
                       type='number'
                       min={0}
                       max={100}
+                      className='w-full'
                       value={nilai.nilai}
                       onChange={(e) => handleChangeNilai(index, e.target.value)}
                     />
                   </td>
-                  <td className='space-x-2 border p-2'>
+                  <td className='flex space-x-2 border p-2'>
                     <Button onClick={() => SimpanNilai(nilai)}>Simpan</Button>
                     <Button
                       className='bg-red-600 text-white hover:bg-red-700'
