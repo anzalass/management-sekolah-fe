@@ -31,7 +31,7 @@ export default function RapotView() {
   }, []);
 
   return (
-    <div className='mx-auto space-y-6'>
+    <div className='mx-auto space-y-6 bg-white'>
       <div className='relative flex h-[10vh] w-full items-center justify-between rounded-b-3xl bg-gradient-to-r from-blue-400 to-blue-600 p-6 text-white'>
         {/* Tombol Back */}
         <button

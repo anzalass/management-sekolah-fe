@@ -101,6 +101,10 @@ export default function KelasMapelView({ id }: KelasMapelID) {
     setFilteredMasterSiswa(filtered);
   }, [searchTerm, masterSiswa, kelasSiswa]);
 
+  const handleAddSiswaToKelas = async (siswa: Student) => {};
+
+  const hapusSiswa = async (id: any) => {};
+
   const hapusMateri = async (id: any) => {
     try {
       await api.delete(`materi/${id}`, {
@@ -154,6 +158,69 @@ export default function KelasMapelView({ id }: KelasMapelID) {
 
       {/* Siswa */}
       {/* ... bagian siswa tetap sama ... */}
+      <Card className='block justify-between gap-4 p-4 lg:flex'>
+        <Card className='w-full lg:w-1/2'>
+          <CardHeader>
+            <CardTitle>Tambah Siswa ke Kelas</CardTitle>
+          </CardHeader>
+          <CardContent className='space-y-4'>
+            <Input
+              placeholder='Cari nama siswa...'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            {searchTerm.trim() !== '' && filteredMasterSiswa.length > 0 && (
+              <div className='rounded border p-2'>
+                <ul className='space-y-1'>
+                  {filteredMasterSiswa?.map((siswa) => (
+                    <li
+                      key={siswa.nis}
+                      className='flex items-center justify-between border-b pb-1 last:border-none last:pb-0'
+                    >
+                      <span>
+                        {siswa.nama} - {siswa.nis}
+                      </span>
+                      <Button
+                        size='sm'
+                        onClick={() => handleAddSiswaToKelas(siswa)}
+                      >
+                        Tambah
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className='w-full lg:w-1/2'>
+          <CardHeader>
+            <CardTitle>Daftar Siswa di Kelas Ini</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className='ml-5 w-fit list-disc'>
+              {kelasSiswa.map((s: any, index) => (
+                <li
+                  key={s.id ?? index}
+                  className='mt-3 flex items-center justify-between'
+                >
+                  <span>
+                    {s.Siswa.nama} - {s.Siswa.nis}
+                  </span>
+
+                  <Trash2
+                    className='ml-5'
+                    size={16}
+                    onClick={() => hapusSiswa(s.id)}
+                  />
+                </li>
+              ))}
+            </ul>
+            {kelasSiswa.length === 0 ? <p>Belum ada Siswa</p> : null}
+          </CardContent>
+        </Card>
+      </Card>
 
       <div className='flex space-x-2'>
         <Button onClick={() => setShowModal(true)}>Tambah Materi</Button>
