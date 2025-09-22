@@ -178,7 +178,7 @@ export default function SiswaHomeView() {
       {/* Shortcut Fitur */}
       <MenuFiturSiswa />
 
-      <div className='mt-8 space-y-8 px-4 md:px-8'>
+      <div className='mt-8 space-y-8 bg-white px-4 md:px-8'>
         {/* Daftar Kelas */}
         <Card className='border border-gray-200 p-5 shadow-md transition hover:shadow-lg'>
           <div className='pb-3 pt-2'>
