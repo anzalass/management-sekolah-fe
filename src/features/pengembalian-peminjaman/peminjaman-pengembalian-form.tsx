@@ -31,6 +31,8 @@ import {
 } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { Buku } from '../e-perpus/buku-tables/columns';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 type PinjamBuku = {
   idSiswa: string;
@@ -59,13 +61,11 @@ export default function PinjamBukuForm({ pageTitle }: { pageTitle: string }) {
   const [dataBuku, setDataBuku] = useState<Buku[]>([]);
 
   useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}user/get-all-siswa`)
-      .then((res) => {
-        setSiswaList(res.data.result.data);
-      });
+    api.get(`user/get-all-siswa`).then((res) => {
+      setSiswaList(res.data.result.data);
+    });
 
-    axios.get(`${process.env.NEXT_PUBLIC_API_URL}buku`).then((res) => {
+    api.get(`buku`).then((res) => {
       setDataBuku(res.data.data);
     });
   }, []);
@@ -83,19 +83,20 @@ export default function PinjamBukuForm({ pageTitle }: { pageTitle: string }) {
     }
   });
 
+  const { data: session } = useSession();
+
   async function onSubmit(values: PinjamBuku) {
     startTransition(async () => {
       try {
-        await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}peminjaman`,
-          values,
-          {
-            headers: { 'Content-Type': 'application/json' }
+        await api.post(`peminjaman`, values, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
           }
-        );
+        });
 
         toast.success('Peminjaman buku berhasil disimpan');
-        router.push('/dashboard/e-perpus/peminjaman');
+        router.push('/dashboard/peminjaman-pengembalian');
       } catch (error: any) {
         toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       }

@@ -39,14 +39,11 @@ export default function RegisterView() {
     data.kategori = selectedProgram; // Tambahkan ke data yang dikirim
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}pendaftaran`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        }
-      );
+      const response = await fetch(`pendaftaran`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
 
       if (response.ok) {
         setIsSubmitted(true);
@@ -57,7 +54,7 @@ export default function RegisterView() {
         toast.error('Gagal melakukan pendaftaran');
       }
     } catch (error: any) {
-      alert('Error submitting form');
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       toast.error(error);
     }
   };

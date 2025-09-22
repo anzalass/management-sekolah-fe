@@ -199,24 +199,26 @@ html {
   background-position: center;
   background-repeat: no-repeat;
   width: 100%;
-  height: 100vh;
+  height: 90vh;
 }
 
 .bg-lap {
-  background-image: url('../../public/bg20.jpg');
+  background-image: url('../../public/banner.svg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   width: 100%;
+  margin: auto;
   height: 100vh;
 }
 
 .bg-lac {
-  background-image: url('../../public/lacbg1.jpg');
+  background-image: url('../../public/banner.svg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  width: 100%;
+  width: 90%;
+  margin: auto;
   height: 100vh;
 }
 

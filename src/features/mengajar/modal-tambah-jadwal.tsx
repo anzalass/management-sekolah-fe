@@ -21,6 +21,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import api from '@/lib/api';
 
 type Props = {
   openModal: boolean;
@@ -81,30 +82,28 @@ export default function ModalTambahJadwal({
     const isEdit = Boolean(dataEdit?.id);
 
     try {
-      const res = await fetch(
-        isEdit
-          ? `${process.env.NEXT_PUBLIC_API_URL}jadwal-mengajar/update/${dataEdit?.id}`
-          : `${process.env.NEXT_PUBLIC_API_URL}jadwal-mengajar/create`,
-        {
-          method: isEdit ? 'PUT' : 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session?.user?.token}`
-          },
-          body: JSON.stringify(data)
-        }
-      );
+      const endpoint = isEdit
+        ? `jadwal-mengajar/update/${dataEdit?.id}`
+        : `jadwal-mengajar/create`;
 
-      if (!res.ok) throw new Error('Gagal menyimpan data');
+      const method = isEdit ? api.put : api.post;
+
+      await method(endpoint, data, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
 
       toast.success(
         isEdit ? 'Jadwal berhasil diperbarui' : 'Jadwal berhasil ditambahkan'
       );
+
       fetchData();
       setOpenModal(false);
       reset();
-    } catch (err) {
-      toast.error('Terjadi kesalahan saat menyimpan');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     } finally {
       setIsLoading(false);
     }

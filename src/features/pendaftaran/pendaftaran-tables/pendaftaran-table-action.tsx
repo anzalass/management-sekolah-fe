@@ -17,7 +17,7 @@ export default function PendaftaranTableAction() {
     <div className='flex flex-wrap items-center gap-4'>
       {/* Search functionality for Pendaftaran */}
       <DataTableSearch
-        searchKey='Student Name' // Searching by student name (can be adjusted)
+        searchKey='Pendaftar' // Searching by student name (can be adjusted)
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         setPage={setPage}

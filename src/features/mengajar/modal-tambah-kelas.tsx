@@ -11,23 +11,28 @@ import { Input } from '@/components/ui/input';
 import { useForm } from 'react-hook-form';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import api from '@/lib/api';
 
 type FormValues = {
   nama: string;
   namaGuru: string;
   nipGuru: string;
   ruangKelas: string;
+  banner?: FileList; // file input
 };
 
 type Props = {
   openModal: string | null;
   fetchData: () => void;
-
   setOpenModal: (val: string | null) => void;
-  dataEdit?: { id: string; nama: string; ruangKelas: string } | null;
+  dataEdit?: {
+    id: string;
+    nama: string;
+    ruangKelas: string;
+    bannerUrl?: string;
+  } | null;
 };
 
 export default function ModalTambahKelas({
@@ -46,45 +51,44 @@ export default function ModalTambahKelas({
   } = useForm<FormValues>();
 
   const [isLoading, setIsLoading] = useState(false);
-
   const isEdit = !!dataEdit;
 
-  // Isi form otomatis jika edit
   useEffect(() => {
     if (dataEdit) {
       setValue('nama', dataEdit.nama);
       setValue('ruangKelas', dataEdit.ruangKelas);
     } else {
-      reset(); // reset saat tambah
+      reset();
     }
   }, [dataEdit, setValue, reset]);
 
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
-
-    if (!session?.user) {
-      return;
-    }
+    if (!session?.user) return;
 
     try {
-      setValue('namaGuru', session?.user?.nama);
-      setValue('nipGuru', session?.user?.nip);
+      const formData = new FormData();
+      formData.append('nama', data.nama);
+      formData.append('ruangKelas', data.ruangKelas);
+      formData.append('namaGuru', session.user.nama);
+      formData.append('nipGuru', session.user.nip);
 
-      const response = await fetch(
-        isEdit
-          ? `${process.env.NEXT_PUBLIC_API_URL}kelas-walikelas/update/${dataEdit?.id}`
-          : `${process.env.NEXT_PUBLIC_API_URL}kelas-walikelas/create`,
-        {
-          method: isEdit ? 'PUT' : 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session?.user?.token}`
-          },
-          body: JSON.stringify(data)
+      if (data.banner && data.banner[0]) {
+        formData.append('banner', data.banner[0]);
+      }
+
+      const endpoint = isEdit
+        ? `kelas-walikelas/update/${dataEdit?.id}`
+        : 'kelas-walikelas/create';
+
+      const method = isEdit ? api.put : api.post;
+
+      await method(endpoint, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${session?.user?.token}`
         }
-      );
-
-      if (!response.ok) throw new Error('Gagal menyimpan kelas');
+      });
 
       toast.success(
         isEdit ? 'Kelas berhasil diperbarui' : 'Kelas berhasil ditambahkan'
@@ -92,8 +96,8 @@ export default function ModalTambahKelas({
       fetchData();
       setOpenModal(null);
       reset();
-    } catch (err) {
-      toast.error('Terjadi kesalahan saat menyimpan');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     } finally {
       setIsLoading(false);
     }
@@ -128,6 +132,15 @@ export default function ModalTambahKelas({
             {errors.ruangKelas && (
               <p className='text-sm text-red-500'>
                 {errors.ruangKelas.message}
+              </p>
+            )}
+          </div>
+          {/* Input Banner File */}
+          <div>
+            <Input type='file' accept='image/*' {...register('banner')} />
+            {isEdit && dataEdit?.bannerUrl && (
+              <p className='mt-1 text-xs text-muted-foreground'>
+                Banner saat ini sudah ada (akan diganti jika upload baru).
               </p>
             )}
           </div>

@@ -4,153 +4,251 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CalendarCheck, CalendarClock, RefreshCcw, Wallet } from 'lucide-react';
-import { useState } from 'react';
+import { StepBack } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { useSession } from 'next-auth/react';
+import api from '@/lib/api'; // axios instance (baseURL: http://localhost:5000/api)
+import NavbarSiswa from '../navbar-siswa';
+import BottomNav from '../bottom-nav';
 
 type Tagihan = {
-  id: number;
+  id: string;
   nama: string;
   nominal: number;
   jatuhTempo: string;
-  status: 'dibayar' | 'belum';
+  status: string;
   tanggalBayar?: string;
 };
 
+type Riwayat = {
+  id: string;
+  nama: string;
+  nominal: number;
+  tanggalBayar: string;
+  metode: string;
+};
+
 export default function PembayaranSiswaView() {
-  const [filter, setFilter] = useState<'all' | 'belum' | 'dibayar'>('all');
+  const [searchTagihan, setSearchTagihan] = useState('');
+  const [tanggalTagihan, setTanggalTagihan] = useState('');
+  const [searchRiwayat, setSearchRiwayat] = useState('');
+  const [tanggalRiwayat, setTanggalRiwayat] = useState('');
+  const { data: session } = useSession();
 
-  const semuaTagihan: Tagihan[] = [
-    {
-      id: 1,
-      nama: 'SPP Bulan Juni',
-      nominal: 250000,
-      jatuhTempo: '2025-06-10',
-      status: 'belum'
-    },
-    {
-      id: 2,
-      nama: 'Uang Kegiatan Semester',
-      nominal: 150000,
-      jatuhTempo: '2025-05-15',
-      status: 'dibayar',
-      tanggalBayar: '2025-05-10'
-    },
-    {
-      id: 3,
-      nama: 'SPP Bulan Mei',
-      nominal: 250000,
-      jatuhTempo: '2025-05-10',
-      status: 'dibayar',
-      tanggalBayar: '2025-05-08'
-    },
-    {
-      id: 4,
-      nama: 'SPP Bulan Juni',
-      nominal: 250000,
-      jatuhTempo: '2025-06-10',
-      status: 'belum'
-    },
-    {
-      id: 5,
-      nama: 'Uang Kegiatan Semester',
-      nominal: 150000,
-      jatuhTempo: '2025-05-15',
-      status: 'dibayar',
-      tanggalBayar: '2025-05-10'
-    },
-    {
-      id: 6,
-      nama: 'SPP Bulan Mei',
-      nominal: 250000,
-      jatuhTempo: '2025-05-10',
-      status: 'dibayar',
-      tanggalBayar: '2025-05-08'
+  const [tagihan, setTagihan] = useState<Tagihan[]>([]);
+  const [riwayat, setRiwayat] = useState<Riwayat[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // ambil data dari BE
+  const fetchPembayaran = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/pembayaran-siswa', {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
+      const data = res?.data?.data;
+      console.log(data);
+
+      // asumsi BE balikin { tagihan: [...], riwayat: [...] }
+      setTagihan(
+        data?.tagihan?.map((t: any) => ({
+          id: t.id,
+          nama: t.nama,
+          nominal: t.nominal,
+          jatuhTempo: new Date(t.jatuhTempo).toISOString().split('T')[0],
+          status: t.status,
+          tanggalBayar: t.RiwayatPembayaran?.[0]?.waktuBayar
+            ? new Date(t.RiwayatPembayaran[0].waktuBayar)
+                .toISOString()
+                .split('T')[0]
+            : undefined
+        }))
+      );
+
+      setRiwayat(
+        data?.riwayatPembayaran?.map((r: any) => ({
+          id: r.id,
+          nama: r.namaTagihan || '-',
+          nominal: r?.nominal || 0,
+          tanggalBayar: new Date(r.waktuBayar).toISOString().split('T')[0],
+          metode: r.metodeBayar
+        }))
+      );
+    } catch (error) {
+      console.error('Gagal fetch pembayaran:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const filtered = semuaTagihan.filter((t) =>
-    filter === 'all' ? true : t.status === filter
+  useEffect(() => {
+    fetchPembayaran();
+  }, []);
+
+  // Filter Tagihan
+  const filteredTagihan = tagihan?.filter(
+    (t) =>
+      t.nama.toLowerCase().includes(searchTagihan.toLowerCase()) &&
+      (tanggalTagihan ? t.jatuhTempo === tanggalTagihan : true)
+  );
+
+  // Filter Riwayat
+  const filteredRiwayat = riwayat?.filter(
+    (r) =>
+      r.nama.toLowerCase().includes(searchRiwayat.toLowerCase()) &&
+      (tanggalRiwayat ? r.tanggalBayar === tanggalRiwayat : true)
   );
 
   return (
-    <div className='mx-auto max-w-4xl space-y-6'>
-      <>
-        <CardHeader>
-          <div className='flex items-center justify-between'>
-            <CardTitle className='flex items-center gap-2 text-lg'>
-              <Wallet className='h-5 w-5 text-primary' />
-              Pembayaran Siswa
-            </CardTitle>
-            <Button
-              onClick={() => window.location.reload()} // atau fungsi fetch data
-              className='text-sm hover:underline'
-            >
-              <RefreshCcw size={14} className='mr-3' /> Refresh
-            </Button>
-          </div>
-        </CardHeader>
+    <div className='mx-auto space-y-6'>
+      {/* Header */}
 
-        <CardContent>
-          <Tabs value={filter} onValueChange={(val) => setFilter(val as any)}>
-            <TabsList className='mb-4'>
-              <TabsTrigger value='all'>Semua</TabsTrigger>
-              <TabsTrigger value='belum'>Belum Dibayar</TabsTrigger>
-              <TabsTrigger value='dibayar'>Sudah Dibayar</TabsTrigger>
-            </TabsList>
+      <NavbarSiswa title='Pembayaran' />
+      <BottomNav />
 
-            <TabsContent value={filter}>
-              <div className='space-y-4'>
-                {filtered.length === 0 && (
-                  <p className='text-sm text-muted-foreground'>
-                    Tidak ada tagihan.
-                  </p>
-                )}
+      {/* Tabs utama */}
+      <Tabs defaultValue='tagihan' className='mx-auto w-[100%] space-y-6'>
+        <TabsList className='ml-5 grid w-11/12 grid-cols-2 md:w-72'>
+          <TabsTrigger value='tagihan'>Tagihan</TabsTrigger>
+          <TabsTrigger value='riwayat'>Riwayat Pembayaran</TabsTrigger>
+        </TabsList>
 
-                {filtered.map((tagihan) => (
-                  <Card
-                    key={tagihan.id}
-                    className='flex flex-col justify-between gap-2 p-4 sm:flex-row sm:items-center'
-                  >
-                    <div>
-                      <h3 className='text-base font-semibold'>
-                        {tagihan.nama}
-                      </h3>
-                      <p className='text-sm text-muted-foreground'>
-                        Nominal:{' '}
-                        <span className='font-medium text-black'>
-                          Rp{tagihan.nominal.toLocaleString()}
-                        </span>
-                      </p>
-                      <p className='text-sm text-muted-foreground'>
-                        Jatuh Tempo: {tagihan.jatuhTempo}
-                      </p>
-                      {tagihan.status === 'dibayar' && tagihan.tanggalBayar && (
-                        <p className='text-sm text-green-600'>
-                          Dibayar: {tagihan.tanggalBayar}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className='flex flex-col items-end gap-2 sm:items-center'>
-                      {tagihan.status === 'belum' ? (
-                        <Badge variant='destructive'>Belum Dibayar</Badge>
-                      ) : (
-                        <Badge variant='default'>Sudah Dibayar</Badge>
-                      )}
-
-                      {tagihan.status === 'belum' && (
-                        <Button size='sm' className='mt-1'>
-                          Bayar Sekarang
-                        </Button>
-                      )}
-                    </div>
-                  </Card>
-                ))}
+        {/* Tagihan */}
+        <TabsContent value='tagihan'>
+          <div>
+            <CardHeader className='space-y-3'>
+              <CardTitle>Daftar Tagihan</CardTitle>
+              <div className='mt-3 flex w-full flex-col justify-between gap-2 sm:flex-row md:w-1/2'>
+                <input
+                  type='text'
+                  placeholder='Cari tagihan...'
+                  className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none sm:w-1/2'
+                  value={searchTagihan}
+                  onChange={(e) => setSearchTagihan(e.target.value)}
+                />
+                <input
+                  type='date'
+                  className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none sm:w-1/2'
+                  value={tanggalTagihan}
+                  onChange={(e) => setTanggalTagihan(e.target.value)}
+                />
               </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <p className='text-sm text-muted-foreground'>Loading...</p>
+              ) : (
+                <div className='space-y-4'>
+                  {filteredTagihan?.length === 0 && (
+                    <p className='text-sm text-muted-foreground'>
+                      Tidak ada tagihan.
+                    </p>
+                  )}
+                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
+                    {filteredTagihan?.map((tagihan) => (
+                      <Card
+                        key={tagihan.id}
+                        className='flex flex-col justify-between p-4'
+                      >
+                        <div>
+                          <h3 className='text-base font-semibold'>
+                            {tagihan.nama}
+                          </h3>
+                          <p className='text-sm text-muted-foreground'>
+                            Nominal:{' '}
+                            <span className='font-medium text-black'>
+                              Rp{tagihan.nominal.toLocaleString()}
+                            </span>
+                          </p>
+                          <p className='text-sm text-muted-foreground'>
+                            Jatuh Tempo: {tagihan.jatuhTempo}
+                          </p>
+                          {tagihan.status === 'dibayar' &&
+                            tagihan.tanggalBayar && (
+                              <p className='text-sm text-green-600'>
+                                Dibayar: {tagihan.tanggalBayar}
+                              </p>
+                            )}
+                        </div>
+
+                        <div className='mt-3 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between'>
+                          {tagihan.status === 'belum' ? (
+                            <>
+                              <Badge variant='destructive'>Belum Dibayar</Badge>
+                              <Button size='sm'>Bayar Sekarang</Button>
+                            </>
+                          ) : (
+                            <Badge variant='default'>Sudah Dibayar</Badge>
+                          )}
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </div>
+        </TabsContent>
+
+        {/* Riwayat */}
+        <TabsContent value='riwayat'>
+          <div>
+            <CardHeader>
+              <CardTitle>Riwayat Pembayaran</CardTitle>
+              <div className='mt-3 flex w-full flex-col justify-between gap-2 sm:flex-row md:w-1/2'>
+                <input
+                  type='text'
+                  placeholder='Cari riwayat...'
+                  className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none sm:w-1/2'
+                  value={searchRiwayat}
+                  onChange={(e) => setSearchRiwayat(e.target.value)}
+                />
+                <input
+                  type='date'
+                  className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none sm:w-1/2'
+                  value={tanggalRiwayat}
+                  onChange={(e) => setTanggalRiwayat(e.target.value)}
+                />
+              </div>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <p className='text-sm text-muted-foreground'>Loading...</p>
+              ) : (
+                <>
+                  {filteredRiwayat?.length === 0 && (
+                    <p className='text-sm text-muted-foreground'>
+                      Belum ada riwayat pembayaran.
+                    </p>
+                  )}
+                  <div className='space-y-3'>
+                    {filteredRiwayat?.map((r) => (
+                      <Card
+                        key={r.id}
+                        className='flex items-center justify-between p-4'
+                      >
+                        <div>
+                          <h3 className='text-base font-semibold'>{r.nama}</h3>
+                          <p className='text-sm text-muted-foreground'>
+                            Nominal: Rp{r.nominal.toLocaleString()}
+                          </p>
+                          <p className='text-xs text-muted-foreground'>
+                            Dibayar: {r.tanggalBayar} ({r.metode})
+                          </p>
+                        </div>
+                        <Badge className='bg-green-600 text-white'>Lunas</Badge>
+                      </Card>
+                    ))}
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -18,6 +18,8 @@ import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { Inventaris } from '../daftar-inventaris-form';
 import ModalFormMaintenance from '../modal-form-maintenence';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 interface CellActionProps {
   data: Inventaris;
@@ -30,15 +32,21 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [inventaris, setInventaris] = useState<Inventaris | null>(null); // State untuk menyimpan data inventaris
   const router = useRouter();
   const { toggleTrigger } = useRenderTrigger();
+  const { data: session } = useSession();
 
   const onDeleteConfirm = async () => {
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}inventaris/delete/${data.id}`
-      );
+      await api.delete(`inventaris/delete/${data.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       setOpenDelete(false);
       toggleTrigger();
-    } catch (error) {}
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
+    }
   };
 
   // Fetch data ketika modal maintenance dibuka
@@ -46,12 +54,15 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
     if (openMaintenance) {
       const fetchData = async () => {
         try {
-          const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}inventaris/get/${data.id}`
-          );
+          const response = await api.get(`inventaris/get/${data.id}`, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          });
           setInventaris(response.data.data);
-        } catch (error) {
-          toast.error('Error fetching data');
+        } catch (error: any) {
+          toast.error(error.response?.data?.message || 'Terjadi kesalahan');
         }
       };
       fetchData();

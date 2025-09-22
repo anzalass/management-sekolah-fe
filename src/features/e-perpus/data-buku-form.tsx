@@ -19,10 +19,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2 } from 'lucide-react';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 type Buku = {
   nama: string;
   filepdf?: FileList;
+  cover?: any;
   pengarang: string;
   penerbit: string;
   tahunTerbit: number;
@@ -53,6 +56,8 @@ export default function BukuForm({
     }
   });
 
+  const { data: session } = useSession();
+
   async function onSubmit(values: Buku) {
     startTransition(async () => {
       try {
@@ -68,23 +73,25 @@ export default function BukuForm({
           formData.append('filepdf', values.filepdf[0]); // upload PDF
         }
 
+        if (values.cover && values.cover[0]) {
+          formData.append('image', values.cover[0]); // upload PDF
+        }
+
         if (id !== 'new') {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}buku/${id}`,
-            formData,
-            {
-              headers: { 'Content-Type': 'multipart/form-data' }
+          await api.put(`buku/${id}`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${session?.user?.token}`
             }
-          );
+          });
           toast.success('Data buku berhasil diperbarui');
         } else {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}buku/`,
-            formData,
-            {
-              headers: { 'Content-Type': 'multipart/form-data' }
+          await api.post(`buku/`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${session?.user?.token}`
             }
-          );
+          });
           toast.success('Data buku berhasil disimpan');
         }
 
@@ -126,6 +133,17 @@ export default function BukuForm({
                     type='file'
                     accept='application/pdf'
                     {...form.register('filepdf')}
+                  />
+                </FormControl>
+              </FormItem>
+
+              <FormItem>
+                <FormLabel>Cover Buku</FormLabel>
+                <FormControl>
+                  <Input
+                    type='file'
+                    accept='image/png, image/jpeg, image/jpg'
+                    {...form.register('cover')}
                   />
                 </FormControl>
               </FormItem>

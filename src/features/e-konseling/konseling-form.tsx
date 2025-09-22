@@ -33,6 +33,8 @@ import {
   CommandItem
 } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
+import { useSession } from 'next-auth/react';
+import api from '@/lib/api';
 
 type Konseling = {
   idSiswa: string;
@@ -59,6 +61,7 @@ export default function KonselingForm({
   const router = useRouter();
   const [siswaList, setSiswaList] = useState<Siswa[]>([]);
   const [open, setOpen] = useState(false);
+  const { data: session } = useSession();
 
   const defaultValue = {
     idSiswa: initialData?.idSiswa || '',
@@ -72,8 +75,13 @@ export default function KonselingForm({
   });
 
   useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}user/get-all-siswa`)
+    api
+      .get(`user/get-all-siswa`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      })
       .then((res) => {
         setSiswaList(res.data.result.data);
       });
@@ -87,16 +95,20 @@ export default function KonselingForm({
         };
 
         if (id !== 'new') {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}konseling/${id}`,
-            payload
-          );
+          await api.put(`konseling/${id}`, payload, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          });
           toast.success('Data konseling berhasil diperbarui');
         } else {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}konseling/`,
-            payload
-          );
+          await api.post(`konseling/`, payload, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          });
           toast.success('Data konseling berhasil disimpan');
         }
 

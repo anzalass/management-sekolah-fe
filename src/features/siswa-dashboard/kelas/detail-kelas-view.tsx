@@ -1,163 +1,258 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpenText, ClipboardList, CalendarDays, Plus } from 'lucide-react';
+import {
+  BookOpenText,
+  ClipboardList,
+  CalendarDays,
+  StepBack
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import Image from 'next/image';
+import { useSession } from 'next-auth/react';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import api from '@/lib/api';
+import Link from 'next/link';
+import NavbarSiswa from '../navbar-siswa';
+import BottomNav from '../bottom-nav';
 
-interface Materi {
-  id: number;
-  judul: string;
-  konten: string;
-  tanggal: string;
-  selesai: boolean;
-}
-
-interface Tugas {
-  id: number;
-  judul: string;
-  deskripsi: string;
-  deadline: string;
-  selesai: boolean;
-}
-
-const dummyMateri: Materi[] = [
-  {
-    id: 1,
-    judul: 'Pengantar Algoritma',
-    konten: 'Pengenalan dasar algoritma dan struktur logika.',
-    tanggal: '2025-06-15',
-    selesai: true
-  },
-  {
-    id: 2,
-    judul: 'Struktur Data Dasar',
-    konten: 'Pembahasan array, linked list, dan stack.',
-    tanggal: '2025-06-18',
-    selesai: false
-  }
-];
-
-const dummyTugas: Tugas[] = [
-  {
-    id: 1,
-    judul: 'Tugas Flowchart',
-    deskripsi: 'Buatlah flowchart proses login aplikasi.',
-    deadline: '2025-06-20',
-    selesai: false
-  },
-  {
-    id: 2,
-    judul: 'Studi Kasus OOP',
-    deskripsi: 'Buat aplikasi sederhana menggunakan konsep OOP.',
-    deadline: '2025-06-23',
-    selesai: true
-  }
-];
-
-type DetailKelasId = {
-  id: string;
-};
+type DetailKelasId = { id: string };
 
 export default function DetailKelasView({ id }: DetailKelasId) {
+  const { data: session } = useSession();
+  const [data, setData] = useState<any>();
+  const [search, setSearch] = useState('');
   const [tab, setTab] = useState('materi');
+  const [materiFilter, setMateriFilter] = useState<'all' | 'selesai' | 'belum'>(
+    'all'
+  );
+  const [tugasFilter, setTugasFilter] = useState<'all' | 'selesai' | 'belum'>(
+    'all'
+  );
+
+  const getData = async () => {
+    try {
+      const res = await api.get(`kelas-mapel/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
+      if (res.status === 200) {
+        setData(res.data.data);
+        console.log(res.data.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, [id]);
+
+  const filteredMateri = data?.MateriMapel?.filter((m: any) => {
+    const matchFilter =
+      materiFilter === 'all'
+        ? true
+        : materiFilter === 'selesai'
+          ? m.past
+          : !m.past;
+    const matchSearch = m.judul.toLowerCase().includes(search.toLowerCase());
+    return matchFilter && matchSearch;
+  });
+
+  const filteredTugas = data?.TugasMapel?.filter((t: any) => {
+    const matchFilter =
+      tugasFilter === 'all'
+        ? true
+        : tugasFilter === 'selesai'
+          ? t.past
+          : !t.past;
+    const matchSearch = t.judul.toLowerCase().includes(search.toLowerCase());
+    return matchFilter && matchSearch;
+  });
 
   return (
-    <div className='mx-auto max-w-4xl space-y-6'>
-      <div className='flex items-center justify-between'>
-        <div>
-          <h1 className='text-2xl font-bold'>Detail Kelas: Matematika</h1>
-          <p className='text-sm text-muted-foreground'>
-            Materi dan Tugas yang tersedia di kelas ini.
-          </p>
-        </div>
-      </div>
+    <div className='mx-auto w-full space-y-6'>
+      {/* Header */}
 
+      <NavbarSiswa title={`${data?.namaMapel} - ${data?.namaGuru}`} />
+      <BottomNav />
       {/* Tabs */}
-      <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className='mb-4'>
-          <TabsTrigger value='materi'>Materi</TabsTrigger>
-          <TabsTrigger value='tugas'>Tugas</TabsTrigger>
-        </TabsList>
-
+      <Tabs value={tab} onValueChange={setTab} className='p-4'>
         {/* Materi */}
-        <TabsContent value='materi' className='p-0'>
-          <div className='p-0'>
+        <TabsContent value='materi'>
+          {/* Filter */}
+          <div className='mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+            <TabsList className='mb-4'>
+              <TabsTrigger value='materi'>Materi</TabsTrigger>
+              <TabsTrigger value='tugas'>Tugas</TabsTrigger>
+            </TabsList>
+            <Select
+              onValueChange={(val: any) => setMateriFilter(val)}
+              defaultValue='all'
+            >
+              <SelectTrigger className='w-full sm:w-[160px]'>
+                <SelectValue placeholder='Filter Materi' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>Semua</SelectItem>
+                <SelectItem value='selesai'>Selesai</SelectItem>
+                <SelectItem value='belum'>Belum Selesai</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input
+              placeholder='Cari materi...'
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className='w-full sm:w-64'
+            />
+          </div>
+
+          <Card>
             <CardHeader className='flex items-center gap-2'>
               <BookOpenText className='h-5 w-5 text-blue-500' />
               <CardTitle>Materi Kelas</CardTitle>
             </CardHeader>
-            <CardContent className='space-y-4 p-2'>
-              {dummyMateri.map((materi) => (
-                <div
+            <CardContent className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>
+              {filteredMateri?.map((materi: any) => (
+                <Link
                   key={materi.id}
-                  className='rounded border p-3 transition hover:bg-muted'
+                  href={`/siswa/kelas/${id}/materi/${materi.id}`}
                 >
-                  <div className='flex items-start justify-between'>
-                    <div className='w-[65%]'>
-                      <h4 className='text-base font-semibold'>
-                        {materi.judul}
-                      </h4>
-                      <p className='my-2 mt-4 text-sm text-muted-foreground'>
-                        {materi.konten}
-                      </p>
-                      <div className='mt-1 flex items-center gap-1 text-xs text-muted-foreground'>
-                        <CalendarDays className='h-4 w-4' />
-                        {materi.tanggal}
+                  <div className='rounded border px-2 py-3 transition hover:bg-muted'>
+                    <div className='flex items-start justify-between'>
+                      <div className='w-[65%]'>
+                        <h4 className='text-sm font-semibold md:text-base'>
+                          {materi.judul}
+                        </h4>
+
+                        <div className='mt-1 flex items-center gap-1 text-xs text-muted-foreground'>
+                          <CalendarDays className='h-4 w-4' />
+                          {materi?.tanggal
+                            ? new Date(materi?.tanggal).toLocaleDateString(
+                                'id-ID',
+                                {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric'
+                                }
+                              )
+                            : ''}
+                        </div>
                       </div>
+                      <Badge
+                        className={
+                          materi.past === true
+                            ? 'bg-green-500 p-1 text-xs'
+                            : 'bg-yellow-400 p-1 text-xs'
+                        }
+                      >
+                        {materi.past === true ? 'Selesai' : 'Belum Selesai'}
+                      </Badge>
                     </div>
-                    <Badge
-                      className={
-                        materi.selesai
-                          ? 'w-[35%] bg-green-500 text-xs'
-                          : 'w-[40%] bg-yellow-400 text-xs'
-                      }
-                    >
-                      {materi.selesai ? 'Selesai' : 'Belum Selesai'}
-                    </Badge>
                   </div>
-                </div>
+                </Link>
               ))}
+              {filteredMateri?.length === 0 && (
+                <p className='col-span-full text-center text-sm text-muted-foreground'>
+                  Tidak ada materi.
+                </p>
+              )}
             </CardContent>
-          </div>
+          </Card>
         </TabsContent>
 
         {/* Tugas */}
         <TabsContent value='tugas'>
+          {/* Filter */}
+          <div className='mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+            <TabsList className='mb-4'>
+              <TabsTrigger value='materi'>Materi</TabsTrigger>
+              <TabsTrigger value='tugas'>Tugas</TabsTrigger>
+            </TabsList>
+            <Select
+              onValueChange={(val: any) => setTugasFilter(val)}
+              defaultValue='all'
+            >
+              <SelectTrigger className='w-full sm:w-[160px]'>
+                <SelectValue placeholder='Filter Tugas' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>Semua</SelectItem>
+                <SelectItem value='selesai'>Selesai</SelectItem>
+                <SelectItem value='belum'>Belum Selesai</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input
+              placeholder='Cari tugas...'
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className='w-full sm:w-64'
+            />
+          </div>
+
           <Card>
             <CardHeader className='flex items-center gap-2'>
               <ClipboardList className='h-5 w-5 text-yellow-500' />
               <CardTitle>Tugas Kelas</CardTitle>
             </CardHeader>
-            <CardContent className='space-y-3'>
-              {dummyTugas.map((tugas) => (
-                <div
+            <CardContent className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>
+              {filteredTugas?.map((tugas: any) => (
+                <Link
                   key={tugas.id}
-                  className='rounded border p-3 transition hover:bg-muted'
+                  href={`/siswa/kelas/${id}/tugas/${tugas.id}`}
                 >
-                  <div className='flex items-start justify-between'>
-                    <div>
-                      <h4 className='text-base font-semibold'>{tugas.judul}</h4>
-                      <p className='my-2 text-sm text-muted-foreground'>
-                        {tugas.deskripsi}
-                      </p>
-                      <div className='mt-1 flex items-center gap-1 text-xs text-muted-foreground'>
-                        <CalendarDays className='h-4 w-4' />
-                        Deadline: {tugas.deadline}
+                  <div className='rounded border px-2 py-3 transition hover:bg-muted'>
+                    <div className='flex items-start justify-between'>
+                      <div>
+                        <h4 className='text-sm font-semibold md:text-base'>
+                          {tugas.judul}
+                        </h4>
+                        <p className='my-2 text-sm text-muted-foreground'>
+                          {tugas.deskripsi}
+                        </p>
+                        <div className='mt-1 flex items-center gap-1 text-xs text-muted-foreground'>
+                          <CalendarDays className='h-4 w-4' />
+                          Deadline :{' '}
+                          {tugas?.deadline
+                            ? new Date(tugas?.deadline).toLocaleDateString(
+                                'id-ID',
+                                {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric'
+                                }
+                              )
+                            : ''}
+                        </div>
                       </div>
+                      <Badge
+                        className={
+                          tugas.past ? 'bg-green-500' : 'bg-yellow-400'
+                        }
+                      >
+                        {tugas.past ? 'Selesai' : 'Belum Selesai'}
+                      </Badge>
                     </div>
-                    <Badge
-                      className={
-                        tugas.selesai ? 'bg-green-500' : 'bg-yellow-400'
-                      }
-                    >
-                      {tugas.selesai ? 'Selesai' : 'Belum Selesai'}
-                    </Badge>
                   </div>
-                </div>
+                </Link>
               ))}
+              {filteredTugas?.length === 0 && (
+                <p className='col-span-full text-center text-sm text-muted-foreground'>
+                  Tidak ada tugas.
+                </p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

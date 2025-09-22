@@ -28,6 +28,7 @@ import {
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import api from '@/lib/api';
 
 interface NewsItem {
   image: string;
@@ -41,7 +42,7 @@ interface GuruTemplate {
   imageUrl?: string;
 }
 
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}view-image`;
+const BASE_URL = `view-image`;
 
 export default function HomeView() {
   const [index, setIndex] = useState(0);
@@ -49,19 +50,20 @@ export default function HomeView() {
   const [teachers, setTeachers] = useState<GuruTemplate[]>([]);
 
   useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}news`)
+    api
+      .get(`news`)
       .then((response) => {
         setNews(response.data.data);
       })
       .catch((error) => {
-        toast.error('Error fetching the news:', error);
+        toast.error('Error fetching the news:', error?.response.data.message);
+        console.log(error);
       });
   }, []);
 
   useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}guru-template`)
+    api
+      .get(`guru-template`)
       .then((response) => {
         const updatedTeachers = response.data.data.map(
           (teacher: GuruTemplate) => ({
@@ -73,6 +75,7 @@ export default function HomeView() {
       })
       .catch((error) => {
         toast.error('Error fetching teacher data:', error);
+        console.log(error);
       });
   }, []);
 
@@ -141,7 +144,7 @@ export default function HomeView() {
         <div className='container mx-auto px-4 md:px-6'>
           <p className='mx-auto mb-10 max-w-3xl text-justify text-lg font-medium text-muted-foreground md:text-center'>
             <span className='font-semibold'>
-              Yayasan Tunas Anak Mulia (YTAM) {process.env.NEXT_PUBLIC_API_URL}
+              Yayasan Tunas Anak Mulia (YTAM)
             </span>{' '}
             is an educational institution dedicated to nurturing young minds
             through our preschool and tutoring programs. Since our founding in
@@ -428,16 +431,14 @@ export default function HomeView() {
           </h1>
           <div className='relative mt-10 overflow-hidden'>
             <div className='auto-scroll w-max gap-2 px-1 sm:gap-4 sm:px-4'>
-              {[...news, ...news].map((item, index) => {
-                const imageUrl = `${BASE_URL}/${item.image.split('/').pop()}`;
-
+              {[...news].map((item, index) => {
                 return (
                   <div
                     key={index}
                     className='mx-1 flex h-[300px] w-56 flex-shrink-0 flex-col rounded-2xl bg-white px-3 pb-4 pt-2 shadow-lg sm:h-[340px] sm:w-64 md:w-72'
                   >
                     <Image
-                      src={imageUrl}
+                      src={item.image}
                       alt={`news-${index}`}
                       className='h-[120px] w-full rounded-xl object-cover sm:h-[140px]'
                       width={1000}

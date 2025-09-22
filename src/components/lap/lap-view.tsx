@@ -25,6 +25,7 @@ import OurFacilities from './ourfacilities';
 import Gallery from './gallery';
 import Testimonial from './testimonial';
 import { toast } from 'sonner';
+import api from '@/lib/api';
 
 const fadeIn = (direction = 'up', delay = 0) => {
   return {
@@ -56,7 +57,7 @@ interface TestimonialItem {
   description: string;
 }
 
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}view-image`;
+const BASE_URL = `view-image`;
 
 export default function Lap() {
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
@@ -88,8 +89,8 @@ export default function Lap() {
   }, [inViewAbout, inViewVision, inViewWhy]);
 
   useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}testimonials`)
+    api
+      .get(`testimonials`)
       .then((response) => {
         setTestimonials(response.data.data);
       })
@@ -99,8 +100,8 @@ export default function Lap() {
   }, []);
 
   useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}gallery`)
+    api
+      .get(`gallery`)
       .then((response) => {
         setGallery(response.data.data);
       })

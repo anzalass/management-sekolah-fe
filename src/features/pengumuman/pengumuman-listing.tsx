@@ -9,6 +9,8 @@ import { API } from '@/lib/server';
 import { Pengumuman } from './pengumuman-form';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export default function PengumumanListingPage() {
   const searchParams = useSearchParams();
@@ -23,18 +25,24 @@ export default function PengumumanListingPage() {
   const [totalData, setTotalData] = useState(0);
   const [loading, setLoading] = useState(true);
   const { trigger, toggleTrigger } = useRenderTrigger();
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetch = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}pengumuman?page=${page}&pageSize=${pageLimit}&title=${search}&time=${tanggal}`
+        const response = await api.get(
+          `pengumuman?page=${page}&pageSize=${pageLimit}&title=${search}&time=${tanggal}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          }
         );
         setData(response.data.data);
         setTotalData(response.data.totaData);
-      } catch (error) {
-        toast.error('Error fetching data');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       } finally {
         setLoading(false);
       }

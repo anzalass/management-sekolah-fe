@@ -6,7 +6,7 @@ import { Gallery } from '../galery-listing';
 import { API } from '@/lib/server';
 import Image from 'next/image';
 
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}view-image`;
+const BASE_URL = `view-image`;
 
 export const columns: ColumnDef<Gallery>[] = [
   {

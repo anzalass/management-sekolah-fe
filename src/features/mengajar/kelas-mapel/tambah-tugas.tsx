@@ -12,11 +12,12 @@ import { Button } from '@/components/ui/button';
 import TextEditor from '@/components/text-editor';
 import 'react-quill/dist/quill.snow.css';
 import { useState } from 'react';
-import axios from 'axios';
-import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import api from '@/lib/api';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import { GoogleGenAI } from '@google/genai';
 
 interface Tugas {
   id: number;
@@ -51,7 +52,7 @@ export default function ModalTugas({
 }: ModalTugasProps) {
   const { toggleTrigger } = useRenderTrigger();
 
-  const { register, handleSubmit, control, reset, setValue } =
+  const { register, handleSubmit, control, reset, setValue, watch } =
     useForm<FormValues>({
       defaultValues: {
         judul: '',
@@ -66,6 +67,13 @@ export default function ModalTugas({
   const [TugasList, setTugasList] = useState<Tugas[]>([]);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const promptValue = watch('prompt');
+  const [editorInstance, setEditorInstance] = useState<any>(null);
+
+  const ai = new GoogleGenAI({
+    apiKey: 'AIzaSyAaiszp38RzeZquyKjOsB3kbDVIVc7eRvc'
+  });
+
   const onSubmit = async (data: FormValues) => {
     if (!data.judul.trim() || !data.konten.trim()) return;
 
@@ -76,14 +84,13 @@ export default function ModalTugas({
       formData.append('idKelasMapel', idKelas);
       formData.append('konten', data.konten);
       formData.append('deadline', data.deadline);
+
       formData.append('iframeGoogleSlide', data.iframeSlide);
       formData.append('iframeYoutube', data.iframeYoutube);
 
-      if (pdfFile !== null) {
-        formData.append('pdf', pdfFile);
-      }
+      if (pdfFile) formData.append('pdf', pdfFile);
 
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}tugas`, formData, {
+      await api.post(`Tugas`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${session?.user?.token}`
@@ -92,34 +99,55 @@ export default function ModalTugas({
 
       toast.success('Berhasil membuat Tugas');
       reset();
-      onOpenChange(false); // tutup modal setelah submit
+      onOpenChange(false);
       toggleTrigger();
-    } catch (error) {
-      toast.error('Gagal menyimpan Tugas');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     } finally {
       setIsLoading(false);
       setPdfFile(null);
     }
   };
 
-  const handleGenerateAI = () => {
-    setValue('judul', 'Pengantar Algoritma');
-    setValue(
-      'konten',
-      'Tugas ini membahas tentang konsep dasar algoritma dan logika.'
-    );
-  };
+  const generateAireal = async () => {
+    if (!promptValue.trim()) {
+      toast.error('Prompt tidak boleh kosong');
+      return;
+    }
 
-  const handleDelete = (id: number) => {
-    setTugasList((prev) => prev.filter((m) => m.id !== id));
+    setIsLoading(true);
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemma-3-27b-it',
+        contents: `${promptValue}, output nya html aja gausa ada css nya` // gunakan prompt dari input
+      });
+
+      console.log(response.text);
+
+      if (response.text && editorInstance) {
+        // langsung set konten di editor
+        editorInstance.commands.setContent(response.text);
+        // update form value juga
+        console.log(response.text);
+
+        setValue('konten', response.text);
+        toast.success('Konten AI berhasil dibuat');
+      }
+    } catch (err) {
+      toast.error('Gagal generate konten AI');
+      console.log(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='h-screen max-w-5xl overflow-auto'>
-        <p>Tambah Tugas</p>
+        <VisuallyHidden>
+          <DialogTitle>Tambah Tugas</DialogTitle>
+        </VisuallyHidden>{' '}
         <DialogHeader></DialogHeader>
-
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           <div>
             <label>Judul Tugas</label>
@@ -144,6 +172,7 @@ export default function ModalTugas({
                   type='tugas'
                   value={field.value}
                   onChange={field.onChange}
+                  editorRef={setEditorInstance} // pasang editorRef supaya bisa set content dari luar
                 />
               )}
             />
@@ -181,12 +210,16 @@ export default function ModalTugas({
             <Button type='submit' disabled={isLoading}>
               {isLoading ? 'Menyimpan...' : 'Simpan Tugas'}
             </Button>
-            <Button type='button' variant='outline' onClick={handleGenerateAI}>
-              Generate Tugas dengan AI
+            <Button
+              type='button'
+              variant='outline'
+              disabled={isLoading}
+              onClick={generateAireal}
+            >
+              {isLoading ? 'Loading...' : 'Generate Tugas By AI'}
             </Button>
           </div>
         </form>
-
         {/* Optional preview */}
         {/* <div
           className='prose max-w-none mt-6'

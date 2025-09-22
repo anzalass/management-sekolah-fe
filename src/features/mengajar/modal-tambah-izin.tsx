@@ -15,6 +15,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import api from '@/lib/api';
 
 type FormValues = {
   tanggal: string;
@@ -89,20 +90,18 @@ export default function ModalTambahIzin({
     try {
       setIsLoading(true);
 
-      const response = await fetch(
-        dataIzin
-          ? `${process.env.NEXT_PUBLIC_API_URL}perizinan-guru/update/${dataIzin.id}`
-          : `${process.env.NEXT_PUBLIC_API_URL}perizinan-guru/create`,
-        {
-          method: dataIzin ? 'PUT' : 'POST',
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
-          },
-          body: formData
-        }
-      );
+      const endpoint = dataIzin
+        ? `perizinan-guru/update/${dataIzin.id}`
+        : `perizinan-guru/create`;
 
-      if (!response.ok) throw new Error('Gagal menyimpan data');
+      const method = dataIzin ? api.put : api.post;
+
+      await method(endpoint, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
 
       toast.success(
         dataIzin ? 'Izin berhasil diperbarui' : 'Izin berhasil diajukan'
@@ -110,8 +109,8 @@ export default function ModalTambahIzin({
       fetchData();
       setOpenModal(false);
       reset();
-    } catch (err) {
-      toast.error('Terjadi kesalahan saat menyimpan data');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     } finally {
       setIsLoading(false);
     }

@@ -2,11 +2,11 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import logo3 from '../../../public/logo3.png';
-import Ellipse from '../../../public/Ellipse.png';
+
 import { easeInOut } from 'framer-motion';
-import Children from '../../../public/children.png';
-import Education from '../../../public/curriculumLAC.png';
+import lacanak1 from '../../../public/lac-anak1.png';
+import lacanak2 from '../../../public/lac-anak2.png';
+
 import fasilitaslac1 from '../../../public/fasilitaslac7.jpg';
 import fasilitaslac2 from '../../../public/fasilitaslac8.jpg';
 import fasilitaslac3 from '../../../public/fasilitaslac9.jpg';
@@ -28,11 +28,7 @@ import primary4 from '../../../public/primary4.jpg';
 import primary5 from '../../../public/primary5.jpg';
 import primary6 from '../../../public/primary6.jpg';
 import Garis from '../../../public/Garis.png';
-import Awan from '../../../public/awan.png';
-import Awan2 from '../../../public/awan2.png';
-import { SwiperSlide, Swiper } from 'swiper/react';
 import { Swiper as SwiperType } from 'swiper';
-import { Navigation, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import Footer from '../../components/layout/footer';
@@ -41,11 +37,9 @@ import Navbar from '../../components/layout/navbar';
 import { AboutUs } from '../lap/about-us';
 import { VisionAndMission } from '../lap/visimisi';
 import { CurriculumSection } from '../lap/curriculum';
-import Testimonial from '../lap/testimonial';
-import axios from 'axios';
-import { API } from '@/lib/server';
-import Gallery from '../lap/gallery';
 import { toast } from 'sonner';
+import Jumbotron from '../lap/jumbotron';
+import api from '@/lib/api';
 
 const fadeIn = (direction = 'up', delay = 0) => {
   return {
@@ -132,23 +126,23 @@ export default function LacView() {
   const [gallery, setGallery] = useState<any[]>([]);
 
   useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}testimonials`)
-      .then((response) => {
+    api
+      .get(`testimonials`)
+      .then((response: any) => {
         setTestimonials(response.data.data);
       })
-      .catch((error) => {
+      .catch((error: any) => {
         toast.error('Error fetching the news:', error);
       });
   }, []);
 
   useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}gallery`)
-      .then((response) => {
+    api
+      .get(`gallery`)
+      .then((response: any) => {
         setGallery(response.data.data);
       })
-      .catch((error) => {
+      .catch((error: any) => {
         toast.error('Error fetching the news:', error);
       });
   }, []);
@@ -161,50 +155,7 @@ export default function LacView() {
   return (
     <div className='lac md:overflow-x-hidden'>
       <Navbar />
-      <div className='bg-lac relative z-0 flex flex-wrap items-start justify-center gap-10 bg-cover bg-center p-4 pt-28'>
-        <div className='absolute inset-0 z-0 bg-black bg-opacity-40'></div>
-        <div className='tes relative z-10 ml-[-35px] flex w-full flex-col items-start p-10 text-white md:w-1/2'>
-          <h1
-            className='pb-7 text-3xl font-bold sm:text-4xl md:text-5xl'
-            style={{ fontFamily: "'Poetsen One', sans-serif" }}
-          >
-            A HAPPY
-          </h1>
-          <h1
-            className='w-[400px] pb-10 text-3xl font-bold sm:text-4xl md:text-5xl lg:w-auto'
-            style={{ fontFamily: "'Poetsen One', sans-serif" }}
-          >
-            PRE-SCHOOL
-          </h1>
-          <p className='font-montserrat pb-1 text-lg font-bold'>
-            Where every day is an unforgettable
-          </p>
-          <p className='font-montserrat pb-7 text-lg font-bold'>
-            adventure of learning
-          </p>
-          <div className='flex gap-4 sm:flex-row'>
-            <a href='/pendaftaran-siswa'>
-              <button className='rounded bg-blue-600 px-6 py-2 font-semibold text-white hover:bg-blue-700'>
-                Join Us
-              </button>
-            </a>
-            <a href='#about'>
-              <button className='rounded border border-white bg-transparent px-6 py-2 font-semibold text-white hover:bg-white/20'>
-                Learn More
-              </button>
-            </a>
-          </div>
-        </div>
-        <div className='relative z-10 flex w-full justify-end pr-4 md:w-[500px]'>
-          <Image
-            width={1000}
-            height={1000}
-            src={logo3}
-            alt='Logo'
-            className='absolute right-[-110px] top-[-32rem] h-40 object-contain md:left-72 md:right-auto lg:relative lg:left-20 lg:top-[-110px] lg:ml-44 lg:h-60'
-          />
-        </div>
-      </div>
+      <Jumbotron />
 
       <div className='w-full bg-[#bde0fe]'>
         <AboutUs
@@ -325,7 +276,7 @@ export default function LacView() {
             <Image
               width={1000}
               height={1000}
-              src={Children}
+              src={lacanak2}
               alt='Young girl with two buns hairstyle holding a phone'
               className='h-[180px] w-[180px] object-contain'
             />
@@ -352,7 +303,7 @@ export default function LacView() {
             <Image
               width={1000}
               height={1000}
-              src={Children}
+              src={lacanak1}
               alt='Young girl with two buns hairstyle holding a phone'
               className='h-[180px] w-[180px] object-contain'
             />
@@ -403,6 +354,13 @@ export default function LacView() {
             width={1000}
             height={1000}
             src={fasilitaslac5}
+            alt='Facility 1'
+            className='w-full transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
+          />
+          <Image
+            width={1000}
+            height={1000}
+            src={fasilitaslac6}
             alt='Facility 1'
             className='w-full transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
           />

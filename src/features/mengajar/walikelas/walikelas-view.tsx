@@ -14,6 +14,11 @@ import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import PresensiSiswa from './presensi-siswa';
 import Link from 'next/link';
+import api from '@/lib/api';
+import JadwalPelajaran from './jadwalPelajaran';
+import PerizinanSiswaView from './perizinan-siswa-view';
+import TambahWeeklyActivity from './tambah-weekly-activity';
+import WeeklyActivityList from './weekly-activity-view';
 
 type IDKelas = {
   id: string;
@@ -62,6 +67,7 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
   const [pengumumanKelas, setPengumumanKelas] = useState<PengumumanKelasType[]>(
     []
   );
+  const [fetch, setFetch] = useState(false);
   const [catatanPerkembangan, setCatatanPerkembangan] = useState<
     CatatanPerkembanganSiswaType[]
   >([]);
@@ -72,32 +78,31 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
   );
   const fetchData = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}user/get-all-siswa`
-      );
-      const response2 = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}kelas-walikelas/siswa/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
-          }
+      const response = await api.get(`user/get-all-siswa`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
         }
-      );
-      const response3 = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}dashboard-walikelas/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
-          }
+      });
+      const response2 = await api.get(`kelas-walikelas/siswa/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
         }
-      );
+      });
+      const response3 = await api.get(`dashboard-walikelas/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
 
       setMasterSiswa(response.data.result.data);
       setKelasSiswa(response2?.data);
       setPengumumanKelas(response3?.data?.data?.pengumuman);
       setCatatanPerkembangan(response3?.data?.data?.catatanMap);
-    } catch (error) {
-      toast.error('Gagal fetch siswa');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
@@ -116,48 +121,29 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
 
   const handleAddSiswaToKelas = async (siswa: Student2) => {
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}kelas-walikelas/add`,
+      const response = await api.post(
+        `kelas-walikelas/add`,
         {
           nisSiswa: siswa.nis,
           namaSiswa: siswa.nama,
           idSiswa: siswa.id,
           idKelas: id // pastikan juga kirim ID kelasMapel
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
         }
       );
 
       toast.success('Siswa berhasil ditambahkan ke kelas');
       toggleTrigger();
       setSearchTerm('');
-    } catch (error) {
-      toast.error('Gagal menambahkan siswa ke kelas');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
-
-  // const [loading, setLoading] = useState(true);
-  // const [data, setData] = useState({ tanggalUnik: [], tableData: [] });
-  // const [error, setError] = useState(null);
-
-  // useEffect(() => {
-  //   async function fetchAbsensi() {
-  //     setLoading(true);
-  //     try {
-  //       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/absensi/${id}`); // sesuaikan endpoint-nya
-  //       if (!res.ok) throw new Error('Failed to fetch absensi data');
-  //       const json = await res.json();
-  //       setData(json);
-  //     } catch (err: any) {
-  //       setError(err.message);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   }
-  //   if (id) fetchAbsensi();
-  // }, [id]);
-
-  // if (loading) return <p>Loading...</p>;
-  // if (error) return <p>Error: {error}</p>;
-  // if (data.tableData.length === 0) return <p>Tidak ada data absensi</p>;
 
   return (
     <div className='space-y-8 overflow-x-auto p-4 pb-16'>
@@ -165,30 +151,42 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
         <h1 className='text-2xl font-bold'>Dashboard Wali Kelas</h1>
         <div className='flex gap-2'>
           <Button asChild variant='default'>
-            <Link href={`/dashboard/mengajar/walikelas/${id}/rekap-absensi`}>
+            <Link href={`/mengajar/walikelas/${id}/rekap-absensi`}>
               Rekap Absensi
             </Link>
           </Button>
           <Button asChild variant='default'>
-            <Link href={`/dashboard/mengajar/walikelas/${id}/rekap-nilai`}>
+            <Link href={`/mengajar/walikelas/${id}/rekap-nilai`}>
               Rekap Nilai
             </Link>
           </Button>
           <Button asChild variant='default'>
-            <Link href={`/dashboard/mengajar/walikelas/${id}/list-siswa`}>
+            <Link href={`/mengajar/walikelas/${id}/list-siswa`}>
               List Siswa
             </Link>
           </Button>
           <Button asChild variant='default'>
-            <Link href={`/dashboard/mengajar/walikelas/${id}/kartu-ujian`}>
+            <Link href={`/mengajar/walikelas/${id}/kartu-ujian`}>
               Cetak Kartu Ujian
             </Link>
           </Button>
+          <Button asChild variant='default'>
+            <Link href={`/mengajar/walikelas/${id}/perizinan-siswa`}>
+              Perizinan Siswa
+            </Link>
+          </Button>
+          <TambahWeeklyActivity idKelas={id} />
         </div>
+      </div>
+      <div className='w-[100%] overflow-x-scroll'>
+        <PerizinanSiswaView idKelas={id} />
+      </div>
+      <div className='w-[100%] overflow-x-scroll'>
+        <PresensiSiswa idKelas={id} />
       </div>
 
       <div className='w-[100%] overflow-x-scroll'>
-        <PresensiSiswa idKelas={id} />
+        <JadwalPelajaran idKelas={id} />
       </div>
 
       <Card className='w-full'>
@@ -232,40 +230,7 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
         idKelas={id}
         siswa={kelasSiswa}
       />
-
-      {/* <div className='overflow-auto'>
-        <table className='min-w-full border border-gray-300'>
-          <thead>
-            <tr className='bg-gray-100'>
-              <th className='border px-2 py-1'>Nama Siswa</th>
-              {data.tanggalUnik.map((tgl) => (
-                <th key={tgl} className='border px-2 py-1 text-center'>
-                  {new Date(tgl).toLocaleDateString('id-ID', {
-                    weekday: 'short',
-                    day: 'numeric',
-                    month: 'short'
-                  })}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.tableData.map((row) => (
-              <tr
-                key={row?.idSiswa || row.nisSiswa}
-                className='hover:bg-gray-50'
-              >
-                <td className='border px-2 py-1'>{row.namaSiswa}</td>
-                {data.tanggalUnik.map((tgl) => (
-                  <td key={tgl} className='border px-2 py-1 text-center'>
-                    {row[tgl]}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div> */}
+      <WeeklyActivityList idKelas={id} />
     </div>
   );
 };

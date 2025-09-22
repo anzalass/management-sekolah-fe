@@ -14,10 +14,13 @@ import CardListIzin from './list-izin';
 import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import JanjiTemuView from './janji-temu';
 
 export default function MengajarViewPage() {
   const { data: session } = useSession();
-
+  const { trigger, toggleTrigger } = useRenderTrigger();
   const [dashboard, setDashboard] = useState({
     statusMasuk: false,
     statusKeluar: false,
@@ -30,24 +33,14 @@ export default function MengajarViewPage() {
 
   const dataDashboard = async () => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}dashboard-mengajar`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session?.user?.token}`
-          }
+      const response = await api.get('dashboard-mengajar', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
         }
-      );
+      });
 
-      if (!response.ok) {
-        const errRes = await response.json();
-        throw new Error(errRes.message || 'Gagal mengambil data dashboard');
-      }
-
-      const result = await response.json();
-      const data = result.data;
+      const data = response.data.data; // biasanya axios responsenya { data: {...} }
 
       setDashboard({
         statusMasuk: data.statusMasuk,
@@ -58,8 +51,8 @@ export default function MengajarViewPage() {
         kelasMapel: data.kelasMapel,
         perizinan: data.perizinan
       });
-    } catch (error) {
-      toast.error('Gagal mengambil dashboard');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
@@ -73,7 +66,7 @@ export default function MengajarViewPage() {
     if (session?.user?.token) {
       dataDashboard();
     }
-  }, [session]);
+  }, [session, trigger]);
 
   // Contoh data (ganti dengan data asli dari props atau API)
   const today = new Date().toLocaleDateString('id-ID', {
@@ -85,31 +78,25 @@ export default function MengajarViewPage() {
 
   const absenPulang = async () => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}absen-pulang`,
+      const response = await api.post(
+        'absen-pulang',
         {
-          method: 'POST',
+          lat: '-6.09955851839959',
+          long: '106.51911493230111'
+        },
+        {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${session?.user?.token}`
-          },
-          body: JSON.stringify({
-            lat: '-6.09955851839959',
-            long: '106.51911493230111'
-          })
+          }
         }
       );
 
-      if (!response.ok) {
-        const result = await response.json();
-        throw new Error(result.message || 'Gagal absen');
-      }
-
+      // axios langsung return response.data
       dataDashboard();
-      const result = await response.json();
-      toast.success(result.message || 'Absen pulang berhasil');
+      toast.success(response.data.message || 'Absen pulang berhasil');
     } catch (error: any) {
-      toast.error(error?.message || 'Gagal absen');
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
@@ -128,7 +115,9 @@ export default function MengajarViewPage() {
 
       {/* Greeting */}
       <div>
-        <h1 className='text-xl font-bold'>Selamat datang, Pak Andi 👋</h1>
+        <h1 className='text-xl font-bold'>
+          Selamat datang, {session?.user?.nama} 👋
+        </h1>
       </div>
 
       {/* Absen Buttons */}
@@ -245,7 +234,7 @@ export default function MengajarViewPage() {
 
       <div className=''></div>
 
-      <CardListIzin izin={dashboard?.perizinan} fetchData={dataDashboard} />
+      <CardListIzin />
     </div>
   );
 }

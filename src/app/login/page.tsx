@@ -23,8 +23,8 @@ export default async function Page() {
       const data = await response.json();
       stars = data.stargazers_count || stars;
     }
-  } catch (error) {
-    toast.error('Error fetching GitHub stars');
+  } catch (error: any) {
+    toast.error(error.response?.data?.message || 'Terjadi kesalahan');
   }
 
   // 🛠 Bungkus Client Component di <Suspense>

@@ -18,6 +18,7 @@ import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import api from '@/lib/api';
 
 interface CellActionProps {
   data: Pendaftaran;
@@ -34,18 +35,16 @@ export const PendaftaranCellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirmDelete = async () => {
     setLoading(true);
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}pendaftaran/delete/${data.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+      await api.delete(`pendaftaran/delete/${data.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
         }
-      );
+      });
       setOpen(false);
       toggleTrigger();
-    } catch (error) {
-      toast.error('Error deleting Pendaftaran');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       setOpen(false);
     } finally {
       setLoading(false);

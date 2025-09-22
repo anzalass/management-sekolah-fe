@@ -9,6 +9,8 @@ import { useSearchParams } from 'next/navigation';
 import { columns, Peminjaman } from './peminjaman-pengembalian-tables/columns';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export default function PeminjamanPengembalianListingPage() {
   const { trigger, toggleTrigger } = useRenderTrigger();
@@ -24,13 +26,19 @@ export default function PeminjamanPengembalianListingPage() {
   const [totalData, setTotalData] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetchBuku = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}peminjaman?page=${page}&pageSize=${pageLimit}&nama=${search}&status=${status}`
+        const response = await api.get(
+          `peminjaman?page=${page}&pageSize=${pageLimit}&nama=${search}&status=${status}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          }
         );
         if (response.data) {
           setData(response.data.data);
@@ -38,9 +46,8 @@ export default function PeminjamanPengembalianListingPage() {
         } else {
           setError('Data format is invalid');
         }
-      } catch (error) {
-        toast.error('Error fetching data');
-        setError('Terjadi kesalahan saat mengambil data buku');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       } finally {
         setLoading(false);
       }

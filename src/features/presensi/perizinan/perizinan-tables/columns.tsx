@@ -1,9 +1,11 @@
 'use client';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import api from '@/lib/api';
 import { API } from '@/lib/server';
 import { ColumnDef } from '@tanstack/react-table';
 import axios from 'axios';
 import { Clock } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -101,16 +103,19 @@ export const columns: ColumnDef<any>[] = [
       const { toggleTrigger } = useRenderTrigger(); // pindahkan ke sini
       const [loading, setLoading] = useState(false);
       const id = row.original.id;
+      const { data: session } = useSession();
 
       const handleApprove = async () => {
         setLoading(true);
         try {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}perizinan-guru/acc/${id}`
-          );
+          await api.put(`perizinan-guru/acc/${id}`, {
+            headers: {
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          });
           toggleTrigger();
         } catch (error: any) {
-          toast.error(error);
+          toast.error(error?.response?.data?.message || 'Terjadi Kesalahan');
         } finally {
           setLoading(false);
         }
@@ -119,12 +124,14 @@ export const columns: ColumnDef<any>[] = [
       const handleReject = async () => {
         setLoading(true);
         try {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}perizinan-guru/reject/${id}`
-          );
+          await api.put(`perizinan-guru/reject/${id}`, {
+            headers: {
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          });
           toggleTrigger();
         } catch (error: any) {
-          toast.error(error);
+          toast.error(error.response?.data?.message || 'Terjadi kesalahan');
         } finally {
           setLoading(false);
         }

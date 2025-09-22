@@ -6,6 +6,8 @@ import Fasilitas2 from '../../../public/fasilitas2.jpg';
 import Fasilitas3 from '../../../public/fasilitas3.jpg';
 import Fasilitas4 from '../../../public/fasilitas4.jpg';
 import Fasilitas5 from '../../../public/fasilitas5.jpg';
+import Fasilitas6 from '../../../public/fasilitas6.jpg';
+import Fasilitas7 from '../../../public/fasilitas7.jpg';
 
 export default function OurFacilities() {
   return (
@@ -49,29 +51,22 @@ export default function OurFacilities() {
         <Image
           width={1000}
           height={1000}
-          src={Fasilitas1}
+          src={Fasilitas5}
           alt='Facility 1'
           className='w-[100%] transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
         />
         <Image
           width={1000}
           height={1000}
-          src={Fasilitas2}
+          src={Fasilitas6}
           alt='Facility 2'
           className='w-[100%] transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
         />
         <Image
           width={1000}
           height={1000}
-          src={Fasilitas3}
+          src={Fasilitas7}
           alt='Facility 3'
-          className='w-[100%] transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
-        />
-        <Image
-          width={1000}
-          height={1000}
-          src={Fasilitas4}
-          alt='Facility 4'
           className='w-[100%] transform rounded-lg shadow transition-transform duration-300 hover:z-20 hover:scale-110'
         />
 

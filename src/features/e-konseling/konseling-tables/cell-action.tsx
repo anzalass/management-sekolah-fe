@@ -17,6 +17,7 @@ import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { Konseling } from './columns';
 import { toast } from 'sonner';
+import api from '@/lib/api';
 
 interface CellActionProps {
   data: Konseling;
@@ -31,18 +32,15 @@ export const KonselingCellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirmDelete = async () => {
     setLoading(true);
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}konseling/${data.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+      await api.delete(`konseling/${data.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
         }
-      );
+      });
       setOpen(false);
-      window.location.reload();
-    } catch (error) {
-      toast.error('Error deleting Konseling');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       setOpen(false);
     } finally {
       setLoading(false);

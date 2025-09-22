@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import {
   Dialog,
@@ -9,101 +10,140 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { CalendarIcon, ImageIcon, Plus, SearchIcon } from 'lucide-react';
+import {
+  CalendarIcon,
+  CheckCircle2,
+  Clock,
+  ImageIcon,
+  Plus,
+  SearchIcon,
+  StepBack,
+  Trash2,
+  XCircle
+} from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import Image from 'next/image';
+import { useSession } from 'next-auth/react';
+import api from '@/lib/api';
+import { toast } from 'sonner';
+import NavbarSiswa from '../navbar-siswa';
+import BottomNav from '../bottom-nav';
 
 interface Izin {
-  id: number;
+  id: string;
   judul: string;
   keterangan: string;
-  tanggal: string; // Format: YYYY-MM-DD
-  bukti?: File | null;
+  time: string;
+  bukti?: string | null;
+  status: any;
 }
 
 export default function Perizinan() {
   const [search, setSearch] = useState('');
   const [filterTanggal, setFilterTanggal] = useState('');
-  const [izinList, setIzinList] = useState<Izin[]>([
-    {
-      id: 1,
-      judul: 'Izin Sakit',
-      keterangan: 'Demam tinggi, disarankan istirahat oleh dokter.',
-      tanggal: '2025-06-18'
-    },
-    {
-      id: 2,
-      judul: 'Izin Keluarga',
-      keterangan: 'Menghadiri acara keluarga di luar kota.',
-      tanggal: '2025-06-10'
-    },
-    {
-      id: 4,
-      judul: 'Izin Keperluan Penting',
-      keterangan: 'Mengurus dokumen penting di instansi pemerintah.',
-      tanggal: '2025-06-05'
-    },
-    {
-      id: 5,
-      judul: 'Izin Sakit',
-      keterangan: 'Demam tinggi, disarankan istirahat oleh dokter.',
-      tanggal: '2025-06-18'
-    },
-    {
-      id: 6,
-      judul: 'Izin Keluarga',
-      keterangan: 'Menghadiri acara keluarga di luar kota.',
-      tanggal: '2025-06-10'
-    },
-    {
-      id: 7,
-      judul: 'Izin Keperluan Penting',
-      keterangan: 'Mengurus dokumen penting di instansi pemerintah.',
-      tanggal: '2025-06-05'
-    }
-  ]);
+  const [izinList, setIzinList] = useState<Izin[]>([]);
+  const [open, setOpen] = useState(false);
 
-  const [form, setForm] = useState({
-    judul: '',
-    keterangan: '',
-    tanggal: '',
-    bukti: null as File | null
+  const { data: session } = useSession();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting }
+  } = useForm({
+    defaultValues: {
+      keterangan: '',
+      tanggal: '',
+      bukti: null as File | null
+    }
   });
 
-  const filteredData = izinList
-    .filter(
-      (izin) =>
-        izin.judul.toLowerCase().includes(search.toLowerCase()) ||
-        izin.keterangan.toLowerCase().includes(search.toLowerCase())
-    )
-    .filter((izin) => (filterTanggal ? izin.tanggal === filterTanggal : true));
+  const resetFilter = () => {
+    setSearch('');
+    setFilterTanggal('');
+  };
 
-  const handleSubmit = () => {
-    const newIzin: Izin = {
-      id: Date.now(),
-      judul: form.judul,
-      keterangan: form.keterangan,
-      tanggal: form.tanggal,
-      bukti: form.bukti
-    };
-    setIzinList((prev) => [newIzin, ...prev]);
-    setForm({ judul: '', keterangan: '', tanggal: '', bukti: null });
+  // Ambil data izin dari API
+  const fetchData = async () => {
+    const res = await api.get('perizinan-siswa-pribadi', {
+      headers: {
+        Authorization: `Bearer ${session?.user?.token}`
+      }
+    });
+    setIzinList(res.data.data);
+    console.log(res.data);
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const onSubmit = async (formData: any) => {
+    try {
+      const fd = new FormData();
+      fd.append('keterangan', formData.keterangan);
+      fd.append('time', formData.tanggal);
+      if (formData.bukti?.[0]) {
+        fd.append('image', formData.bukti[0]);
+      }
+
+      const res = await api.post('perizinan-siswa', fd, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
+      if (res.status !== 201) throw new Error('Gagal mengajukan izin');
+      toast.success('Berhasil Membuat Izin');
+      setOpen(false);
+      fetchData();
+      reset();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const filteredData = izinList
+    .filter((izin) =>
+      izin.keterangan.toLowerCase().includes(search.toLowerCase())
+    )
+    .filter((izin) => {
+      if (!filterTanggal) return true;
+
+      // konversi ISO → YYYY-MM-DD
+      const dateOnly = new Date(izin.time).toISOString().split('T')[0];
+
+      return dateOnly === filterTanggal;
+    });
+
+  const handleDelete = async (id: any) => {
+    try {
+      await api.delete(`perizinan-siswa/${id}`, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
+      toast.success('Berhasil menghapus izin');
+      fetchData();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
+      console.log(error);
+    }
   };
 
   return (
-    <div className='mx-auto max-w-4xl space-y-6 p-4'>
-      <div className='flex items-center justify-between'>
-        <div>
-          <h1 className='text-2xl font-bold'>Riwayat Perizinan</h1>
-          <p className='text-sm text-muted-foreground'>
-            Lihat daftar pengajuan izin yang sudah dibuat.
-          </p>
-        </div>
-        <Dialog>
+    <div className='mx-auto space-y-2'>
+      <NavbarSiswa title='Perizinan Siswa' />
+      <BottomNav />
+
+      {/* Button + Filter */}
+      <div className='flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between'>
+        <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className='flex gap-1'>
+            <Button className='flex gap-1 p-4'>
               <Plus size={16} />
               Ajukan Izin
             </Button>
@@ -112,27 +152,11 @@ export default function Perizinan() {
             <DialogHeader>
               <DialogTitle>Form Pengajuan Izin</DialogTitle>
             </DialogHeader>
-            <div className='space-y-4'>
-              <div>
-                <Label>Judul</Label>
-                <Input
-                  value={form.judul}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, judul: e.target.value }))
-                  }
-                  placeholder='Judul izin (contoh: Izin Sakit)'
-                />
-              </div>
+            <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
               <div>
                 <Label>Keterangan</Label>
                 <Textarea
-                  value={form.keterangan}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      keterangan: e.target.value
-                    }))
-                  }
+                  {...register('keterangan', { required: true })}
                   placeholder='Alasan atau penjelasan izin'
                 />
               </div>
@@ -140,83 +164,117 @@ export default function Perizinan() {
                 <Label>Tanggal</Label>
                 <Input
                   type='date'
-                  value={form.tanggal}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, tanggal: e.target.value }))
-                  }
+                  {...register('tanggal', { required: true })}
                 />
               </div>
               <div>
                 <Label htmlFor='bukti'>Upload Bukti (opsional)</Label>
                 <div className='flex items-center gap-2'>
                   <ImageIcon className='h-4 w-4 text-muted-foreground' />
-                  <Input
-                    type='file'
-                    accept='image/*'
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        bukti: e.target.files?.[0] ?? null
-                      }))
-                    }
-                  />
+                  <Input type='file' accept='image/*' {...register('bukti')} />
                 </div>
-                {form.bukti && (
-                  <p className='mt-1 text-xs text-muted-foreground'>
-                    {form.bukti.name}
-                  </p>
-                )}
               </div>
               <div className='flex justify-end'>
-                <Button onClick={handleSubmit}>Kirim Izin</Button>
+                <Button type='submit' disabled={isSubmitting}>
+                  {isSubmitting ? 'Mengirim...' : 'Kirim Izin'}
+                </Button>
               </div>
-            </div>
+            </form>
           </DialogContent>
         </Dialog>
-      </div>
 
-      {/* Filter Search & Date */}
-      <div className='flex flex-col gap-4 sm:flex-row'>
-        <div className='relative w-full'>
-          <SearchIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
-          <Input
-            placeholder='Cari judul atau keterangan...'
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className='pl-10'
-          />
-        </div>
-        <div className='relative w-full sm:max-w-xs'>
-          <CalendarIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
-          <Input
-            type='date'
-            value={filterTanggal}
-            onChange={(e) => setFilterTanggal(e.target.value)}
-            className='pl-10'
-          />
+        <div className='flex flex-col gap-4 sm:flex-row'>
+          <div className='relative w-full'>
+            <SearchIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
+            <Input
+              placeholder='Cari judul atau keterangan...'
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className='pl-10'
+            />
+          </div>
+          <div className='relative w-full sm:max-w-xs'>
+            <CalendarIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
+            <Input
+              type='date'
+              value={filterTanggal}
+              onChange={(e) => setFilterTanggal(e.target.value)}
+              className='pl-10'
+            />
+          </div>
+          <Button onClick={resetFilter}>Reset</Button>
         </div>
       </div>
 
       {/* Daftar Perizinan */}
-      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+      <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4'>
         {filteredData.length > 0 ? (
           filteredData.map((izin) => (
-            <Card key={izin.id}>
-              <CardHeader>
-                <CardTitle className='text-lg'>{izin.judul}</CardTitle>
-              </CardHeader>
-              <CardContent className='space-y-2 text-sm text-muted-foreground'>
-                <p>{izin.keterangan}</p>
-                <p className='text-xs font-medium text-primary'>
-                  Tanggal: {izin.tanggal}
+            <Card key={izin.id} className='p-4'>
+              <div className='flex items-center justify-between'>
+                {/* Tanggal */}
+                <p className='text-lg font-bold'>
+                  {new Date(izin?.time).toLocaleDateString('id-ID', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                  })}
                 </p>
+
+                {/* Status izin pakai icon */}
+                <div className='flex items-center gap-2'>
+                  {izin.status === 'disetujui' && (
+                    <CheckCircle2 className='text-green-600' size={20} />
+                  )}
+                  {izin.status === 'ditolak' && (
+                    <XCircle className='text-red-600' size={20} />
+                  )}
+                  {izin.status === 'menunggu' && (
+                    <Clock className='text-yellow-500' size={20} />
+                  )}
+                  <span className='text-sm capitalize'>{izin.status}</span>
+                </div>
+              </div>
+
+              <div className='mt-2 space-y-2 text-sm text-muted-foreground'>
+                <p>{izin.keterangan}</p>
+
                 {izin.bukti && (
                   <div className='mt-1'>
-                    <span className='text-xs'>Bukti: </span>
-                    <span className='text-xs italic'>{izin.bukti.name}</span>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant='outline' size='sm' className='text-xs'>
+                          Lihat Bukti
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className='max-w-lg'>
+                        <Image
+                          alt='bukti'
+                          src={izin.bukti}
+                          width={800}
+                          height={800}
+                          className='w-full rounded-lg object-contain'
+                        />
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 )}
-              </CardContent>
+              </div>
+
+              {/* Tombol Delete */}
+              {izin.status === 'menunggu' ? (
+                <div className='mt-4 flex justify-end'>
+                  <Button
+                    variant='destructive'
+                    size='sm'
+                    onClick={() => handleDelete(izin.id)}
+                    className='flex items-center gap-1'
+                  >
+                    <Trash2 size={16} />
+                    Hapus
+                  </Button>
+                </div>
+              ) : null}
             </Card>
           ))
         ) : (

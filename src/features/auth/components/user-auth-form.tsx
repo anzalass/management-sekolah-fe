@@ -43,15 +43,16 @@ export default function UserAuthForm() {
     const result = await signIn('credentials', {
       nip: data.nip,
       password: data.password,
+      type: 'Guru',
       redirect: false,
-      callbackUrl: callbackUrl || '/dashboard'
+      callbackUrl: callbackUrl || '/mengajar'
     });
 
     if (result?.error != null) {
       toast.error('Login gagal, cek NIP dan password Anda');
     } else {
       toast.success('Login berhasil, Anda akan diarahkan ke dashboard');
-      startTransition(() => window.location.replace('/dashboard'));
+      startTransition(() => window.location.replace('/mengajar'));
     }
   };
 

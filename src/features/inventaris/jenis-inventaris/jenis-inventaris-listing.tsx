@@ -9,12 +9,15 @@ import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { JenisInventaris } from './jenis-inventaris-form';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export default function JenisInventarisListingPage() {
   const searchParams = useSearchParams();
   const page = searchParams.get('page') || '1';
   const search = searchParams.get('nama') || '';
   const pageLimit = searchParams.get('limit') || '10';
+  const { data: session } = useSession();
 
   const [data, setData] = useState<JenisInventaris[]>([]);
   const [totalData, setTotalData] = useState(0);
@@ -25,13 +28,19 @@ export default function JenisInventarisListingPage() {
     const fetch = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}jenis-inventaris?page=${page}&pageSize=${pageLimit}&nama=${search}`
+        const response = await api.get(
+          `jenis-inventaris?page=${page}&pageSize=${pageLimit}&nama=${search}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          }
         );
         setData(response.data.data.data);
         setTotalData(response.data.data.totalData);
-      } catch (error) {
-        toast.error('Error fetching data');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       } finally {
         setLoading(false);
       }

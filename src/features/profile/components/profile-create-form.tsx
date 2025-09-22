@@ -31,6 +31,7 @@ import { AlertTriangleIcon, Trash, Trash2Icon } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 interface ProfileFormType {
   initialData: any | null;
@@ -89,14 +90,15 @@ const ProfileCreateForm: React.FC<ProfileFormType> = ({
     try {
       setLoading(true);
       if (initialData) {
-        // await axios.post(`/api/products/edit-product/${initialData._id}`, data);
+        // await api.post(`/api/products/edit-product/${initialData._id}`, data);
       } else {
-        // const res = await axios.post(`/api/products/create-product`, data);
+        // const res = await api.post(`/api/products/create-product`, data);
         // console.log("product", res);
       }
       router.refresh();
       router.push(`/dashboard/products`);
     } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     } finally {
       setLoading(false);
     }
@@ -105,7 +107,7 @@ const ProfileCreateForm: React.FC<ProfileFormType> = ({
   const onDelete = async () => {
     try {
       setLoading(true);
-      //   await axios.delete(`/api/${params.storeId}/products/${params.productId}`);
+      //   await api.delete(`/api/${params.storeId}/products/${params.productId}`);
       router.refresh();
       router.push(`/${params.storeId}/products`);
     } catch (error: any) {

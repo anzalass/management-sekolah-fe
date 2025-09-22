@@ -9,11 +9,20 @@ export const columns: ColumnDef<Anggaran>[] = [
     header: 'Nama',
     cell: ({ row }) => row.original.nama
   },
+
   {
     accessorKey: 'jumlah', // NIP
     header: 'Jumlah',
-    cell: ({ row }) => row.original.jumlah
+    cell: ({ row }) => {
+      const value = row.original.jumlah;
+      return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+      }).format(value);
+    }
   },
+
   {
     accessorKey: 'jenis', // NIP
     header: 'Jenis',

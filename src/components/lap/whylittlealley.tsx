@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import React from 'react';
-import Children from '../../../public/children.png';
+import lapanak1 from '../../../public/lap-anak1.png';
+import lapanak2 from '../../../public/lap-anak2.png';
 
 type Props = {
   refWhy: any;
@@ -32,7 +33,7 @@ export function WhyLittleAlley({ refWhy, showWhy }: Props) {
         <Card className='shadow-md'>
           <div className='flex flex-col items-center gap-6 p-6 md:flex-row'>
             <Image
-              src={Children}
+              src={lapanak1}
               alt='Teaching approach'
               width={180}
               height={180}
@@ -55,7 +56,7 @@ export function WhyLittleAlley({ refWhy, showWhy }: Props) {
         <Card className='shadow-md'>
           <div className='flex flex-col items-center gap-6 p-6 md:flex-row'>
             <Image
-              src={Children}
+              src={lapanak2}
               alt='Curriculum-based learning'
               width={180}
               height={180}

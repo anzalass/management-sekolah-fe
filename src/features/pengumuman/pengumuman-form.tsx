@@ -32,6 +32,8 @@ import {
 } from '@/components/ui/select';
 import { title } from 'process';
 import RichTextEditor from '../texteditor/textEditor';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 // Tipe Data Siswa
 export type Pengumuman = {
@@ -52,7 +54,7 @@ export default function PengumumanForm({
 }) {
   const [loading, startTransition] = useTransition();
   const router = useRouter();
-
+  const { data: session } = useSession();
   const defaultValue = {
     title: initialData?.title,
     time: initialData?.time
@@ -72,29 +74,31 @@ export default function PengumumanForm({
     startTransition(async () => {
       try {
         if (id !== 'new') {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}pengumuman/update/${id}`,
+          await api.put(
+            `pengumuman/update/${id}`,
             {
               ...values,
               content: content
             },
             {
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.user?.token}`
               }
             }
           );
           toast.success('Data pengumuman berhasil diubah');
         } else {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}pengumuman/create`,
+          await api.post(
+            `pengumuman/create`,
             {
               ...values,
               content: content
             },
             {
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.user?.token}`
               }
             }
           );

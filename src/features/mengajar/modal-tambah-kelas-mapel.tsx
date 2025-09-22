@@ -11,8 +11,8 @@ import { Input } from '@/components/ui/input';
 import { useForm } from 'react-hook-form';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
+import api from '@/lib/api';
 
 type FormValues = {
   namaMapel: string;
@@ -20,6 +20,7 @@ type FormValues = {
   ruangKelas: string;
   namaGuru: string;
   nipGuru: string;
+  fotoBanner: FileList; // tambahan
 };
 
 type Props = {
@@ -31,6 +32,7 @@ type Props = {
     namaMapel: string;
     kelas: string;
     ruangKelas: string;
+    fotoBanner?: string;
   } | null;
 };
 
@@ -45,12 +47,16 @@ export default function ModalTambahKelasMapel({
     handleSubmit,
     setValue,
     reset,
+    watch,
     formState: { errors }
   } = useForm<FormValues>();
 
   const [isLoading, setIsLoading] = useState(false);
   const isEdit = !!dataEdit;
   const { data: session } = useSession();
+
+  const watchFile = watch('fotoBanner');
+
   useEffect(() => {
     if (dataEdit) {
       setValue('namaMapel', dataEdit.namaMapel);
@@ -66,25 +72,33 @@ export default function ModalTambahKelasMapel({
       return;
     }
     setIsLoading(true);
+
     try {
-      setValue('namaGuru', session?.user?.nama);
-      setValue('nipGuru', session?.user?.nip);
+      setValue('namaGuru', session.user.nama);
+      setValue('nipGuru', session.user.nip);
 
-      const res = await fetch(
-        isEdit
-          ? `${process.env.NEXT_PUBLIC_API_URL}kelas-mapel/update/${dataEdit?.id}`
-          : `${process.env.NEXT_PUBLIC_API_URL}kelas-mapel/create`,
-        {
-          method: isEdit ? 'PUT' : 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session?.user?.token}`
-          },
-          body: JSON.stringify(data)
+      const formData = new FormData();
+      formData.append('namaMapel', data.namaMapel);
+      formData.append('kelas', data.kelas);
+      formData.append('ruangKelas', data.ruangKelas);
+      formData.append('namaGuru', session.user.nama);
+      formData.append('nipGuru', session.user.nip);
+
+      if (data.fotoBanner && data.fotoBanner[0]) {
+        formData.append('banner', data.fotoBanner[0]);
+      }
+
+      const endpoint = isEdit
+        ? `kelas-mapel/update/${dataEdit?.id}`
+        : 'kelas-mapel/create';
+
+      const method = isEdit ? api.put : api.post;
+
+      await method(endpoint, formData, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
         }
-      );
-
-      if (!res.ok) throw new Error('Gagal menyimpan data');
+      });
 
       toast.success(
         isEdit ? 'Berhasil memperbarui data' : 'Berhasil menambah data'
@@ -92,8 +106,8 @@ export default function ModalTambahKelasMapel({
       fetchData();
       setOpenModal(null);
       reset();
-    } catch (error) {
-      toast.error('Terjadi kesalahan saat menyimpan');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     } finally {
       setIsLoading(false);
     }
@@ -110,7 +124,11 @@ export default function ModalTambahKelasMapel({
             {isEdit ? 'Edit Kelas Mapel' : 'Tambah Kelas Mapel'}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-3'>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className='space-y-3'
+          encType='multipart/form-data'
+        >
           <div>
             <Input
               placeholder='Nama Mapel'
@@ -138,6 +156,16 @@ export default function ModalTambahKelasMapel({
               <p className='text-sm text-red-500'>
                 {errors.ruangKelas.message}
               </p>
+            )}
+          </div>
+          <div>
+            <Input type='file' accept='image/*' {...register('fotoBanner')} />
+            {watchFile?.length > 0 && (
+              <img
+                src={URL.createObjectURL(watchFile[0])}
+                alt='Preview Banner'
+                className='mt-2 h-24 rounded-md object-cover'
+              />
             )}
           </div>
           <div className='flex justify-end'>

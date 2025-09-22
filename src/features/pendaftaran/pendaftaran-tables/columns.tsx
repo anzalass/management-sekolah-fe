@@ -5,7 +5,7 @@ import { PendaftaranCellAction } from './cell-action';
 import { Pendaftaran } from '../pendaftaran-listing';
 import { API } from '@/lib/server';
 
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}view-image`;
+const BASE_URL = `view-image`;
 
 export const columns: ColumnDef<Pendaftaran>[] = [
   {

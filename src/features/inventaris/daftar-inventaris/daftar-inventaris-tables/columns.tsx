@@ -23,7 +23,14 @@ export const columns: ColumnDef<Inventaris>[] = [
   {
     accessorKey: 'hargaBeli', // NIP
     header: 'Harga Beli',
-    cell: ({ row }) => row.original.hargaBeli
+    cell: ({ row }) => {
+      const value = row.original.hargaBeli;
+      return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+      }).format(value);
+    }
   },
 
   {

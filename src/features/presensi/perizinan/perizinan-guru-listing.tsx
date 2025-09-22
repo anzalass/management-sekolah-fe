@@ -9,6 +9,7 @@ import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
+import api from '@/lib/api';
 
 export type PerizinanGuru = {
   id: string;
@@ -39,8 +40,8 @@ export default function PerizinanGuruListingPage() {
     const fetch = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}perizinan-guru?page=${page}&pageSize=${pageLimit}&nama=${search}&nip=${nip}&tanggal=${tanggal}`,
+        const response = await api.get(
+          `perizinan-guru?page=${page}&pageSize=${pageLimit}&nama=${search}&nip=${nip}&tanggal=${tanggal}`,
           {
             headers: {
               Authorization: `Bearer ${session?.user?.token}`
@@ -49,8 +50,8 @@ export default function PerizinanGuruListingPage() {
         );
         setData(response.data.data);
         setTotalData(response.data.total);
-      } catch (error) {
-        toast.error('Error fetching kehadiran guru:');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       } finally {
         setLoading(false);
       }

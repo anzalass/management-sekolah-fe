@@ -18,6 +18,17 @@ import { API } from '@/lib/server';
 import { toast } from 'sonner';
 import { useSession } from 'next-auth/react';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import api from '@/lib/api';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
 
 type Izin = {
   id: string;
@@ -47,7 +58,7 @@ type Props = {
   izin: Izin[];
   fetchData: () => void;
 };
-export default function CardListIzin({ izin }: Props) {
+export default function CardListIzin() {
   const { data: session } = useSession();
   const { trigger, toggleTrigger } = useRenderTrigger();
   // Toggle antara 'perizinan' atau 'kehadiran'
@@ -74,15 +85,15 @@ export default function CardListIzin({ izin }: Props) {
   const fetchIzin = async () => {
     if (!session?.user?.token) return;
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}perizinan-guru`,
-        {
-          headers: { Authorization: `Bearer ${session.user.token}` }
+      const res = await api.get(`perizinan-guru`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
         }
-      );
+      });
       setListIzin(res.data.data || []);
-    } catch (error) {
-      toast.error('Gagal fetch perizinan');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       setListIzin([]);
     }
   };
@@ -92,13 +103,18 @@ export default function CardListIzin({ izin }: Props) {
     if (!session?.user?.token) return;
     try {
       setLoadingKehadiran(true);
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}kehadiran-guru?page=${page}&pageSize=${pageLimit}&nip=${session.user.nip}&tanggal=${tanggalKehadiran}`
-        // { headers: { Authorization: `Bearer ${session.user.token}` } }
+      const res = await api.get(
+        `kehadiran-guru?page=${page}&pageSize=${pageLimit}&nip=${session.user.nip}&tanggal=${tanggalKehadiran}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        }
       );
       setDataKehadiran(res.data.data.data || []);
-    } catch (error) {
-      toast.error('Gagal fetch kehadiran');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       setDataKehadiran([]);
     } finally {
       setLoadingKehadiran(false);
@@ -123,16 +139,16 @@ export default function CardListIzin({ izin }: Props) {
   const handleDelete = async (id: string) => {
     setDeletingId(id);
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/perizinan-guru/delete/${id}`,
-        {
-          headers: { Authorization: `Bearer ${session?.user?.token}` }
+      await api.delete(`/perizinan-guru/delete/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
         }
-      );
+      });
       toast.success('Data izin berhasil dihapus');
       fetchIzin();
-    } catch (error) {
-      toast.error('Gagal menghapus izin');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     } finally {
       setDeletingId(null);
     }
@@ -288,77 +304,69 @@ export default function CardListIzin({ izin }: Props) {
           </div>
           <div className='mx-auto w-[100%] overflow-x-auto'>
             <div className='overflow-x-auto'>
-              <table className='w-full border-collapse overflow-x-auto border border-gray-200'>
-                <thead className='bg-gray-100'>
-                  <tr>
-                    <th className='w-[20%] whitespace-nowrap border border-gray-300 px-4 py-2 text-left'>
-                      Tanggal
-                    </th>
-                    <th className='w-[40%] whitespace-nowrap border border-gray-300 px-4 py-2 text-left'>
-                      Nama
-                    </th>
-                    <th className='w-[40%] whitespace-nowrap border border-gray-300 px-4 py-2 text-left'>
-                      NIP
-                    </th>
-                    <th className='w-[40%] whitespace-nowrap border border-gray-300 px-4 py-2 text-left'>
-                      Jam Masuk
-                    </th>
-                    <th className='w-[40%] whitespace-nowrap border border-gray-300 px-4 py-2 text-left'>
-                      Jam Pulang
-                    </th>
-                    <th className='w-[40%] whitespace-nowrap border border-gray-300 px-4 py-2 text-left'>
-                      Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table className='border border-gray-200'>
+                <TableHeader className='bg-gray-100'>
+                  <TableRow>
+                    <TableHead className=''>Tanggal</TableHead>
+                    <TableHead className=''>Nama</TableHead>
+                    <TableHead className=''>NIP</TableHead>
+                    <TableHead className=''>Jam Masuk</TableHead>
+                    <TableHead className=''>Jam Pulang</TableHead>
+                    <TableHead className=''>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+
+                <TableBody>
                   {loadingKehadiran ? (
-                    <tr>
-                      <td
-                        colSpan={6}
-                        className='border border-gray-300 px-4 py-6 text-center'
-                      >
+                    <TableRow>
+                      <TableCell colSpan={6} className='py-6 text-center'>
                         Loading...
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ) : dataKehadiran.length === 0 ? (
-                    <tr>
-                      <td
+                    <TableRow>
+                      <TableCell
                         colSpan={6}
-                        className='border border-gray-300 px-4 py-6 text-center text-gray-500'
+                        className='py-6 text-center text-gray-500'
                       >
                         Tidak ada data kehadiran
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ) : (
-                    dataKehadiran?.map((item) => (
-                      <tr
+                    dataKehadiran.map((item) => (
+                      <TableRow
                         key={item.id}
                         className='odd:bg-white even:bg-gray-50 hover:bg-gray-100'
                       >
-                        <td className='whitespace-nowrap border border-gray-300 px-4 py-2'>
+                        <TableCell>
                           {new Date(item.tanggal).toLocaleDateString('id-ID')}
-                        </td>
-                        <td className='whitespace-nowrap border border-gray-300 px-4 py-2'>
-                          {item.nama}
-                        </td>
-                        <td className='whitespace-nowrap border border-gray-300 px-4 py-2'>
-                          {item.nip}
-                        </td>
-                        <td className='whitespace-nowrap border border-gray-300 px-4 py-2'>
-                          {item.jamMasuk ?? '-'}
-                        </td>
-                        <td className='whitespace-nowrap border border-gray-300 px-4 py-2'>
-                          {item.jamPulang ?? '-'}
-                        </td>
-                        <td className='whitespace-nowrap border border-gray-300 px-4 py-2'>
-                          {item.status}
-                        </td>
-                      </tr>
+                        </TableCell>
+                        <TableCell>{item.nama}</TableCell>
+                        <TableCell>{item.nip}</TableCell>
+                        <TableCell>
+                          {item.jamMasuk
+                            ? format(
+                                new Date(item.jamMasuk),
+                                'dd MMM yyyy, HH:mm',
+                                { locale: id }
+                              )
+                            : '-'}
+                        </TableCell>
+                        <TableCell>
+                          {item.jamPulang
+                            ? format(
+                                new Date(item.jamPulang),
+                                'dd MMM yyyy, HH:mm',
+                                { locale: id }
+                              )
+                            : '-'}
+                        </TableCell>
+                        <TableCell>{item.status}</TableCell>
+                      </TableRow>
                     ))
                   )}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           </div>
         </>

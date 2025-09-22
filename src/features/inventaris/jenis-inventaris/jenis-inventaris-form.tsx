@@ -30,6 +30,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export type JenisInventaris = {
   id: string;
@@ -47,6 +49,7 @@ export default function JenisInventarisForm({
 }) {
   const [loading, startTransition] = useTransition();
   const router = useRouter();
+  const { data: session } = useSession();
 
   const defaultValue = {
     nama: initialData?.nama
@@ -61,25 +64,27 @@ export default function JenisInventarisForm({
     startTransition(async () => {
       try {
         if (id !== 'new') {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}jenis-inventaris/update/${id}`,
+          await api.put(
+            `jenis-inventaris/update/${id}`,
             { ...values },
             {
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.user?.token}`
               }
             }
           );
           toast.success('Data jenis inventaris berhasil diubah');
         } else {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}jenis-inventaris/create`,
+          await api.post(
+            `jenis-inventaris/create`,
             {
               ...values
             },
             {
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.user?.token}`
               }
             }
           );

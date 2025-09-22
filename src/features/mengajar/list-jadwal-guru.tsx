@@ -13,6 +13,8 @@ import { Button } from '@/components/ui/button';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { API } from '@/lib/server';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 const today = new Date()
   .toLocaleDateString('id-ID', {
@@ -27,7 +29,7 @@ type Props = {
 
 export default function ListJadwalGuru({ jadwalGuru, fetchData }: Props) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
-
+  const { data: session } = useSession();
   const [dateStr, setDateStr] = useState('');
 
   useEffect(() => {
@@ -49,13 +51,16 @@ export default function ListJadwalGuru({ jadwalGuru, fetchData }: Props) {
   const handleDelete = async (id: string) => {
     setDeletingId(id);
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}jadwal-mengajar/delete/${id}`
-      );
+      await api.delete(`jadwal-mengajar/delete/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       toast.success('Jadwal berhasil dihapus');
       fetchData();
-    } catch (error) {
-      toast.error('Gagal menghapus jadwal');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     } finally {
       setDeletingId(null);
     }

@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { API } from '@/lib/server';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -40,6 +39,8 @@ import {
   SelectContent,
   SelectItem
 } from '@/components/ui/select';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 type PelanggaranForm = {
   idSiswa: string;
@@ -64,10 +65,13 @@ export default function PelanggaranPrestasiForm({
   id: string;
   pageTitle: string;
 }) {
+  const { data: session } = useSession();
   const [loading, startTransition] = useTransition();
   const router = useRouter();
   const [siswaList, setSiswaList] = useState<Siswa[]>([]);
   const [open, setOpen] = useState(false);
+
+  console.log(initialData);
 
   const defaultValue = {
     idSiswa: initialData?.idSiswa || '',
@@ -83,12 +87,30 @@ export default function PelanggaranPrestasiForm({
   });
 
   useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}user/get-all-siswa`)
+    api
+      .get(`user/get-all-siswa`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      })
       .then((res) => {
         setSiswaList(res.data.result.data);
       });
   }, []);
+
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        idSiswa: initialData.idSiswa,
+        namaSiswa: initialData.namaSiswa,
+        waktu: initialData.waktu ? initialData.waktu.split('T')[0] : '',
+        poin: initialData.poin,
+        jenis: initialData.jenis,
+        keterangan: initialData.keterangan
+      });
+    }
+  }, [initialData, form]);
 
   async function onSubmit(values: PelanggaranForm) {
     startTransition(async () => {
@@ -100,22 +122,26 @@ export default function PelanggaranPrestasiForm({
         };
 
         if (id !== 'new') {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}pelanggaran-prestasi/${id}`,
-            payload
-          );
+          await api.put(`pelanggaran-prestasi/${id}`, payload, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          });
           toast.success('Data berhasil diperbarui');
         } else {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}pelanggaran-prestasi`,
-            payload
-          );
+          await api.post(`pelanggaran-prestasi`, payload, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          });
           toast.success('Data berhasil disimpan');
         }
 
         router.push('/dashboard/pelanggaran-prestasi');
       } catch (error: any) {
-        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
+        toast.error(error?.response?.data?.message || 'Terjadi kesalahan');
       }
     });
   }
@@ -132,59 +158,62 @@ export default function PelanggaranPrestasiForm({
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
               {/* Autocomplete Siswa */}
-              <FormItem>
-                <FormLabel>Siswa</FormLabel>
-                <Popover open={open} onOpenChange={setOpen}>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant='outline'
-                        role='combobox'
-                        className={cn(
-                          'w-full justify-between',
-                          !form.watch('namaSiswa') && 'text-muted-foreground'
-                        )}
-                      >
-                        {form.watch('namaSiswa') || 'Pilih siswa...'}
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className='w-[300px] p-0'>
-                    <Command>
-                      <CommandInput placeholder='Cari siswa...' />
-                      <CommandList>
-                        <CommandEmpty>Tidak ditemukan.</CommandEmpty>
-                        <CommandGroup>
-                          {siswaList.map((s) => (
-                            <CommandItem
-                              key={s.id}
-                              value={s.nama}
-                              onSelect={() => {
-                                form.setValue('idSiswa', s.id);
-                                form.setValue('namaSiswa', s.nama);
-                                setOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  'mr-2 h-4 w-4',
-                                  s.id === form.watch('idSiswa')
-                                    ? 'opacity-100'
-                                    : 'opacity-0'
-                                )}
-                              />
-                              {s.nama}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                <FormMessage>
-                  {form.formState.errors.idSiswa?.message}
-                </FormMessage>
-              </FormItem>
+
+              {initialData ? null : (
+                <FormItem>
+                  <FormLabel>Siswa</FormLabel>
+                  <Popover open={open} onOpenChange={setOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant='outline'
+                          role='combobox'
+                          className={cn(
+                            'w-full justify-between',
+                            !form.watch('namaSiswa') && 'text-muted-foreground'
+                          )}
+                        >
+                          {form.watch('namaSiswa') || 'Pilih siswa...'}
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className='w-[300px] p-0'>
+                      <Command>
+                        <CommandInput placeholder='Cari siswa...' />
+                        <CommandList>
+                          <CommandEmpty>Tidak ditemukan.</CommandEmpty>
+                          <CommandGroup>
+                            {siswaList.map((s) => (
+                              <CommandItem
+                                key={s.id}
+                                value={s.nama}
+                                onSelect={() => {
+                                  form.setValue('idSiswa', s.id);
+                                  form.setValue('namaSiswa', s.nama);
+                                  setOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    'mr-2 h-4 w-4',
+                                    s.id === form.watch('idSiswa')
+                                      ? 'opacity-100'
+                                      : 'opacity-0'
+                                  )}
+                                />
+                                {s.nama}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage>
+                    {form.formState.errors.idSiswa?.message}
+                  </FormMessage>
+                </FormItem>
+              )}
 
               {/* Waktu */}
               <FormItem>

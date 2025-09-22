@@ -26,6 +26,8 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { MultiSelect } from './multi-select';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 // Type sesuai Prisma
 export type Tagihan = {
@@ -56,6 +58,7 @@ export default function TagihanForm({
   id: string;
   pageTitle: string;
 }) {
+  const { data: session } = useSession();
   const [loading, startTransition] = useTransition();
   const [masterSiswa, setMasterSiswa] = useState<Student2[]>([]);
   const [masterKelas, setMasterKelas] = useState<any[]>([]);
@@ -95,17 +98,23 @@ export default function TagihanForm({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}user/get-all-siswa`
-        );
-        const response2 = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}list-kelas`
-        );
+        const response = await api.get(`user/get-all-siswa`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        });
+        const response2 = await api.get(`list-kelas`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        });
 
         setMasterSiswa(response.data.result.data || []);
         setMasterKelas(response2.data.data);
-      } catch (error) {
-        toast.error('Gagal mengambil data siswa');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       }
     };
     fetchData();
@@ -137,22 +146,21 @@ export default function TagihanForm({
     startTransition(async () => {
       try {
         if (id !== 'new') {
-          await axios.put(
-            `${process.env.NEXT_PUBLIC_API_URL}pembayaran/${id}`,
-            values,
-            {
-              headers: { 'Content-Type': 'application/json' }
+          await api.put(`pembayaran/${id}`, values, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
             }
-          );
+          });
+
           toast.success('Data tagihan berhasil diubah');
         } else {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}pembayaran`,
-            values,
-            {
-              headers: { 'Content-Type': 'application/json' }
+          await api.post(`pembayaran`, values, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
             }
-          );
+          });
           toast.success('Data tagihan berhasil disimpan');
         }
         router.push('/dashboard/pembayaran/daftar-tagihan');

@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { GoogleGenAI } from '@google/genai';
+import api from '@/lib/api';
 
 interface ModalMateriProps {
   open: boolean;
@@ -83,7 +84,7 @@ export default function ModalMateri({
 
       if (pdfFile) formData.append('pdf', pdfFile);
 
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}materi`, formData, {
+      await api.post(`materi`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${session?.user?.token}`
@@ -94,8 +95,8 @@ export default function ModalMateri({
       reset();
       onOpenChange(false);
       toggleTrigger();
-    } catch (error) {
-      toast.error('Gagal menyimpan materi');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     } finally {
       setIsLoading(false);
       setPdfFile(null);

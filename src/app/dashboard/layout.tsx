@@ -7,6 +7,7 @@ import Providers from '@/components/layout/providers';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
+// import { setApiToken } from '@/lib/api';
 
 export const metadata: Metadata = {
   title: 'Little Alley',
@@ -18,10 +19,14 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Persisting the sidebar state in the cookie.
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get('sidebar:state')?.value === 'true';
+
   const session = await auth();
+
+  // **SET TOKEN SEKALI DI SINI**
+  // setApiToken(session?.user?.token || null);
+
   return (
     <KBar>
       <Providers session={session}>
@@ -29,9 +34,7 @@ export default async function DashboardLayout({
           <AppSidebar />
           <SidebarInset>
             <Header />
-            {/* page main content */}
             {children}
-            {/* page main content ends */}
           </SidebarInset>
         </SidebarProvider>
       </Providers>

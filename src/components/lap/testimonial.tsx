@@ -6,7 +6,7 @@ import { API } from '@/lib/server';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
-const BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}view-image`;
+const BASE_URL = `view-image`;
 
 interface TestimonialItem {
   parentName: string;
@@ -67,14 +67,13 @@ export default function Testimonial({
           }}
         >
           {testimonials.map((item, index) => {
-            const imageUrl = `${BASE_URL}/${item.image.split('/').pop()}`;
             return (
               <SwiperSlide key={index}>
                 <div className='mx-auto flex h-[340px] w-full max-w-[250px] flex-col overflow-hidden rounded-3xl bg-white shadow-lg'>
                   <Image
                     width={1000}
                     height={1000}
-                    src={imageUrl}
+                    src={item.image}
                     alt='Testimonial'
                     className='h-40 w-full rounded-t-3xl object-cover'
                   />

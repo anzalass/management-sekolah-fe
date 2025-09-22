@@ -8,6 +8,7 @@ import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import api from '@/lib/api';
 
 export type Gallery = {
   id: string;
@@ -29,17 +30,20 @@ export default function GalleryListingPage() {
     const fetchGallery = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}gallery`
-        );
+        const response = await api.get(`gallery`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        });
         if (response.data && response.data.data) {
           setData(response.data.data);
           setTotalData(response.data.data.length);
         } else {
           setError('Data format is invalid');
         }
-      } catch (error) {
-        toast.error('Error fetching data');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
         setError('An error occurred while fetching the gallery data');
       } finally {
         setLoading(false);

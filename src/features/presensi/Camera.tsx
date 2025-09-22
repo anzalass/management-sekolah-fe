@@ -1,5 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import api from '@/lib/api';
 import { API } from '@/lib/server';
 import { CircleXIcon, Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
@@ -23,7 +25,7 @@ export default function Camera({ open, setOpen, fetchData }: CameraProps) {
   const webcamRef = useRef<Webcam>(null);
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
-
+  const { trigger, toggleTrigger } = useRenderTrigger();
   const [url, setUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [location, setLocation] = useState<{
@@ -56,44 +58,38 @@ export default function Camera({ open, setOpen, fetchData }: CameraProps) {
       return setError('Lokasi belum tersedia');
 
     try {
-      setIsLoading(true); // Start loading
+      setIsLoading(true);
 
+      // ambil blob dari foto & convert ke File
       const res = await fetch(url);
       const blob = await res.blob();
       const file = new File([blob], 'absen-masuk.jpg', { type: 'image/jpeg' });
 
+      // buat FormData
       const formData = new FormData();
       formData.append('fotoMasuk', file);
       formData.append('lat', '-6.09955851839959');
       formData.append('long', '106.51911493230111');
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}absen-masuk`,
-        {
-          method: 'POST',
-          body: formData,
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
-          }
+      // kirim pakai api instance
+      const response = await api.post('absen-masuk', formData, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
         }
-      );
+      });
 
-      if (!response.ok) {
-        const result = await response.json();
-        throw new Error(result.message || 'Gagal absen');
-      }
-
-      const result = await response.json();
-      toast.success(result.message || 'Absen masuk berhasil');
+      toast.success(response.data.message || 'Absen masuk berhasil');
       setOpen(false);
       fetchData();
       handleRefresh();
-    } catch (err: any) {
-      toast.error(err);
-      toast.error(err.message || 'Terjadi kesalahan saat absen');
-      setError(err.message || 'Terjadi kesalahan saat absen');
+      toggleTrigger();
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message || 'Terjadi kesalahan saat absen'
+      );
+      setError(error.response?.data?.message || 'Terjadi kesalahan saat absen');
     } finally {
-      setIsLoading(false); // End loading
+      setIsLoading(false);
     }
   };
 

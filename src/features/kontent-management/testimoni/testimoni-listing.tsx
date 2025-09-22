@@ -8,6 +8,8 @@ import { API } from '@/lib/server';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 // Type for Testimonial
 export type Testimonial = {
@@ -29,13 +31,20 @@ export default function TestimonialListingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { trigger, toggleTrigger } = useRenderTrigger();
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}testimonials?page=${page}&pageSize=${pageLimit}&search=${search}`
+        const response = await api.get(
+          `testimonials?page=${page}&pageSize=${pageLimit}&search=${search}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          }
         );
         if (response.data && response.data.data) {
           setData(response.data.data);
@@ -43,8 +52,8 @@ export default function TestimonialListingPage() {
         } else {
           setError('Data format is invalid');
         }
-      } catch (error) {
-        toast.error('Error fetching data');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
         setError('An error occurred while fetching the testimonial data');
       } finally {
         setLoading(false);

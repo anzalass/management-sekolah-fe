@@ -11,6 +11,8 @@ import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export default function DaftarPemeliharaanInventarisListingPage() {
   const searchParams = useSearchParams();
@@ -21,6 +23,7 @@ export default function DaftarPemeliharaanInventarisListingPage() {
   const ruang = searchParams.get('ruang') || '';
   const status = searchParams.get('status') || '';
   const pageLimit = searchParams.get('limit') || '10';
+  const { data: session } = useSession();
 
   const [data, setData] = useState<PemeliharaanInventaris[]>([]);
   const [totalData, setTotalData] = useState(0);
@@ -31,13 +34,19 @@ export default function DaftarPemeliharaanInventarisListingPage() {
     const fetch = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}pemeliharaan-inventaris?page=${page}&pageSize=${pageLimit}&nama=${search}&tanggal=${waktuPengadaan}&ruang=${ruang}&hargaBeli=${hargaBeli}&status=${status}`
+        const response = await api.get(
+          `pemeliharaan-inventaris?page=${page}&pageSize=${pageLimit}&nama=${search}&tanggal=${waktuPengadaan}&ruang=${ruang}&hargaBeli=${hargaBeli}&status=${status}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          }
         );
         setData(response.data.data.data);
         setTotalData(response.data.data.totalData);
-      } catch (error) {
-        toast.error('Error fetching data');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       } finally {
         setLoading(false);
       }

@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import { Pencil, Trash2 } from 'lucide-react';
 import ModalInputNilaiManual from './modal-input-manual';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 // Tipe Props
 interface Student {
@@ -48,13 +50,17 @@ export default function InputNilaiKelas({
   const [jenisNilai, setJenisNilai] = useState<any[]>([]);
   const [defaultJenisNilai, setDefaultJenisNilai] = useState<string>('');
   const { trigger, toggleTrigger } = useRenderTrigger();
+  const { data: session } = useSession();
 
   // Ambil data jenis nilai + nilai siswa
   const fetchJenisNilai = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}penilaian/kelas/${idKelas}`
-      );
+      const res = await api.get(`penilaian/kelas/${idKelas}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       const jenisData = res.data.jenisNilai;
       const nilaiSiswa = res.data.nilaiSiswa ?? [];
 
@@ -87,11 +93,20 @@ export default function InputNilaiKelas({
   // Tambah jenis penilaian
   const onSubmit = async (data: JenisNilaiForm) => {
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}penilaian`, {
-        idKelasMapel: idKelas,
-        jenis: data.jenis,
-        bobot: Number(data.bobot)
-      });
+      await api.post(
+        `penilaian`,
+        {
+          idKelasMapel: idKelas,
+          jenis: data.jenis,
+          bobot: Number(data.bobot)
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        }
+      );
       reset();
       fetchJenisNilai();
     } catch (error: any) {
@@ -115,57 +130,77 @@ export default function InputNilaiKelas({
   const handleUpdateJenis = async () => {
     if (!editJenis) return;
     try {
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}penilaian/${editJenis.id}`,
+      await api.put(
+        `penilaian/${editJenis.id}`,
         {
           jenis: editJenis.jenis,
           bobot: Number(editJenis.bobot)
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
         }
       );
       toast.success('Jenis penilaian berhasil diupdate');
       setEditJenis(null);
       fetchJenisNilai();
-    } catch (error) {
-      toast.error('Gagal update jenis nilai');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
   // Hapus jenis nilai
   const handleDeleteJenis = async (id: string) => {
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}penilaian/${id}`);
+      await api.delete(`penilaian/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       toast.success('Jenis penilaian berhasil dihapus');
       toggleTrigger();
       fetchJenisNilai();
-    } catch (error) {
-      toast.error('Gagal hapus jenis nilai');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
   // Simpan nilai per siswa
   const SimpanNilai = async (nilai: NilaiItem) => {
     try {
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}nilai-siswa/${nilai.id}`,
+      await api.put(
+        `nilai-siswa/${nilai.id}`,
         {
           nilai: nilai.nilai
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
         }
       );
       toast.success('Berhasil Menyimpan Nilai');
-    } catch (error) {
-      toast.error('Gagal simpan nilai');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
   const DeleteNilai = async (nilai: NilaiItem) => {
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}nilai-siswa/${nilai.id}`
-      );
+      await api.delete(`nilai-siswa/${nilai.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       toast.success('Berhasil menghapus Nilai');
       toggleTrigger();
-    } catch (error) {
-      toast.error('Gagal simpan nilai');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
@@ -307,10 +342,10 @@ export default function InputNilaiKelas({
         <CardContent>
           <table className='w-full border-collapse'>
             <thead>
-              <tr className='bg-gray-100'>
+              <tr className=''>
                 <th className='border p-2'>No</th>
                 <th className='border p-2'>Nama</th>
-                <th className='border p-2'>Nilai</th>
+                <th className='w-[25%] border p-2'>Nilai</th>
                 <th className='border p-2'>Aksi</th>
               </tr>
             </thead>
@@ -318,17 +353,20 @@ export default function InputNilaiKelas({
               {listNilai.map((nilai, index) => (
                 <tr key={nilai.id}>
                   <td className='border p-2'>{index + 1}</td>
-                  <td className='border p-2'>{nilai.nama}</td>
+                  <td className='border p-2'>
+                    {nilai.nama} Lorem ipsum, dolor sit amet consectetur
+                  </td>
                   <td className='border p-2'>
                     <Input
                       type='number'
                       min={0}
                       max={100}
+                      className='w-full'
                       value={nilai.nilai}
                       onChange={(e) => handleChangeNilai(index, e.target.value)}
                     />
                   </td>
-                  <td className='space-x-2 border p-2'>
+                  <td className='flex space-x-2 border p-2'>
                     <Button onClick={() => SimpanNilai(nilai)}>Simpan</Button>
                     <Button
                       className='bg-red-600 text-white hover:bg-red-700'

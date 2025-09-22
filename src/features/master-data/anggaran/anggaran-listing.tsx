@@ -9,6 +9,8 @@ import { API } from '@/lib/server';
 import { Anggaran } from './anggaran-form';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export default function AnggaranListingPage() {
   const searchParams = useSearchParams();
@@ -18,7 +20,7 @@ export default function AnggaranListingPage() {
   const tanggal = searchParams.get('tanggal') || '';
   const jumlah = searchParams.get('jumlah') || '';
   const pageLimit = searchParams.get('limit') || '10';
-
+  const { data: session } = useSession();
   const [data, setData] = useState<Anggaran[]>([]);
   const [totalData, setTotalData] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -28,13 +30,19 @@ export default function AnggaranListingPage() {
     const fetch = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}anggaran?page=${page}&pageSize=${pageLimit}&nama=${search}&jenis=${jenis}&tanggal=${tanggal}&jumlah=${jumlah}`
+        const response = await api.get(
+          `anggaran?page=${page}&pageSize=${pageLimit}&nama=${search}&jenis=${jenis}&tanggal=${tanggal}&jumlah=${jumlah}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          }
         );
         setData(response.data.data);
         setTotalData(response.data.total);
-      } catch (error) {
-        toast.error('Error fetching data');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       } finally {
         setLoading(false);
       }

@@ -1,8 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import api from '@/lib/api';
 import { API } from '@/lib/server';
 import axios from 'axios';
+import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -26,42 +28,56 @@ type DetailKehadiran = {
 };
 
 export default function PresensiSiswa({ idKelas }: IDKelas) {
+  const { data: session } = useSession();
   const [dataKehadiran, setDataKehadiran] = useState<Kehadiran[]>();
   const { trigger, toggleTrigger } = useRenderTrigger();
 
   const getData = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}kehadiran/hari-ini/${idKelas}`
-      );
+      const res = await api.get(`kehadiran/hari-ini/${idKelas}`);
 
       setDataKehadiran(res.data.data);
-    } catch (error) {
-      toast.error('Gagal mendapatkan data');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
   const toggleAbsensi = async (dataAbsen: Kehadiran, keterangan: string) => {
     try {
       if (dataAbsen.kehadiranSiswa.length > 0) {
-        await axios.put(
-          `${process.env.NEXT_PUBLIC_API_URL}kehadiran/${dataAbsen.kehadiranSiswa[0].id}`,
+        await api.put(
+          `kehadiran/${dataAbsen.kehadiranSiswa[0].id}`,
           {
             keterangan: keterangan
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
           }
         );
       } else {
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}kehadiran`, {
-          idSiswa: dataAbsen.id,
-          namaSiswa: dataAbsen.nama,
-          nisSiswa: dataAbsen.nis,
-          idKelas: idKelas,
-          keterangan: keterangan
-        });
+        await api.post(
+          `kehadiran`,
+          {
+            idSiswa: dataAbsen.id,
+            namaSiswa: dataAbsen.nama,
+            nisSiswa: dataAbsen.nis,
+            idKelas: idKelas,
+            keterangan: keterangan
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          }
+        );
       }
       toggleTrigger();
-    } catch (error) {
-      toast.error('Gagal absen');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
@@ -72,11 +88,11 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
   return (
     <Card className='w-full overflow-x-auto'>
       <CardHeader>
-        <CardTitle>Absensi Hari Inii</CardTitle>
+        <CardTitle>Absensi Hari Ini</CardTitle>
       </CardHeader>
       <div className='w-full overflow-x-auto rounded-lg p-5 shadow'>
         <table className='w-full border text-left text-sm'>
-          <thead className='bg-gray-100'>
+          <thead className=''>
             <tr>
               <th className='border p-2'>Nama</th>
               <th className='border p-2'>Kehadiran</th>
@@ -106,27 +122,27 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
                 <td className='p-2'>
                   <div className='flex gap-2 overflow-x-auto whitespace-nowrap pb-2'>
                     <Button
-                      className='shrink-0'
+                      className='shrink-0 bg-green-500'
                       onClick={() => toggleAbsensi(student, 'Hadir')}
                     >
                       Hadir
                     </Button>
                     <Button
-                      className='shrink-0'
+                      className='shrink-0 bg-yellow-500'
                       onClick={() => toggleAbsensi(student, 'Izin')}
                       variant='outline'
                     >
                       Izin
                     </Button>
                     <Button
-                      className='shrink-0'
+                      className='shrink-0 bg-blue-500'
                       onClick={() => toggleAbsensi(student, 'Sakit')}
                       variant='outline'
                     >
                       Sakit
                     </Button>
                     <Button
-                      className='shrink-0'
+                      className='shrink-0 bg-red-500'
                       onClick={() => toggleAbsensi(student, 'Tanpa Keterangan')}
                       variant='outline'
                     >

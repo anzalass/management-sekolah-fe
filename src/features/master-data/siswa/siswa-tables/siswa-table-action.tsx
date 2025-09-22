@@ -35,13 +35,13 @@ export default function SiswaTableAction() {
         setSearchQuery={setNipFilter}
         setPage={setPage}
       />
-      <DataTableFilterBox
+      {/* <DataTableFilterBox
         filterKey='kelas'
         title='Kelas'
         options={CATEGORY_OPTIONS}
         setFilterValue={setKelasFilter}
         filterValue={kelas}
-      />
+      /> */}
       <DataTableResetFilter
         isFilterActive={isAnyFilterActive}
         onReset={resetFilters}

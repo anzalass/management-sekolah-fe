@@ -10,6 +10,9 @@ import {
 import { API } from '@/lib/server';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import api from '@/lib/api';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import { useSession } from 'next-auth/react';
 
 export default function PelanggaranPrestasiListingPage() {
   const searchParams = useSearchParams();
@@ -25,22 +28,30 @@ export default function PelanggaranPrestasiListingPage() {
   const [totalData, setTotalData] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { trigger, toggleTrigger } = useRenderTrigger();
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetchPelanggaranPrestasi = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}pelanggaran-prestasi?page=${page}&pageSize=${pageLimit}&nama=${search}&nis=${nis}&waktu=${tanggal}&jenis=${jenis}`
+        const response = await api.get(
+          `pelanggaran-prestasi?page=${page}&pageSize=${pageLimit}&nama=${search}&nis=${nis}&waktu=${tanggal}&jenis=${jenis}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          }
         );
         if (response.data) {
           setData(response.data.result.data);
-          setTotalData(response.data.total);
+          setTotalData(response.data.result.total);
         } else {
           setError('Data format is invalid');
         }
-      } catch (error) {
-        toast.error('Error fetching data');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
         setError('An error occurred while fetching the registration data');
       } finally {
         setLoading(false);
@@ -48,13 +59,17 @@ export default function PelanggaranPrestasiListingPage() {
     };
 
     fetchPelanggaranPrestasi();
-  }, [page, pageLimit, search, tanggal, jenis, nis]);
+  }, [page, pageLimit, search, tanggal, trigger, jenis, nis]);
 
   if (error) {
     return <div>Error: {error}</div>;
   }
 
   return (
-    <PelanggaranPrestasiTable columns={columns} data={data} totalItems={0} />
+    <PelanggaranPrestasiTable
+      columns={columns}
+      data={data}
+      totalItems={totalData}
+    />
   );
 }
