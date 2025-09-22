@@ -101,10 +101,46 @@ export default function KelasMapelView({ id }: KelasMapelID) {
     setFilteredMasterSiswa(filtered);
   }, [searchTerm, masterSiswa, kelasSiswa]);
 
-  const handleAddSiswaToKelas = async (siswa: Student) => {};
+  const handleAddSiswaToKelas = async (siswa: Student) => {
+    try {
+      const response = await api.post(
+        `kelas-mapel/add-siswa`,
+        {
+          idSiswa: siswa.id,
+          nisSiswa: siswa.nis,
+          namaSiswa: siswa.nama,
+          idKelas: id // pastikan juga kirim ID kelasMapel
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        }
+      );
 
-  const hapusSiswa = async (id: any) => {};
+      toast.success('Siswa berhasil ditambahkan ke kelas');
+      fetchData();
+      setSearchTerm('');
+    } catch (error) {
+      console.error('Gagal menambahkan siswa:', error);
+      toast.error('Gagal menambahkan siswa ke kelas');
+    }
+  };
 
+  const hapusSiswa = async (id: any) => {
+    try {
+      await api.delete(`kelas-mapel/remove-siswa/${id}`, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
+      toast.success('Berhasil menghapus siswa');
+      toggleTrigger();
+    } catch (error) {
+      console.log(error);
+      toast.error('Gagal menghapus siswa');
+    }
+  };
   const hapusMateri = async (id: any) => {
     try {
       await api.delete(`materi/${id}`, {
