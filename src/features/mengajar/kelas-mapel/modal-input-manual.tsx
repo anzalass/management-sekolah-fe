@@ -70,8 +70,6 @@ export default function ModalInputNilaiManual({
     }
   });
 
-  console.log(siswaList);
-
   const onSubmit = async (data: FormValues) => {
     try {
       setLoading(true);
@@ -95,8 +93,6 @@ export default function ModalInputNilaiManual({
       reset();
       onSuccess?.();
     } catch (err) {
-      console.log(err);
-
       toast.error('Gagal menyimpan nilai');
     } finally {
       setLoading(false);

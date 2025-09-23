@@ -71,8 +71,6 @@ export default function PelanggaranPrestasiForm({
   const [siswaList, setSiswaList] = useState<Siswa[]>([]);
   const [open, setOpen] = useState(false);
 
-  console.log(initialData);
-
   const defaultValue = {
     idSiswa: initialData?.idSiswa || '',
     namaSiswa: initialData?.namaSiswa || '',

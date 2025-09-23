@@ -30,7 +30,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang='en' className={`${lato.className}`} suppressHydrationWarning>
+    <html
+      lang='id'
+      translate='no'
+      className={`${lato.className}`}
+      suppressHydrationWarning
+    >
       <body className={''}>
         <NextTopLoader showSpinner={false} />
 

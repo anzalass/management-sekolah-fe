@@ -19,6 +19,7 @@ import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import BottomNav from '../bottom-nav';
 
 type FormData = {
   oldPassword: string;
@@ -72,7 +73,7 @@ export default function UbahPasswordView() {
   };
 
   return (
-    <div className='flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 p-4'>
+    <div className='mb-10 flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 p-4'>
       {/* Button Back */}
       <div className='mb-4 w-full max-w-md'>
         <Link href='/siswa'>
@@ -199,6 +200,7 @@ export default function UbahPasswordView() {
           </CardFooter>
         </form>
       </Card>
+      <BottomNav />
     </div>
   );
 }

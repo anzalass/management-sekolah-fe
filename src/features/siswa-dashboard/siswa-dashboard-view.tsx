@@ -78,7 +78,6 @@ export default function SiswaHomeView() {
   const [kelas, setKelas] = useState<Kelas[]>([]);
   const [jadwalPelajaran, setJadwalPelajaran] = useState<JadwalPelajaran[]>([]);
   const [pengumuman, setPengumuman] = useState<Pengumuman[]>([]);
-  console.log(session?.user);
 
   const getData = async () => {
     try {
@@ -94,10 +93,8 @@ export default function SiswaHomeView() {
         setJadwalPelajaran(res.data.result.jadwalPelajaran);
         setPengumuman(res.data.result.berandaInformasi);
       }
-
-      console.log(res);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
     }
   };
 
@@ -121,8 +118,6 @@ export default function SiswaHomeView() {
 
   const avatarUrl = `https://ui-avatars.com/api/?name=${initials}&background=random&format=png`;
 
-  console.log(avatarUrl);
-
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/login-siswa' });
   };
@@ -132,7 +127,7 @@ export default function SiswaHomeView() {
   };
 
   return (
-    <div className='mx-auto'>
+    <div className='mx-auto mb-14'>
       {/* Profil Siswa */}
       <div className='relative bg-gradient-to-r from-blue-400 to-blue-600 p-6 text-white'>
         <div className='flex items-center justify-between'>
@@ -173,12 +168,12 @@ export default function SiswaHomeView() {
         </div>
       </div>
 
-      <div className='absolute -z-10 h-[30vh] w-full rounded-b-3xl bg-gradient-to-r from-blue-400 to-blue-600 p-6 text-white shadow-md'></div>
+      <div className='absolute -z-10 h-[50vh] w-full rounded-b-3xl bg-gradient-to-r from-blue-400 to-blue-600 p-6 text-white shadow-md'></div>
 
       {/* Shortcut Fitur */}
       <MenuFiturSiswa />
 
-      <div className='mt-8 space-y-8 bg-white px-4 md:px-8'>
+      <div className='mt-8 space-y-8 px-4 md:px-8'>
         {/* Daftar Kelas */}
         <Card className='border border-gray-200 p-5 shadow-md transition hover:shadow-lg'>
           <div className='pb-3 pt-2'>
@@ -285,29 +280,5 @@ export default function SiswaHomeView() {
       </div>
       <BottomNav />
     </div>
-  );
-}
-
-function Fitur({
-  icon,
-  label,
-  href
-}: {
-  icon: React.ReactNode;
-  label: string;
-  href: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className='gap- flex flex-col items-center rounded-xl border bg-background p-2 transition-transform hover:scale-105 hover:shadow-md'
-    >
-      <div className='flex h-5 w-5 items-center justify-center text-primary lg:h-10 lg:w-10'>
-        {icon}
-      </div>
-      <span className='text-center text-[10px] font-semibold text-muted-foreground md:text-sm lg:text-[17px]'>
-        {label}
-      </span>
-    </Link>
   );
 }

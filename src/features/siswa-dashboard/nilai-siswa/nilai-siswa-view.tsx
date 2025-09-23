@@ -18,6 +18,7 @@ import { useSession } from 'next-auth/react';
 import api from '@/lib/api';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
+import { toast } from 'sonner';
 
 interface Nilai {
   id: string;
@@ -50,8 +51,8 @@ export default function NilaiSiswaView() {
       if (res.status === 200) {
         setNilaiSiswa(res.data.data);
       }
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
     }
   };
 
@@ -85,7 +86,7 @@ export default function NilaiSiswaView() {
   });
 
   return (
-    <div className='space-y-6'>
+    <div className='mb-14 space-y-6'>
       <NavbarSiswa title='Nilai Siswa' />
 
       <div className='p-3'>

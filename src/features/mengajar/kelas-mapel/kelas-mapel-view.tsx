@@ -137,7 +137,6 @@ export default function KelasMapelView({ id }: KelasMapelID) {
       toast.success('Berhasil menghapus siswa');
       toggleTrigger();
     } catch (error) {
-      console.log(error);
       toast.error('Gagal menghapus siswa');
     }
   };

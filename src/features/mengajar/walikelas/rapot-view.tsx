@@ -11,6 +11,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import api from '@/lib/api';
+import { toast } from 'sonner';
 
 type Props = {
   idSiswa: string;
@@ -40,8 +41,8 @@ export default function RapotView({ idSiswa, idKelas }: Props) {
         `rapot2?idKelas=${idKelas}&idSiswa=${idSiswa}&tahunAjaran=${tahunAjaran}`
       );
       setData(res.data);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
     }
   };
 

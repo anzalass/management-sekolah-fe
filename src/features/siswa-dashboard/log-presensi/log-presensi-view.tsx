@@ -81,10 +81,9 @@ export default function LogPresensiView() {
   );
 
   return (
-    <div className='mx-auto w-full space-y-6'>
+    <div className='mx-auto mb-14 w-full space-y-6'>
       {/* Header */}
       <NavbarSiswa title='Log Presensi' />
-      <BottomNav />
       {/* Filter */}
       <div className='grid w-full grid-cols-1 gap-3 p-4 sm:w-[70%] sm:grid-cols-2 md:grid-cols-5'>
         {/* Tanggal */}
@@ -212,6 +211,7 @@ export default function LogPresensiView() {
           </p>
         )}
       </div>
+      <BottomNav />
     </div>
   );
 }

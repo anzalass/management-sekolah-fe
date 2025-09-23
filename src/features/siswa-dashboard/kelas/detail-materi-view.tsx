@@ -113,7 +113,7 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
   }, [idMateri]);
 
   return (
-    <div className='w-full space-y-6'>
+    <div className='mb-14 w-full space-y-6'>
       {/* Header */}
       <NavbarSiswa title='Detail Materi' />
       <BottomNav />

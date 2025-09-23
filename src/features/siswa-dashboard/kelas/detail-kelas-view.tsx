@@ -24,6 +24,7 @@ import api from '@/lib/api';
 import Link from 'next/link';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
+import { toast } from 'sonner';
 
 type DetailKelasId = { id: string };
 
@@ -49,10 +50,10 @@ export default function DetailKelasView({ id }: DetailKelasId) {
       });
       if (res.status === 200) {
         setData(res.data.data);
-        console.log(res.data.data);
       }
-    } catch (error) {
-      console.log(error);
+      console.log(res.data.data);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
     }
   };
 
@@ -82,8 +83,13 @@ export default function DetailKelasView({ id }: DetailKelasId) {
     return matchFilter && matchSearch;
   });
 
+  const filteredUjian = data?.UjianIframe?.filter((t: any) => {
+    const matchSearch = t.nama.toLowerCase().includes(search.toLowerCase());
+    return matchSearch;
+  });
+
   return (
-    <div className='mx-auto w-full space-y-6'>
+    <div className='mx-auto mb-14 w-full space-y-6'>
       {/* Header */}
 
       <NavbarSiswa title={`${data?.namaMapel} - ${data?.namaGuru}`} />
@@ -97,6 +103,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
             <TabsList className='mb-4'>
               <TabsTrigger value='materi'>Materi</TabsTrigger>
               <TabsTrigger value='tugas'>Tugas</TabsTrigger>
+              <TabsTrigger value='ujian'>Ujian</TabsTrigger>
             </TabsList>
             <Select
               onValueChange={(val: any) => setMateriFilter(val)}
@@ -180,6 +187,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
             <TabsList className='mb-4'>
               <TabsTrigger value='materi'>Materi</TabsTrigger>
               <TabsTrigger value='tugas'>Tugas</TabsTrigger>
+              <TabsTrigger value='ujian'>Ujian</TabsTrigger>
             </TabsList>
             <Select
               onValueChange={(val: any) => setTugasFilter(val)}
@@ -251,6 +259,78 @@ export default function DetailKelasView({ id }: DetailKelasId) {
               {filteredTugas?.length === 0 && (
                 <p className='col-span-full text-center text-sm text-muted-foreground'>
                   Tidak ada tugas.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value='ujian'>
+          {/* Filter */}
+          <div className='mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+            <TabsList className='mb-4'>
+              <TabsTrigger value='materi'>Materi</TabsTrigger>
+              <TabsTrigger value='tugas'>Tugas</TabsTrigger>
+              <TabsTrigger value='ujian'>Ujian</TabsTrigger>
+            </TabsList>
+
+            <Input
+              placeholder='Cari ujian...'
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className='w-full sm:w-64'
+            />
+          </div>
+
+          <Card>
+            <CardHeader className='flex items-center gap-2'>
+              <ClipboardList className='h-5 w-5 text-yellow-500' />
+              <CardTitle>Ujian Kelas</CardTitle>
+            </CardHeader>
+            <CardContent className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>
+              {filteredUjian?.map((tugas: any) => (
+                <Link
+                  key={tugas.id}
+                  href={`/siswa/kelas/${id}/ujian/${tugas.id}`}
+                >
+                  <div className='rounded border px-2 py-3 transition hover:bg-muted'>
+                    <div className='flex items-start justify-between'>
+                      <div>
+                        <h4 className='text-sm font-semibold md:text-base'>
+                          {tugas.nama}
+                        </h4>
+                        <p className='my-2 text-sm text-muted-foreground'>
+                          {tugas.deskripsi}
+                        </p>
+                        <div className='mt-1 flex items-center gap-1 text-xs text-muted-foreground'>
+                          <CalendarDays className='h-4 w-4' />
+                          Deadline :{' '}
+                          {tugas?.deadline
+                            ? new Date(tugas?.deadline).toLocaleDateString(
+                                'id-ID',
+                                {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric'
+                                }
+                              )
+                            : ''}
+                        </div>
+                      </div>
+                      <Badge
+                        className={
+                          tugas.past ? 'bg-green-500' : 'bg-yellow-400'
+                        }
+                      >
+                        {tugas.past ? 'Selesai' : 'Belum Selesai'}
+                      </Badge>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+              {filteredTugas?.length === 0 && (
+                <p className='col-span-full text-center text-sm text-muted-foreground'>
+                  Tidak ada ujian.
                 </p>
               )}
             </CardContent>

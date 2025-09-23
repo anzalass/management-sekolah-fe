@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import api from '@/lib/api';
 import { toast } from 'sonner';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 interface FormValues {
   namaUjian: string;
@@ -27,6 +28,7 @@ type Props = {
 
 export default function TambahUjian({ idKelasMapel }: Props) {
   const [open, setOpen] = useState(false);
+  const { trigger, toggleTrigger } = useRenderTrigger();
 
   const {
     register,
@@ -41,10 +43,11 @@ export default function TambahUjian({ idKelasMapel }: Props) {
         idKelasMapel: idKelasMapel,
         nama: data.namaUjian,
         deadline: data.deadline,
-        iframe: data.deadline
+        iframe: data.iframeUrl
       });
       reset();
       setOpen(false);
+      toggleTrigger();
     } catch (error: any) {
       console.log(error);
       toast.error(error?.response?.data?.message);

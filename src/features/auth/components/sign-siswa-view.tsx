@@ -41,19 +41,21 @@ export default function SignSiswaView() {
   return (
     <div className='flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-100 via-white to-blue-50 px-4'>
       <div className='w-full max-w-md rounded-2xl'>
-        <CardHeader className='space-y-2 text-center'>
+        <CardHeader className='space-y-2'>
           <CardTitle className='text-2xl font-bold text-blue-700'>
-            Login Siswa
+            Little Alley Apps
           </CardTitle>
           <p className='text-sm text-gray-500'>
-            Masukkan NIS dan password untuk melanjutkan
+            Every Childs Is A World Possibilities
           </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
             {/* NIS */}
             <div className='space-y-2'>
-              <Label htmlFor='nis'>NIS</Label>
+              <Label className='font-bold' htmlFor='nis'>
+                NIS
+              </Label>
               <Input
                 id='nis'
                 type='text'
@@ -68,7 +70,9 @@ export default function SignSiswaView() {
 
             {/* Password */}
             <div className='space-y-2'>
-              <Label htmlFor='password'>Password</Label>
+              <Label className='font-bold' htmlFor='password'>
+                Password
+              </Label>
               <Input
                 id='password'
                 type='password'

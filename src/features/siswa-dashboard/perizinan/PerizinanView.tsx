@@ -70,13 +70,16 @@ export default function Perizinan() {
 
   // Ambil data izin dari API
   const fetchData = async () => {
-    const res = await api.get('perizinan-siswa-pribadi', {
-      headers: {
-        Authorization: `Bearer ${session?.user?.token}`
-      }
-    });
-    setIzinList(res.data.data);
-    console.log(res.data);
+    try {
+      const res = await api.get('perizinan-siswa-pribadi', {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
+      setIzinList(res.data.data);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
+    }
   };
   useEffect(() => {
     fetchData();
@@ -130,14 +133,12 @@ export default function Perizinan() {
       fetchData();
     } catch (error: any) {
       toast.error(error?.response?.data?.message);
-      console.log(error);
     }
   };
 
   return (
-    <div className='mx-auto space-y-2'>
+    <div className='mx-auto mb-14 space-y-2'>
       <NavbarSiswa title='Perizinan Siswa' />
-      <BottomNav />
 
       {/* Button + Filter */}
       <div className='flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between'>
@@ -283,6 +284,7 @@ export default function Perizinan() {
           </p>
         )}
       </div>
+      <BottomNav />
     </div>
   );
 }

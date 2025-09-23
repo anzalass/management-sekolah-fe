@@ -35,12 +35,9 @@ export default function KBarMengajar({
         }
       });
       // cek log
-      console.log('sidebar data:', res.data.data);
       // pastikan array
       setDataSidebar(Array.isArray(res.data.data) ? res.data.data : []);
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
 
   React.useEffect(() => {

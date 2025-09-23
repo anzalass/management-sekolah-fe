@@ -122,20 +122,16 @@ export default function ModalTugas({
         contents: `${promptValue}, output nya html aja gausa ada css nya` // gunakan prompt dari input
       });
 
-      console.log(response.text);
-
       if (response.text && editorInstance) {
         // langsung set konten di editor
         editorInstance.commands.setContent(response.text);
         // update form value juga
-        console.log(response.text);
 
         setValue('konten', response.text);
         toast.success('Konten AI berhasil dibuat');
       }
-    } catch (err) {
-      toast.error('Gagal generate konten AI');
-      console.log(err);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
     } finally {
       setIsLoading(false);
     }

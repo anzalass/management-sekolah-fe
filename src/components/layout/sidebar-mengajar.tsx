@@ -46,6 +46,7 @@ import * as React from 'react';
 import { Icons } from '../icons';
 import { NavItem } from 'types';
 import api from '@/lib/api';
+import { toast } from 'sonner';
 
 export const company = {
   name: 'Little Alley',
@@ -97,8 +98,8 @@ export default function AppSidebarMengajar() {
         }
       });
       setDataSidebar(res.data.data);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
     }
   };
 

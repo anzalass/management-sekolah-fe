@@ -57,7 +57,6 @@ export default function HomeView() {
       })
       .catch((error) => {
         toast.error('Error fetching the news:', error?.response.data.message);
-        console.log(error);
       });
   }, []);
 
@@ -75,7 +74,6 @@ export default function HomeView() {
       })
       .catch((error) => {
         toast.error('Error fetching teacher data:', error);
-        console.log(error);
       });
   }, []);
 
