@@ -86,16 +86,12 @@ export default function NilaiSiswaView() {
   });
 
   return (
-    <div className='mb-14 space-y-6'>
+    <div className='mb-14 space-y-2 sm:space-y-6'>
       <NavbarSiswa title='Nilai Siswa' />
 
-      <div className='p-3'>
-        <Card className='shadow-md'>
+      <div className='p-2'>
+        <div className=''>
           <CardHeader className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
-            <CardTitle className='text-xl font-bold'>
-              📊 Daftar Nilai Siswa
-            </CardTitle>
-
             <div className='flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center'>
               {/* Filter minggu terakhir */}
               <button
@@ -222,7 +218,7 @@ export default function NilaiSiswaView() {
               </Table>
             </div>
           </CardContent>
-        </Card>
+        </div>
       </div>
       <BottomNav />
     </div>

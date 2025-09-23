@@ -89,7 +89,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
   });
 
   return (
-    <div className='mx-auto mb-14 w-full space-y-6'>
+    <div className='w-fullspace-y-2 mx-auto mb-14 sm:space-y-6'>
       {/* Header */}
 
       <NavbarSiswa title={`${data?.namaMapel} - ${data?.namaGuru}`} />

@@ -128,9 +128,6 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
     <div className='mb-14 w-full space-y-6'>
       {/* Header */}
 
-      <NavbarSiswa title='Detail Tugas' />
-      <BottomNav />
-
       <div className='relative flex h-[10vh] w-full items-center justify-between rounded-b-3xl bg-gradient-to-r from-blue-400 to-blue-600 p-6 text-white'>
         <div className='flex items-center gap-3'>
           {/* Sidebar trigger on mobile */}
@@ -333,6 +330,7 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
           </Card>
         </div>
       </div>
+      <BottomNav />
     </div>
   );
 }

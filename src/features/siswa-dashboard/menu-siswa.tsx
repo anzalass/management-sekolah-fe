@@ -11,7 +11,8 @@ import {
   ClipboardList,
   MoreHorizontal,
   BookCopy,
-  CalendarCheck
+  CalendarCheck,
+  CalendarArrowUp
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -28,7 +29,7 @@ export default function MenuFiturSiswa() {
       href: '/siswa/pembayaran',
       icon: <CreditCardIcon />,
       label: 'Pembayaran',
-      color: 'text-blue-500'
+      color: 'text-indigo-500'
     },
     {
       href: '/siswa/kelas',
@@ -40,31 +41,31 @@ export default function MenuFiturSiswa() {
       href: '/siswa/perizinan',
       icon: <ScrollTextIcon />,
       label: 'Perizinan',
-      color: 'text-yellow-500'
+      color: 'text-indigo-500'
     },
     {
       href: '/siswa/pengumuman',
       icon: <NewspaperIcon />,
       label: 'Pengumuman',
-      color: 'text-cyan-500'
+      color: 'text-indigo-500'
     },
     {
       href: '/siswa/pelanggaran',
       icon: <AlertTriangleIcon />,
       label: 'Pelanggaran',
-      color: 'text-red-500'
+      color: 'text-indigo-500'
     },
     {
       href: '/siswa/prestasi',
       icon: <Award />,
       label: 'Prestasi',
-      color: 'text-green-500'
+      color: 'text-indigo-500'
     },
     {
       href: '/siswa/log-presensi',
       icon: <FileTextIcon />,
       label: 'Log Presensi',
-      color: 'text-purple-500'
+      color: 'text-indigo-500'
     }
   ];
 
@@ -73,49 +74,56 @@ export default function MenuFiturSiswa() {
       href: '/siswa/rapot',
       icon: <BookOpen />,
       label: 'Rapot',
-      color: 'text-orange-500'
+      color: 'text-indigo-500'
     },
     {
       href: '/siswa/janji-temu',
       icon: <CalendarClock />,
       label: 'Janji Temu',
-      color: 'text-pink-500'
+      color: 'text-indigo-500'
+    },
+
+    {
+      href: '/siswa/kalender-akademik',
+      icon: <CalendarArrowUp />,
+      label: 'Kalender Akademik',
+      color: 'text-indigo-500'
     },
     {
       href: '/siswa/nilai-siswa',
       icon: <ClipboardList />,
       label: 'Nilai Siswa',
-      color: 'text-teal-500'
+      color: 'text-indigo-500'
     },
     {
       href: '/siswa/perpustakaan',
       icon: <BookCopy />,
       label: 'Perpustakaan',
-      color: 'text-black'
+      color: 'text-indigo-500'
     },
 
     {
       href: '/siswa/weekly-activity',
       icon: <CalendarCheck />,
       label: 'Weekly Activity',
-      color: 'text-fuchsia-500'
+      color: 'text-indigo-500'
     }
   ];
 
   return (
-    <div className='mt-10 grid grid-cols-4 gap-3 px-4 sm:grid-cols-4 md:gap-6 lg:grid-cols-8'>
+    <div className='mt-3 grid grid-cols-4 gap-2 px-4 sm:grid-cols-4 md:gap-3 lg:grid-cols-8'>
       {fiturUtama.map((fitur, i) => (
         <Link
           key={i}
           href={fitur.href}
-          className='group flex flex-col items-center justify-center rounded-xl border bg-white p-3 shadow transition hover:bg-blue-50 hover:shadow-md'
+          className='group flex flex-col items-center justify-center rounded-xl py-2 transition hover:shadow-md'
         >
           <div
-            className={`mb-1 rounded-full bg-gray-100 p-2 transition-transform group-hover:scale-110 ${fitur.color}`}
+            className={`mb-2 rounded-full bg-gray-100 p-4 text-3xl transition-transform group-hover:scale-110 ${fitur.color}`}
           >
             {fitur.icon}
           </div>
-          <span className='text-center text-[9px] font-medium sm:text-base'>
+          <span className='text-center text-xs font-medium text-white sm:text-sm'>
             {fitur.label}
           </span>
         </Link>
@@ -124,46 +132,30 @@ export default function MenuFiturSiswa() {
       {/* Load More */}
       <Dialog>
         <DialogTrigger asChild>
-          <button className='group flex flex-col items-center justify-center rounded-xl border bg-white p-3 shadow transition hover:bg-blue-50 hover:shadow-md'>
-            <div className='mb-1 rounded-full bg-gray-100 p-2 text-gray-600 transition-transform group-hover:scale-110'>
-              <MoreHorizontal />
+          <button className='group flex flex-col items-center justify-center rounded-xl py-3 transition hover:shadow-md'>
+            <div className='mb-2 rounded-full bg-gray-100 p-4 text-3xl text-gray-600 transition-transform group-hover:scale-110'>
+              <MoreHorizontal className='text-indigo-500' />
             </div>
-            <span className='text-center text-[9px] font-medium sm:text-base'>
-              Load More
+            <span className='text-center text-xs font-medium text-white sm:text-sm'>
+              Menu Lainnya
             </span>
           </button>
         </DialogTrigger>
-        <DialogContent className='max-w-lg'>
-          <DialogTitle>Fitur Tambahan</DialogTitle>
+        <DialogContent className='max-w-lg rounded-lg'>
+          <DialogTitle>Fitur Lainnya</DialogTitle>
           <div className='grid grid-cols-3 gap-4'>
-            {fiturUtama.map((fitur, i) => (
-              <Link
-                key={i}
-                href={fitur.href}
-                className='group flex flex-col items-center justify-center rounded-xl border bg-white p-3 shadow transition hover:bg-blue-50 hover:shadow-md'
-              >
-                <div
-                  className={`mb-1 rounded-full bg-gray-100 p-2 transition-transform group-hover:scale-110 ${fitur.color}`}
-                >
-                  {fitur.icon}
-                </div>
-                <span className='text-center text-[9px] font-medium sm:text-base'>
-                  {fitur.label}
-                </span>
-              </Link>
-            ))}
             {fiturTambahan.map((fitur, i) => (
               <Link
                 key={i}
                 href={fitur.href}
-                className='group flex flex-col items-center justify-center rounded-xl border bg-white p-3 shadow transition hover:bg-blue-50 hover:shadow-md'
+                className='group flex flex-col items-center justify-center rounded-xl py-3 transition hover:bg-blue-50 hover:shadow-md'
               >
                 <div
-                  className={`mb-1 rounded-full bg-gray-100 p-2 transition-transform group-hover:scale-110 ${fitur.color}`}
+                  className={`mb-2 rounded-full bg-gray-100 p-4 text-3xl transition-transform group-hover:scale-110 ${fitur.color}`}
                 >
                   {fitur.icon}
                 </div>
-                <span className='text-center text-[9px] font-medium sm:text-sm'>
+                <span className='text-center text-xs font-medium sm:text-sm'>
                   {fitur.label}
                 </span>
               </Link>
