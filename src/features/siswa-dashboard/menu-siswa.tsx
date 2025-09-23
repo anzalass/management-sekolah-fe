@@ -93,17 +93,12 @@ export default function MenuFiturSiswa() {
       label: 'Perpustakaan',
       color: 'text-black'
     },
-    {
-      href: '/siswa/perpustakaan',
-      icon: <BookCopy />,
-      label: 'Weekly Activity',
-      color: 'text-black'
-    },
+
     {
       href: '/siswa/weekly-activity',
       icon: <CalendarCheck />,
       label: 'Weekly Activity',
-      color: 'text-black'
+      color: 'text-fuchsia-500'
     }
   ];
 

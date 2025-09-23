@@ -9,6 +9,7 @@ import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
+import { toast } from 'sonner';
 
 export default function PerpustakaanView() {
   const [search, setSearch] = useState('');
@@ -24,12 +25,9 @@ export default function PerpustakaanView() {
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
-
-      console.log(res.data);
-
       setBukuData(res.data.data);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
     }
   };
 
@@ -43,10 +41,9 @@ export default function PerpustakaanView() {
   );
 
   return (
-    <div className='mx-auto w-full space-y-6'>
+    <div className='mx-auto mb-14 w-full space-y-6'>
       {/* Header */}
       <NavbarSiswa title='Perpustakaan' />
-      <BottomNav />
 
       {/* Search */}
       <div className='p-4'>
@@ -119,6 +116,7 @@ export default function PerpustakaanView() {
           </Card>
         ))}
       </div>
+      <BottomNav />
     </div>
   );
 }

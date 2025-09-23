@@ -16,6 +16,7 @@ import api from '@/lib/api';
 import Link from 'next/link';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
+import { toast } from 'sonner';
 
 interface Kelas {
   id: number;
@@ -32,16 +33,19 @@ export default function KelasView() {
   const [kelas, setKelas] = useState<Kelas[]>([]);
 
   const getData = async () => {
-    const res = await api.get('siswa/kelas-mapel', {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${session?.user?.token}`
+    try {
+      const res = await api.get('siswa/kelas-mapel', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
+      if (res.status === 200) {
+        setKelas(res.data.data);
       }
-    });
-    if (res.status === 200) {
-      setKelas(res.data.data);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
     }
-    console.log(res);
   };
 
   useEffect(() => {
@@ -53,9 +57,8 @@ export default function KelasView() {
   );
 
   return (
-    <div className='mx-auto space-y-6'>
+    <div className='mx-auto mb-14 space-y-6'>
       <NavbarSiswa title={`Daftar Kelas`} />
-      <BottomNav />
 
       <div className='p-4'>
         <div className='relative w-full sm:w-72'>
@@ -105,6 +108,7 @@ export default function KelasView() {
           </p>
         )}
       </div>
+      <BottomNav />
     </div>
   );
 }

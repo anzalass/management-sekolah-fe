@@ -9,6 +9,7 @@ import { useSession } from 'next-auth/react';
 import api from '@/lib/api';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
+import { toast } from 'sonner';
 
 interface Pengumuman {
   id: number;
@@ -57,9 +58,8 @@ export default function PengumumanView() {
       });
 
       setPengumuman(res.data.data);
-      console.log(res.data.data);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
     }
   };
 
@@ -83,9 +83,8 @@ export default function PengumumanView() {
     });
 
   return (
-    <div className='mx-auto space-y-6'>
+    <div className='mx-auto mb-14 space-y-6'>
       <NavbarSiswa title='Pengumuman' />
-      <BottomNav />
 
       {/* Filter */}
       <div className='flex flex-col gap-4 p-4 pr-4 sm:flex-row'>
@@ -138,6 +137,7 @@ export default function PengumumanView() {
           </p>
         )}
       </div>
+      <BottomNav />
     </div>
   );
 }

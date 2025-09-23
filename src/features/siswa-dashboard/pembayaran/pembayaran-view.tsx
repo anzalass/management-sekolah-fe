@@ -50,7 +50,6 @@ export default function PembayaranSiswaView() {
         }
       });
       const data = res?.data?.data;
-      console.log(data);
 
       // asumsi BE balikin { tagihan: [...], riwayat: [...] }
       setTagihan(
@@ -103,11 +102,10 @@ export default function PembayaranSiswaView() {
   );
 
   return (
-    <div className='mx-auto space-y-6'>
+    <div className='mx-auto mb-14 space-y-6'>
       {/* Header */}
 
       <NavbarSiswa title='Pembayaran' />
-      <BottomNav />
 
       {/* Tabs utama */}
       <Tabs defaultValue='tagihan' className='mx-auto w-[100%] space-y-6'>
@@ -249,6 +247,7 @@ export default function PembayaranSiswaView() {
           </div>
         </TabsContent>
       </Tabs>
+      <BottomNav />
     </div>
   );
 }

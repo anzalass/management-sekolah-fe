@@ -16,6 +16,7 @@ import { useSession } from 'next-auth/react';
 import api from '@/lib/api';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
+import { toast } from 'sonner';
 
 interface Pelanggaran {
   id: number;
@@ -64,14 +65,16 @@ export default function PelanggaranView() {
   const [pelanggaran, setPelanggaran] = useState<any[]>([]);
 
   const fetchData = async () => {
-    const res = await api.get('siswa/pelanggaran', {
-      headers: {
-        Authorization: `Bearer ${session?.user?.token}`
-      }
-    });
-    setPelanggaran(res.data.data);
-
-    console.log(res.data);
+    try {
+      const res = await api.get('siswa/pelanggaran', {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
+      setPelanggaran(res.data.data);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
+    }
   };
   useEffect(() => {
     fetchData();
@@ -90,7 +93,7 @@ export default function PelanggaranView() {
     });
 
   return (
-    <div className='mx-auto w-full space-y-6'>
+    <div className='mx-auto mb-14 w-full space-y-6'>
       <NavbarSiswa title='Pelanggaran ' />
       <BottomNav />
 

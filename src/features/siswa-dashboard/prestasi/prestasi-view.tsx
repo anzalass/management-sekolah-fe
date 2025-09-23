@@ -44,8 +44,6 @@ export default function PrestasiView() {
       }
     });
     setPrestasi(res.data.data);
-
-    console.log(res.data);
   };
   useEffect(() => {
     fetchData();
@@ -54,9 +52,7 @@ export default function PrestasiView() {
     p.keterangan.toLowerCase().includes(search.toLowerCase())
   );
   return (
-    <div className='mx-auto w-full space-y-6'>
-      <BottomNav />
-
+    <div className='mx-auto mb-14 w-full space-y-6'>
       <NavbarSiswa title='Prestasi Siswa' />
 
       <div className='p-4'>
@@ -96,6 +92,7 @@ export default function PrestasiView() {
           </Card>
         ))}
       </div>
+      <BottomNav />
     </div>
   );
 }

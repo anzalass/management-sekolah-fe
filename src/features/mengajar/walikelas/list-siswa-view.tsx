@@ -79,7 +79,6 @@ export default function ListSiswaView({ idKelas }: Props) {
       toast.success(value ? 'Rapot berhasil diterbitkan' : 'Rapot dibatalkan');
     } catch (error: any) {
       toast.error(error?.response?.data?.message);
-      console.log(error);
     }
   };
 

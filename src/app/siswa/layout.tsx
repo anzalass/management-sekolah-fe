@@ -1,11 +1,7 @@
 import { auth } from '@/lib/auth';
-
-import AppSidebar from '@/components/layout/app-sidebar';
-import Header from '@/components/layout/header';
-import Providers from '@/components/layout/providers';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
+import ProvidersSiswa from '@/components/layout/provider-siswa';
 // import { setApiToken } from '@/lib/api';
 
 export const metadata: Metadata = {
@@ -26,5 +22,5 @@ export default async function SiswaLayout({
   // **SET TOKEN SEKALI DI SINI**
   // setApiToken(session?.user?.token || null);
 
-  return <Providers session={session}>{children}</Providers>;
+  return <ProvidersSiswa session={session}>{children}</ProvidersSiswa>;
 }

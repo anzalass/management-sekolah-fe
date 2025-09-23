@@ -13,6 +13,8 @@ import {
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import BottomNav from '../bottom-nav';
 
 type Props = {
   idKelas: string;
@@ -26,10 +28,9 @@ export default function DetailRapotView({ idKelas }: Props) {
   const getTahunAjaran = async () => {
     try {
       const res = await api.get(`kelas-walikelas/get/${idKelas}`);
-      console.log(res.data.tahunAjaran);
       setTahunAjaran(res.data.tahunAjaran);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
     }
   };
 
@@ -43,8 +44,8 @@ export default function DetailRapotView({ idKelas }: Props) {
         `rapot2?idKelas=${idKelas}&idSiswa=${session?.user?.idGuru}&tahunAjaran=${tahunAjaran}`
       );
       setData(res.data);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
     }
   };
 
@@ -156,6 +157,7 @@ export default function DetailRapotView({ idKelas }: Props) {
           {/* <p className='mt-2'>{sekolah.kepalaSekolah}</p> */}
         </div>
       </div>
+      <BottomNav />
     </div>
   );
 }

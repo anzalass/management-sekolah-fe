@@ -58,13 +58,16 @@ export default function JanjiTemuView() {
   const [open, setOpen] = useState(false);
   const getGuruList = async () => {
     try {
-      const res = await api.get('user/get-all-guru');
+      const res = await api.get('user/get-all-guru', {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       if (res.status === 200) {
-        setGuruListt(res.data.result.data);
-        console.log(res.data);
+        setGuruListt(res?.data?.result?.data);
       }
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
     }
   };
 
@@ -81,10 +84,9 @@ export default function JanjiTemuView() {
       });
       if (res.status === 200) {
         setJanjiTemu(res.data.data);
-        console.log(res.data);
       }
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
     }
   };
 
