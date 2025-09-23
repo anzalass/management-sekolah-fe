@@ -72,18 +72,18 @@ export default function LogPresensiView() {
       if (item.keterangan === 'Hadir') acc.hadir++;
       else if (item.keterangan === 'Sakit') acc.sakit++;
       else if (item.keterangan === 'Izin') acc.izin++;
-      else if (item.keterangan === 'Alpha') acc.alpha++;
-      else acc.tanpa++;
+      else if (item.keterangan === 'Tanpa Keterangan') acc.alpha++;
 
       return acc;
     },
-    { hadir: 0, sakit: 0, izin: 0, alpha: 0, tanpa: 0 }
+    { hadir: 0, sakit: 0, izin: 0, alpha: 0 }
   );
 
   return (
-    <div className='mx-auto mb-14 w-full space-y-6'>
+    <div className='relative mx-auto mb-14 w-full space-y-2 sm:space-y-6'>
       {/* Header */}
       <NavbarSiswa title='Log Presensi' />
+
       {/* Filter */}
       <div className='grid w-full grid-cols-1 gap-3 p-4 sm:w-[70%] sm:grid-cols-2 md:grid-cols-5'>
         {/* Tanggal */}
@@ -152,11 +152,10 @@ export default function LogPresensiView() {
         <span className='text-blue-600'>Sakit: {summary.sakit}</span>
         <span className='text-yellow-600'>Izin: {summary.izin}</span>
         <span className='text-red-600'>Alpha: {summary.alpha}</span>
-        <span className='text-gray-600'>Tanpa Keterangan: {summary.tanpa}</span>
       </div>
 
       {/* Daftar Presensi */}
-      <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'>
+      <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6'>
         {filtered.length > 0 ? (
           filtered.map((item) => (
             <Card key={item.id} className='shadow-sm'>

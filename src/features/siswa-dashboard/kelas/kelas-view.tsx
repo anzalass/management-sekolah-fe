@@ -57,7 +57,7 @@ export default function KelasView() {
   );
 
   return (
-    <div className='mx-auto mb-14 space-y-6'>
+    <div className='mx-auto mb-14 space-y-2 sm:space-y-6'>
       <NavbarSiswa title={`Daftar Kelas`} />
 
       <div className='p-4'>
@@ -73,7 +73,7 @@ export default function KelasView() {
       </div>
       {/* Search */}
       {/* Kartu Kelas */}
-      <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
+      <div className='grid grid-cols-2 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
         {filteredKelas.length > 0 ? (
           filteredKelas.map((kelas: any) => (
             <Link href={`/siswa/kelas/${kelas.id}`} key={kelas.id}>
@@ -83,13 +83,13 @@ export default function KelasView() {
                   alt={kelas.namaMapel}
                   className='h-32 w-full object-cover'
                 />
-                <CardHeader>
-                  <CardTitle className='text-lg font-semibold'>
+                <div className='px-2 pt-4 sm:px-6'>
+                  <CardTitle className='text-sm font-semibold sm:text-lg'>
                     {kelas.namaMapel}
                   </CardTitle>
-                </CardHeader>
-                <CardContent className='space-y-2 text-sm text-muted-foreground'>
-                  <p>Wali Kelas: {kelas.namaGuru}</p>
+                </div>
+                <div className='mt-2 space-y-2 px-2 pb-4 text-xs text-muted-foreground sm:px-6'>
+                  <p className=''> {kelas.namaGuru}</p>
                   <p className='flex items-center gap-1'>
                     <CalendarIcon className='h-4 w-4' />
                     {kelas.tahunAjaran}
@@ -98,7 +98,7 @@ export default function KelasView() {
                     <UsersIcon className='h-4 w-4' />
                     {kelas.totalSiswa} - Siswa
                   </p>
-                </CardContent>
+                </div>
               </Card>
             </Link>
           ))

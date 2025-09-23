@@ -115,8 +115,6 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
   return (
     <div className='mb-14 w-full space-y-6'>
       {/* Header */}
-      <NavbarSiswa title='Detail Materi' />
-      <BottomNav />
 
       <div className='relative flex h-[10vh] w-full items-center justify-between rounded-b-3xl bg-gradient-to-r from-blue-400 to-blue-600 p-6 text-white'>
         <div className='flex items-center gap-3'>
@@ -319,6 +317,7 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
           </Card>
         </div>
       </div>
+      <BottomNav />
     </div>
   );
 }

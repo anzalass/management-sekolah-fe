@@ -133,16 +133,16 @@ export default function SiswaHomeView() {
         <div className='flex items-center justify-between'>
           {/* Left side */}
           <div>
-            <h2 className='text-lg font-bold md:text-2xl'>
+            <h2 className='text-base font-bold md:text-2xl'>
               Hi, {session?.user?.nama}
             </h2>
-            <p className='text-sm opacity-90'>{session?.user?.nip}</p>
+            <p className='text-xs opacity-90'>{session?.user?.nip}</p>
           </div>
 
           {/* Right side */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className='relative h-12 w-12 overflow-hidden rounded-full border-2 ring-offset-background focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2'>
+              <button className='h relative h-10 w-10 overflow-hidden rounded-full border-2 ring-offset-background focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 md:h-12 md:w-12'>
                 <Image
                   src={session?.user?.foto || avatarUrl}
                   alt='Foto Siswa'
@@ -150,7 +150,6 @@ export default function SiswaHomeView() {
                   height={100}
                   className='h-full w-full object-cover'
                 />
-                <BadgeCheck className='absolute bottom-0 right-0 h-5 w-5 rounded-full bg-white text-green-500 shadow' />
               </button>
             </DropdownMenuTrigger>
 
