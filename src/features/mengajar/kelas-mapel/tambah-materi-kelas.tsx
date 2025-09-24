@@ -190,7 +190,7 @@ export default function ModalMateri({
             />
           </div>
 
-          <div>
+          {/* <div>
             <label>Upload PDF</label>
             <Input
               type='file'
@@ -200,7 +200,7 @@ export default function ModalMateri({
             {pdfFile && (
               <p className='text-sm text-muted-foreground'>{pdfFile.name}</p>
             )}
-          </div>
+          </div> */}
 
           <div className='flex gap-2'>
             <Button type='submit' disabled={isLoading}>

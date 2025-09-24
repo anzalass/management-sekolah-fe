@@ -83,7 +83,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
     return matchFilter && matchSearch;
   });
 
-  const filteredUjian = data?.UjianIframe?.filter((t: any) => {
+  const filteredUjian = data?.UjianMapel?.filter((t: any) => {
     const matchSearch = t.nama.toLowerCase().includes(search.toLowerCase());
     return matchSearch;
   });
@@ -288,25 +288,25 @@ export default function DetailKelasView({ id }: DetailKelasId) {
               <CardTitle>Ujian Kelas</CardTitle>
             </CardHeader>
             <CardContent className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>
-              {filteredUjian?.map((tugas: any) => (
-                <Link
-                  key={tugas.id}
-                  href={`/siswa/kelas/${id}/ujian/${tugas.id}`}
-                >
-                  <div className='rounded border px-2 py-3 transition hover:bg-muted'>
+              {filteredUjian?.map((ujian: any) => {
+                const content = (
+                  <div
+                    className={`rounded border px-2 py-3 transition ${
+                      ujian.past
+                        ? 'cursor-not-allowed bg-gray-100 opacity-70'
+                        : 'hover:bg-muted'
+                    }`}
+                  >
                     <div className='flex items-start justify-between'>
                       <div>
                         <h4 className='text-sm font-semibold md:text-base'>
-                          {tugas.nama}
+                          {ujian.nama}
                         </h4>
-                        <p className='my-2 text-sm text-muted-foreground'>
-                          {tugas.deskripsi}
-                        </p>
                         <div className='mt-1 flex items-center gap-1 text-xs text-muted-foreground'>
                           <CalendarDays className='h-4 w-4' />
                           Deadline :{' '}
-                          {tugas?.deadline
-                            ? new Date(tugas?.deadline).toLocaleDateString(
+                          {ujian?.deadline
+                            ? new Date(ujian?.deadline).toLocaleDateString(
                                 'id-ID',
                                 {
                                   day: 'numeric',
@@ -319,16 +319,28 @@ export default function DetailKelasView({ id }: DetailKelasId) {
                       </div>
                       <Badge
                         className={
-                          tugas.past ? 'bg-green-500' : 'bg-yellow-400'
+                          ujian.past ? 'bg-green-500' : 'bg-yellow-400'
                         }
                       >
-                        {tugas.past ? 'Selesai' : 'Belum Selesai'}
+                        {ujian.past ? 'Selesai' : 'Belum Selesai'}
                       </Badge>
                     </div>
                   </div>
-                </Link>
-              ))}
-              {filteredTugas?.length === 0 && (
+                );
+
+                return ujian.past ? (
+                  <div key={ujian.id}>{content}</div> // hanya div biasa
+                ) : (
+                  <Link
+                    key={ujian.id}
+                    href={`/siswa/kelas/${id}/ujian/${ujian.id}`}
+                  >
+                    {content}
+                  </Link>
+                );
+              })}
+
+              {filteredUjian?.length === 0 && (
                 <p className='col-span-full text-center text-sm text-muted-foreground'>
                   Tidak ada ujian.
                 </p>

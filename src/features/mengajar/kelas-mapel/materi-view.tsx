@@ -97,14 +97,11 @@ export default function MateriView({ id }: IDMateri) {
               dangerouslySetInnerHTML={{ __html: materi?.iframeGoogleSlide }}
             />{' '}
             {materi?.pdfUrl && (
-              <a
-                href={materi.pdfUrl}
-                target='_blank'
-                rel='noopener noreferrer'
-                className='text-blue-600 hover:underline'
-              >
-                Lihat PDF
-              </a>
+              <img
+                src={
+                  'https://res.cloudinary.com/dyofh7ecq/raw/upload/v1758702097/materi/materi%20pdf%20baru_1758702095608'
+                }
+              />
             )}
           </div>
         </CardContent>

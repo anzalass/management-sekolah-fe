@@ -11,7 +11,7 @@ type PageProps = {
 export default function Page({ params }: PageProps) {
   return (
     <div>
-      <DetailUjianView idUjian={params.idujian} />
+      <DetailUjianView idKelasMapel={params.id} idUjian={params.idujian} />
     </div>
   );
 }

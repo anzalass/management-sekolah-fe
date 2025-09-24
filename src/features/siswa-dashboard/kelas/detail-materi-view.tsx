@@ -240,14 +240,12 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
                 )}
 
                 {materi?.pdfUrl && (
-                  <a
-                    href={materi.pdfUrl}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-blue-600 hover:underline'
-                  >
-                    Lihat PDF
-                  </a>
+                  <iframe
+                    src={materi?.pdfUrl} // url hasil upload cloudinary
+                    width='100%'
+                    height='600px'
+                    style={{ border: 'none' }}
+                  />
                 )}
               </div>
             </CardContent>

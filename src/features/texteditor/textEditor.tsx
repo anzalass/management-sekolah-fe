@@ -9,6 +9,7 @@ import Image from '@tiptap/extension-image';
 import BulletList from '@tiptap/extension-bullet-list';
 import OrderedList from '@tiptap/extension-ordered-list';
 import ImageResize from 'tiptap-extension-resize-image';
+import Link from '@tiptap/extension-link'; // ✅ Tambah Link
 import ToolBar from './toolbar';
 
 export default function RichTextEditor({ content, onChange }: any) {
@@ -33,7 +34,12 @@ export default function RichTextEditor({ content, onChange }: any) {
       }),
       Highlight,
       Image,
-      ImageResize
+      ImageResize,
+      Link.configure({
+        openOnClick: false, // biar klik link gak langsung buka tab baru
+        autolink: true,
+        linkOnPaste: true
+      })
     ],
     content,
     editorProps: {
@@ -46,7 +52,6 @@ export default function RichTextEditor({ content, onChange }: any) {
     }
   });
 
-  // Sinkronkan content dari luar setiap kali berubah
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
       editor.commands.setContent(content || '', false);
