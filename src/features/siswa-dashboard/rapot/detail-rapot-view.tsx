@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -10,11 +10,12 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import api from '@/lib/api';
-import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
 import BottomNav from '../bottom-nav';
+import { useSession } from 'next-auth/react';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/lib/api';
+import { toast } from 'sonner';
 
 type Props = {
   idKelas: string;
@@ -23,46 +24,41 @@ type Props = {
 export default function DetailRapotView({ idKelas }: Props) {
   const { data: session } = useSession();
 
-  const [tahunAjaran, setTahunAjaran] = useState('');
-  const [data, setData] = useState<any>();
-  const getTahunAjaran = async () => {
-    try {
+  // 1. Ambil tahun ajaran kelas
+  const { data: tahunAjaran, isLoading: loadingTahun } = useQuery({
+    queryKey: ['kelas', idKelas],
+    queryFn: async () => {
       const res = await api.get(`kelas-walikelas/get/${idKelas}`);
-      setTahunAjaran(res.data.tahunAjaran);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
+      return res.data.tahunAjaran;
     }
-  };
+  });
 
-  useEffect(() => {
-    getTahunAjaran();
-  }, [session]);
-
-  const getData = async () => {
-    try {
+  // 2. Ambil data rapot siswa (dependent query: menunggu tahunAjaran)
+  const { data, isLoading: loadingRapot } = useQuery({
+    queryKey: ['rapotSiswa', idKelas, tahunAjaran],
+    queryFn: async () => {
       const res = await api.get(
         `rapot2?idKelas=${idKelas}&idSiswa=${session?.user?.idGuru}&tahunAjaran=${tahunAjaran}`
       );
-      setData(res.data);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
-    }
-  };
-
-  useEffect(() => {
-    getData();
-  }, [tahunAjaran !== '']);
+      return res.data;
+    },
+    enabled: !!tahunAjaran // hanya jalan setelah tahunAjaran tersedia
+  });
 
   const downloadRapot = () => {
+    if (!tahunAjaran) return;
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}rapot3?idKelas=${idKelas}&idSiswa=${session?.user?.idGuru}&tahunAjaran=${tahunAjaran}`;
   };
+
+  const loading = loadingTahun || loadingRapot;
 
   return (
     <div className='mx-auto w-full space-y-6 p-5'>
       <Button onClick={downloadRapot}>Download PDF</Button>
+
       {/* Header Sekolah */}
       <div className='space-y-1 text-center'>
-        <h1 className='text-xl font-bold'>Laporan Hasil Belajar</h1>{' '}
+        <h1 className='text-xl font-bold'>Laporan Hasil Belajar</h1>
         <p className='font-semibold'>Yayasan Tunas Anak Mulia</p>
       </div>
 
@@ -74,15 +70,15 @@ export default function DetailRapotView({ idKelas }: Props) {
         <CardContent className='grid grid-cols-2 gap-4'>
           <div>
             <p className='font-semibold'>Nama:</p>
-            <p>{data?.siswa?.nama}</p>
+            <p>{data?.siswa?.nama ?? '-'}</p>
           </div>
           <div>
             <p className='font-semibold'>NIS:</p>
-            <p>{data?.siswa?.nis}</p>
+            <p>{data?.siswa?.nis ?? '-'}</p>
           </div>
           <div>
             <p className='font-semibold'>Kelas:</p>
-            <p>{data?.siswa?.kelas}</p>
+            <p>{data?.siswa?.kelas ?? '-'}</p>
           </div>
         </CardContent>
       </Card>
@@ -93,26 +89,30 @@ export default function DetailRapotView({ idKelas }: Props) {
           <CardTitle>Nilai Mata Pelajaran</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table className='w-full'>
-            <TableHeader>
-              <TableRow>
-                <TableHead className='w-1/2'>Mata Pelajaran</TableHead>
-                <TableHead className='w-1/4'>Guru</TableHead>
-                <TableHead className='w-1/4'>Nilai Akhir</TableHead>
-                <TableHead className='w-1/4'>Catatan</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data?.nilai?.map((item: any, index: any) => (
-                <TableRow key={index}>
-                  <TableCell>{item?.mapel}</TableCell>
-                  <TableCell>{item?.guru}</TableCell>
-                  <TableCell>{item?.nilaiAkhir ?? '-'}</TableCell>
-                  <TableCell>{item?.catatanAkhir ?? '-'}</TableCell>
+          {loading ? (
+            <p className='text-sm text-muted-foreground'>Loading...</p>
+          ) : (
+            <Table className='w-full'>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className='w-1/2'>Mata Pelajaran</TableHead>
+                  <TableHead className='w-1/4'>Guru</TableHead>
+                  <TableHead className='w-1/4'>Nilai Akhir</TableHead>
+                  <TableHead className='w-1/4'>Catatan</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {data?.nilai?.map((item: any, index: number) => (
+                  <TableRow key={index}>
+                    <TableCell>{item?.mapel}</TableCell>
+                    <TableCell>{item?.guru}</TableCell>
+                    <TableCell>{item?.nilaiAkhir ?? '-'}</TableCell>
+                    <TableCell>{item?.catatanAkhir ?? '-'}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
@@ -124,23 +124,23 @@ export default function DetailRapotView({ idKelas }: Props) {
         <CardContent className='grid grid-cols-5 gap-4 text-center'>
           <div className='rounded border p-2'>
             <p className='font-semibold'>Total Hari</p>
-            <p>{data?.absensi?.total}</p>
+            <p>{data?.absensi?.total ?? '-'}</p>
           </div>
           <div className='rounded border p-2'>
             <p className='font-semibold'>Hadir</p>
-            <p>{data?.absensi?.hadir}</p>
+            <p>{data?.absensi?.hadir ?? '-'}</p>
           </div>
           <div className='rounded border p-2'>
             <p className='font-semibold'>Izin</p>
-            <p>{data?.absensi?.izin}</p>
+            <p>{data?.absensi?.izin ?? '-'}</p>
           </div>
           <div className='rounded border p-2'>
             <p className='font-semibold'>Sakit</p>
-            <p>{data?.absensi?.sakit}</p>
+            <p>{data?.absensi?.sakit ?? '-'}</p>
           </div>
           <div className='rounded border p-2'>
             <p className='font-semibold'>Alpha</p>
-            <p>{data?.absensi?.alpha}</p>
+            <p>{data?.absensi?.alpha ?? '-'}</p>
           </div>
         </CardContent>
       </Card>
@@ -154,9 +154,9 @@ export default function DetailRapotView({ idKelas }: Props) {
         <div className='text-center'>
           <p className='font-semibold'>Kepala Sekolah</p>
           <div className='mt-8 h-20 border-b'></div>
-          {/* <p className='mt-2'>{sekolah.kepalaSekolah}</p> */}
         </div>
       </div>
+
       <BottomNav />
     </div>
   );

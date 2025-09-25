@@ -4,11 +4,10 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { StepBack } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import api from '@/lib/api'; // axios instance (baseURL: http://localhost:5000/api)
+import { useQuery } from '@tanstack/react-query';
+import api from '@/lib/api';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
 
@@ -30,84 +29,66 @@ type Riwayat = {
 };
 
 export default function PembayaranSiswaView() {
+  const { data: session } = useSession();
   const [searchTagihan, setSearchTagihan] = useState('');
   const [tanggalTagihan, setTanggalTagihan] = useState('');
   const [searchRiwayat, setSearchRiwayat] = useState('');
   const [tanggalRiwayat, setTanggalRiwayat] = useState('');
-  const { data: session } = useSession();
 
-  const [tagihan, setTagihan] = useState<Tagihan[]>([]);
-  const [riwayat, setRiwayat] = useState<Riwayat[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // ambil data dari BE
-  const fetchPembayaran = async () => {
-    try {
-      setLoading(true);
+  // Fetch pembayaran siswa pakai React Query
+  const { data: pembayaranData, isLoading } = useQuery({
+    queryKey: ['pembayaranSiswa'],
+    queryFn: async () => {
       const res = await api.get('/pembayaran-siswa', {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
       const data = res?.data?.data;
 
-      // asumsi BE balikin { tagihan: [...], riwayat: [...] }
-      setTagihan(
-        data?.tagihan?.map((t: any) => ({
-          id: t.id,
-          nama: t.nama,
-          nominal: t.nominal,
-          jatuhTempo: new Date(t.jatuhTempo).toISOString().split('T')[0],
-          status: t.status,
-          tanggalBayar: t.RiwayatPembayaran?.[0]?.waktuBayar
-            ? new Date(t.RiwayatPembayaran[0].waktuBayar)
-                .toISOString()
-                .split('T')[0]
-            : undefined
-        }))
-      );
+      return {
+        tagihan:
+          data?.tagihan?.map((t: any) => ({
+            id: t.id,
+            nama: t.nama,
+            nominal: t.nominal,
+            jatuhTempo: new Date(t.jatuhTempo).toISOString().split('T')[0],
+            status: t.status,
+            tanggalBayar: t.RiwayatPembayaran?.[0]?.waktuBayar
+              ? new Date(t.RiwayatPembayaran[0].waktuBayar)
+                  .toISOString()
+                  .split('T')[0]
+              : undefined
+          })) || [],
+        riwayat:
+          data?.riwayatPembayaran?.map((r: any) => ({
+            id: r.id,
+            nama: r.namaTagihan || '-',
+            nominal: r?.nominal || 0,
+            tanggalBayar: new Date(r.waktuBayar).toISOString().split('T')[0],
+            metode: r.metodeBayar
+          })) || []
+      };
+    },
+    enabled: !!session?.user?.token,
+    staleTime: 1000 * 60 * 5 // cache 5 menit
+  });
 
-      setRiwayat(
-        data?.riwayatPembayaran?.map((r: any) => ({
-          id: r.id,
-          nama: r.namaTagihan || '-',
-          nominal: r?.nominal || 0,
-          tanggalBayar: new Date(r.waktuBayar).toISOString().split('T')[0],
-          metode: r.metodeBayar
-        }))
-      );
-    } catch (error) {
-      console.error('Gagal fetch pembayaran:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPembayaran();
-  }, []);
-
-  // Filter Tagihan
-  const filteredTagihan = tagihan?.filter(
-    (t) =>
+  // Filter data
+  const filteredTagihan = pembayaranData?.tagihan?.filter(
+    (t: any) =>
       t.nama.toLowerCase().includes(searchTagihan.toLowerCase()) &&
       (tanggalTagihan ? t.jatuhTempo === tanggalTagihan : true)
   );
 
-  // Filter Riwayat
-  const filteredRiwayat = riwayat?.filter(
-    (r) =>
+  const filteredRiwayat = pembayaranData?.riwayat?.filter(
+    (r: any) =>
       r.nama.toLowerCase().includes(searchRiwayat.toLowerCase()) &&
       (tanggalRiwayat ? r.tanggalBayar === tanggalRiwayat : true)
   );
 
   return (
     <div className='mx-auto mb-14 space-y-6'>
-      {/* Header */}
-
       <NavbarSiswa title='Pembayaran' />
 
-      {/* Tabs utama */}
       <Tabs defaultValue='tagihan' className='mx-auto w-[100%] space-y-6'>
         <TabsList className='ml-5 grid w-11/12 grid-cols-2 md:w-72'>
           <TabsTrigger value='tagihan'>Tagihan</TabsTrigger>
@@ -136,7 +117,7 @@ export default function PembayaranSiswaView() {
               </div>
             </CardHeader>
             <CardContent>
-              {loading ? (
+              {isLoading ? (
                 <p className='text-sm text-muted-foreground'>Loading...</p>
               ) : (
                 <div className='space-y-4'>
@@ -146,7 +127,7 @@ export default function PembayaranSiswaView() {
                     </p>
                   )}
                   <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
-                    {filteredTagihan?.map((tagihan) => (
+                    {filteredTagihan?.map((tagihan: any) => (
                       <Card
                         key={tagihan.id}
                         className='flex flex-col justify-between p-4'
@@ -171,7 +152,6 @@ export default function PembayaranSiswaView() {
                               </p>
                             )}
                         </div>
-
                         <div className='mt-3 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between'>
                           {tagihan.status === 'belum' ? (
                             <>
@@ -213,7 +193,7 @@ export default function PembayaranSiswaView() {
               </div>
             </CardHeader>
             <CardContent>
-              {loading ? (
+              {isLoading ? (
                 <p className='text-sm text-muted-foreground'>Loading...</p>
               ) : (
                 <>
@@ -223,7 +203,7 @@ export default function PembayaranSiswaView() {
                     </p>
                   )}
                   <div className='space-y-3'>
-                    {filteredRiwayat?.map((r) => (
+                    {filteredRiwayat?.map((r: any) => (
                       <Card
                         key={r.id}
                         className='flex items-center justify-between p-4'
@@ -247,6 +227,7 @@ export default function PembayaranSiswaView() {
           </div>
         </TabsContent>
       </Tabs>
+
       <BottomNav />
     </div>
   );

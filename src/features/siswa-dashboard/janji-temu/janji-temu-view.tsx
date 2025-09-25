@@ -1,16 +1,15 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+
+import React, { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { useForm, Controller } from 'react-hook-form';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import api from '@/lib/api';
+import NavbarSiswa from '../navbar-siswa';
+import BottomNav from '../bottom-nav';
 import { Card } from '@/components/ui/card';
-import {
-  CheckCircle2,
-  XCircle,
-  Clock,
-  Trash2,
-  Plus,
-  SearchIcon,
-  StepBack,
-  CalendarIcon
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -18,21 +17,23 @@ import {
   DialogContent,
   DialogHeader
 } from '@/components/ui/dialog';
-import Image from 'next/image';
-import { DialogTitle } from '@radix-ui/react-dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Plus,
+  Trash2,
+  SearchIcon,
+  CalendarIcon,
+  Clock,
+  XCircle,
+  CheckCircle2
+} from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { useSession } from 'next-auth/react';
-import { useForm, Controller } from 'react-hook-form';
-import api from '@/lib/api';
-import { toast } from 'sonner';
-import NavbarSiswa from '../navbar-siswa';
-import BottomNav from '../bottom-nav';
+import { DialogTitle } from '@radix-ui/react-dialog';
 
 type JanjiTemu = {
   id: string;
-  waktu: Date;
+  waktu: string;
   status: string;
   deskripsi: string;
   siswaNama: string;
@@ -42,116 +43,121 @@ type JanjiTemu = {
 
 type FormData = {
   deskripsi: string;
-  guruNama: string;
+  guruId: string;
   waktu: string;
 };
 
 export default function JanjiTemuView() {
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
-  const [janjiTemu, setJanjiTemu] = useState<JanjiTemu[]>([]);
-
-  // Dummy list guru
   const [filterTanggal, setFilterTanggal] = useState('');
-
-  const [guruListt, setGuruListt] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
-  const getGuruList = async () => {
-    try {
-      const res = await api.get('user/get-all-guru', {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-      if (res.status === 200) {
-        setGuruListt(res?.data?.result?.data);
-      }
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
-    }
-  };
-
-  useEffect(() => {
-    getGuruList();
-  }, []);
-
-  const getJanjiTemu = async () => {
-    try {
-      const res = await api.get('janji-temu-siswa', {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-      if (res.status === 200) {
-        setJanjiTemu(res.data.data);
-      }
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
-    }
-  };
-
-  useEffect(() => {
-    getJanjiTemu();
-  }, []);
 
   const { register, handleSubmit, control, reset } = useForm<FormData>({
-    defaultValues: {
-      deskripsi: '',
-      guruNama: '',
-      waktu: ''
+    defaultValues: { deskripsi: '', guruId: '', waktu: '' }
+  });
+
+  // Fetch guru list
+  // Fetch guru list
+  const {
+    data: guruList,
+    isLoading: loadingGuru,
+    error: guruError
+  } = useQuery({
+    queryKey: ['guruList'],
+    queryFn: async () => {
+      const res = await api.get('user/get-all-guru', {
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
+      });
+      return res.data.result.data;
+    },
+    enabled: !!session?.user?.token
+  });
+
+  // Fetch janji temu siswa
+  const {
+    data: janjiTemuList,
+    isLoading: loadingJanji,
+    error: janjiError
+  } = useQuery<JanjiTemu[]>({
+    queryKey: ['janjiTemuSiswa'],
+    queryFn: async () => {
+      const res = await api.get('janji-temu-siswa', {
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
+      });
+      return res.data.data;
+    },
+    enabled: !!session?.user?.token
+  });
+
+  // Mutation create janji temu
+  const createJanjiTemuMutation = useMutation({
+    mutationFn: async (data: FormData) => {
+      await api.post(
+        'janji-temu',
+        {
+          idSiswa: session?.user?.idGuru,
+          idGuru: data.guruId,
+          waktu: data.waktu,
+          status: 'menunggu',
+          deskripsi: data.deskripsi
+        },
+        { headers: { Authorization: `Bearer ${session?.user?.token}` } }
+      );
+    },
+    onSuccess: () => {
+      toast.success('Berhasil membuat janji temu');
+      reset();
+      setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['janjiTemuSiswa'] });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Gagal membuat janji temu');
     }
   });
 
+  // Mutation delete janji temu
+  const deleteJanjiTemuMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`janji-temu/${id}`, {
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
+      });
+    },
+    onSuccess: () => {
+      toast.success('Berhasil menghapus janji temu');
+      queryClient.invalidateQueries({ queryKey: ['janjiTemuSiswa'] });
+    },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message || 'Gagal menghapus janji temu'
+      );
+    }
+  });
+
+  const onSubmit = (data: FormData) => createJanjiTemuMutation.mutate(data);
+  const handleDelete = (id: string) => deleteJanjiTemuMutation.mutate(id);
   const resetFilter = () => {
     setSearch('');
     setFilterTanggal('');
   };
 
-  const onSubmit = async (data: FormData) => {
-    try {
-      await api.post(
-        'janji-temu',
-        {
-          idSiswa: session?.user?.idGuru,
-          idGuru: data.guruNama,
-          waktu: data.waktu,
-          status: 'menunggu',
-          deskripsi: data.deskripsi
-        },
-        {
-          headers: { Authorization: `Bearer ${session?.user?.token}` }
-        }
-      );
-      reset();
-      setOpen(false); // tutup modal
-      toast.success('Berhasil membuat janji temu');
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
-    }
-  };
-  const handleDelete = (id: string) => {};
-
-  const filteredData = janjiTemu
-    .filter((item: any) =>
-      item.deskripsi.toLowerCase().includes(search.toLowerCase())
-    )
-    .filter((item: any) => {
-      if (!filterTanggal) return true;
-
-      // konversi ISO → YYYY-MM-DD
-      const dateOnly = new Date(item.waktu).toISOString().split('T')[0];
-
-      return dateOnly === filterTanggal;
-    });
+  const filteredData =
+    janjiTemuList
+      ?.filter((item) =>
+        item.deskripsi.toLowerCase().includes(search.toLowerCase())
+      )
+      .filter((item) => {
+        if (!filterTanggal) return true;
+        const dateOnly = new Date(item.waktu).toISOString().split('T')[0];
+        return dateOnly === filterTanggal;
+      }) || [];
 
   return (
     <div className='mx-auto space-y-2'>
-      {/* Header */}
-
       <NavbarSiswa title='Janji Temu' />
       <BottomNav />
 
-      {/* Button + Search */}
       <div className='flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between'>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -160,8 +166,12 @@ export default function JanjiTemuView() {
             </Button>
           </DialogTrigger>
           <DialogContent>
+            <VisuallyHidden>
+              <DialogTitle>Tambah Janji Temu</DialogTitle>
+            </VisuallyHidden>
+
             <DialogHeader>
-              <DialogTitle>Form Janji Temu</DialogTitle>
+              <Label>Form Janji Temu</Label>
             </DialogHeader>
             <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
               <div>
@@ -174,7 +184,7 @@ export default function JanjiTemuView() {
               <div>
                 <Label>Guru</Label>
                 <Controller
-                  name='guruNama'
+                  name='guruId'
                   control={control}
                   rules={{ required: true }}
                   render={({ field }) => (
@@ -183,7 +193,7 @@ export default function JanjiTemuView() {
                       className='w-full rounded border px-2 py-1'
                     >
                       <option value=''>-- Pilih Guru --</option>
-                      {guruListt?.map((guru) => (
+                      {guruList?.map((guru: any) => (
                         <option key={guru.id} value={guru.id}>
                           {guru.nama}
                         </option>
@@ -210,7 +220,7 @@ export default function JanjiTemuView() {
           <div className='relative w-full'>
             <SearchIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
             <Input
-              placeholder='Cari judul atau keterangan...'
+              placeholder='Cari deskripsi...'
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className='pl-10'
@@ -229,10 +239,9 @@ export default function JanjiTemuView() {
         </div>
       </div>
 
-      {/* List Janji Temu */}
       <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
         {filteredData.length > 0 ? (
-          filteredData.map((item: any) => (
+          filteredData.map((item) => (
             <Card key={item.id} className='p-4'>
               <div className='flex items-center justify-between'>
                 <p className='text-lg font-bold'>

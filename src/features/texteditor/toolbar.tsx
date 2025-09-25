@@ -1,6 +1,6 @@
 'use client';
 import { Toggle } from '@/components/ui/toggle';
-import { List } from 'lucide-react';
+import { List, Link as LinkIcon } from 'lucide-react';
 import {
   Heading1,
   Heading2,
@@ -19,11 +19,27 @@ import { ListOrdered } from 'lucide-react';
 
 export default function ToolBar({ editor }: any) {
   if (!editor) return null;
+
   const addImage = () => {
-    const url = window.prompt('URL');
+    const url = window.prompt('URL Gambar');
     if (url) {
       editor.chain().focus().setImage({ src: url }).run();
     }
+  };
+
+  const addLink = () => {
+    const previousUrl = editor.getAttributes('link').href;
+    const url = window.prompt('Masukkan URL link', previousUrl);
+
+    // Jika kosong, hapus link
+    if (url === null) return; // cancel klik
+    if (url === '') {
+      editor.chain().focus().unsetLink().run();
+      return;
+    }
+
+    // Tambahkan link baru
+    editor.chain().focus().setLink({ href: url }).run();
   };
 
   const Options = [
@@ -85,7 +101,7 @@ export default function ToolBar({ editor }: any) {
     {
       icon: <Code className='size-4' />,
       onClick: () => editor.chain().focus().toggleCodeBlock().run(),
-      preesed: editor.isActive('code')
+      preesed: editor.isActive('codeBlock')
     },
     {
       icon: <Highlighter className='size-4' />,
@@ -96,6 +112,11 @@ export default function ToolBar({ editor }: any) {
       icon: <Upload className='size-4' />,
       onClick: () => addImage(),
       preesed: editor.isActive('image')
+    },
+    {
+      icon: <LinkIcon className='size-4' />,
+      onClick: () => addLink(),
+      preesed: editor.isActive('link')
     }
   ];
 

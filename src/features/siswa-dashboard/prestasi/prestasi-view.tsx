@@ -3,54 +3,55 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import api from '@/lib/api';
-import { SearchIcon, Sparkles, StepBack } from 'lucide-react';
+import { SearchIcon, Sparkles } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import Image from 'next/image';
-import { useEffect, useState } from 'react';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
+import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
-const prestasiDummy = [
-  {
-    id: 1,
-    judul: 'Juara 1 Olimpiade Matematika',
-    deskripsi:
-      'Mewakili sekolah dalam ajang Olimpiade Matematika tingkat kota.',
-    tanggal: '2025-05-14'
-  },
-  {
-    id: 2,
-    judul: 'Lomba Cerdas Cermat',
-    deskripsi: 'Tim XII IPA 1 berhasil meraih juara 2 tingkat provinsi.',
-    tanggal: '2025-03-22'
-  },
-  {
-    id: 3,
-    judul: 'Penghargaan Siswa Teladan',
-    deskripsi: 'Diberikan karena prestasi akademik dan kedisiplinan tinggi.',
-    tanggal: '2025-01-10'
-  }
-];
+interface Prestasi {
+  id: number;
+  keterangan: string;
+  waktu: string;
+}
 
 export default function PrestasiView() {
   const { data: session } = useSession();
   const [search, setSearch] = useState('');
-  const [prestasi, setPrestasi] = useState<any[]>([]);
 
-  const fetchData = async () => {
-    const res = await api.get('siswa/prestasi', {
-      headers: {
-        Authorization: `Bearer ${session?.user?.token}`
-      }
-    });
-    setPrestasi(res.data.data);
-  };
+  const {
+    data: prestasi = [],
+    isLoading,
+    error
+  } = useQuery<Prestasi[]>({
+    queryKey: ['prestasi-siswa'],
+    queryFn: async () => {
+      if (!session?.user?.token) return [];
+      const res = await api.get('siswa/prestasi', {
+        headers: { Authorization: `Bearer ${session.user.token}` }
+      });
+      return res.data.data;
+    },
+    enabled: !!session?.user?.token,
+    staleTime: 1000 * 60 * 5 // cache 5 menit
+  });
+
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Terjadi kesalahan saat memuat data'
+      );
+    }
+  }, [error]);
+
   const filtered = prestasi.filter((p) =>
     p.keterangan.toLowerCase().includes(search.toLowerCase())
   );
+
   return (
     <div className='mx-auto mb-14 w-full space-y-6'>
       <NavbarSiswa title='Prestasi Siswa' />
@@ -67,31 +68,41 @@ export default function PrestasiView() {
         </div>
       </div>
 
-      <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 xl:grid-cols-3'>
-        {filtered.map((item, i) => (
-          <Card key={item.id} className='border shadow-sm'>
-            <CardHeader className='flex justify-between'>
-              <CardTitle className='flex gap-2 text-lg'>
-                <Sparkles className='h-5 text-yellow-500' />
-                Prestasi : {i + 1}
-              </CardTitle>
-              <span className='w-fit rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-700'>
-                <p>
-                  {' '}
-                  {new Date(item?.waktu).toLocaleDateString('id-ID', {
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric'
-                  })}
-                </p>{' '}
-              </span>
-            </CardHeader>
-            <CardContent className='text-sm text-muted-foreground'>
-              {item.keterangan}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {isLoading ? (
+        <p className='p-4 text-center'>Loading prestasi...</p>
+      ) : error ? (
+        <p className='p-4 text-center text-red-500'>Gagal memuat prestasi</p>
+      ) : (
+        <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 xl:grid-cols-3'>
+          {filtered.length > 0 ? (
+            filtered.map((item, i) => (
+              <Card key={item.id} className='border shadow-sm'>
+                <CardHeader className='flex justify-between'>
+                  <CardTitle className='flex gap-2 text-lg'>
+                    <Sparkles className='h-5 text-yellow-500' />
+                    Prestasi : {i + 1}
+                  </CardTitle>
+                  <span className='w-fit rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-700'>
+                    {new Date(item.waktu).toLocaleDateString('id-ID', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </span>
+                </CardHeader>
+                <CardContent className='text-sm text-muted-foreground'>
+                  {item.keterangan}
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <p className='col-span-full text-center text-sm text-muted-foreground'>
+              Tidak ada prestasi ditemukan.
+            </p>
+          )}
+        </div>
+      )}
+
       <BottomNav />
     </div>
   );

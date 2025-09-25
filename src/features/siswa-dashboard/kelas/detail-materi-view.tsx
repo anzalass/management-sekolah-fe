@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -23,6 +23,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
 import BottomNav from '../bottom-nav';
 import NavbarSiswa from '../navbar-siswa';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface Summary {
   id: string;
@@ -50,44 +51,41 @@ type IDMateri = {
 };
 
 export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
-  const [materi, setMateri] = useState<Materi>();
-  const [listMateri, setListMateri] = useState<Materi[]>([]);
   const { data: session } = useSession();
-  const [editorInstance, setEditorInstance] = useState<any>(null);
+  const queryClient = useQueryClient();
 
   const { control, handleSubmit, reset } = useForm({
-    defaultValues: {
-      konten: ''
-    }
+    defaultValues: { konten: '' }
   });
 
-  const getData = async () => {
-    try {
-      const response = await api.get(`materi-summary/${idMateri}`, {
+  const {
+    data: materi,
+    isLoading,
+    error
+  } = useQuery<Materi>({
+    queryKey: ['materi', idMateri],
+    queryFn: async () => {
+      const res = await api.get(`materi-summary/${idMateri}`, {
         headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
-      setMateri(response.data.data);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    }
-  };
+      return res.data.data;
+    },
+    enabled: !!session?.user?.token
+  });
 
-  const getListMateri = async () => {
-    try {
+  const { data: listMateri } = useQuery<Materi[]>({
+    queryKey: ['listMateri', idKelas],
+    queryFn: async () => {
       const res = await api.get(`kelas-mapel/${idKelas}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
-      setListMateri(res.data.data.MateriMapel || []);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Gagal ambil list materi');
-    }
-  };
+      return res.data.data.MateriMapel || [];
+    },
+    enabled: !!session?.user?.token
+  });
 
-  const onSubmit = async (data: { konten: string }) => {
-    try {
+  const addSummaryMutation = useMutation({
+    mutationFn: async (data: { konten: string }) => {
       await api.post(
         `summary`,
         {
@@ -99,26 +97,31 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
         },
         { headers: { Authorization: `Bearer ${session?.user?.token}` } }
       );
+    },
+    onSuccess: () => {
       toast.success('Ringkasan berhasil disimpan');
       reset();
-      getData();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Gagal menyimpan ringkasan');
+      queryClient.invalidateQueries({ queryKey: ['materi', idMateri] });
+      queryClient.invalidateQueries({ queryKey: ['kelas'] });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || 'Gagal menyimpan ringkasan');
     }
+  });
+
+  const onSubmit = (data: { konten: string }) => {
+    addSummaryMutation.mutate(data);
   };
 
-  useEffect(() => {
-    getData();
-    getListMateri();
-  }, [idMateri]);
+  if (isLoading) return <p className='p-4 text-center'>Loading...</p>;
+  if (error)
+    return <p className='p-4 text-center text-red-500'>Error loading materi</p>;
 
   return (
     <div className='mb-14 w-full space-y-6'>
       {/* Header */}
-
       <div className='relative flex h-[10vh] w-full items-center justify-between rounded-b-3xl bg-gradient-to-r from-blue-400 to-blue-600 p-6 text-white'>
         <div className='flex items-center gap-3'>
-          {/* Sidebar trigger on mobile */}
           <Sheet>
             <SheetTrigger asChild>
               <Button
@@ -135,10 +138,12 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
               </SheetHeader>
               <ScrollArea className='h-full'>
                 <div className='space-y-2'>
-                  {listMateri.map((m) => (
-                    <Link href={`/siswa/kelas/${idKelas}/materi/${m.id}`}>
+                  {listMateri?.map((m) => (
+                    <Link
+                      key={m.id}
+                      href={`/siswa/kelas/${idKelas}/materi/${m.id}`}
+                    >
                       <button
-                        key={m.id}
                         className={`block w-full rounded-md px-3 py-2 text-left text-sm hover:bg-muted ${
                           m.id === idMateri ? 'bg-muted font-semibold' : ''
                         }`}
@@ -174,14 +179,11 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
         </div>
       </div>
 
-      {/* 3 kolom layout */}
+      {/* Layout */}
       <div className='mx-auto grid w-[95%] grid-cols-1 gap-6 md:grid-cols-12'>
-        {/* Sidebar Materi */}
-        {/* Sidebar Materi (sticky) */}
+        {/* Sidebar */}
         <div className='hidden md:col-span-3 md:block'>
           <div className='sticky top-3'>
-            {' '}
-            {/* biar nempel saat scroll */}
             <Card className='flex h-[80vh] flex-col'>
               <CardHeader>
                 <CardTitle>📂 Daftar Materi</CardTitle>
@@ -189,7 +191,7 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
               <CardContent className='flex-1 overflow-hidden'>
                 <ScrollArea className='h-full'>
                   <div className='space-y-2'>
-                    {listMateri.map((m) => (
+                    {listMateri?.map((m) => (
                       <label
                         key={m.id}
                         className={`flex w-full cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-muted ${
@@ -221,40 +223,33 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
             </CardHeader>
             <CardContent className='prose max-w-none dark:prose-invert'>
               <div dangerouslySetInnerHTML={{ __html: materi?.konten || '' }} />
-              <div className='mx-auto w-full items-center justify-center'>
-                {materi?.iframeYoutube && (
-                  <div
-                    className='mx-auto mb-10'
-                    dangerouslySetInnerHTML={{ __html: materi?.iframeYoutube }}
-                  />
-                )}
-                {materi?.iframeGoogleSlide && (
-                  <div className='w-[50%]'>
-                    <div
-                      className='w-[50%]'
-                      dangerouslySetInnerHTML={{
-                        __html: materi?.iframeGoogleSlide
-                      }}
-                    />
-                  </div>
-                )}
-
-                {materi?.pdfUrl && (
-                  <a
-                    href={materi.pdfUrl}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-blue-600 hover:underline'
-                  >
-                    Lihat PDF
-                  </a>
-                )}
-              </div>
+              {materi?.iframeYoutube && (
+                <div
+                  className='mx-auto mb-10'
+                  dangerouslySetInnerHTML={{ __html: materi?.iframeYoutube }}
+                />
+              )}
+              {materi?.iframeGoogleSlide && (
+                <div
+                  className='w-[50%]'
+                  dangerouslySetInnerHTML={{
+                    __html: materi?.iframeGoogleSlide
+                  }}
+                />
+              )}
+              {materi?.pdfUrl && (
+                <iframe
+                  src={materi.pdfUrl}
+                  width='100%'
+                  height='600px'
+                  style={{ border: 'none' }}
+                />
+              )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Ringkasan Saya */}
+        {/* Ringkasan */}
         <div className='md:col-span-3'>
           <Card>
             <CardHeader>
@@ -276,7 +271,6 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
                         type='materi'
                         value={field.value}
                         onChange={field.onChange}
-                        editorRef={setEditorInstance}
                       />
                     )}
                   />
@@ -285,7 +279,6 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
                   </Button>
                 </form>
               )}
-
               <ScrollArea className='max-h-[300px] pr-2'>
                 <div className='space-y-4'>
                   {materi?.SummaryMateri?.filter(

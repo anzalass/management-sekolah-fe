@@ -3,70 +3,55 @@
 import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { CalendarIcon, SearchIcon, StepBack } from 'lucide-react';
-import Image from 'next/image';
+import { CalendarIcon, SearchIcon } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import api from '@/lib/api';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
+import api from '@/lib/api';
 import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
 
 interface Pengumuman {
   id: number;
   title: string;
   content: string;
-  tanggal: string;
+  time: string;
 }
-
-const dummyPengumuman: Pengumuman[] = [
-  {
-    id: 1,
-    title: 'Kegiatan Class Meeting',
-    content:
-      'Class Meeting akan dilaksanakan mulai tanggal 20 Juni 2025. Siswa diharapkan hadir tepat waktu dan mengikuti seluruh kegiatan.',
-    tanggal: '2025-06-18'
-  },
-  {
-    id: 2,
-    title: 'Pengambilan Raport',
-    content:
-      'Raport semester genap dapat diambil pada tanggal 25 Juni 2025 oleh orang tua siswa.',
-    tanggal: '2025-06-15'
-  },
-  {
-    id: 3,
-    title: 'Libur Semester',
-    content:
-      'Libur semester dimulai tanggal 26 Juni hingga 10 Juli 2025. Kegiatan belajar akan dimulai kembali tanggal 11 Juli.',
-    tanggal: '2025-06-10'
-  }
-];
 
 export default function PengumumanView() {
   const { data: session } = useSession();
-
   const [search, setSearch] = useState('');
   const [filterTanggal, setFilterTanggal] = useState('');
-  const [pengumuman, setPengumuman] = useState<any[]>([]);
 
-  const getPengumuman = async () => {
-    try {
+  // React Query fetch pengumuman
+  const {
+    data: pengumuman = [],
+    isLoading,
+    error
+  } = useQuery<Pengumuman[]>({
+    queryKey: ['pengumuman-siswa'],
+    queryFn: async () => {
+      if (!session?.user?.token) return [];
       const res = await api.get('siswa/pengumuman', {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+        headers: { Authorization: `Bearer ${session.user.token}` }
       });
-
-      setPengumuman(res.data.data);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
-    }
-  };
+      return res.data.data;
+    },
+    enabled: !!session?.user?.token,
+    staleTime: 1000 * 60 * 5 // cache 5 menit
+  });
 
   useEffect(() => {
-    getPengumuman();
-  }, [session]);
+    if (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Terjadi kesalahan saat memuat data'
+      );
+    }
+  }, [error]);
 
+  // Filter search + tanggal
   const filteredPengumuman = pengumuman
     .filter(
       (item) =>
@@ -75,10 +60,7 @@ export default function PengumumanView() {
     )
     .filter((item) => {
       if (!filterTanggal) return true;
-
-      // konversi ISO → YYYY-MM-DD
       const dateOnly = new Date(item.time).toISOString().split('T')[0];
-
       return dateOnly === filterTanggal;
     });
 
@@ -108,35 +90,42 @@ export default function PengumumanView() {
         </div>
       </div>
 
-      {/* List Pengumuman */}
-      <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2'>
-        {filteredPengumuman.length > 0 ? (
-          filteredPengumuman.map((item, i) => (
-            <Card key={i} className='shadow-sm'>
-              <CardHeader>
-                <CardTitle className='text-lg font-semibold'>
-                  {item.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className='space-y-2 text-sm text-muted-foreground'>
-                <div dangerouslySetInnerHTML={{ __html: item?.content }}></div>
-                <p className='text-xs font-medium text-black'>
-                  Tanggal:{' '}
-                  {new Date(item?.time).toLocaleDateString('id-ID', {
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric'
-                  })}
-                </p>
-              </CardContent>
-            </Card>
-          ))
-        ) : (
-          <p className='text-sm text-muted-foreground'>
-            Tidak ada pengumuman ditemukan.
-          </p>
-        )}
-      </div>
+      {/* Loading/Error */}
+      {isLoading ? (
+        <p className='p-4 text-center'>Loading pengumuman...</p>
+      ) : error ? (
+        <p className='p-4 text-center text-red-500'>Gagal memuat pengumuman</p>
+      ) : (
+        <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2'>
+          {filteredPengumuman.length > 0 ? (
+            filteredPengumuman.map((item) => (
+              <Card key={item.id} className='shadow-sm'>
+                <CardHeader>
+                  <CardTitle className='text-lg font-semibold'>
+                    {item.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className='space-y-2 text-sm text-muted-foreground'>
+                  <div dangerouslySetInnerHTML={{ __html: item.content }}></div>
+                  <p className='text-xs font-medium text-black'>
+                    Tanggal:{' '}
+                    {new Date(item.time).toLocaleDateString('id-ID', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </p>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <p className='col-span-full text-center text-sm text-muted-foreground'>
+              Tidak ada pengumuman ditemukan.
+            </p>
+          )}
+        </div>
+      )}
+
       <BottomNav />
     </div>
   );

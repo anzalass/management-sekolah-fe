@@ -369,7 +369,12 @@ export default function KelasMapelView({ id }: KelasMapelID) {
               >
                 <Trash2 size={16} />
               </button>
-              <p className='font-semibold'>{ujian.nama}</p>
+              <Link
+                href={`/mengajar/kelas-mapel/${id}/ujian/${ujian.id}`}
+                className='mt-2'
+              >
+                <p className='font-semibold'>{ujian.nama}</p>
+              </Link>{' '}
               <p className='text-sm text-muted-foreground'>
                 Deadline:{' '}
                 {dayjs(ujian?.deadline).locale('id').format('DD MMMM YYYY')}
