@@ -10,6 +10,7 @@ import BottomNav from '../bottom-nav';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
+import FilterMobile from './filter-pengumuman-mobile';
 
 interface Pengumuman {
   id: number;
@@ -23,7 +24,6 @@ export default function PengumumanView() {
   const [search, setSearch] = useState('');
   const [filterTanggal, setFilterTanggal] = useState('');
 
-  // React Query fetch pengumuman
   const {
     data: pengumuman = [],
     isLoading,
@@ -38,7 +38,7 @@ export default function PengumumanView() {
       return res.data.data;
     },
     enabled: !!session?.user?.token,
-    staleTime: 1000 * 60 * 5 // cache 5 menit
+    staleTime: 1000 * 60 * 5
   });
 
   useEffect(() => {
@@ -51,7 +51,6 @@ export default function PengumumanView() {
     }
   }, [error]);
 
-  // Filter search + tanggal
   const filteredPengumuman = pengumuman
     .filter(
       (item) =>
@@ -65,11 +64,11 @@ export default function PengumumanView() {
     });
 
   return (
-    <div className='mx-auto mb-14 space-y-6'>
+    <div className='mx-auto mb-36 space-y-6'>
       <NavbarSiswa title='Pengumuman' />
 
-      {/* Filter */}
-      <div className='flex flex-col gap-4 p-4 pr-4 sm:flex-row'>
+      {/* Filter Desktop */}
+      <div className='hidden flex-col gap-4 p-4 pr-4 sm:flex sm:flex-row'>
         <div className='relative w-full'>
           <SearchIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
           <Input
@@ -89,6 +88,14 @@ export default function PengumumanView() {
           />
         </div>
       </div>
+
+      {/* Filter Mobile */}
+      <FilterMobile
+        searchValue={search}
+        setSearchValue={setSearch}
+        tanggalValue={filterTanggal}
+        setTanggalValue={setFilterTanggal}
+      />
 
       {/* Loading/Error */}
       {isLoading ? (

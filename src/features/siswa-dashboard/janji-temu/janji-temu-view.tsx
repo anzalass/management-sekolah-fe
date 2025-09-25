@@ -1,6 +1,4 @@
 'use client';
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-
 import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useForm, Controller } from 'react-hook-form';
@@ -30,6 +28,7 @@ import {
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { DialogTitle } from '@radix-ui/react-dialog';
+import MobileFilterSheet from './janji-temu-filter';
 
 type JanjiTemu = {
   id: string;
@@ -161,14 +160,14 @@ export default function JanjiTemuView() {
       <div className='flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between'>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className='flex gap-1 p-4'>
-              <Plus size={16} /> Tambah Janji Temu
-            </Button>
+            <div className=''>
+              <Button className='flex gap-1 rounded-md bg-blue-600 px-5 py-3 text-white shadow hover:bg-blue-700'>
+                <Plus size={16} /> Tambah Janji Temu
+              </Button>
+            </div>
           </DialogTrigger>
           <DialogContent>
-            <VisuallyHidden>
-              <DialogTitle>Tambah Janji Temu</DialogTitle>
-            </VisuallyHidden>
+            <DialogTitle>Tambah Janji Temu</DialogTitle>
 
             <DialogHeader>
               <Label>Form Janji Temu</Label>
@@ -216,7 +215,7 @@ export default function JanjiTemuView() {
           </DialogContent>
         </Dialog>
 
-        <div className='flex flex-col gap-4 sm:flex-row'>
+        <div className='hidden flex-col gap-4 sm:flex-row md:flex'>
           <div className='relative w-full'>
             <SearchIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
             <Input
@@ -295,6 +294,13 @@ export default function JanjiTemuView() {
           </p>
         )}
       </div>
+      <MobileFilterSheet
+        search={search}
+        setSearch={setSearch}
+        filterTanggal={filterTanggal}
+        setFilterTanggal={setFilterTanggal}
+        resetFilter={resetFilter}
+      />
     </div>
   );
 }

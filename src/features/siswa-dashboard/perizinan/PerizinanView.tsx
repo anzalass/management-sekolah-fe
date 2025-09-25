@@ -17,12 +17,13 @@ import {
   CheckCircle2,
   Clock,
   ImageIcon,
+  Loader2,
   Plus,
   Search,
   Trash2,
   XCircle
 } from 'lucide-react';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
@@ -32,6 +33,7 @@ import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import FilterMobile from './perizinan-filter';
 
 interface Izin {
   id: string;
@@ -105,13 +107,14 @@ export default function Perizinan() {
     onSuccess: () => {
       toast.success('Berhasil menghapus izin');
       queryClient.invalidateQueries({ queryKey: ['perizinan-siswa'] });
-      setDeletingId(null); // reset setelah sukses
+      setDeletingId(null);
     },
     onError: (err: any) => {
       toast.error(err?.response?.data?.message || 'Gagal menghapus izin');
-      setDeletingId(null); // reset kalau gagal
+      setDeletingId(null);
     }
   });
+
   // Filter data
   const filteredData = izinList
     .filter((izin) =>
@@ -129,82 +132,104 @@ export default function Perizinan() {
   };
 
   return (
-    <div className='mx-auto mb-14 space-y-2'>
+    <div className='relative mx-auto mb-36 space-y-2'>
       <NavbarSiswa title='Perizinan Siswa' />
 
-      {/* Button + Filter */}
-      <div className='flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between'>
-        <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={setOpen}>
+        {/* Tombol Ajukan Izin biasa (ngikut layout) */}
+        <div className='p-4'>
           <DialogTrigger asChild>
-            <Button className='flex gap-1 p-4'>
+            <Button className='flex gap-1 rounded-md bg-blue-600 px-5 py-3 text-white shadow hover:bg-blue-700'>
               <Plus size={16} />
               Ajukan Izin
             </Button>
           </DialogTrigger>
-
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Form Pengajuan Izin</DialogTitle>
-            </DialogHeader>
-            <form
-              onSubmit={handleSubmit((data) => submitMutation.mutate(data))}
-              className='space-y-4'
-            >
-              <div>
-                <Label>Keterangan</Label>
-                <Textarea
-                  {...register('keterangan', { required: true })}
-                  placeholder='Alasan atau penjelasan izin'
-                />
-              </div>
-
-              <div>
-                <Label>Tanggal</Label>
-                <Input
-                  type='date'
-                  {...register('tanggal', { required: true })}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor='bukti'>Upload Bukti (opsional)</Label>
-                <div className='flex items-center gap-2'>
-                  <ImageIcon className='h-4 w-4 text-muted-foreground' />
-                  <Input type='file' accept='image/*' {...register('bukti')} />
-                </div>
-              </div>
-
-              <div className='flex justify-end'>
-                <Button type='submit' disabled={formState.isSubmitting}>
-                  {formState.isSubmitting ? 'Mengirim...' : 'Kirim Izin'}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-
-        <div className='flex flex-col gap-4 sm:flex-row'>
-          <div className='relative w-full'>
-            <Search className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
-            <Input
-              placeholder='Cari keterangan...'
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className='pl-10'
-            />
-          </div>
-          <div className='relative w-full sm:max-w-xs'>
-            <CalendarIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
-            <Input
-              type='date'
-              value={filterTanggal}
-              onChange={(e) => setFilterTanggal(e.target.value)}
-              className='pl-10'
-            />
-          </div>
-          <Button onClick={resetFilter}>Reset</Button>
         </div>
+
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Form Pengajuan Izin</DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={handleSubmit((data) => submitMutation.mutate(data))}
+            className='relative space-y-4'
+          >
+            {/* overlay loading pas submit */}
+            {submitMutation.isPending && (
+              <div className='absolute inset-0 z-10 flex items-center justify-center rounded-md bg-white/50 backdrop-blur-sm'>
+                <Loader2 className='h-6 w-6 animate-spin text-blue-600' />
+              </div>
+            )}
+
+            <div>
+              <Label>Keterangan</Label>
+              <Textarea
+                {...register('keterangan', { required: true })}
+                placeholder='Alasan atau penjelasan izin'
+              />
+            </div>
+
+            <div>
+              <Label>Tanggal</Label>
+              <Input type='date' {...register('tanggal', { required: true })} />
+            </div>
+
+            <div>
+              <Label htmlFor='bukti'>Upload Bukti (opsional)</Label>
+              <div className='flex items-center gap-2'>
+                <ImageIcon className='h-4 w-4 text-muted-foreground' />
+                <Input type='file' accept='image/*' {...register('bukti')} />
+              </div>
+            </div>
+
+            <div className='flex justify-end'>
+              <Button
+                type='submit'
+                disabled={formState.isSubmitting || submitMutation.isPending}
+              >
+                {submitMutation.isPending ? (
+                  <>
+                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />{' '}
+                    Mengirim...
+                  </>
+                ) : (
+                  'Kirim Izin'
+                )}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Filter desktop */}
+      <div className='hidden flex-col gap-4 p-4 sm:flex sm:flex-row sm:items-center sm:justify-between'>
+        <div className='relative w-full'>
+          <Search className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
+          <Input
+            placeholder='Cari keterangan...'
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className='pl-10'
+          />
+        </div>
+        <div className='relative w-full sm:max-w-xs'>
+          <CalendarIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
+          <Input
+            type='date'
+            value={filterTanggal}
+            onChange={(e) => setFilterTanggal(e.target.value)}
+            className='pl-10'
+          />
+        </div>
+        <Button onClick={resetFilter}>Reset</Button>
       </div>
+
+      <FilterMobile
+        searchValue={search}
+        setSearchValue={setSearch}
+        tanggalValue={filterTanggal}
+        setTanggalValue={setFilterTanggal}
+      />
 
       {/* Daftar Perizinan */}
       <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4'>

@@ -18,6 +18,7 @@ import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import WeeklyActivityFilterMobile from './filter-weekly-mobile';
 
 interface FotoWeeklyActivity {
   id: string;
@@ -112,21 +113,35 @@ export default function WeeklyActivityList() {
     <div>
       <NavbarSiswa title='Weekly Activity' />
 
+      {/* Filter Mobile */}
+      <WeeklyActivityFilterMobile
+        searchContent={searchContent}
+        setSearchContent={setSearchContent}
+        searchDate={searchDate}
+        setSearchDate={setSearchDate}
+        onReset={() => {
+          setSearchContent('');
+          setSearchDate('');
+        }}
+      />
+
       <Card className='space-y-4 p-5'>
-        {/* Filter */}
-        <div className='flex flex-wrap gap-4'>
-          <Input
-            id='content'
-            placeholder='Cari konten...'
-            value={searchContent}
-            onChange={(e) => setSearchContent(e.target.value)}
-          />
-          <Input
-            id='date'
-            type='date'
-            value={searchDate}
-            onChange={(e) => setSearchDate(e.target.value)}
-          />
+        {/* Filter Desktop */}
+        <div className='hidden justify-between gap-4 sm:flex'>
+          <div className='flex gap-3'>
+            <Input
+              id='content'
+              placeholder='Cari konten...'
+              value={searchContent}
+              onChange={(e) => setSearchContent(e.target.value)}
+            />
+            <Input
+              id='date'
+              type='date'
+              value={searchDate}
+              onChange={(e) => setSearchDate(e.target.value)}
+            />
+          </div>
           <Button
             variant='secondary'
             onClick={() => {

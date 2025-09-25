@@ -18,6 +18,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import FilterMobileLogPresensi from './filter-mobile-presensi';
 
 interface Presensi {
   id: number;
@@ -99,8 +100,20 @@ export default function LogPresensiView() {
     <div className='relative mx-auto mb-14 w-full space-y-2 sm:space-y-6'>
       <NavbarSiswa title='Log Presensi' />
 
+      <FilterMobileLogPresensi
+        tanggalValue={filterTanggal}
+        setTanggalValue={setFilterTanggal}
+        bulanValue={filterBulan}
+        setBulanValue={setFilterBulan}
+        tahunValue={filterTahun}
+        setTahunValue={setFilterTahun}
+        tahunList={tahunList}
+        keteranganValue={filterKeterangan}
+        setKeteranganValue={setFilterKeterangan}
+      />
+
       {/* Filter */}
-      <div className='grid w-full grid-cols-1 gap-3 p-4 sm:w-[70%] sm:grid-cols-2 md:grid-cols-5'>
+      <div className='hidden w-full grid-cols-1 gap-3 p-4 sm:grid sm:w-[70%] sm:grid-cols-2 md:grid-cols-5'>
         <div className='relative'>
           <CalendarIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
           <Input
