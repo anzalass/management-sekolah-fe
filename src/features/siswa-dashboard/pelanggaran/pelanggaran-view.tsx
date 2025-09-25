@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
@@ -10,79 +10,52 @@ import {
   SelectContent,
   SelectItem
 } from '@/components/ui/select';
-import { CalendarIcon, SearchIcon, StepBack } from 'lucide-react';
-import Image from 'next/image';
+import { CalendarIcon, SearchIcon } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import api from '@/lib/api';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
 import { toast } from 'sonner';
-
-interface Pelanggaran {
-  id: number;
-  judul: string;
-  deskripsi: string;
-  tanggal: string; // format: YYYY-MM-DD
-  jenis: 'Ringan' | 'Sedang' | 'Berat';
-}
-
-const dummyPelanggaran: Pelanggaran[] = [
-  {
-    id: 1,
-    judul: 'Terlambat Masuk Sekolah',
-    deskripsi: 'Datang ke sekolah lebih dari pukul 07.30.',
-    tanggal: '2025-06-17',
-    jenis: 'Ringan'
-  },
-  {
-    id: 2,
-    judul: 'Tidak Menggunakan Seragam',
-    deskripsi: 'Tidak memakai seragam sesuai hari yang ditentukan.',
-    tanggal: '2025-06-15',
-    jenis: 'Sedang'
-  },
-  {
-    id: 3,
-    judul: 'Bolos Sekolah',
-    deskripsi: 'Tidak hadir tanpa keterangan selama 2 hari.',
-    tanggal: '2025-06-12',
-    jenis: 'Berat'
-  },
-  {
-    id: 4,
-    judul: 'Membuang Sampah Sembarangan',
-    deskripsi: 'Ditemukan membuang sampah di halaman sekolah.',
-    tanggal: '2025-06-10',
-    jenis: 'Ringan'
-  }
-];
+import FilterMobilePelanggaran from './pelanggaran-filter-mobile';
+import { useQuery } from '@tanstack/react-query';
 
 export default function PelanggaranView() {
   const { data: session } = useSession();
   const [search, setSearch] = useState('');
   const [filterTanggal, setFilterTanggal] = useState('');
   const [filterJenis, setFilterJenis] = useState('');
-  const [pelanggaran, setPelanggaran] = useState<any[]>([]);
 
-  const fetchData = async () => {
-    try {
-      const res = await api.get('siswa/pelanggaran', {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-      setPelanggaran(res.data.data);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
-    }
+  // React Query Fetcher
+  const fetchPelanggaran = async () => {
+    const res = await api.get('siswa/pelanggaran', {
+      headers: {
+        Authorization: `Bearer ${session?.user?.token}`
+      }
+    });
+    return res.data.data;
   };
-  useEffect(() => {
-    fetchData();
-  }, []);
+
+  const {
+    data: pelanggaran = [],
+    isLoading,
+    isError,
+    error
+  } = useQuery({
+    queryKey: ['pelanggaran', session?.user?.token],
+    queryFn: fetchPelanggaran,
+    enabled: !!session?.user?.token // fetch hanya kalau token ada
+  });
+
+  if (isError) {
+    toast.error((error as any)?.response?.data?.message || 'Terjadi kesalahan');
+  }
+
   const filtered = pelanggaran
-    .filter((p) => p.keterangan.toLowerCase().includes(search.toLowerCase()))
-    .filter((p) => (filterTanggal ? p.tanggal === filterTanggal : true))
-    .filter((p) => {
+    .filter((p: any) =>
+      p.keterangan.toLowerCase().includes(search.toLowerCase())
+    )
+    .filter((p: any) => (filterTanggal ? p.tanggal === filterTanggal : true))
+    .filter((p: any) => {
       if (!filterJenis) return true;
 
       if (filterJenis === 'Berat') return p.poin > 70;
@@ -95,10 +68,9 @@ export default function PelanggaranView() {
   return (
     <div className='mx-auto mb-14 w-full space-y-6'>
       <NavbarSiswa title='Pelanggaran ' />
-      <BottomNav />
 
-      {/* Filter */}
-      <div className='flex flex-col gap-4 p-4 sm:flex-row'>
+      {/* Filter Desktop */}
+      <div className='hidden flex-col gap-4 p-4 sm:flex sm:flex-row'>
         <div className='relative w-full'>
           <SearchIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
           <Input
@@ -132,10 +104,22 @@ export default function PelanggaranView() {
         </Select>
       </div>
 
+      {/* Filter Mobile */}
+      <FilterMobilePelanggaran
+        searchValue={search}
+        setSearchValue={setSearch}
+        tanggalValue={filterTanggal}
+        setTanggalValue={setFilterTanggal}
+        jenisValue={filterJenis}
+        setJenisValue={setFilterJenis}
+      />
+
       {/* List Pelanggaran */}
       <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2'>
-        {filtered.length > 0 ? (
-          filtered.map((item, i) => (
+        {isLoading ? (
+          <p className='text-sm text-muted-foreground'>Memuat data...</p>
+        ) : filtered.length > 0 ? (
+          filtered.map((item: any, i: number) => (
             <Card key={item.id} className='border shadow-sm'>
               <CardHeader>
                 <div className='flex items-center justify-between'>
@@ -162,7 +146,6 @@ export default function PelanggaranView() {
 
               <CardContent className='space-y-2 text-sm text-muted-foreground'>
                 <p>
-                  {' '}
                   {new Date(item?.waktu).toLocaleDateString('id-ID', {
                     day: '2-digit',
                     month: 'long',
@@ -179,6 +162,7 @@ export default function PelanggaranView() {
           </p>
         )}
       </div>
+      <BottomNav />
     </div>
   );
 }

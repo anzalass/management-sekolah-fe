@@ -19,6 +19,7 @@ import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
+import MobileNilaiFilterSheet from './filter-mobile-nilai-siswa';
 
 interface Nilai {
   id: string;
@@ -105,7 +106,7 @@ export default function NilaiSiswaView() {
       <NavbarSiswa title='Nilai Siswa' />
 
       <div className='p-2'>
-        <CardHeader className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+        <CardHeader className='hidden flex-col gap-4 sm:flex-row sm:items-center sm:justify-between md:flex'>
           <div className='flex w-full flex-col gap-3 md:w-auto md:flex-row md:items-center'>
             {/* Filter minggu terakhir */}
             <button
@@ -233,6 +234,23 @@ export default function NilaiSiswaView() {
           </div>
         </CardContent>
       </div>
+      <MobileNilaiFilterSheet
+        search={search}
+        setSearch={setSearch}
+        filterLastWeek={filterLastWeek}
+        setFilterLastWeek={setFilterLastWeek}
+        startDate={startDate}
+        setStartDate={setStartDate}
+        endDate={endDate}
+        setEndDate={setEndDate}
+        onReset={() => {
+          setSearch('');
+          setFilterLastWeek(false);
+          setStartDate('');
+          setEndDate('');
+        }}
+      />
+
       <BottomNav />
     </div>
   );
