@@ -36,6 +36,7 @@ export default async function RootLayout({
       className={`${lato.className}`}
       suppressHydrationWarning
     >
+      <link rel='manifest' href='/manifest.json' />
       <body className={''}>
         <NextTopLoader showSpinner={false} />
 

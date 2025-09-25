@@ -86,21 +86,20 @@ export default function PembayaranSiswaView() {
   );
 
   return (
-    <div className='mx-auto mb-14 space-y-6'>
+    <div className='mx-auto mb-14 w-full space-y-6'>
       <NavbarSiswa title='Pembayaran' />
 
-      <Tabs defaultValue='tagihan' className='mx-auto w-[100%] space-y-6'>
+      <Tabs defaultValue='tagihan' className='mx-auto w-[100%] space-y-2'>
         <TabsList className='ml-5 grid w-11/12 grid-cols-2 md:w-72'>
           <TabsTrigger value='tagihan'>Tagihan</TabsTrigger>
           <TabsTrigger value='riwayat'>Riwayat Pembayaran</TabsTrigger>
         </TabsList>
 
         {/* Tagihan */}
-        <TabsContent value='tagihan'>
+        <TabsContent value='tagihan' className=''>
           <div>
             <CardHeader className='space-y-3'>
-              <CardTitle>Daftar Tagihan</CardTitle>
-              <div className='mt-3 flex w-full flex-col justify-between gap-2 sm:flex-row md:w-1/2'>
+              <div className='mt-3 flex w-full justify-between gap-2 sm:flex-row md:w-1/2'>
                 <input
                   type='text'
                   placeholder='Cari tagihan...'
