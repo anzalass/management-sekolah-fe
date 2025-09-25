@@ -1,46 +1,30 @@
 'use client';
 
 import {
-  LogIn,
   LogOut,
   Info,
   CalendarClock,
-  Award,
-  BookOpen,
-  CreditCardIcon,
-  ScrollTextIcon,
-  NewspaperIcon,
-  AlertTriangleIcon,
-  FileTextIcon,
-  PiggyBankIcon,
-  BadgeCheck,
-  School,
   CalendarIcon,
   UsersIcon,
   Lock
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import api from '@/lib/api';
-import { toast } from 'sonner';
-import Image from 'next/image';
-import { Swiper, SwiperSlide } from 'swiper/react';
-
-import 'swiper/css';
-import 'swiper/css/pagination';
-import { Autoplay, Pagination } from 'swiper/modules';
-import { signOut, useSession } from 'next-auth/react';
-import MenuFiturSiswa from './menu-siswa';
+import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import Image from 'next/image';
+import Link from 'next/link';
+import MenuFiturSiswa from './menu-siswa';
 import BottomNav from './bottom-nav';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/lib/api';
+import { useEffect } from 'react';
 
 export interface Kelas {
   id: string;
@@ -71,67 +55,87 @@ interface Pengumuman {
   content: string;
 }
 
+interface SiswaData {
+  kelasAktif: Kelas[];
+  jadwalPelajaran: JadwalPelajaran[];
+  berandaInformasi: Pengumuman[];
+}
+
 export default function SiswaHomeView() {
   const router = useRouter();
   const { data: session } = useSession();
-  const [search, setSearch] = useState('');
-  const [kelas, setKelas] = useState<Kelas[]>([]);
-  const [jadwalPelajaran, setJadwalPelajaran] = useState<JadwalPelajaran[]>([]);
-  const [pengumuman, setPengumuman] = useState<Pengumuman[]>([]);
 
-  const getData = async () => {
-    try {
-      const res = await api.get(`siswa`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-
-      if (res.status === 200) {
-        setKelas(res.data.result.kelasAktif);
-        setJadwalPelajaran(res.data.result.jadwalPelajaran);
-        setPengumuman(res.data.result.berandaInformasi);
-      }
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
+  // Fungsi fetch data
+  const fetchSiswaData = async (): Promise<SiswaData> => {
+    if (!session?.user?.token) {
+      return { kelasAktif: [], jadwalPelajaran: [], berandaInformasi: [] };
     }
+
+    const res = await api.get('siswa', {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.user.token}`
+      }
+    });
+
+    return res.data.result as SiswaData;
   };
+
+  // React Query
+  const { data, error, isLoading } = useQuery<SiswaData, unknown>({
+    queryKey: ['siswa-data'],
+    queryFn: fetchSiswaData,
+    enabled: !!session?.user?.token,
+    staleTime: 1000 * 60 * 20 // cache 5 menit
+  });
 
   useEffect(() => {
-    getData();
-  }, [session]);
+    if (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Terjadi kesalahan saat memuat data'
+      );
+    }
+  }, [error]);
 
+  // Gunakan fallback supaya TypeScript aman
+  const kelas: Kelas[] = data?.kelasAktif ?? [];
+  const jadwalPelajaran: JadwalPelajaran[] = data?.jadwalPelajaran ?? [];
+  const pengumuman: Pengumuman[] = data?.berandaInformasi ?? [];
+
+  // Helper untuk inisial avatar
   const getInitials = (nama?: string) => {
     if (!nama) return '';
-
     const parts = nama.trim().split(' ');
-    if (parts.length === 1) {
-      // kalau cuma satu kata → ambil huruf pertama
-      return parts[0][0];
-    }
-
-    // kalau ada lebih dari satu kata → ambil huruf pertama kata 1 & kata 2
-    return parts[0][0] + parts[1][0];
+    return parts.length === 1 ? parts[0][0] : parts[0][0] + parts[1][0];
   };
   const initials = getInitials(session?.user?.nama);
-
   const avatarUrl = `https://ui-avatars.com/api/?name=${initials}&background=random&format=png`;
 
+  // Logout
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/login-siswa' });
   };
 
+  // Ubah password
   const handleChangePassword = () => {
     router.push('/siswa/ubah-password');
   };
+
+  if (isLoading)
+    return <p className='p-4 text-center text-sm'>Loading data...</p>;
+  if (error)
+    return (
+      <p className='p-4 text-center text-sm text-red-500'>Gagal memuat data</p>
+    );
 
   return (
     <div className='mx-auto mb-14'>
       {/* Profil Siswa */}
       <div className='relative bg-gradient-to-r from-blue-400 to-blue-600 p-6 text-white'>
         <div className='flex items-center justify-between'>
-          {/* Left side */}
+          {/* Left */}
           <div>
             <h2 className='text-base font-bold md:text-2xl'>
               Hi, {session?.user?.nama}
@@ -139,10 +143,10 @@ export default function SiswaHomeView() {
             <p className='text-xs opacity-90'>{session?.user?.nip}</p>
           </div>
 
-          {/* Right side */}
+          {/* Right */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className='h relative h-10 w-10 overflow-hidden rounded-full border-2 ring-offset-background focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 md:h-12 md:w-12'>
+              <button className='relative h-10 w-10 overflow-hidden rounded-full border-2 ring-offset-background focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 md:h-12 md:w-12'>
                 <Image
                   src={session?.user?.foto || avatarUrl}
                   alt='Foto Siswa'
@@ -167,7 +171,7 @@ export default function SiswaHomeView() {
         </div>
       </div>
 
-      <div className='absolute -z-10 h-[50vh] w-full rounded-b-3xl bg-gradient-to-r from-blue-400 to-blue-600 p-6 text-white shadow-md'></div>
+      <div className='absolute -z-10 h-[50vh] w-full rounded-b-3xl bg-gradient-to-r from-blue-400 to-blue-600 shadow-md'></div>
 
       {/* Shortcut Fitur */}
       <MenuFiturSiswa />
@@ -266,7 +270,7 @@ export default function SiswaHomeView() {
                   <div
                     className='text-xs text-muted-foreground'
                     dangerouslySetInnerHTML={{ __html: info?.content }}
-                  ></div>
+                  />
                 </div>
               ))
             ) : (
@@ -277,6 +281,7 @@ export default function SiswaHomeView() {
           </CardContent>
         </Card>
       </div>
+
       <BottomNav />
     </div>
   );

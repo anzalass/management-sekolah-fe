@@ -3,8 +3,6 @@
 import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
@@ -12,14 +10,14 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger
+  DialogTitle
 } from '@/components/ui/dialog';
-import { Download, Eye, Trash2Icon } from 'lucide-react';
+import { Download, Eye } from 'lucide-react';
 import { toast } from 'sonner';
-import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
+import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
 
 interface FotoWeeklyActivity {
   id: string;
@@ -34,48 +32,55 @@ interface WeeklyActivity {
 }
 
 export default function WeeklyActivityList() {
-  const [data, setData] = useState<WeeklyActivity[]>([]);
-  const [filteredData, setFilteredData] = useState<WeeklyActivity[]>([]);
+  const { data: session } = useSession();
   const [searchContent, setSearchContent] = useState('');
   const [searchDate, setSearchDate] = useState('');
-  const { data: session } = useSession();
-  const { trigger, toggleTrigger } = useRenderTrigger();
-
-  // state untuk modal
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const fetchData = async () => {
-    const res = await api.get(`weekly-activity`, {
+  // Fetch data function
+  const fetchWeeklyActivity = async (): Promise<WeeklyActivity[]> => {
+    if (!session?.user?.token) return [];
+    const res = await api.get('weekly-activity', {
       headers: {
-        Authorization: `Bearer ${session?.user?.token}`
+        Authorization: `Bearer ${session.user.token}`
       }
     });
-    const json = await res.data.data;
-    setData(json);
-    setFilteredData(json); // perbaikan: langsung json (bukan json.data)
+    return res.data.data;
   };
-  useEffect(() => {
-    fetchData();
-  }, [trigger]);
+
+  // React Query
+  const {
+    data = [],
+    isLoading,
+    error,
+    refetch
+  } = useQuery<WeeklyActivity[], unknown>({
+    queryKey: ['weekly-activity'],
+    queryFn: fetchWeeklyActivity,
+    enabled: !!session?.user?.token,
+    staleTime: 1000 * 60 * 5 // 5 menit cache
+  });
 
   useEffect(() => {
-    let filtered = data;
-
-    if (searchContent.trim() !== '') {
-      filtered = filtered.filter((item) =>
-        item.content.toLowerCase().includes(searchContent.toLowerCase())
+    if (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Terjadi kesalahan saat memuat data'
       );
     }
-
-    if (searchDate.trim() !== '') {
-      filtered = filtered.filter(
-        (item) => item.waktu.split('T')[0] === searchDate
-      );
-    }
-
-    setFilteredData(filtered);
-  }, [searchContent, searchDate, data]);
+  }, [error]);
+  // Filtered data
+  const filteredData = data.filter((item: any) => {
+    const matchesContent = searchContent
+      ? item.content.toLowerCase().includes(searchContent.toLowerCase())
+      : true;
+    const matchesDate = searchDate
+      ? item.waktu.split('T')[0] === searchDate
+      : true;
+    return matchesContent && matchesDate;
+  });
 
   const handleDownload = (url: string) => {
     const link = document.createElement('a');
@@ -90,62 +95,57 @@ export default function WeeklyActivityList() {
   const handleDelete = async (id: string) => {
     try {
       await api.delete(`weekly-activity/${id}`, {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
-      fetchData();
       toast.success('Berhasil Menghapus Weekly Activity');
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
+      refetch(); // reload data
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Terjadi kesalahan');
     }
   };
 
+  if (isLoading) return <p className='p-4 text-center'>Loading data...</p>;
+  if (error)
+    return <p className='p-4 text-center text-red-500'>Gagal memuat data</p>;
+
   return (
-    <div className=''>
+    <div>
       <NavbarSiswa title='Weekly Activity' />
 
       <Card className='space-y-4 p-5'>
         {/* Filter */}
-        <p className='font-bold'>Weekly Activity</p>
         <div className='flex flex-wrap gap-4'>
-          <div className='flex flex-col'>
-            <Input
-              id='content'
-              placeholder='Cari konten...'
-              value={searchContent}
-              onChange={(e) => setSearchContent(e.target.value)}
-            />
-          </div>
-          <div className='flex flex-col'>
-            <Input
-              id='date'
-              type='date'
-              value={searchDate}
-              onChange={(e) => setSearchDate(e.target.value)}
-            />
-          </div>
-          <div className='flex items-end'>
-            <Button
-              variant='secondary'
-              onClick={() => {
-                setSearchContent('');
-                setSearchDate('');
-              }}
-            >
-              Reset Filter
-            </Button>
-          </div>
+          <Input
+            id='content'
+            placeholder='Cari konten...'
+            value={searchContent}
+            onChange={(e) => setSearchContent(e.target.value)}
+          />
+          <Input
+            id='date'
+            type='date'
+            value={searchDate}
+            onChange={(e) => setSearchDate(e.target.value)}
+          />
+          <Button
+            variant='secondary'
+            onClick={() => {
+              setSearchContent('');
+              setSearchDate('');
+            }}
+          >
+            Reset Filter
+          </Button>
         </div>
 
         {/* Data */}
         <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
-          {filteredData?.length === 0 && (
+          {filteredData.length === 0 && (
             <p className='col-span-full text-center text-gray-500'>
               Tidak ada aktivitas.
             </p>
           )}
-          {filteredData?.map((item) => (
+          {filteredData.map((item: any) => (
             <Card key={item.id} className='overflow-hidden shadow-lg'>
               <CardHeader className='relative'>
                 <CardTitle className='text-lg'>{item.content}</CardTitle>
@@ -155,14 +155,13 @@ export default function WeeklyActivityList() {
               </CardHeader>
               <CardContent>
                 <div className='grid grid-cols-2 gap-2'>
-                  {item.FotoWeeklyActivity.map((foto) => (
+                  {item.FotoWeeklyActivity.map((foto: any) => (
                     <div key={foto.id} className='group relative'>
                       <img
                         src={foto.fotoUrl}
                         alt='Foto'
                         className='h-32 w-full rounded-lg object-cover'
                       />
-                      {/* Overlay button muncul saat hover */}
                       <div className='absolute inset-0 hidden items-center justify-center gap-2 bg-black/50 group-hover:flex'>
                         <Button
                           size='sm'

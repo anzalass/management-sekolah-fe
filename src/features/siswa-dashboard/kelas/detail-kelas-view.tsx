@@ -2,16 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  BookOpenText,
-  ClipboardList,
-  CalendarDays,
-  StepBack
-} from 'lucide-react';
+import { BookOpenText, ClipboardList, CalendarDays } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import Image from 'next/image';
-import { useSession } from 'next-auth/react';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -20,6 +13,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { useSession } from 'next-auth/react';
+import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import Link from 'next/link';
 import NavbarSiswa from '../navbar-siswa';
@@ -28,9 +23,26 @@ import { toast } from 'sonner';
 
 type DetailKelasId = { id: string };
 
+type Materi = { id: string; judul: string; tanggal?: string; past: boolean };
+type Tugas = {
+  id: string;
+  judul: string;
+  deskripsi?: string;
+  deadline?: string;
+  past: boolean;
+};
+type Ujian = { id: string; nama: string; deadline?: string; past: boolean };
+
+type KelasData = {
+  namaMapel: string;
+  namaGuru: string;
+  MateriMapel: Materi[];
+  TugasMapel: Tugas[];
+  UjianMapel: Ujian[];
+};
+
 export default function DetailKelasView({ id }: DetailKelasId) {
   const { data: session } = useSession();
-  const [data, setData] = useState<any>();
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState('materi');
   const [materiFilter, setMateriFilter] = useState<'all' | 'selesai' | 'belum'>(
@@ -40,28 +52,32 @@ export default function DetailKelasView({ id }: DetailKelasId) {
     'all'
   );
 
-  const getData = async () => {
-    try {
+  const { data, isLoading, error } = useQuery<KelasData>({
+    queryKey: ['kelas', id, session?.user?.token],
+    queryFn: async () => {
       const res = await api.get(`kelas-mapel/${id}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
-      if (res.status === 200) {
-        setData(res.data.data);
-      }
-      console.log(res.data.data);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
-    }
-  };
+      return res.data.data;
+    },
+    enabled: !!session?.user?.token
+  });
 
   useEffect(() => {
-    getData();
-  }, [id]);
+    if (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Terjadi kesalahan saat memuat data'
+      );
+    }
+  }, [error]);
 
-  const filteredMateri = data?.MateriMapel?.filter((m: any) => {
+  if (isLoading) return <p className='p-4 text-center'>Loading...</p>;
+  if (error)
+    return <p className='p-4 text-center text-red-500'>Error loading data.</p>;
+
+  const filteredMateri = data?.MateriMapel.filter((m) => {
     const matchFilter =
       materiFilter === 'all'
         ? true
@@ -72,7 +88,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
     return matchFilter && matchSearch;
   });
 
-  const filteredTugas = data?.TugasMapel?.filter((t: any) => {
+  const filteredTugas = data?.TugasMapel.filter((t) => {
     const matchFilter =
       tugasFilter === 'all'
         ? true
@@ -83,28 +99,25 @@ export default function DetailKelasView({ id }: DetailKelasId) {
     return matchFilter && matchSearch;
   });
 
-  const filteredUjian = data?.UjianMapel?.filter((t: any) => {
-    const matchSearch = t.nama.toLowerCase().includes(search.toLowerCase());
-    return matchSearch;
-  });
+  const filteredUjian = data?.UjianMapel.filter((u) =>
+    u.nama.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className='w-fullspace-y-2 mx-auto mb-14 sm:space-y-6'>
-      {/* Header */}
-
+    <div className='mx-auto mb-14 w-full space-y-2 sm:space-y-6'>
       <NavbarSiswa title={`${data?.namaMapel} - ${data?.namaGuru}`} />
       <BottomNav />
-      {/* Tabs */}
+
       <Tabs value={tab} onValueChange={setTab} className='p-4'>
         {/* Materi */}
         <TabsContent value='materi'>
-          {/* Filter */}
           <div className='mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
             <TabsList className='mb-4'>
               <TabsTrigger value='materi'>Materi</TabsTrigger>
               <TabsTrigger value='tugas'>Tugas</TabsTrigger>
               <TabsTrigger value='ujian'>Ujian</TabsTrigger>
             </TabsList>
+
             <Select
               onValueChange={(val: any) => setMateriFilter(val)}
               defaultValue='all'
@@ -118,6 +131,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
                 <SelectItem value='belum'>Belum Selesai</SelectItem>
               </SelectContent>
             </Select>
+
             <Input
               placeholder='Cari materi...'
               value={search}
@@ -132,7 +146,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
               <CardTitle>Materi Kelas</CardTitle>
             </CardHeader>
             <CardContent className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>
-              {filteredMateri?.map((materi: any) => (
+              {filteredMateri?.map((materi) => (
                 <Link
                   key={materi.id}
                   href={`/siswa/kelas/${id}/materi/${materi.id}`}
@@ -143,7 +157,6 @@ export default function DetailKelasView({ id }: DetailKelasId) {
                         <h4 className='text-sm font-semibold md:text-base'>
                           {materi.judul}
                         </h4>
-
                         <div className='mt-1 flex items-center gap-1 text-xs text-muted-foreground'>
                           <CalendarDays className='h-4 w-4' />
                           {materi?.tanggal
@@ -160,12 +173,12 @@ export default function DetailKelasView({ id }: DetailKelasId) {
                       </div>
                       <Badge
                         className={
-                          materi.past === true
+                          materi.past
                             ? 'bg-green-500 p-1 text-xs'
                             : 'bg-yellow-400 p-1 text-xs'
                         }
                       >
-                        {materi.past === true ? 'Selesai' : 'Belum Selesai'}
+                        {materi.past ? 'Selesai' : 'Belum Selesai'}
                       </Badge>
                     </div>
                   </div>
@@ -182,13 +195,13 @@ export default function DetailKelasView({ id }: DetailKelasId) {
 
         {/* Tugas */}
         <TabsContent value='tugas'>
-          {/* Filter */}
           <div className='mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
             <TabsList className='mb-4'>
               <TabsTrigger value='materi'>Materi</TabsTrigger>
               <TabsTrigger value='tugas'>Tugas</TabsTrigger>
               <TabsTrigger value='ujian'>Ujian</TabsTrigger>
             </TabsList>
+
             <Select
               onValueChange={(val: any) => setTugasFilter(val)}
               defaultValue='all'
@@ -202,6 +215,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
                 <SelectItem value='belum'>Belum Selesai</SelectItem>
               </SelectContent>
             </Select>
+
             <Input
               placeholder='Cari tugas...'
               value={search}
@@ -216,7 +230,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
               <CardTitle>Tugas Kelas</CardTitle>
             </CardHeader>
             <CardContent className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>
-              {filteredTugas?.map((tugas: any) => (
+              {filteredTugas?.map((tugas) => (
                 <Link
                   key={tugas.id}
                   href={`/siswa/kelas/${id}/tugas/${tugas.id}`}
@@ -232,9 +246,9 @@ export default function DetailKelasView({ id }: DetailKelasId) {
                         </p>
                         <div className='mt-1 flex items-center gap-1 text-xs text-muted-foreground'>
                           <CalendarDays className='h-4 w-4' />
-                          Deadline :{' '}
-                          {tugas?.deadline
-                            ? new Date(tugas?.deadline).toLocaleDateString(
+                          Deadline:{' '}
+                          {tugas.deadline
+                            ? new Date(tugas.deadline).toLocaleDateString(
                                 'id-ID',
                                 {
                                   day: 'numeric',
@@ -265,8 +279,8 @@ export default function DetailKelasView({ id }: DetailKelasId) {
           </Card>
         </TabsContent>
 
+        {/* Ujian */}
         <TabsContent value='ujian'>
-          {/* Filter */}
           <div className='mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
             <TabsList className='mb-4'>
               <TabsTrigger value='materi'>Materi</TabsTrigger>
@@ -288,14 +302,10 @@ export default function DetailKelasView({ id }: DetailKelasId) {
               <CardTitle>Ujian Kelas</CardTitle>
             </CardHeader>
             <CardContent className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>
-              {filteredUjian?.map((ujian: any) => {
+              {filteredUjian?.map((ujian) => {
                 const content = (
                   <div
-                    className={`rounded border px-2 py-3 transition ${
-                      ujian.past
-                        ? 'cursor-not-allowed bg-gray-100 opacity-70'
-                        : 'hover:bg-muted'
-                    }`}
+                    className={`rounded border px-2 py-3 transition ${ujian.past ? 'cursor-not-allowed bg-gray-100 opacity-70' : 'hover:bg-muted'}`}
                   >
                     <div className='flex items-start justify-between'>
                       <div>
@@ -304,9 +314,9 @@ export default function DetailKelasView({ id }: DetailKelasId) {
                         </h4>
                         <div className='mt-1 flex items-center gap-1 text-xs text-muted-foreground'>
                           <CalendarDays className='h-4 w-4' />
-                          Deadline :{' '}
-                          {ujian?.deadline
-                            ? new Date(ujian?.deadline).toLocaleDateString(
+                          Deadline:{' '}
+                          {ujian.deadline
+                            ? new Date(ujian.deadline).toLocaleDateString(
                                 'id-ID',
                                 {
                                   day: 'numeric',
@@ -329,7 +339,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
                 );
 
                 return ujian.past ? (
-                  <div key={ujian.id}>{content}</div> // hanya div biasa
+                  <div key={ujian.id}>{content}</div>
                 ) : (
                   <Link
                     key={ujian.id}
@@ -339,7 +349,6 @@ export default function DetailKelasView({ id }: DetailKelasId) {
                   </Link>
                 );
               })}
-
               {filteredUjian?.length === 0 && (
                 <p className='col-span-full text-center text-sm text-muted-foreground'>
                   Tidak ada ujian.

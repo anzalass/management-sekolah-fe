@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import {
@@ -10,8 +10,6 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -20,12 +18,11 @@ import {
   Clock,
   ImageIcon,
   Plus,
-  SearchIcon,
-  StepBack,
+  Search,
   Trash2,
   XCircle
 } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
@@ -33,107 +30,102 @@ import api from '@/lib/api';
 import { toast } from 'sonner';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 interface Izin {
   id: string;
-  judul: string;
+  judul?: string;
   keterangan: string;
   time: string;
   bukti?: string | null;
-  status: any;
+  status: 'menunggu' | 'disetujui' | 'ditolak';
 }
 
 export default function Perizinan() {
+  const { data: session } = useSession();
   const [search, setSearch] = useState('');
   const [filterTanggal, setFilterTanggal] = useState('');
-  const [izinList, setIzinList] = useState<Izin[]>([]);
   const [open, setOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const { data: session } = useSession();
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { isSubmitting }
-  } = useForm({
-    defaultValues: {
-      keterangan: '',
-      tanggal: '',
-      bukti: null as File | null
-    }
+  const { register, handleSubmit, reset, formState } = useForm({
+    defaultValues: { keterangan: '', tanggal: '', bukti: null as File | null }
   });
 
-  const resetFilter = () => {
-    setSearch('');
-    setFilterTanggal('');
-  };
-
-  // Ambil data izin dari API
-  const fetchData = async () => {
-    try {
+  // Fetch izin
+  const { data: izinList = [], isLoading } = useQuery<Izin[]>({
+    queryKey: ['perizinan-siswa'],
+    queryFn: async () => {
+      if (!session?.user?.token) return [];
       const res = await api.get('perizinan-siswa-pribadi', {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+        headers: { Authorization: `Bearer ${session.user.token}` }
       });
-      setIzinList(res.data.data);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
-    }
-  };
-  useEffect(() => {
-    fetchData();
-  }, []);
+      return res.data.data;
+    },
+    enabled: !!session?.user?.token
+  });
 
-  const onSubmit = async (formData: any) => {
-    try {
+  // Submit izin
+  const submitMutation = useMutation({
+    mutationFn: async (formData: any) => {
+      if (!session?.user?.token) throw new Error('Token tidak ditemukan');
       const fd = new FormData();
       fd.append('keterangan', formData.keterangan);
       fd.append('time', formData.tanggal);
-      if (formData.bukti?.[0]) {
-        fd.append('image', formData.bukti[0]);
-      }
+      if (formData.bukti?.[0]) fd.append('image', formData.bukti[0]);
 
-      const res = await api.post('perizinan-siswa', fd, {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+      await api.post('perizinan-siswa', fd, {
+        headers: { Authorization: `Bearer ${session.user.token}` }
       });
-      if (res.status !== 201) throw new Error('Gagal mengajukan izin');
-      toast.success('Berhasil Membuat Izin');
-      setOpen(false);
-      fetchData();
+    },
+    onSuccess: () => {
+      toast.success('Berhasil mengajukan izin');
+      queryClient.invalidateQueries({ queryKey: ['perizinan-siswa'] });
       reset();
-    } catch (error) {
-      console.error(error);
+      setOpen(false);
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || 'Gagal mengajukan izin');
     }
-  };
+  });
 
+  // Delete izin
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      if (!session?.user?.token) throw new Error('Token tidak ditemukan');
+      await api.delete(`perizinan-siswa/${id}`, {
+        headers: { Authorization: `Bearer ${session.user.token}` }
+      });
+    },
+    onMutate: (id: string) => {
+      setDeletingId(id); // set ID yang sedang dihapus
+    },
+    onSuccess: () => {
+      toast.success('Berhasil menghapus izin');
+      queryClient.invalidateQueries({ queryKey: ['perizinan-siswa'] });
+      setDeletingId(null); // reset setelah sukses
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || 'Gagal menghapus izin');
+      setDeletingId(null); // reset kalau gagal
+    }
+  });
+  // Filter data
   const filteredData = izinList
     .filter((izin) =>
       izin.keterangan.toLowerCase().includes(search.toLowerCase())
     )
     .filter((izin) => {
       if (!filterTanggal) return true;
-
-      // konversi ISO → YYYY-MM-DD
       const dateOnly = new Date(izin.time).toISOString().split('T')[0];
-
       return dateOnly === filterTanggal;
     });
 
-  const handleDelete = async (id: any) => {
-    try {
-      await api.delete(`perizinan-siswa/${id}`, {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-      toast.success('Berhasil menghapus izin');
-      fetchData();
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
-    }
+  const resetFilter = () => {
+    setSearch('');
+    setFilterTanggal('');
   };
 
   return (
@@ -149,11 +141,15 @@ export default function Perizinan() {
               Ajukan Izin
             </Button>
           </DialogTrigger>
+
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Form Pengajuan Izin</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+            <form
+              onSubmit={handleSubmit((data) => submitMutation.mutate(data))}
+              className='space-y-4'
+            >
               <div>
                 <Label>Keterangan</Label>
                 <Textarea
@@ -161,6 +157,7 @@ export default function Perizinan() {
                   placeholder='Alasan atau penjelasan izin'
                 />
               </div>
+
               <div>
                 <Label>Tanggal</Label>
                 <Input
@@ -168,6 +165,7 @@ export default function Perizinan() {
                   {...register('tanggal', { required: true })}
                 />
               </div>
+
               <div>
                 <Label htmlFor='bukti'>Upload Bukti (opsional)</Label>
                 <div className='flex items-center gap-2'>
@@ -175,9 +173,10 @@ export default function Perizinan() {
                   <Input type='file' accept='image/*' {...register('bukti')} />
                 </div>
               </div>
+
               <div className='flex justify-end'>
-                <Button type='submit' disabled={isSubmitting}>
-                  {isSubmitting ? 'Mengirim...' : 'Kirim Izin'}
+                <Button type='submit' disabled={formState.isSubmitting}>
+                  {formState.isSubmitting ? 'Mengirim...' : 'Kirim Izin'}
                 </Button>
               </div>
             </form>
@@ -186,9 +185,9 @@ export default function Perizinan() {
 
         <div className='flex flex-col gap-4 sm:flex-row'>
           <div className='relative w-full'>
-            <SearchIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
+            <Search className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
             <Input
-              placeholder='Cari judul atau keterangan...'
+              placeholder='Cari keterangan...'
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className='pl-10'
@@ -209,20 +208,20 @@ export default function Perizinan() {
 
       {/* Daftar Perizinan */}
       <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4'>
-        {filteredData.length > 0 ? (
+        {isLoading ? (
+          <p className='col-span-full text-center'>Loading data...</p>
+        ) : filteredData.length > 0 ? (
           filteredData.map((izin) => (
             <Card key={izin.id} className='p-4'>
               <div className='flex items-center justify-between'>
-                {/* Tanggal */}
                 <p className='text-lg font-bold'>
-                  {new Date(izin?.time).toLocaleDateString('id-ID', {
+                  {new Date(izin.time).toLocaleDateString('id-ID', {
                     day: '2-digit',
                     month: 'long',
                     year: 'numeric'
                   })}
                 </p>
 
-                {/* Status izin pakai icon */}
                 <div className='flex items-center gap-2'>
                   {izin.status === 'disetujui' && (
                     <CheckCircle2 className='text-green-600' size={20} />
@@ -243,6 +242,9 @@ export default function Perizinan() {
                 {izin.bukti && (
                   <div className='mt-1'>
                     <Dialog>
+                      <VisuallyHidden>
+                        <DialogTitle>Bukti Foto</DialogTitle>
+                      </VisuallyHidden>
                       <DialogTrigger asChild>
                         <Button variant='outline' size='sm' className='text-xs'>
                           Lihat Bukti
@@ -262,28 +264,29 @@ export default function Perizinan() {
                 )}
               </div>
 
-              {/* Tombol Delete */}
-              {izin.status === 'menunggu' ? (
+              {izin.status === 'menunggu' && (
                 <div className='mt-4 flex justify-end'>
                   <Button
                     variant='destructive'
                     size='sm'
-                    onClick={() => handleDelete(izin.id)}
+                    onClick={() => deleteMutation.mutate(izin.id)}
                     className='flex items-center gap-1'
+                    disabled={deletingId === izin.id}
                   >
                     <Trash2 size={16} />
-                    Hapus
+                    {deletingId === izin.id ? 'Menghapus...' : 'Hapus'}
                   </Button>
                 </div>
-              ) : null}
+              )}
             </Card>
           ))
         ) : (
-          <p className='text-sm text-muted-foreground'>
+          <p className='col-span-full text-sm text-muted-foreground'>
             Tidak ada data ditemukan.
           </p>
         )}
       </div>
+
       <BottomNav />
     </div>
   );

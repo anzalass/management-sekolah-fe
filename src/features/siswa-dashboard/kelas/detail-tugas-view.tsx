@@ -1,15 +1,19 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm, Controller } from 'react-hook-form';
+import { toast } from 'sonner';
+import Image from 'next/image';
+import Link from 'next/link';
+import api from '@/lib/api';
+import TextEditor from '@/components/text-editor';
+import BottomNav from '../bottom-nav';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { toast } from 'sonner';
-import api from '@/lib/api';
-import { useSession } from 'next-auth/react';
-import { Menu, StepBack } from 'lucide-react';
-import Image from 'next/image';
-import { Controller, useForm } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Sheet,
   SheetContent,
@@ -17,14 +21,11 @@ import {
   SheetTitle,
   SheetTrigger
 } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import TextEditor from '@/components/text-editor';
-import BottomNav from '../bottom-nav';
-import NavbarSiswa from '../navbar-siswa';
+import { Menu, StepBack } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface Summary {
-  id: string; // ubah ke string biar konsisten sama prisma UUID
+  id: string;
   nama: string;
   idSiswa: string;
   content: string;
@@ -39,7 +40,7 @@ interface Tugas {
   iframeGoogleSlide?: string;
   iframeYoutube?: string;
   pdfUrl?: string;
-  past: any;
+  past: boolean;
   SummaryTugas: Summary[];
 }
 
@@ -49,77 +50,69 @@ type IDTugas = {
 };
 
 export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
-  const [tugas, setTugas] = useState<Tugas>();
   const { data: session } = useSession();
-  const [listTugas, setListTugas] = useState<Tugas[]>([]);
-
+  const queryClient = useQueryClient();
   const [editorInstance, setEditorInstance] = useState<any>(null);
 
   const { control, handleSubmit, reset } = useForm({
-    defaultValues: {
-      konten: ''
+    defaultValues: { konten: '' }
+  });
+
+  // Query ambil detail tugas
+  const { data: tugas, isLoading: loadingTugas } = useQuery<Tugas>({
+    queryKey: ['tugas', idTugas],
+    queryFn: async () => {
+      const res = await api.get(`tugas-summary/${idTugas}`, {
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
+      });
+      return res.data.data;
+    },
+    enabled: !!session?.user?.token
+  });
+
+  // Query ambil list tugas (sidebar)
+  const { data: listTugas, isLoading: loadingList } = useQuery<Tugas[]>({
+    queryKey: ['kelas', idKelasMapel],
+    queryFn: async () => {
+      const res = await api.get(`kelas-mapel/${idKelasMapel}`, {
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
+      });
+      return res.data.data.TugasMapel || [];
+    },
+    enabled: !!session?.user?.token
+  });
+
+  // Mutation submit ringkasan
+  const addSummaryMutation = useMutation({
+    mutationFn: async (content: string) => {
+      await api.post(
+        'summary-tugas',
+        {
+          idSiswa: session?.user?.idGuru,
+          idTugas,
+          idKelasMapel,
+          content,
+          waktu: new Date()
+        },
+        { headers: { Authorization: `Bearer ${session?.user?.token}` } }
+      );
+    },
+    onSuccess: () => {
+      toast.success('Ringkasan berhasil disimpan');
+      reset();
+      queryClient.invalidateQueries({ queryKey: ['tugas', idTugas] });
+      queryClient.invalidateQueries({ queryKey: ['kelas', idKelasMapel] });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Gagal menyimpan ringkasan');
     }
   });
 
-  const getData = async () => {
-    try {
-      const response = await api.get(`tugas-summary/${idTugas}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-      setTugas(response.data.data);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    }
+  const onSubmit = (data: { konten: string }) => {
+    addSummaryMutation.mutate(data.konten);
   };
 
-  const getListTugas = async () => {
-    try {
-      const res = await api.get(`kelas-mapel/${idKelasMapel}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-      setListTugas(res.data.data.TugasMapel || []);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Gagal ambil list materi');
-    }
-  };
-
-  const onSubmit = async (data: { konten: string }) => {
-    try {
-      await api.post(
-        `summary-tugas`,
-        {
-          idSiswa: session?.user?.idGuru,
-          idTugas: idTugas,
-          idKelasMapel: idKelasMapel,
-          content: data.konten,
-          waktu: new Date()
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
-          }
-        }
-      );
-      toast.success('Ringkasan berhasil disimpan');
-      reset();
-      getData(); // refresh summary setelah submit
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Gagal menyimpan ringkasan');
-    }
-  };
-
-  useEffect(() => {
-    getData();
-    getListTugas();
-  }, []);
-
-  // filter summary hanya punya user login
+  // Filter summary hanya milik user login
   const mySummary =
     tugas?.SummaryTugas?.filter((s) => s.idSiswa === session?.user?.idGuru) ??
     [];
@@ -127,10 +120,8 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
   return (
     <div className='mb-14 w-full space-y-6'>
       {/* Header */}
-
       <div className='relative flex h-[10vh] w-full items-center justify-between rounded-b-3xl bg-gradient-to-r from-blue-400 to-blue-600 p-6 text-white'>
         <div className='flex items-center gap-3'>
-          {/* Sidebar trigger on mobile */}
           <Sheet>
             <SheetTrigger asChild>
               <Button
@@ -147,7 +138,7 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
               </SheetHeader>
               <ScrollArea className='h-full'>
                 <div className='space-y-2'>
-                  {listTugas.map((m) => (
+                  {listTugas?.map((m) => (
                     <button
                       key={m.id}
                       onClick={() =>
@@ -188,14 +179,11 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
         </div>
       </div>
 
-      {/* 3 kolom layout */}
+      {/* Layout 3 kolom */}
       <div className='mx-auto grid w-[95%] grid-cols-1 gap-6 md:grid-cols-12'>
-        {/* Sidebar Materi */}
-        {/* Sidebar Materi (sticky) */}
+        {/* Sidebar */}
         <div className='hidden md:col-span-3 md:block'>
           <div className='sticky top-3'>
-            {' '}
-            {/* biar nempel saat scroll */}
             <Card className='flex h-[80vh] flex-col'>
               <CardHeader>
                 <CardTitle>📂 Daftar Tugas</CardTitle>
@@ -203,7 +191,7 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
               <CardContent className='flex-1 overflow-hidden'>
                 <ScrollArea className='h-full'>
                   <div className='space-y-2'>
-                    {listTugas.map((m) => (
+                    {listTugas?.map((m) => (
                       <label
                         key={m.id}
                         className={`flex w-full cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-muted ${
@@ -227,7 +215,7 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
           </div>
         </div>
 
-        {/* Konten Materi */}
+        {/* Konten Tugas */}
         <div className='md:col-span-6'>
           <Card className='p-2'>
             <CardHeader>
@@ -274,9 +262,7 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
               <CardTitle>📋 Ringkasan Saya</CardTitle>
             </CardHeader>
             <CardContent className='space-y-4'>
-              {tugas?.SummaryTugas?.filter(
-                (s) => s.idSiswa === session?.user?.idGuru
-              ).length === 0 && (
+              {mySummary.length === 0 && (
                 <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
                   <label className='mb-1 block text-sm font-medium'>
                     Summary
@@ -301,9 +287,7 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
 
               <ScrollArea className='max-h-[300px] pr-2'>
                 <div className='space-y-4'>
-                  {tugas?.SummaryTugas?.filter(
-                    (s) => s.idSiswa === session?.user?.idGuru
-                  ).map((s) => (
+                  {mySummary.map((s) => (
                     <div
                       key={s.id}
                       className='flex gap-4 rounded-md border p-3 shadow-sm transition hover:bg-muted/50'
@@ -330,6 +314,7 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
           </Card>
         </div>
       </div>
+
       <BottomNav />
     </div>
   );

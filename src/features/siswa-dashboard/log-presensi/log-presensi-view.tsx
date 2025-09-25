@@ -1,49 +1,68 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Book, CalendarIcon, StepBack, Timer } from 'lucide-react';
-import Image from 'next/image';
+import { Input } from '@/components/ui/input';
+import { CalendarIcon, Timer, Book } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import api from '@/lib/api';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
+
+interface Presensi {
+  id: number;
+  waktu: string;
+  keterangan: 'Hadir' | 'Sakit' | 'Izin' | 'Alpha';
+}
 
 export default function LogPresensiView() {
+  const { data: session } = useSession();
   const [filterTanggal, setFilterTanggal] = useState('');
   const [filterBulan, setFilterBulan] = useState('');
   const [filterTahun, setFilterTahun] = useState('');
   const [filterKeterangan, setFilterKeterangan] = useState('');
-  const { data: session } = useSession();
 
-  const [presensi, setPresensi] = useState<any[]>([]);
-
-  const fetchData = async () => {
-    const res = await api.get('siswa/presensi', {
-      headers: {
-        Authorization: `Bearer ${session?.user?.token}`
-      }
-    });
-    setPresensi(res.data.data);
-  };
+  const {
+    data: presensi = [],
+    isLoading,
+    error
+  } = useQuery<Presensi[]>({
+    queryKey: ['presensi-siswa'],
+    queryFn: async () => {
+      if (!session?.user?.token) return [];
+      const res = await api.get('siswa/presensi', {
+        headers: { Authorization: `Bearer ${session.user.token}` }
+      });
+      return res.data.data;
+    },
+    enabled: !!session?.user?.token,
+    staleTime: 1000 * 60 * 5
+  });
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Terjadi kesalahan saat memuat data'
+      );
+    }
+  }, [error]);
 
   const filtered = presensi.filter((item) => {
     const dateObj = new Date(item.waktu);
     const dateOnly = dateObj.toISOString().split('T')[0];
-    const month = (dateObj.getMonth() + 1).toString().padStart(2, '0'); // bulan (01–12)
+    const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
     const year = dateObj.getFullYear().toString();
 
     return (
@@ -61,19 +80,16 @@ export default function LogPresensiView() {
     setFilterKeterangan('');
   };
 
-  // generate pilihan tahun dari data
   const tahunList = Array.from(
     new Set(presensi.map((i) => new Date(i.waktu).getFullYear().toString()))
   );
 
-  // Hitung total berdasarkan keterangan dari hasil filter
   const summary = filtered.reduce(
     (acc, item) => {
       if (item.keterangan === 'Hadir') acc.hadir++;
       else if (item.keterangan === 'Sakit') acc.sakit++;
       else if (item.keterangan === 'Izin') acc.izin++;
-      else if (item.keterangan === 'Tanpa Keterangan') acc.alpha++;
-
+      else if (item.keterangan === 'Alpha') acc.alpha++;
       return acc;
     },
     { hadir: 0, sakit: 0, izin: 0, alpha: 0 }
@@ -81,12 +97,10 @@ export default function LogPresensiView() {
 
   return (
     <div className='relative mx-auto mb-14 w-full space-y-2 sm:space-y-6'>
-      {/* Header */}
       <NavbarSiswa title='Log Presensi' />
 
       {/* Filter */}
       <div className='grid w-full grid-cols-1 gap-3 p-4 sm:w-[70%] sm:grid-cols-2 md:grid-cols-5'>
-        {/* Tanggal */}
         <div className='relative'>
           <CalendarIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
           <Input
@@ -97,37 +111,38 @@ export default function LogPresensiView() {
           />
         </div>
 
-        {/* Bulan */}
         <Select value={filterBulan} onValueChange={setFilterBulan}>
           <SelectTrigger>
             <SelectValue placeholder='Pilih Bulan' />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value='01'>Januari</SelectItem>
-            <SelectItem value='02'>Februari</SelectItem>
-            <SelectItem value='03'>Maret</SelectItem>
-            <SelectItem value='04'>April</SelectItem>
-            <SelectItem value='05'>Mei</SelectItem>
-            <SelectItem value='06'>Juni</SelectItem>
-            <SelectItem value='07'>Juli</SelectItem>
-            <SelectItem value='08'>Agustus</SelectItem>
-            <SelectItem value='09'>September</SelectItem>
-            <SelectItem value='10'>Oktober</SelectItem>
-            <SelectItem value='11'>November</SelectItem>
-            <SelectItem value='12'>Desember</SelectItem>
+            {Array.from({ length: 12 }, (_, i) => {
+              const bulan = (i + 1).toString().padStart(2, '0');
+              const namaBulan = new Date(2000, i).toLocaleString('id-ID', {
+                month: 'long'
+              });
+              return (
+                <SelectItem key={bulan} value={bulan}>
+                  {namaBulan}
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
 
-        {/* Tahun pakai input number */}
-        <Input
-          type='number'
-          placeholder='Tahun'
-          value={filterTahun}
-          onChange={(e) => setFilterTahun(e.target.value)}
-          className='w-full'
-        />
+        <Select value={filterTahun} onValueChange={setFilterTahun}>
+          <SelectTrigger>
+            <SelectValue placeholder='Pilih Tahun' />
+          </SelectTrigger>
+          <SelectContent>
+            {tahunList.map((t) => (
+              <SelectItem key={t} value={t}>
+                {t}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        {/* Keterangan */}
         <Select value={filterKeterangan} onValueChange={setFilterKeterangan}>
           <SelectTrigger>
             <SelectValue placeholder='Pilih Keterangan' />
@@ -140,7 +155,6 @@ export default function LogPresensiView() {
           </SelectContent>
         </Select>
 
-        {/* Reset Button */}
         <Button variant='outline' onClick={handleReset}>
           Reset Filter
         </Button>
@@ -155,61 +169,68 @@ export default function LogPresensiView() {
       </div>
 
       {/* Daftar Presensi */}
-      <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6'>
-        {filtered.length > 0 ? (
-          filtered.map((item) => (
-            <Card key={item.id} className='shadow-sm'>
-              <CardHeader>
-                <CardTitle className='text-base font-semibold'>
-                  {new Date(item?.waktu).toLocaleDateString('id-ID', {
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric'
-                  })}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className='space-y-2 text-sm text-muted-foreground'>
-                <p className='flex items-center gap-2'>
-                  <Timer className='h-4 w-4 text-green-500' />
-                  Jam :{' '}
-                  {item.keterangan === 'Hadir' ? (
-                    <span className='font-medium text-foreground'>
-                      {new Date(item?.waktu).toLocaleTimeString('id-ID', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
-                      })}
+      {isLoading ? (
+        <p className='p-4 text-center'>Loading presensi...</p>
+      ) : error ? (
+        <p className='p-4 text-center text-red-500'>Gagal memuat data</p>
+      ) : (
+        <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6'>
+          {filtered.length > 0 ? (
+            filtered.map((item) => (
+              <Card key={item.id} className='shadow-sm'>
+                <CardHeader>
+                  <CardTitle className='text-base font-semibold'>
+                    {new Date(item.waktu).toLocaleDateString('id-ID', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className='space-y-2 text-sm text-muted-foreground'>
+                  <p className='flex items-center gap-2'>
+                    <Timer className='h-4 w-4 text-green-500' />
+                    Jam :{' '}
+                    {item.keterangan === 'Hadir' ? (
+                      <span className='font-medium text-foreground'>
+                        {new Date(item.waktu).toLocaleTimeString('id-ID', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit'
+                        })}
+                      </span>
+                    ) : (
+                      <span className='text-red-500'>-</span>
+                    )}
+                  </p>
+                  <p className='flex items-center gap-2'>
+                    <Book className='h-4 w-4 text-blue-500' />
+                    Keterangan:{' '}
+                    <span
+                      className={`${
+                        item.keterangan === 'Hadir'
+                          ? 'text-green-500'
+                          : item.keterangan === 'Sakit'
+                            ? 'text-blue-500'
+                            : item.keterangan === 'Izin'
+                              ? 'text-yellow-500'
+                              : 'text-red-500'
+                      } font-medium text-foreground`}
+                    >
+                      {item.keterangan}
                     </span>
-                  ) : (
-                    <span className='text-red-500'>-</span>
-                  )}
-                </p>
-                <p className='flex items-center gap-2'>
-                  <Book className='h-4 w-4 text-blue-500' />
-                  Keterangan:{' '}
-                  <span
-                    className={`${
-                      item.keterangan === 'Hadir'
-                        ? 'text-green-500'
-                        : item.keterangan === 'Sakit'
-                          ? 'text-blue-500'
-                          : item.keterangan === 'Izin'
-                            ? 'text-yellow-500'
-                            : 'text-red-500'
-                    } font-medium text-foreground`}
-                  >
-                    {item.keterangan}
-                  </span>
-                </p>
-              </CardContent>
-            </Card>
-          ))
-        ) : (
-          <p className='text-sm text-muted-foreground'>
-            Tidak ada data ditemukan.
-          </p>
-        )}
-      </div>
+                  </p>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <p className='text-sm text-muted-foreground'>
+              Tidak ada data ditemukan.
+            </p>
+          )}
+        </div>
+      )}
+
       <BottomNav />
     </div>
   );
