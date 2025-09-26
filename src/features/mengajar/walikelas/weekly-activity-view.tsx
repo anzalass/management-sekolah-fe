@@ -26,6 +26,7 @@ interface FotoWeeklyActivity {
 
 interface WeeklyActivity {
   id: string;
+  judul: string;
   content: string;
   waktu: string;
   FotoWeeklyActivity: FotoWeeklyActivity[];
@@ -143,7 +144,11 @@ export default function WeeklyActivityList({ idKelas }: { idKelas: string }) {
         {filteredData?.map((item) => (
           <Card key={item.id} className='overflow-hidden shadow-lg'>
             <CardHeader className='relative'>
-              <CardTitle className='text-lg'>{item.content}</CardTitle>
+              <CardTitle className='text-lg'>{item.judul}</CardTitle>
+              <div
+                className=''
+                dangerouslySetInnerHTML={{ __html: item?.content }}
+              ></div>
               <p className='text-sm text-gray-500'>
                 {format(new Date(item.waktu), 'dd MMM yyyy HH:mm')}
               </p>

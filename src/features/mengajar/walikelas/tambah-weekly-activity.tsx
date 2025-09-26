@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -12,13 +12,13 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
 import { useDropzone } from 'react-dropzone';
 import { format } from 'date-fns';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import RichTextEditor from '@/features/texteditor/textEditor';
 
 interface FormValues {
   judul: string;
@@ -29,6 +29,7 @@ interface FormValues {
 type Props = {
   idKelas: string;
 };
+
 export default function TambahWeeklyActivity({ idKelas }: Props) {
   const [open, setOpen] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -40,12 +41,18 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors }
-  } = useForm<FormValues>();
+  } = useForm<FormValues>({
+    defaultValues: {
+      judul: '',
+      content: '',
+      waktu: format(new Date(), "yyyy-MM-dd'T'HH:mm")
+    }
+  });
 
   // drag-drop handler
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    // agar bisa drag file
     setSelectedFiles((prev) => [...prev, ...acceptedFiles]);
   }, []);
 
@@ -90,12 +97,13 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
       if (res.status === 201) {
         setSelectedFiles([]);
         setOpen(false);
+        reset();
         toggleTrigger();
         toast.success('Berhasil membuat weekly activity');
       }
     } catch (err) {
       console.error(err);
-      alert('Error mengirim data');
+      toast.error('Terjadi kesalahan saat mengirim data');
     } finally {
       setLoading(false);
     }
@@ -107,15 +115,15 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
         <Button variant='default'>Tambah Weekly Activity</Button>
       </DialogTrigger>
       <DialogContent className='max-h-[80vh] max-w-lg overflow-y-auto'>
-        {' '}
         <DialogHeader>
           <DialogTitle>Tambah Weekly Activity</DialogTitle>
           <DialogDescription>
             Isi detail aktivitas mingguan & upload foto
           </DialogDescription>
         </DialogHeader>
+
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
-          {/* Content */}
+          {/* Judul */}
           <div>
             <label className='block text-sm font-medium text-gray-700'>
               Judul
@@ -124,19 +132,28 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
               type='text'
               {...register('judul', { required: 'Judul wajib diisi' })}
             />
-            {errors.waktu && (
+            {errors.judul && (
               <p className='mt-1 text-sm text-red-500'>
-                {errors.waktu.message}
+                {errors.judul.message}
               </p>
             )}
           </div>
+
+          {/* Content */}
           <div>
             <label className='block text-sm font-medium text-gray-700'>
               Deskripsi Aktivitas
             </label>
-            <Textarea
-              placeholder='Tulis aktivitas...'
-              {...register('content', { required: 'Deskripsi wajib diisi' })}
+            <Controller
+              name='content'
+              control={control}
+              rules={{ required: 'Deskripsi wajib diisi' }}
+              render={({ field }) => (
+                <RichTextEditor
+                  content={field.value}
+                  onChange={field.onChange}
+                />
+              )}
             />
             {errors.content && (
               <p className='mt-1 text-sm text-red-500'>
@@ -152,7 +169,6 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
             </label>
             <Input
               type='datetime-local'
-              defaultValue={format(new Date(), "yyyy-MM-dd'T'HH:mm")}
               {...register('waktu', { required: 'Waktu wajib diisi' })}
             />
             {errors.waktu && (
@@ -212,6 +228,7 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
               onClick={() => {
                 setSelectedFiles([]);
                 setOpen(false);
+                reset();
               }}
             >
               Batal

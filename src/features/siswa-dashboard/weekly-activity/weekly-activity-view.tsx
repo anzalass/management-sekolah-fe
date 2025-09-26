@@ -161,7 +161,11 @@ export default function WeeklyActivityList() {
           {filteredData.map((item: any) => (
             <div key={item.id} className='overflow-hidden p-2 py-3'>
               <div className=''>
-                <CardTitle className='text-lg'>{item.content}</CardTitle>
+                <CardTitle className='text-lg'>{item.judul}</CardTitle>
+                <div
+                  className=''
+                  dangerouslySetInnerHTML={{ __html: item?.content }}
+                ></div>
                 <p className='my-2 text-sm text-gray-500'>
                   {format(new Date(item.waktu), 'dd MMM yyyy HH:mm')}
                 </p>
