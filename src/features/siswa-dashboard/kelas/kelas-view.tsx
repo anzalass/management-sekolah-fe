@@ -11,6 +11,7 @@ import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
+import Loading from '../loading';
 
 interface Kelas {
   id: number;
@@ -64,8 +65,7 @@ export default function KelasView() {
     k.namaMapel.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (isLoading)
-    return <p className='p-4 text-center text-sm'>Loading data...</p>;
+  if (isLoading) return <Loading />;
   if (error)
     return (
       <p className='p-4 text-center text-sm text-red-500'>Gagal memuat data</p>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { CalendarIcon, SearchIcon } from 'lucide-react';
 import { useSession } from 'next-auth/react';
@@ -11,6 +11,13 @@ import api from '@/lib/api';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import FilterMobile from './filter-pengumuman-mobile';
+import Loading from '../loading';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
 
 interface Pengumuman {
   id: number;
@@ -23,6 +30,11 @@ export default function PengumumanView() {
   const { data: session } = useSession();
   const [search, setSearch] = useState('');
   const [filterTanggal, setFilterTanggal] = useState('');
+
+  // state untuk modal
+  const [selectedPengumuman, setSelectedPengumuman] =
+    useState<Pengumuman | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const {
     data: pengumuman = [],
@@ -99,21 +111,31 @@ export default function PengumumanView() {
 
       {/* Loading/Error */}
       {isLoading ? (
-        <p className='p-4 text-center'>Loading pengumuman...</p>
+        <Loading />
       ) : error ? (
         <p className='p-4 text-center text-red-500'>Gagal memuat pengumuman</p>
       ) : (
         <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2'>
           {filteredPengumuman.length > 0 ? (
             filteredPengumuman.map((item) => (
-              <Card key={item.id} className='shadow-sm'>
-                <CardHeader>
-                  <CardTitle className='text-lg font-semibold'>
+              <Card
+                key={item.id}
+                className='cursor-pointer shadow-sm transition hover:shadow-md'
+                onClick={() => {
+                  setSelectedPengumuman(item);
+                  setIsDialogOpen(true);
+                }}
+              >
+                <div className='px-6 pb-2 pt-3'>
+                  <h3 className='text-base font-semibold md:text-lg'>
                     {item.title}
-                  </CardTitle>
-                </CardHeader>
+                  </h3>
+                </div>
                 <CardContent className='space-y-2 text-sm text-muted-foreground'>
-                  <div dangerouslySetInnerHTML={{ __html: item.content }}></div>
+                  <div
+                    className='line-clamp-2'
+                    dangerouslySetInnerHTML={{ __html: item.content }}
+                  ></div>
                   <p className='text-xs font-medium text-black'>
                     Tanggal:{' '}
                     {new Date(item.time).toLocaleDateString('id-ID', {
@@ -132,6 +154,30 @@ export default function PengumumanView() {
           )}
         </div>
       )}
+
+      {/* Modal Detail Pengumuman */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className='max-w-2xl'>
+          <DialogHeader>
+            <DialogTitle>{selectedPengumuman?.title}</DialogTitle>
+          </DialogHeader>
+          {selectedPengumuman && (
+            <div className='space-y-4'>
+              <div
+                className='prose prose-sm max-w-none'
+                dangerouslySetInnerHTML={{ __html: selectedPengumuman.content }}
+              ></div>
+              <p className='text-xs font-medium text-gray-500'>
+                {new Date(selectedPengumuman.time).toLocaleDateString('id-ID', {
+                  day: '2-digit',
+                  month: 'long',
+                  year: 'numeric'
+                })}
+              </p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <BottomNav />
     </div>

@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 interface FormValues {
+  judul: string;
   content: string;
   waktu: string;
 }
@@ -70,6 +71,7 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
 
       // Buat formData
       const formData = new FormData();
+      formData.append('judul', data.judul);
       formData.append('content', data.content);
       formData.append('waktu', data.waktu);
       formData.append('idKelas', idKelas);
@@ -104,7 +106,8 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
       <DialogTrigger asChild>
         <Button variant='default'>Tambah Weekly Activity</Button>
       </DialogTrigger>
-      <DialogContent className='max-w-lg'>
+      <DialogContent className='max-h-[80vh] max-w-lg overflow-y-auto'>
+        {' '}
         <DialogHeader>
           <DialogTitle>Tambah Weekly Activity</DialogTitle>
           <DialogDescription>
@@ -113,6 +116,20 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           {/* Content */}
+          <div>
+            <label className='block text-sm font-medium text-gray-700'>
+              Judul
+            </label>
+            <Input
+              type='text'
+              {...register('judul', { required: 'Judul wajib diisi' })}
+            />
+            {errors.waktu && (
+              <p className='mt-1 text-sm text-red-500'>
+                {errors.waktu.message}
+              </p>
+            )}
+          </div>
           <div>
             <label className='block text-sm font-medium text-gray-700'>
               Deskripsi Aktivitas

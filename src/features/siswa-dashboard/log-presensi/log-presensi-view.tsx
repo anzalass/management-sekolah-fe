@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import FilterMobileLogPresensi from './filter-mobile-presensi';
+import EmptyState from '../empty-state';
 
 interface Presensi {
   id: number;
@@ -174,7 +175,7 @@ export default function LogPresensiView() {
       </div>
 
       {/* Summary */}
-      <div className='flex flex-wrap gap-4 px-4 text-sm font-medium'>
+      <div className='mx-auto flex w-11/12 flex-wrap gap-4 rounded-md border border-blue-600 p-3 px-4 text-sm font-medium md:w-full'>
         <span className='text-green-600'>Hadir: {summary.hadir}</span>
         <span className='text-blue-600'>Sakit: {summary.sakit}</span>
         <span className='text-yellow-600'>Izin: {summary.izin}</span>
@@ -237,9 +238,7 @@ export default function LogPresensiView() {
               </Card>
             ))
           ) : (
-            <p className='text-sm text-muted-foreground'>
-              Tidak ada data ditemukan.
-            </p>
+            <EmptyState />
           )}
         </div>
       )}

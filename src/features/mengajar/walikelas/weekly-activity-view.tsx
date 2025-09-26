@@ -102,7 +102,7 @@ export default function WeeklyActivityList({ idKelas }: { idKelas: string }) {
   return (
     <Card className='space-y-4 p-5'>
       {/* Filter */}
-      <p className='font-bold'>Weekly Activity {idKelas}</p>
+      <p className='font-bold'>Weekly Activity </p>
       <div className='flex flex-wrap gap-4'>
         <div className='flex flex-col'>
           <Input

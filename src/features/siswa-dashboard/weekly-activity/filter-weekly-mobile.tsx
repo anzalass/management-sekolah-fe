@@ -35,7 +35,7 @@ export default function WeeklyActivityFilterMobile({
   };
 
   return (
-    <div className='block sm:hidden'>
+    <div className='z-50 block sm:hidden'>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <button className='fixed bottom-20 right-4 flex items-center gap-2 rounded-full bg-blue-600 px-4 py-3 text-white shadow-lg'>

@@ -53,10 +53,10 @@ export default function PrestasiView() {
   );
 
   return (
-    <div className='mx-auto mb-14 w-full space-y-6'>
+    <div className='mx-auto mb-14 w-full space-y-3'>
       <NavbarSiswa title='Prestasi Siswa' />
 
-      <div className='p-4'>
+      <div className='px-4'>
         <div className='relative w-full sm:w-[30%]'>
           <SearchIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
           <Input

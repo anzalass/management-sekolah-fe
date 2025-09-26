@@ -10,6 +10,8 @@ import api from '@/lib/api';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
 import FilterMobile from './filter-pembayaran-mobile';
+import EmptyState from '../empty-state';
+import Loading from '../loading';
 
 type Tagihan = {
   id: string;
@@ -145,14 +147,10 @@ export default function PembayaranSiswaView() {
           </div>
           <div className='px-5'>
             {isLoading ? (
-              <p className='text-sm text-muted-foreground'>Loading...</p>
+              <Loading />
             ) : (
               <div className='space-y-4'>
-                {filteredTagihan?.length === 0 && (
-                  <p className='text-sm text-muted-foreground'>
-                    Tidak ada tagihan.
-                  </p>
-                )}
+                {filteredTagihan?.length === 0 && <EmptyState />}
                 <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
                   {filteredTagihan?.map((tagihan: any) => (
                     <Card

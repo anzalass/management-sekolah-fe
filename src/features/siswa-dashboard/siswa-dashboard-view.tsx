@@ -1,12 +1,14 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   LogOut,
   Info,
   CalendarClock,
   CalendarIcon,
   UsersIcon,
-  Lock
+  Lock,
+  Loader
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSession, signOut } from 'next-auth/react';
@@ -24,7 +26,15 @@ import MenuFiturSiswa from './menu-siswa';
 import BottomNav from './bottom-nav';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { useEffect } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose
+} from '@/components/ui/dialog';
+import EmptyState from './empty-state';
+import Loading from './loading';
 
 export interface Kelas {
   id: string;
@@ -65,11 +75,13 @@ export default function SiswaHomeView() {
   const router = useRouter();
   const { data: session } = useSession();
 
-  // Fungsi fetch data
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPengumuman, setSelectedPengumuman] =
+    useState<Pengumuman | null>(null);
+
   const fetchSiswaData = async (): Promise<SiswaData> => {
-    if (!session?.user?.token) {
+    if (!session?.user?.token)
       return { kelasAktif: [], jadwalPelajaran: [], berandaInformasi: [] };
-    }
 
     const res = await api.get('siswa', {
       headers: {
@@ -81,12 +93,11 @@ export default function SiswaHomeView() {
     return res.data.result as SiswaData;
   };
 
-  // React Query
   const { data, error, isLoading } = useQuery<SiswaData, unknown>({
     queryKey: ['siswa-data'],
     queryFn: fetchSiswaData,
     enabled: !!session?.user?.token,
-    staleTime: 1000 * 60 * 20 // cache 5 menit
+    staleTime: 1000 * 60 * 20
   });
 
   useEffect(() => {
@@ -99,12 +110,10 @@ export default function SiswaHomeView() {
     }
   }, [error]);
 
-  // Gunakan fallback supaya TypeScript aman
   const kelas: Kelas[] = data?.kelasAktif ?? [];
   const jadwalPelajaran: JadwalPelajaran[] = data?.jadwalPelajaran ?? [];
   const pengumuman: Pengumuman[] = data?.berandaInformasi ?? [];
 
-  // Helper untuk inisial avatar
   const getInitials = (nama?: string) => {
     if (!nama) return '';
     const parts = nama.trim().split(' ');
@@ -113,18 +122,16 @@ export default function SiswaHomeView() {
   const initials = getInitials(session?.user?.nama);
   const avatarUrl = `https://ui-avatars.com/api/?name=${initials}&background=random&format=png`;
 
-  // Logout
-  const handleLogout = async () => {
+  const handleLogout = async () =>
     await signOut({ callbackUrl: '/login-siswa' });
+  const handleChangePassword = () => router.push('/siswa/ubah-password');
+
+  const openModal = (info: Pengumuman) => {
+    setSelectedPengumuman(info);
+    setIsModalOpen(true);
   };
 
-  // Ubah password
-  const handleChangePassword = () => {
-    router.push('/siswa/ubah-password');
-  };
-
-  if (isLoading)
-    return <p className='p-4 text-center text-sm'>Loading data...</p>;
+  if (isLoading) return <Loading />;
   if (error)
     return (
       <p className='p-4 text-center text-sm text-red-500'>Gagal memuat data</p>
@@ -135,7 +142,6 @@ export default function SiswaHomeView() {
       {/* Profil Siswa */}
       <div className='relative bg-gradient-to-r from-blue-400 to-blue-600 p-6 text-white'>
         <div className='flex items-center justify-between'>
-          {/* Left */}
           <div>
             <h2 className='text-base font-bold md:text-2xl'>
               Hi, {session?.user?.nama}
@@ -143,7 +149,6 @@ export default function SiswaHomeView() {
             <p className='text-xs opacity-90'>{session?.user?.nip}</p>
           </div>
 
-          {/* Right */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className='relative h-10 w-10 overflow-hidden rounded-full border-2 ring-offset-background focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 md:h-12 md:w-12'>
@@ -156,15 +161,12 @@ export default function SiswaHomeView() {
                 />
               </button>
             </DropdownMenuTrigger>
-
             <DropdownMenuContent align='end' className='w-48'>
               <DropdownMenuItem onClick={handleChangePassword}>
-                <Lock className='mr-2 h-4 w-4 text-blue-500' />
-                <span>Ubah Password</span>
+                <Lock className='mr-2 h-4 w-4 text-blue-500' /> Ubah Password
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleLogout}>
-                <LogOut className='mr-2 h-4 w-4 text-red-500' />
-                <span>Logout</span>
+                <LogOut className='mr-2 h-4 w-4 text-red-500' /> Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -173,7 +175,6 @@ export default function SiswaHomeView() {
 
       <div className='absolute -z-10 h-[50vh] w-full rounded-b-3xl bg-gradient-to-r from-blue-400 to-blue-600 shadow-md'></div>
 
-      {/* Shortcut Fitur */}
       <MenuFiturSiswa />
 
       <div className='mt-8 space-y-8 px-4 md:px-8'>
@@ -202,11 +203,11 @@ export default function SiswaHomeView() {
                     <CardContent className='space-y-2 text-xs text-muted-foreground md:text-sm'>
                       <p>Pengajar: {kelasItem.namaGuru}</p>
                       <p className='flex items-center gap-1'>
-                        <CalendarIcon className='h-4 w-4 text-blue-500' />
+                        <CalendarIcon className='h-4 w-4 text-blue-500' />{' '}
                         {kelasItem.tahunAjaran}
                       </p>
                       <p className='flex items-center gap-1'>
-                        <UsersIcon className='h-4 w-4 text-green-500' />
+                        <UsersIcon className='h-4 w-4 text-green-500' />{' '}
                         {kelasItem.totalSiswa} siswa
                       </p>
                     </CardContent>
@@ -228,28 +229,35 @@ export default function SiswaHomeView() {
             <CardTitle className='text-lg'>Jadwal Pelajaran</CardTitle>
           </CardHeader>
           <CardContent className='overflow-x-auto p-2 md:p-6'>
-            <table className='w-full table-auto border-collapse text-sm'>
-              <thead className='bg-primary/10 text-primary'>
-                <tr>
-                  <th className='border p-2'>Hari</th>
-                  <th className='border p-2'>Jam</th>
-                  <th className='border p-2'>Mata Pelajaran</th>
-                </tr>
-              </thead>
-              <tbody>
-                {jadwalPelajaran.map((jadwal, idx) => (
-                  <tr key={idx} className='transition hover:bg-muted/40'>
-                    <td className='border p-2'>{jadwal.hari}</td>
-                    <td className='border p-2'>
-                      {jadwal.jamMulai} - {jadwal.jamSelesai}
-                    </td>
-                    <td className='border p-2 font-medium'>
-                      {jadwal.namaMapel}
-                    </td>
+            {jadwalPelajaran.length === 0 ? (
+              <EmptyState
+                title='Jadwal Kosong'
+                description='Belum ada jadwal pelajaran untuk ditampilkan.'
+              />
+            ) : (
+              <table className='w-full table-auto border-collapse text-sm'>
+                <thead className='bg-primary/10 text-primary'>
+                  <tr>
+                    <th className='border p-2'>Hari</th>
+                    <th className='border p-2'>Jam</th>
+                    <th className='border p-2'>Mata Pelajaran</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {jadwalPelajaran.map((jadwal, idx) => (
+                    <tr key={idx} className='transition hover:bg-muted/40'>
+                      <td className='border p-2'>{jadwal.hari}</td>
+                      <td className='border p-2'>
+                        {jadwal.jamMulai} - {jadwal.jamSelesai}
+                      </td>
+                      <td className='border p-2 font-medium'>
+                        {jadwal.namaMapel}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </CardContent>
         </Card>
 
@@ -264,7 +272,8 @@ export default function SiswaHomeView() {
               pengumuman.map((info, i) => (
                 <div
                   key={i}
-                  className='rounded-lg border bg-blue-50 p-3 text-sm shadow-sm transition hover:bg-blue-100'
+                  onClick={() => openModal(info)}
+                  className='cursor-pointer rounded-lg border bg-blue-50 p-3 text-sm shadow-sm transition hover:bg-blue-100'
                 >
                   <div className='font-semibold'>{info.title}</div>
                   <div
@@ -281,6 +290,22 @@ export default function SiswaHomeView() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Modal Detail Pengumuman */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className='max-w-lg'>
+          <DialogHeader>
+            <DialogTitle>{selectedPengumuman?.title}</DialogTitle>
+          </DialogHeader>
+          <div className='mt-2 text-sm text-muted-foreground'>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: selectedPengumuman?.content || ''
+              }}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <BottomNav />
     </div>

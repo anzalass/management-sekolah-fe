@@ -20,6 +20,7 @@ import BottomNav from '../bottom-nav';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import MobileNilaiFilterSheet from './filter-mobile-nilai-siswa';
+import Loading from '../loading';
 
 interface Nilai {
   id: string;
@@ -97,7 +98,7 @@ export default function NilaiSiswaView() {
     return matchesSearch && matchesDate;
   });
 
-  if (isLoading) return <p className='p-4 text-center'>Loading data...</p>;
+  if (isLoading) return <Loading />;
   if (error)
     return <p className='p-4 text-center text-red-500'>Gagal memuat data</p>;
 

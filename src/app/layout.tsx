@@ -1,4 +1,4 @@
-// RootLayout.tsx
+// app/layout.tsx
 import Providers from '@/components/layout/providers';
 import { Toaster } from '@/components/ui/sonner';
 import type { Metadata } from 'next';
@@ -6,16 +6,14 @@ import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { Lato } from 'next/font/google';
 import NextTopLoader from 'nextjs-toploader';
 import './globals.css';
-
-// Import the RenderTriggerProvider here
 import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';
 
 export const metadata: Metadata = {
   title: 'Little Alley School',
-  description: 'Yayasan Anak Tunas Mulia',
-  icons: {
-    icon: '/vercel.svg' // path ke favicon
-  }
+  description: 'Yayasan Tunas Anak Mulia - Pendidikan Anak Berkualitas',
+  icons: { icon: '/vercel.svg' },
+  robots: 'index, follow',
+  alternates: { canonical: 'https://yayasantunasanakmulia.sch.id/' }
 };
 
 const lato = Lato({
@@ -24,7 +22,7 @@ const lato = Lato({
   display: 'swap'
 });
 
-export default async function RootLayout({
+export default function RootLayout({
   children
 }: {
   children: React.ReactNode;
@@ -33,14 +31,17 @@ export default async function RootLayout({
     <html
       lang='id'
       translate='no'
-      className={`${lato.className}`}
+      className={lato.className}
       suppressHydrationWarning
     >
+      {/* Manifest untuk PWA */}
       <link rel='manifest' href='/manifest.json' />
-      <body className={''}>
+
+      <body className='bg-white text-black'>
+        {/* Top loader saat navigasi */}
         <NextTopLoader showSpinner={false} />
 
-        {/* Wrap the entire layout with RenderTriggerProvider */}
+        {/* Wrap app dengan provider */}
         <RenderTriggerProvider>
           <NuqsAdapter>
             <Toaster />

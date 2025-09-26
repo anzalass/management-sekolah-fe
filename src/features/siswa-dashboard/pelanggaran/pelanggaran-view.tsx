@@ -18,6 +18,8 @@ import BottomNav from '../bottom-nav';
 import { toast } from 'sonner';
 import FilterMobilePelanggaran from './pelanggaran-filter-mobile';
 import { useQuery } from '@tanstack/react-query';
+import EmptyState from '../empty-state';
+import Loading from '../loading';
 
 export default function PelanggaranView() {
   const { data: session } = useSession();
@@ -117,7 +119,7 @@ export default function PelanggaranView() {
       {/* List Pelanggaran */}
       <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2'>
         {isLoading ? (
-          <p className='text-sm text-muted-foreground'>Memuat data...</p>
+          <Loading />
         ) : filtered.length > 0 ? (
           filtered.map((item: any, i: number) => (
             <Card key={item.id} className='border shadow-sm'>
@@ -157,9 +159,7 @@ export default function PelanggaranView() {
             </Card>
           ))
         ) : (
-          <p className='text-sm text-muted-foreground'>
-            Tidak ada data ditemukan.
-          </p>
+          <EmptyState />
         )}
       </div>
       <BottomNav />

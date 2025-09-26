@@ -19,6 +19,8 @@ import BottomNav from '../bottom-nav';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import WeeklyActivityFilterMobile from './filter-weekly-mobile';
+import EmptyState from '../empty-state';
+import Loading from '../loading';
 
 interface FotoWeeklyActivity {
   id: string;
@@ -105,12 +107,12 @@ export default function WeeklyActivityList() {
     }
   };
 
-  if (isLoading) return <p className='p-4 text-center'>Loading data...</p>;
+  if (isLoading) return <Loading />;
   if (error)
     return <p className='p-4 text-center text-red-500'>Gagal memuat data</p>;
 
   return (
-    <div>
+    <div className='mb-36'>
       <NavbarSiswa title='Weekly Activity' />
 
       {/* Filter Mobile */}
@@ -125,7 +127,7 @@ export default function WeeklyActivityList() {
         }}
       />
 
-      <Card className='space-y-4 p-5'>
+      <div className='space-y-4 p-5'>
         {/* Filter Desktop */}
         <div className='hidden justify-between gap-4 sm:flex'>
           <div className='flex gap-3'>
@@ -154,37 +156,26 @@ export default function WeeklyActivityList() {
         </div>
 
         {/* Data */}
-        <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
-          {filteredData.length === 0 && (
-            <p className='col-span-full text-center text-gray-500'>
-              Tidak ada aktivitas.
-            </p>
-          )}
+        <div className='-z-10 grid h-full gap-6 md:grid-cols-2 lg:grid-cols-3'>
+          {filteredData.length === 0 && <EmptyState />}
           {filteredData.map((item: any) => (
-            <Card key={item.id} className='overflow-hidden shadow-lg'>
-              <CardHeader className='relative'>
+            <div key={item.id} className='overflow-hidden p-2 py-3'>
+              <div className=''>
                 <CardTitle className='text-lg'>{item.content}</CardTitle>
-                <p className='text-sm text-gray-500'>
+                <p className='my-2 text-sm text-gray-500'>
                   {format(new Date(item.waktu), 'dd MMM yyyy HH:mm')}
                 </p>
-              </CardHeader>
-              <CardContent>
+              </div>
+              <div>
                 <div className='grid grid-cols-2 gap-2'>
                   {item.FotoWeeklyActivity.map((foto: any) => (
-                    <div key={foto.id} className='group relative'>
+                    <div key={foto.id} className='group'>
                       <img
                         src={foto.fotoUrl}
                         alt='Foto'
                         className='h-32 w-full rounded-lg object-cover'
                       />
-                      <div className='absolute inset-0 hidden items-center justify-center gap-2 bg-black/50 group-hover:flex'>
-                        <Button
-                          size='sm'
-                          variant='secondary'
-                          onClick={() => handleDownload(foto.fotoUrl)}
-                        >
-                          <Download className='mr-1 h-4 w-4' /> Download
-                        </Button>
+                      <div className='inset-0 hidden items-center justify-center gap-2 group-hover:flex'>
                         <Button
                           size='sm'
                           variant='secondary'
@@ -199,8 +190,8 @@ export default function WeeklyActivityList() {
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
 
@@ -217,9 +208,10 @@ export default function WeeklyActivityList() {
                 className='w-full rounded-lg object-contain'
               />
             )}
+            <p>Tahan Lama Untuk Download Foto</p>
           </DialogContent>
         </Dialog>
-      </Card>
+      </div>
       <BottomNav />
     </div>
   );
