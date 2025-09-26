@@ -102,18 +102,12 @@ export default function FilterMobileLogPresensi({
             </Select>
 
             {/* Tahun */}
-            <Select value={tahunValue} onValueChange={setTahunValue}>
-              <SelectTrigger className='w-full'>
-                <SelectValue placeholder='Pilih Tahun' />
-              </SelectTrigger>
-              <SelectContent>
-                {tahunList.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+
+            <Input
+              type='number'
+              value={tahunValue}
+              onChange={(e) => setTahunValue(e.target.value)}
+            />
 
             {/* Keterangan */}
             <Select value={keteranganValue} onValueChange={setKeteranganValue}>

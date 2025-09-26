@@ -6,6 +6,7 @@ import moment from 'moment';
 import api from '@/lib/api';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
+import Loading from '../loading';
 
 const localizer = momentLocalizer(moment);
 
@@ -45,15 +46,20 @@ export default function KegiatanKalender() {
   return (
     <div className='h-[600px]'>
       <NavbarSiswa title='Kalender Akademik' />
-      <div className='mx-auto mt-12 w-11/12'>
-        <Calendar
-          localizer={localizer}
-          events={events}
-          startAccessor='start'
-          endAccessor='end'
-          style={{ height: 600 }}
-        />
-      </div>
+      {events ? (
+        <div className='mx-auto mt-12 w-11/12'>
+          <Calendar
+            localizer={localizer}
+            events={events}
+            startAccessor='start'
+            endAccessor='end'
+            style={{ height: 600 }}
+          />
+        </div>
+      ) : (
+        <Loading />
+      )}
+
       <BottomNav />
     </div>
   );

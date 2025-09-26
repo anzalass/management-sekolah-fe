@@ -140,16 +140,13 @@ export default function HomeView() {
 
       <section className='bg-white py-12'>
         <div className='container mx-auto px-4 md:px-6'>
+          <h1 className='font-semibold'>Yayasan Tunas Anak Mulia (YTAM)</h1>{' '}
           <p className='mx-auto mb-10 max-w-3xl text-justify text-lg font-medium text-muted-foreground md:text-center'>
-            <span className='font-semibold'>
-              Yayasan Tunas Anak Mulia (YTAM)
-            </span>{' '}
             is an educational institution dedicated to nurturing young minds
             through our preschool and tutoring programs. Since our founding in
             2021, we’ve remained committed to providing quality education and
             empowering children to reach their full potential.
           </p>
-
           <div className='grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-16'>
             <Card className='shadow-lg'>
               <CardHeader>
@@ -192,9 +189,9 @@ export default function HomeView() {
                   <CardTitle className='font-tiltwarp text-left text-3xl'>
                     SPEECH FOUNDER
                   </CardTitle>
-                  <p className='text-left text-sm font-medium tracking-wide text-muted-foreground'>
+                  <h2 className='text-left text-sm font-medium tracking-wide text-muted-foreground'>
                     YAYASAN TUNAS ANAK MULIA
-                  </p>
+                  </h2>
                 </CardHeader>
 
                 <CardContent className='font-marathi space-y-4 text-justify text-base leading-relaxed text-muted-foreground'>
@@ -253,9 +250,9 @@ export default function HomeView() {
                 </div>
 
                 {/* Nama & Jabatan */}
-                <p className='font-tiltwarp text-lg font-semibold md:ml-6'>
+                <h3 className='font-tiltwarp text-lg font-semibold md:ml-6'>
                   NOVITA WIJAYA
-                </p>
+                </h3>
                 <p className='text-sm text-muted-foreground md:ml-6'>
                   Founder of Yayasan Tunas Anak Mulia
                 </p>

@@ -20,6 +20,7 @@ import Link from 'next/link';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
 import { toast } from 'sonner';
+import Loading from '../loading';
 
 type DetailKelasId = { id: string };
 
@@ -73,7 +74,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
     }
   }, [error]);
 
-  if (isLoading) return <p className='p-4 text-center'>Loading...</p>;
+  if (isLoading) return <Loading />;
   if (error)
     return <p className='p-4 text-center text-red-500'>Error loading data.</p>;
 
@@ -226,7 +227,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
 
           <Card>
             <CardHeader className='flex items-center gap-2'>
-              <ClipboardList className='h-5 w-5 text-yellow-500' />
+              <BookOpenText className='h-5 w-5 text-blue-500' />
               <CardTitle>Tugas Kelas</CardTitle>
             </CardHeader>
             <CardContent className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>
@@ -298,7 +299,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
 
           <Card>
             <CardHeader className='flex items-center gap-2'>
-              <ClipboardList className='h-5 w-5 text-yellow-500' />
+              <BookOpenText className='h-5 w-5 text-blue-500' />
               <CardTitle>Ujian Kelas</CardTitle>
             </CardHeader>
             <CardContent className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>

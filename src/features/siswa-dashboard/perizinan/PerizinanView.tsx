@@ -34,6 +34,7 @@ import BottomNav from '../bottom-nav';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import FilterMobile from './perizinan-filter';
+import Loading from '../loading';
 
 interface Izin {
   id: string;
@@ -234,12 +235,12 @@ export default function Perizinan() {
       {/* Daftar Perizinan */}
       <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4'>
         {isLoading ? (
-          <p className='col-span-full text-center'>Loading data...</p>
+          <Loading />
         ) : filteredData.length > 0 ? (
           filteredData.map((izin) => (
             <Card key={izin.id} className='p-4'>
               <div className='flex items-center justify-between'>
-                <p className='text-lg font-bold'>
+                <p className='text-sm font-bold md:text-lg'>
                   {new Date(izin.time).toLocaleDateString('id-ID', {
                     day: '2-digit',
                     month: 'long',
@@ -271,9 +272,9 @@ export default function Perizinan() {
                         <DialogTitle>Bukti Foto</DialogTitle>
                       </VisuallyHidden>
                       <DialogTrigger asChild>
-                        <Button variant='outline' size='sm' className='text-xs'>
+                        <p className='cursor-pointer text-xs text-blue-600 underline'>
                           Lihat Bukti
-                        </Button>
+                        </p>
                       </DialogTrigger>
                       <DialogContent className='max-w-lg'>
                         <Image

@@ -225,7 +225,7 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
               <div dangerouslySetInnerHTML={{ __html: materi?.konten || '' }} />
               {materi?.iframeYoutube && (
                 <div
-                  className='mx-auto mb-10'
+                  className='mx-auto mb-10 w-[50%]'
                   dangerouslySetInnerHTML={{ __html: materi?.iframeYoutube }}
                 />
               )}
@@ -235,14 +235,6 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
                   dangerouslySetInnerHTML={{
                     __html: materi?.iframeGoogleSlide
                   }}
-                />
-              )}
-              {materi?.pdfUrl && (
-                <iframe
-                  src={materi.pdfUrl}
-                  width='100%'
-                  height='600px'
-                  style={{ border: 'none' }}
                 />
               )}
             </CardContent>

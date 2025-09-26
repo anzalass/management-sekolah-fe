@@ -1,4 +1,6 @@
 'use client';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+
 import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useForm, Controller } from 'react-hook-form';
@@ -29,6 +31,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { DialogTitle } from '@radix-ui/react-dialog';
 import MobileFilterSheet from './janji-temu-filter';
+import EmptyState from '../empty-state';
 
 type JanjiTemu = {
   id: string;
@@ -167,7 +170,9 @@ export default function JanjiTemuView() {
             </div>
           </DialogTrigger>
           <DialogContent>
-            <DialogTitle>Tambah Janji Temu</DialogTitle>
+            <VisuallyHidden>
+              <DialogTitle>Tambah Janji Temu</DialogTitle>
+            </VisuallyHidden>
 
             <DialogHeader>
               <Label>Form Janji Temu</Label>
@@ -243,7 +248,7 @@ export default function JanjiTemuView() {
           filteredData.map((item) => (
             <Card key={item.id} className='p-4'>
               <div className='flex items-center justify-between'>
-                <p className='text-lg font-bold'>
+                <p className='text-base font-bold md:text-lg'>
                   {new Date(item?.waktu).toLocaleDateString('id-ID', {
                     day: '2-digit',
                     month: 'long',
@@ -289,9 +294,7 @@ export default function JanjiTemuView() {
             </Card>
           ))
         ) : (
-          <p className='text-sm text-muted-foreground'>
-            Tidak ada data ditemukan.
-          </p>
+          <EmptyState />
         )}
       </div>
       <MobileFilterSheet

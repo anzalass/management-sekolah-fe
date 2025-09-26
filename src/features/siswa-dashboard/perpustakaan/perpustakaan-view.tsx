@@ -11,6 +11,7 @@ import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
+import Loading from '../loading';
 
 interface Buku {
   id: string;
@@ -80,7 +81,7 @@ export default function PerpustakaanView() {
 
       {/* Loading/Error */}
       {isLoading ? (
-        <p className='p-4 text-center'>Loading data...</p>
+        <Loading />
       ) : error ? (
         <p className='p-4 text-center text-red-500'>Gagal memuat data buku</p>
       ) : (

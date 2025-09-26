@@ -8,21 +8,9 @@ const withPWA = require('next-pwa')({
 module.exports = withPWA({
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'utfs.io',
-        port: ''
-      },
-      {
-        protocol: 'https',
-        hostname: 'api.slingacademy.com',
-        port: ''
-      },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '5000'
-      },
+      { protocol: 'https', hostname: 'utfs.io', port: '' },
+      { protocol: 'https', hostname: 'api.slingacademy.com', port: '' },
+      { protocol: 'http', hostname: 'localhost', port: '5000' },
       {
         protocol: 'https',
         hostname: 'api.yayasantunasanakmulia.sch.id',
@@ -45,7 +33,16 @@ module.exports = withPWA({
   transpilePackages: ['geist'],
 
   typescript: { ignoreBuildErrors: true },
-  eslint: {
-    ignoreDuringBuilds: true
+  eslint: { ignoreDuringBuilds: true },
+
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.yayasantunasanakmulia.sch.id' }],
+        destination: 'https://yayasantunasanakmulia.sch.id/:path*',
+        permanent: true
+      }
+    ];
   }
 });
