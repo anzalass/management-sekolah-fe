@@ -12,6 +12,8 @@ import BottomNav from '../bottom-nav';
 import FilterMobile from './filter-pembayaran-mobile';
 import EmptyState from '../empty-state';
 import Loading from '../loading';
+import { useRouter } from 'next/navigation';
+import { DollarSign, DollarSignIcon } from 'lucide-react';
 
 type Tagihan = {
   id: string;
@@ -32,7 +34,20 @@ type Riwayat = {
 
 export default function PembayaranSiswaView() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'tagihan' | 'riwayat'>('tagihan');
+
+  const BayarMidtrans = async (tagihan: any) => {
+    try {
+      const data = await api.post(`bayar-midtrans/${tagihan.id}`);
+      if (data.status === 200) {
+        router.push(data.data.snap.redirect_url);
+      }
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   // filter state
   const [searchTagihan, setSearchTagihan] = useState('');
@@ -145,7 +160,7 @@ export default function PembayaranSiswaView() {
               setTanggalValue={setTanggalTagihan}
             />
           </div>
-          <div className='px-5'>
+          <div className='px-5 md:mt-5'>
             {isLoading ? (
               <Loading />
             ) : (
@@ -155,36 +170,72 @@ export default function PembayaranSiswaView() {
                   {filteredTagihan?.map((tagihan: any) => (
                     <Card
                       key={tagihan.id}
-                      className='flex flex-col justify-between p-4'
+                      className='group flex cursor-pointer flex-col justify-between rounded-2xl border border-gray-200 p-5 shadow-sm transition hover:shadow-md'
                     >
-                      <div>
-                        <h3 className='text-base font-semibold'>
+                      <div className='space-y-2'>
+                        {/* Nama Tagihan */}
+                        <h3 className='text-base font-semibold text-gray-900 group-hover:text-blue-600 md:text-lg'>
                           {tagihan.nama}
                         </h3>
-                        <p className='text-sm text-muted-foreground'>
-                          Nominal:{' '}
-                          <span className='font-medium text-black'>
-                            Rp{tagihan.nominal.toLocaleString()}
+
+                        {/* Nominal */}
+                        <p className='text-sm text-gray-600'>
+                          <span className='font-medium text-gray-900'>
+                            Rp
+                            {tagihan.nominal.toLocaleString('id-ID')}
                           </span>
                         </p>
-                        <p className='text-sm text-muted-foreground'>
-                          Jatuh Tempo: {tagihan.jatuhTempo}
+
+                        {/* Jatuh Tempo */}
+                        <p className='text-sm text-gray-600'>
+                          Jatuh Tempo:{' '}
+                          <span className='font-medium text-gray-900'>
+                            {new Date(tagihan.jatuhTempo).toLocaleDateString(
+                              'id-ID',
+                              {
+                                day: '2-digit',
+                                month: 'long',
+                                year: 'numeric'
+                              }
+                            )}
+                          </span>
                         </p>
-                        {tagihan.status === 'dibayar' &&
-                          tagihan.tanggalBayar && (
-                            <p className='text-sm text-green-600'>
-                              Dibayar: {tagihan.tanggalBayar}
-                            </p>
-                          )}
+
+                        {/* Tanggal Bayar (jika dibayar) */}
+                        {tagihan.status === 'LUNAS' && tagihan.tanggalBayar && (
+                          <p className='text-sm text-green-600'>
+                            Dibayar:{' '}
+                            {new Date(tagihan.tanggalBayar).toLocaleDateString(
+                              'id-ID',
+                              {
+                                day: '2-digit',
+                                month: 'long',
+                                year: 'numeric'
+                              }
+                            )}
+                          </p>
+                        )}
                       </div>
-                      <div className='mt-3 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between'>
-                        {tagihan.status === 'belum' ? (
+
+                      {/* Status & Action */}
+                      <div className='mt-4 flex items-start gap-3 sm:flex-row sm:items-center sm:justify-between'>
+                        {tagihan.status === 'BELUM_BAYAR' ? (
                           <>
-                            <Badge variant='destructive'>Belum Dibayar</Badge>
-                            <Button size='sm'>Bayar Sekarang</Button>
+                            <Badge variant='destructive' className='px-3 py-1'>
+                              Belum Dibayar
+                            </Badge>
+                            <Button
+                              onClick={() => BayarMidtrans(tagihan)}
+                              size='sm'
+                              className='bg-blue-600 text-white hover:bg-blue-700'
+                            >
+                              Bayar Sekarang
+                            </Button>
                           </>
                         ) : (
-                          <Badge variant='default'>Sudah Dibayar</Badge>
+                          <Badge className='px-3 py-1 text-sm'>
+                            Sudah Dibayar
+                          </Badge>
                         )}
                       </div>
                     </Card>
@@ -246,7 +297,7 @@ export default function PembayaranSiswaView() {
                           Dibayar: {r.tanggalBayar} ({r.metode})
                         </p>
                       </div>
-                      <Badge className='bg-green-600 text-white'>Lunas</Badge>
+                      <Badge className=''>{r.status}</Badge>
                     </Card>
                   ))}
                 </div>
