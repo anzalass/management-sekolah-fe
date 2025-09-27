@@ -31,7 +31,6 @@ module.exports = withPWA({
   },
 
   transpilePackages: ['geist'],
-
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
 
@@ -42,6 +41,34 @@ module.exports = withPWA({
         has: [{ type: 'host', value: 'www.yayasantunasanakmulia.sch.id' }],
         destination: 'https://yayasantunasanakmulia.sch.id/:path*',
         permanent: true
+      }
+    ];
+  },
+
+  // 🔥 Tambahin CSP header disini
+  async headers() {
+    return [
+      {
+        source: '/(.*)', // apply ke semua route
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: `
+              default-src 'self';
+              script-src 'self' 'unsafe-eval' 'unsafe-inline'
+                https://snap-assets.al-pc-id-b.cdn.gtflabs.io
+                https://api.sandbox.midtrans.com
+                https://app.sandbox.midtrans.com
+                https://pay.google.com
+                https://js-agent.newrelic.com
+                https://bam.nr-data.net;
+              frame-src 'self' https://app.sandbox.midtrans.com https://api.sandbox.midtrans.com;
+              connect-src 'self' https://api.sandbox.midtrans.com https://app.sandbox.midtrans.com;
+              img-src * data: blob:;
+              style-src 'self' 'unsafe-inline';
+            `.replace(/\s{2,}/g, ' ') // bersihin spasi ekstra
+          }
+        ]
       }
     ];
   }
