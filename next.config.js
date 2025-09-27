@@ -49,24 +49,24 @@ module.exports = withPWA({
   async headers() {
     return [
       {
-        source: '/(.*)', // apply ke semua route
+        source: '/(.*)', // semua route
         headers: [
           {
             key: 'Content-Security-Policy',
             value: `
-              default-src 'self';
-              script-src 'self' 'unsafe-eval' 'unsafe-inline'
-                https://snap-assets.al-pc-id-b.cdn.gtflabs.io
-                https://api.sandbox.midtrans.com
-                https://app.sandbox.midtrans.com
-                https://pay.google.com
-                https://js-agent.newrelic.com
-                https://bam.nr-data.net;
-              frame-src 'self' https://app.sandbox.midtrans.com https://api.sandbox.midtrans.com;
-              connect-src 'self' https://api.sandbox.midtrans.com https://app.sandbox.midtrans.com;
-              img-src * data: blob:;
-              style-src 'self' 'unsafe-inline';
-            `.replace(/\s{2,}/g, ' ') // bersihin spasi ekstra
+            default-src 'self';
+            script-src 'self' 'unsafe-eval' 'unsafe-inline'
+              https://snap-assets.al-pc-id-b.cdn.gtflabs.io
+              https://api.sandbox.midtrans.com
+              https://app.sandbox.midtrans.com
+              https://pay.google.com
+              https://js-agent.newrelic.com
+              https://bam.nr-data.net;
+            frame-src 'self' https://app.sandbox.midtrans.com https://api.sandbox.midtrans.com;
+            connect-src 'self' https://management-sekolah.zeabur.app https://api.sandbox.midtrans.com https://app.sandbox.midtrans.com;
+            img-src * data: blob:;
+            style-src 'self' 'unsafe-inline';
+          `.replace(/\s{2,}/g, ' ')
           }
         ]
       }
