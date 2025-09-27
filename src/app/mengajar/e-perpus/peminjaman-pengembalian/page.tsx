@@ -38,7 +38,7 @@ export default async function Page(props: pageProps) {
           <div className='flex items-start justify-between'>
             <Heading title='Data Buku' description='' />
             <Link
-              href='/dashboard/peminjaman-pengembalian/new'
+              href='/mengajat/peminjaman-pengembalian/new'
               className={cn(buttonVariants(), 'text-xs md:text-sm')}
             >
               <Plus className='mr-2 h-4 w-4' /> Tambah Peminjaman
