@@ -67,7 +67,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
 
   const fetchData = async () => {
     try {
-      const response = await api.get(`user/get-all-siswa`, {
+      const response = await api.get(`user/get-all-siswa-master`, {
         headers: {
           Authorization: `Bearer ${session?.user?.token}`
         }
