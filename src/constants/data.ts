@@ -84,7 +84,7 @@ export const navItems: NavItem[] = [
     icon: 'product',
     shortcut: ['p', 'p'],
     isActive: false,
-    allowedRoles: ['Guru'],
+    allowedRoles: ['Kepala Sekolah'],
     items: [
       {
         title: 'News',

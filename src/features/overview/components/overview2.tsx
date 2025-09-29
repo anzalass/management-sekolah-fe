@@ -48,7 +48,8 @@ export default function Overview2() {
       <div className='flex flex-1 flex-col space-y-5'>
         <div className='my-5 flex flex-col items-center justify-between space-y-2 md:flex-row'>
           <h2 className='text-2xl font-bold tracking-tight'>
-            Hi, Welcome back {session?.user?.nama} 👋
+            Hi, Welcome back {session?.user?.nama}
+            👋
           </h2>
           <div className='flex space-x-3'>
             <Link href={'/mengajar'}>
