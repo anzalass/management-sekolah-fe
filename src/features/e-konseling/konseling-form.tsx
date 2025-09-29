@@ -76,7 +76,7 @@ export default function KonselingForm({
 
   useEffect(() => {
     api
-      .get(`user/get-all-siswa`, {
+      .get(`user/get-all-siswa-master`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.user?.token}`

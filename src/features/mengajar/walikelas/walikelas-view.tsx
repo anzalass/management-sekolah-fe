@@ -78,7 +78,7 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
   );
   const fetchData = async () => {
     try {
-      const response = await api.get(`user/get-all-siswa`, {
+      const response = await api.get(`user/get-all-siswa-master`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.user?.token}`

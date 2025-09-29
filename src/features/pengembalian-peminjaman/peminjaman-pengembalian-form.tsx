@@ -61,7 +61,7 @@ export default function PinjamBukuForm({ pageTitle }: { pageTitle: string }) {
   const [dataBuku, setDataBuku] = useState<Buku[]>([]);
 
   useEffect(() => {
-    api.get(`user/get-all-siswa`).then((res) => {
+    api.get(`user/get-all-siswa-master`).then((res) => {
       setSiswaList(res.data.result.data);
     });
 

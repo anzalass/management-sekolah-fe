@@ -50,7 +50,7 @@ export default function SiswaListingPage() {
       try {
         setLoading(true);
         const response = await api.get(
-          `user/get-all-siswa?page=${page}&pageSize=${pageLimit}&nama=${search}&nip=${nis}&kelas${kelas}`,
+          `user/get-all-siswa?page=${page}&pageSize=${pageLimit}&nama=${search}&nis=${nis}&kelas${kelas}`,
           {
             headers: {
               'Content-Type': 'application/json',
