@@ -353,9 +353,7 @@ export default function InputNilaiKelas({
               {listNilai.map((nilai, index) => (
                 <tr key={nilai.id}>
                   <td className='border p-2'>{index + 1}</td>
-                  <td className='border p-2'>
-                    {nilai.nama} Lorem ipsum, dolor sit amet consectetur
-                  </td>
+                  <td className='border p-2'>{nilai.nama}</td>
                   <td className='border p-2'>
                     <Input
                       type='number'

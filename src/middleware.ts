@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import authConfig from '@/lib/auth.config';
+import { NextResponse } from 'next/server';
 
 const { auth } = NextAuth(authConfig);
 
@@ -19,6 +20,16 @@ export default auth((req) => {
 
   // === Sudah login tapi ke /login atau /login-siswa ===
   const jabatan = req.auth.user?.jabatan;
+
+  // ========== CEK EXPIRED SESSION BERDASARKAN expiresIn ==========
+  const sessionExpires = Math.floor(
+    new Date(req?.auth?.expires).getTime() / 1000
+  );
+  const userExpiresIn = req.auth?.user?.expires;
+
+  if (userExpiresIn && sessionExpires > userExpiresIn) {
+    return Response.redirect(new URL('/logout', req.url));
+  }
 
   if (path === '/login' || path === '/login-siswa') {
     // tentukan redirect default berdasarkan jabatan

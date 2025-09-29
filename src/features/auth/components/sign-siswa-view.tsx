@@ -1,6 +1,6 @@
 'use client';
 
-import React, { startTransition } from 'react';
+import React, { useState, startTransition } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
 import { signIn } from 'next-auth/react';
 import { toast } from 'sonner';
+import { Eye, EyeOff } from 'lucide-react';
 
 type UserFormValue = {
   nis: string;
@@ -20,6 +21,8 @@ export default function SignSiswaView() {
     handleSubmit,
     formState: { errors, isSubmitting }
   } = useForm<UserFormValue>();
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = async (data: UserFormValue) => {
     const result = await signIn('credentials', {
@@ -69,17 +72,23 @@ export default function SignSiswaView() {
             </div>
 
             {/* Password */}
-            <div className='space-y-2'>
+            <div className='relative space-y-2'>
               <Label className='font-bold' htmlFor='password'>
                 Password
               </Label>
               <Input
                 id='password'
-                type='password'
+                type={showPassword ? 'text' : 'password'}
                 placeholder='Masukkan password'
-                className='focus-visible:ring-blue-500'
+                className='pr-10 focus-visible:ring-blue-500'
                 {...register('password', { required: 'Password wajib diisi' })}
               />
+              <div
+                className='absolute right-3 top-[38px] cursor-pointer'
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </div>
               {errors.password && (
                 <p className='text-sm text-red-500'>
                   {errors.password.message}

@@ -1,8 +1,6 @@
 import axios from 'axios';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { API } from './server';
 import { JWT, Session, User } from 'next-auth';
-import { toast } from 'sonner';
 
 declare module 'next-auth' {
   interface User {
@@ -13,6 +11,7 @@ declare module 'next-auth' {
     jabatan: string;
     idKelas: string;
     foto: string;
+    expires?: number; // ⬅️ tambahkan expiredIn
   }
 
   interface JWT {
@@ -23,10 +22,12 @@ declare module 'next-auth' {
     jabatan: string;
     idKelas: string;
     foto: string;
+    exp?: number; // ⬅️ ini bawaan NextAuth, kita set dari backend
+    expires?: number;
   }
 
   interface Session {
-    user: User;
+    user: User & { expires?: number };
   }
 }
 
@@ -53,23 +54,26 @@ const authConfig = {
 
           const user = response.data.data;
 
-          if (user && user.token) {
-            return {
-              token: user.token,
-              nip: user.nip,
-              nama: user.nama,
-              jabatan: user.jabatan || 'Guru',
-              idKelas: user.idKelas,
-              idGuru: user?.idGuru,
-              foto: user?.foto
-            };
-          } else {
-            toast.error('Gagal login');
-            return null;
+          // console.log supaya keliatan
+          console.log('API Login Response:', user);
+
+          if (!user || !user.token) {
+            throw new Error('Token tidak ditemukan di response API');
           }
+
+          return {
+            token: user.token,
+            nip: user.nip,
+            nama: user.nama,
+            jabatan: user.jabatan || 'Guru',
+            idKelas: user.idKelas,
+            idGuru: user?.idGuru,
+            foto: user?.foto,
+            expires: user?.expiresIn
+          };
         } catch (error: any) {
-          toast.error('Login error:', error.message || error);
-          throw new Error('NIP atau Password salah');
+          console.error('Login Error:', error.response?.data || error.message);
+          throw new Error(error.response?.data?.message || 'Login gagal');
         }
       }
     })
@@ -79,21 +83,23 @@ const authConfig = {
   },
   session: {
     strategy: 'jwt',
-    maxAge: 24 * 60 * 60
+    maxAge: 24 * 60 * 60, // 24 jam = 1 hari
+    updateAge: 0 // tidak auto-refresh
   },
+
   cookies: {
     sessionToken: {
       name: '__Secure-next-auth.session-token',
       options: {
         httpOnly: true,
-        sameSite: 'none', // ⬅️ WAJIB agar cookie cross-domain bisa disimpan
-        secure: true, // ⬅️ WAJIB kalau domain pakai HTTPS
+        sameSite: 'none',
+        secure: true,
         path: '/'
       }
     }
   },
   callbacks: {
-    async jwt({ token, user }: { token: JWT; user: User | undefined }) {
+    async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
         token.token = user.token;
         token.idGuru = user.idGuru;
@@ -102,6 +108,7 @@ const authConfig = {
         token.jabatan = user.jabatan;
         token.idKelas = user.idKelas;
         token.foto = user.foto;
+        token.expires = user.expires;
       }
       return token;
     },
@@ -113,6 +120,7 @@ const authConfig = {
       session.user.nama = token.nama;
       session.user.jabatan = token.jabatan;
       session.user.foto = token.foto;
+      session.user.expires = token.expires;
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('token', token.token || '');

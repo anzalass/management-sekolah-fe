@@ -113,7 +113,7 @@ export const columns: ColumnDef<Tagihan>[] = [
 
       return (
         <div className='flex gap-2'>
-          {status === 'Belum Dibayar' ? (
+          {status === 'BELUM_BAYAR' ? (
             <>
               <Button
                 size='sm'
