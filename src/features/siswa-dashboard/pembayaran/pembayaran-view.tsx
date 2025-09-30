@@ -84,7 +84,8 @@ export default function PembayaranSiswaView() {
             nama: r.namaTagihan || '-',
             nominal: r?.nominal || 0,
             tanggalBayar: new Date(r.waktuBayar).toISOString().split('T')[0],
-            metode: r.metodeBayar
+            metode: r.metodeBayar,
+            status: r.status
           })) || []
       };
     },
@@ -233,8 +234,10 @@ export default function PembayaranSiswaView() {
                             </Button>
                           </>
                         ) : (
-                          <Badge className='px-3 py-1 text-sm'>
-                            Sudah Dibayar
+                          <Badge
+                            className={`px-3 py-1 text-sm ${tagihan.status === 'LUNAS' ? 'bg-green-300 text-green-700' : tagihan.status === 'PENDING' ? 'bg-yellow-300 text-yellow-700' : 'bg-red-300 text-red-700'} `}
+                          >
+                            {tagihan.status}
                           </Badge>
                         )}
                       </div>
@@ -297,7 +300,11 @@ export default function PembayaranSiswaView() {
                           Dibayar: {r.tanggalBayar} ({r.metode})
                         </p>
                       </div>
-                      <Badge className=''>{r.status}</Badge>
+                      <Badge
+                        className={`px-3 py-1 text-sm ${r.status === 'LUNAS' ? 'bg-green-300 text-green-700' : r.status === 'PENDING' ? 'bg-yellow-300 text-yellow-700' : 'bg-red-300 text-red-700'} `}
+                      >
+                        {r.status}
+                      </Badge>
                     </Card>
                   ))}
                 </div>
