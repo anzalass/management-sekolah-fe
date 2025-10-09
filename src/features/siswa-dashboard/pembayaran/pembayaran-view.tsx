@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
@@ -13,7 +13,38 @@ import FilterMobile from './filter-pembayaran-mobile';
 import EmptyState from '../empty-state';
 import Loading from '../loading';
 import { useRouter } from 'next/navigation';
-import { DollarSign, DollarSignIcon } from 'lucide-react';
+import {
+  ArrowRight,
+  Calendar,
+  Calendar1,
+  Camera,
+  CheckCircle,
+  Clock,
+  CreditCard,
+  DollarSign,
+  DollarSignIcon,
+  Filter,
+  Receipt,
+  Search,
+  Upload,
+  Wallet,
+  X
+} from 'lucide-react';
+import HeaderSiswa from '../header-siswa';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
 
 type Tagihan = {
   id: string;
@@ -33,29 +64,63 @@ type Riwayat = {
 };
 
 export default function PembayaranSiswaView() {
+  const queryClient = useQueryClient();
+
   const { data: session } = useSession();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'tagihan' | 'riwayat'>('tagihan');
+  const [showFilter, setShowFilter] = useState(false);
 
-  const BayarMidtrans = async (tagihan: any) => {
-    try {
-      const data = await api.post(`bayar-midtrans/${tagihan.id}`);
-      if (data.status === 200) {
-        router.push(data.data.snap.redirect_url);
-      }
-      console.log(data);
-    } catch (error) {
-      console.log(error);
+  const [open, setOpen] = useState(false);
+  const [preview, setPreview] = useState<any>(null);
+  const [file, setFile] = useState(null);
+
+  const handleFileChange = (e: any) => {
+    const selectedFile = e.target.files[0];
+    if (
+      selectedFile &&
+      ['image/jpeg', 'image/png', 'image/jpg'].includes(selectedFile.type)
+    ) {
+      setFile(selectedFile);
+      setPreview(URL.createObjectURL(selectedFile));
+    } else {
+      alert('Format file tidak valid. Gunakan JPG, JPEG, atau PNG.');
     }
   };
 
-  // filter state
+  // Filter state
   const [searchTagihan, setSearchTagihan] = useState('');
   const [tanggalTagihan, setTanggalTagihan] = useState('');
+  const [filterStatusTagihan, setFilterStatusTagihan] = useState('');
+
   const [searchRiwayat, setSearchRiwayat] = useState('');
   const [tanggalRiwayat, setTanggalRiwayat] = useState('');
+  const [filterStatusRiwayat, setFilterStatusRiwayat] = useState('');
 
-  // Fetch pembayaran siswa
+  const uploadBukti = async (id: any) => {
+    try {
+      if (!file) return;
+
+      const fd = new FormData();
+      fd.append('bukti', file);
+
+      const upload = await api.patch(`pembayaran-upload-bukti/${id}`, fd, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      toast.success('Berhasil Upload Bukti');
+      setOpen(false);
+      setFile(null);
+      queryClient.invalidateQueries({ queryKey: ['pembayaranSiswa'] });
+    } catch (error) {
+      console.error('Gagal upload bukti:', error);
+    }
+  };
+
+  // Fetch pembayaran siswa pakai react-query
   const { data: pembayaranData, isLoading } = useQuery({
     queryKey: ['pembayaranSiswa'],
     queryFn: async () => {
@@ -89,232 +154,470 @@ export default function PembayaranSiswaView() {
           })) || []
       };
     },
-    enabled: !!session?.user?.token,
-    staleTime: 1000 * 60 * 5
+    enabled: !!session?.user?.token
   });
 
+  const tagihanData = pembayaranData?.tagihan || [];
+  const riwayatData = pembayaranData?.riwayat || [];
+
+  // Hitung summary
+  const totalBelumBayar = tagihanData
+    .filter(
+      (t: any) => t.status === 'BELUM_BAYAR' && t.status === 'BUKTI_TIDAK_VALID'
+    )
+    .reduce((acc: any, t: any) => acc + t.nominal, 0);
+
   // Filter data
-  const filteredTagihan = pembayaranData?.tagihan?.filter(
+  // Filter data
+  const filteredTagihan = tagihanData.filter(
     (t: any) =>
       t.nama.toLowerCase().includes(searchTagihan.toLowerCase()) &&
-      (tanggalTagihan ? t.jatuhTempo === tanggalTagihan : true)
+      (tanggalTagihan ? t.jatuhTempo === tanggalTagihan : true) &&
+      (filterStatusTagihan === 'all' || !filterStatusTagihan
+        ? true
+        : t.status === filterStatusTagihan)
   );
 
-  const filteredRiwayat = pembayaranData?.riwayat?.filter(
+  const filteredRiwayat = riwayatData.filter(
     (r: any) =>
       r.nama.toLowerCase().includes(searchRiwayat.toLowerCase()) &&
-      (tanggalRiwayat ? r.tanggalBayar === tanggalRiwayat : true)
+      (tanggalRiwayat ? r.tanggalBayar === tanggalRiwayat : true) &&
+      (filterStatusRiwayat === 'all' || !filterStatusRiwayat
+        ? true
+        : r.status === filterStatusRiwayat)
   );
 
-  return (
-    <div className='mx-auto mb-36 w-full space-y-2'>
-      <NavbarSiswa title='Pembayaran' />
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0
+    }).format(amount);
 
-      {/* Tombol Toggle Tab */}
-      <div className='mx-auto ml-0 flex w-full gap-2 p-4 sm:w-[80%] md:w-[50%]'>
-        <Button
-          onClick={() => setActiveTab('tagihan')}
-          className={`flex-1 ${
-            activeTab === 'tagihan'
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'border border-blue-600 bg-white text-blue-600 hover:bg-blue-100'
-          }`}
-        >
-          Tagihan
-        </Button>
-        <Button
-          onClick={() => setActiveTab('riwayat')}
-          className={`flex-1 ${
-            activeTab === 'riwayat'
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'border border-blue-600 bg-white text-blue-600 hover:bg-blue-100'
-          }`}
-        >
-          Riwayat Pembayaran
-        </Button>
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+
+  // Status config
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case 'BELUM_BAYAR':
+        return {
+          text: 'Belum Bayar',
+          bgColor: 'bg-red-100',
+          textColor: 'text-red-600',
+          borderColor: 'border-red-500'
+        };
+      case 'PENDING':
+        return {
+          text: 'Pending',
+          bgColor: 'bg-yellow-100',
+          textColor: 'text-yellow-600',
+          borderColor: 'border-yellow-500'
+        };
+      case 'LUNAS':
+        return {
+          text: 'Lunas',
+          bgColor: 'bg-green-100',
+          textColor: 'text-green-600',
+          borderColor: 'border-green-500'
+        };
+      case 'MENUNGGU_KONFIRMASI':
+        return {
+          text: 'Menunggu Konfirmasi',
+          bgColor: 'bg-yellow-100',
+          textColor: 'text-yellow-600',
+          borderColor: 'border-yellow-500'
+        };
+      case 'BUKTI_TIDAK_VALID':
+        return {
+          text: 'Bukti Tidak Valid',
+          bgColor: 'bg-red-100',
+          textColor: 'text-red-600',
+          borderColor: 'border-red-500'
+        };
+      default:
+        return {
+          text: status,
+          bgColor: 'bg-gray-100',
+          textColor: 'text-gray-600',
+          borderColor: 'border-gray-500'
+        };
+    }
+  };
+
+  return (
+    <div className='min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20'>
+      <HeaderSiswa
+        title='Pembayaran'
+        titleContent='Total Tagihan'
+        mainContent={formatCurrency(totalBelumBayar)}
+        icon={<CreditCard className='h-7 w-7 text-white' />}
+        data={[
+          {
+            label: 'Belum Bayar',
+            value: tagihanData.filter((t: any) => t.status === 'BELUM_BAYAR')
+              .length,
+            color: 'text-white'
+          },
+          {
+            label: 'Pending',
+            value: tagihanData.filter((t: any) => t.status === 'PENDING')
+              .length,
+            color: 'text-white'
+          },
+          {
+            label: 'Lunas',
+            value: riwayatData.filter((r: any) => r.status === 'LUNAS').length,
+            color: 'text-white'
+          }
+        ]}
+      />
+
+      {/* Tab Navigation */}
+      <div className='relative z-10 mx-auto -mt-16 mb-6 max-w-6xl px-4'>
+        <div className='grid grid-cols-2 gap-1 rounded-2xl bg-white p-1 shadow-lg'>
+          <button
+            onClick={() => setActiveTab('tagihan')}
+            className={`rounded-xl px-4 py-3 font-semibold transition-all duration-300 ${
+              activeTab === 'tagihan'
+                ? 'scale-105 bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
+                : 'text-gray-600 active:bg-gray-100'
+            }`}
+          >
+            <div className='flex items-center justify-center gap-2'>
+              <Receipt className='h-5 w-5' />
+              <span>Tagihan</span>
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab('riwayat')}
+            className={`rounded-xl px-4 py-3 font-semibold transition-all duration-300 ${
+              activeTab === 'riwayat'
+                ? 'scale-105 bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
+                : 'text-gray-600 active:bg-gray-100'
+            }`}
+          >
+            <div className='flex items-center justify-center gap-2'>
+              <Clock className='h-5 w-5' />
+              <span>Riwayat</span>
+            </div>
+          </button>
+        </div>
       </div>
 
-      {/* Konten */}
-      {activeTab === 'tagihan' && (
-        <div>
-          <div className=''>
-            <div className='mt-3 hidden w-full justify-between gap-2 px-5 sm:flex md:w-1/2'>
-              <input
-                type='text'
-                placeholder='Cari tagihan...'
-                className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none sm:w-1/2'
-                value={searchTagihan}
-                onChange={(e) => setSearchTagihan(e.target.value)}
-              />
-              <input
-                type='date'
-                className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none sm:w-1/2'
-                value={tanggalTagihan}
-                placeholder='Tanggal'
-                onChange={(e) => setTanggalTagihan(e.target.value)}
-              />
-            </div>
-            <FilterMobile
-              searchValue={searchTagihan}
-              setSearchValue={setSearchTagihan}
-              tanggalValue={tanggalTagihan}
-              setTanggalValue={setTanggalTagihan}
+      {/* Search & Filter */}
+      <div className='mx-auto mb-4 max-w-6xl px-4'>
+        <div className='flex gap-2'>
+          <div className='relative flex-1'>
+            <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
+            <input
+              type='text'
+              placeholder={
+                activeTab === 'tagihan' ? 'Cari tagihan...' : 'Cari riwayat...'
+              }
+              value={activeTab === 'tagihan' ? searchTagihan : searchRiwayat}
+              onChange={(e) =>
+                activeTab === 'tagihan'
+                  ? setSearchTagihan(e.target.value)
+                  : setSearchRiwayat(e.target.value)
+              }
+              className='w-full rounded-xl border border-gray-200 bg-white py-3 pl-10 pr-4 transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100'
             />
           </div>
-          <div className='px-5 md:mt-5'>
+          <button
+            onClick={() => setShowFilter(!showFilter)}
+            className={`flex h-12 w-12 items-center justify-center rounded-xl transition-all ${
+              showFilter
+                ? 'bg-blue-600 text-white'
+                : 'border border-gray-200 bg-white text-gray-600'
+            }`}
+          >
+            <Filter className='h-5 w-5' />
+          </button>
+        </div>
+
+        {/* Filter Panel */}
+        {showFilter && (
+          <div className='mt-3 animate-[slideDown_0.2s_ease-out] rounded-xl border border-gray-200 bg-white p-4 shadow-lg'>
+            <div className='mb-3 flex items-center justify-between'>
+              <h3 className='font-semibold text-gray-900'>Filter Tanggal</h3>
+              <button
+                onClick={() => setShowFilter(false)}
+                className='text-gray-400'
+              >
+                <X className='h-5 w-5' />
+              </button>
+            </div>
+            <div className='relative'>
+              <Calendar1 className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
+              <input
+                type='date'
+                value={
+                  activeTab === 'tagihan' ? tanggalTagihan : tanggalRiwayat
+                }
+                onChange={(e) =>
+                  activeTab === 'tagihan'
+                    ? setTanggalTagihan(e.target.value)
+                    : setTanggalRiwayat(e.target.value)
+                }
+                className='w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 focus:border-blue-500 focus:outline-none'
+              />
+            </div>
+            <div className='mt-3'>
+              <Select
+                value={
+                  activeTab === 'tagihan'
+                    ? filterStatusTagihan
+                    : filterStatusRiwayat
+                }
+                onValueChange={
+                  activeTab === 'tagihan'
+                    ? setFilterStatusTagihan
+                    : setFilterStatusRiwayat
+                }
+              >
+                <SelectTrigger className='h-12 w-full rounded-xl border border-gray-200 bg-white text-gray-700 hover:border-blue-400'>
+                  <SelectValue placeholder='Status' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>Semua</SelectItem>
+                  <SelectItem value='BELUM_BAYAR'>Belum Bayar</SelectItem>
+                  <SelectItem value='PENDING'>Pending</SelectItem>
+                  <SelectItem value='LUNAS'>Lunas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className='mx-auto max-w-6xl px-4'>
+        {activeTab === 'tagihan' ? (
+          <div className='space-y-3'>
             {isLoading ? (
-              <Loading />
+              <div className='py-12 text-center'>
+                <div className='mx-auto h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent'></div>
+                <p className='mt-4 text-gray-600'>Memuat data...</p>
+              </div>
+            ) : filteredTagihan.length === 0 ? (
+              <div className='py-12 text-center'>
+                <Receipt className='mx-auto mb-4 h-16 w-16 text-gray-300' />
+                <h3 className='mb-2 text-lg font-semibold text-gray-900'>
+                  Tidak ada tagihan
+                </h3>
+                <p className='text-gray-500'>Semua tagihan sudah lunas</p>
+              </div>
             ) : (
-              <div className='space-y-4'>
-                {filteredTagihan?.length === 0 && <EmptyState />}
-                <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
-                  {filteredTagihan?.map((tagihan: any) => (
-                    <Card
-                      key={tagihan.id}
-                      className='group flex cursor-pointer flex-col justify-between rounded-2xl border border-gray-200 p-5 shadow-sm transition hover:shadow-md'
-                    >
-                      <div className='space-y-2'>
-                        {/* Nama Tagihan */}
-                        <h3 className='text-base font-semibold text-gray-900 group-hover:text-blue-600 md:text-lg'>
+              filteredTagihan.map((tagihan: any) => {
+                const statusConfig = getStatusConfig(tagihan.status);
+                const isOverdue =
+                  new Date(tagihan.jatuhTempo) < new Date() &&
+                  tagihan.status === 'BELUM_BAYAR';
+
+                return (
+                  <div
+                    key={tagihan.id}
+                    className={`rounded-2xl border-l-4 bg-white p-5 shadow-md ${
+                      isOverdue ? 'border-red-500' : statusConfig.borderColor
+                    } active:scale-98 transition-transform`}
+                  >
+                    <div className='mb-3 flex items-start justify-between'>
+                      <div className='flex-1'>
+                        <h3 className='mb-1 text-base font-bold text-gray-900'>
                           {tagihan.nama}
                         </h3>
-
-                        {/* Nominal */}
-                        <p className='text-sm text-gray-600'>
-                          <span className='font-medium text-gray-900'>
-                            Rp
-                            {tagihan.nominal.toLocaleString('id-ID')}
-                          </span>
-                        </p>
-
-                        {/* Jatuh Tempo */}
-                        <p className='text-sm text-gray-600'>
-                          Jatuh Tempo:{' '}
-                          <span className='font-medium text-gray-900'>
-                            {new Date(tagihan.jatuhTempo).toLocaleDateString(
-                              'id-ID',
-                              {
-                                day: '2-digit',
-                                month: 'long',
-                                year: 'numeric'
-                              }
-                            )}
-                          </span>
-                        </p>
-
-                        {/* Tanggal Bayar (jika dibayar) */}
-                        {tagihan.status === 'LUNAS' && tagihan.tanggalBayar && (
-                          <p className='text-sm text-green-600'>
-                            Dibayar:{' '}
-                            {new Date(tagihan.tanggalBayar).toLocaleDateString(
-                              'id-ID',
-                              {
-                                day: '2-digit',
-                                month: 'long',
-                                year: 'numeric'
-                              }
-                            )}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Status & Action */}
-                      <div className='mt-4 flex items-start gap-3 sm:flex-row sm:items-center sm:justify-between'>
-                        {tagihan.status === 'BELUM_BAYAR' ? (
-                          <>
-                            <Badge variant='destructive' className='px-3 py-1'>
-                              Belum Dibayar
-                            </Badge>
-                            <Button
-                              onClick={() => BayarMidtrans(tagihan)}
-                              size='sm'
-                              className='bg-blue-600 text-white hover:bg-blue-700'
-                            >
-                              Bayar Sekarang
-                            </Button>
-                          </>
-                        ) : (
-                          <Badge
-                            className={`px-3 py-1 text-sm ${tagihan.status === 'LUNAS' ? 'bg-green-300 text-green-700' : tagihan.status === 'PENDING' ? 'bg-yellow-300 text-yellow-700' : 'bg-red-300 text-red-700'} `}
-                          >
-                            {tagihan.status}
-                          </Badge>
-                        )}
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'riwayat' && (
-        <div>
-          <div>
-            <div className='mt-3 hidden w-full justify-between gap-2 px-5 pb-4 sm:flex md:w-1/2'>
-              <input
-                type='text'
-                placeholder='Cari riwayat...'
-                className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none sm:w-1/2'
-                value={searchRiwayat}
-                onChange={(e) => setSearchRiwayat(e.target.value)}
-              />
-              <input
-                type='date'
-                className='w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none sm:w-1/2'
-                value={tanggalRiwayat}
-                onChange={(e) => setTanggalRiwayat(e.target.value)}
-              />
-            </div>
-            <FilterMobile
-              searchValue={searchRiwayat}
-              setSearchValue={setSearchRiwayat}
-              tanggalValue={tanggalRiwayat}
-              setTanggalValue={setTanggalRiwayat}
-            />
-          </div>
-          <div className='px-5'>
-            {isLoading ? (
-              <p className='text-sm text-muted-foreground'>Loading...</p>
-            ) : (
-              <>
-                {filteredRiwayat?.length === 0 && (
-                  <p className='text-sm text-muted-foreground'>
-                    Belum ada riwayat pembayaran.
-                  </p>
-                )}
-                <div className='space-y-3'>
-                  {filteredRiwayat?.map((r: any) => (
-                    <Card
-                      key={r.id}
-                      className='flex items-center justify-between p-4'
-                    >
-                      <div>
-                        <h3 className='text-base font-semibold'>{r.nama}</h3>
-                        <p className='text-sm text-muted-foreground'>
-                          Nominal: Rp{r.nominal.toLocaleString()}
-                        </p>
-                        <p className='text-xs text-muted-foreground'>
-                          Dibayar: {r.tanggalBayar} ({r.metode})
+                        <p className='text-2xl font-bold text-blue-600'>
+                          {formatCurrency(tagihan.nominal)}
                         </p>
                       </div>
-                      <Badge
-                        className={`px-3 py-1 text-sm ${r.status === 'LUNAS' ? 'bg-green-300 text-green-700' : r.status === 'PENDING' ? 'bg-yellow-300 text-yellow-700' : 'bg-red-300 text-red-700'} `}
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${statusConfig.bgColor} ${statusConfig.textColor}`}
                       >
-                        {r.status}
-                      </Badge>
-                    </Card>
-                  ))}
-                </div>
-              </>
+                        {statusConfig.text}
+                      </span>
+                    </div>
+
+                    <div className='mb-4 flex items-center gap-2 text-sm text-gray-600'>
+                      <Calendar className='h-4 w-4' />
+                      <span>Jatuh Tempo: {formatDate(tagihan.jatuhTempo)}</span>
+                      {isOverdue && (
+                        <span className='ml-2 font-semibold text-red-600'>
+                          • Terlambat
+                        </span>
+                      )}
+                    </div>
+
+                    {tagihan.status === 'LUNAS' && tagihan.tanggalBayar && (
+                      <div className='mb-4 flex items-center gap-2 rounded-lg bg-green-50 p-2 text-sm text-green-600'>
+                        <CheckCircle className='h-4 w-4' />
+                        <span>Dibayar: {formatDate(tagihan.tanggalBayar)}</span>
+                      </div>
+                    )}
+
+                    <>
+                      {(tagihan.status === 'BELUM_BAYAR' ||
+                        tagihan.status === 'BUKTI_TIDAK_VALID') && (
+                        <div className='flex space-x-4'>
+                          <button
+                            onClick={() => alert('Memproses pembayaran...')}
+                            className='flex w-[66%] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3 font-semibold text-white shadow-lg transition-all hover:shadow-xl active:scale-95'
+                          >
+                            <span>Bayar Sekarang</span>
+                            <ArrowRight className='h-5 w-5' />
+                          </button>
+
+                          <Button
+                            onClick={() => setOpen(true)}
+                            className='h-[45px] w-[34%] space-x-4 p-4 text-sm'
+                          >
+                            {tagihan.status === 'BUKTI_TIDAK_VALID'
+                              ? 'Upload Ulang Bukti Pembayaran'
+                              : 'Upload Bukti'}
+                            <Camera className='ml-2' />
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* Modal Upload */}
+                      <Dialog open={open} onOpenChange={setOpen}>
+                        <DialogContent className='sm:max-w-md'>
+                          <DialogHeader>
+                            <DialogTitle>Upload Bukti Pembayaran</DialogTitle>
+                          </DialogHeader>
+
+                          <div className='space-y-4'>
+                            <input
+                              type='file'
+                              accept='image/png, image/jpeg, image/jpg'
+                              onChange={handleFileChange}
+                              className='w-full cursor-pointer rounded-md border border-gray-300 p-2'
+                            />
+
+                            {preview && (
+                              <div className='mt-2 flex justify-center'>
+                                <img
+                                  src={preview}
+                                  alt='Preview'
+                                  className='h-48 w-auto rounded-lg border object-contain'
+                                />
+                              </div>
+                            )}
+
+                            <div className='flex justify-end space-x-2'>
+                              <Button
+                                variant='outline'
+                                onClick={() => setOpen(false)}
+                              >
+                                Batal
+                              </Button>
+                              <Button
+                                onClick={() => uploadBukti(tagihan.id)}
+                                className='bg-blue-600 text-white'
+                              >
+                                <Upload className='mr-2 h-4 w-4' /> Upload
+                              </Button>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </>
+
+                    {tagihan.status === 'PENDING' && (
+                      <div className='rounded-xl border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800'>
+                        <div className='flex items-center gap-2'>
+                          <Clock className='h-4 w-4' />
+                          <span className='font-medium'>
+                            Menunggu konfirmasi pembayaran
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
             )}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className='space-y-3'>
+            {isLoading ? (
+              <div className='py-12 text-center'>
+                <div className='mx-auto h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent'></div>
+                <p className='mt-4 text-gray-600'>Memuat data...</p>
+              </div>
+            ) : filteredRiwayat.length === 0 ? (
+              <div className='py-12 text-center'>
+                <Clock className='mx-auto mb-4 h-16 w-16 text-gray-300' />
+                <h3 className='mb-2 text-lg font-semibold text-gray-900'>
+                  Belum ada riwayat
+                </h3>
+                <p className='text-gray-500'>
+                  Riwayat pembayaran akan muncul di sini
+                </p>
+              </div>
+            ) : (
+              filteredRiwayat.map((riwayat: any) => {
+                const statusConfig = getStatusConfig(riwayat.status);
 
-      <BottomNav />
+                return (
+                  <div
+                    key={riwayat.id}
+                    className='rounded-2xl border border-gray-200 bg-white p-5 shadow-md'
+                  >
+                    <div className='mb-3 flex items-start justify-between'>
+                      <div className='flex-1'>
+                        <h3 className='mb-1 text-base font-bold text-gray-900'>
+                          {riwayat.nama}
+                        </h3>
+                        <p className='text-xl font-bold text-gray-700'>
+                          {formatCurrency(riwayat.nominal)}
+                        </p>
+                      </div>
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${statusConfig.bgColor} ${statusConfig.textColor}`}
+                      >
+                        {statusConfig.text}
+                      </span>
+                    </div>
+
+                    <div className='space-y-2'>
+                      <div className='flex items-center gap-2 text-sm text-gray-600'>
+                        <CheckCircle className='h-4 w-4 text-green-600' />
+                        <span>Dibayar: {riwayat.tanggalBayar}</span>
+                      </div>
+                      <div className='flex items-center gap-2 text-sm text-gray-600'>
+                        <CreditCard className='h-4 w-4' />
+                        <span>Metode: {riwayat.metode}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
+        <BottomNav />
+      </div>
+
+      <style>{`
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .active\:scale-98:active {
+          transform: scale(0.98);
+        }
+      `}</style>
     </div>
   );
 }

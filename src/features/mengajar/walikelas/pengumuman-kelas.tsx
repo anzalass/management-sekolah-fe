@@ -13,21 +13,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import RichTextEditor from '@/features/texteditor/textEditor';
-import axios from 'axios';
-import { API } from '@/lib/server';
 import { toast } from 'sonner';
-import { useRenderTrigger } from '@/hooks/use-rendertrigger';
-import { PengumumanKelasType } from './walikelas-view';
 import { Pencil, Trash2 } from 'lucide-react';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
-
-interface Pengumuman {
-  id: number;
-  title: string;
-  time: string;
-  content: string;
-}
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { PengumumanKelasType } from './walikelas-view';
 
 interface FormValues {
   judul: string;
@@ -41,65 +32,91 @@ type IDKelas = {
 
 const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
   const [editId, setEditId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const { trigger, toggleTrigger } = useRenderTrigger();
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
 
   const { register, handleSubmit, reset, control, setValue } =
     useForm<FormValues>({
-      defaultValues: {
-        judul: '',
-        konten: ''
-      }
+      defaultValues: { judul: '', konten: '' }
     });
 
-  const onSubmit = async (data: FormValues) => {
-    setLoading(true);
-    try {
-      if (editId) {
-        // Edit
-        await api.put(
-          `pengumuman-kelas/${editId}`,
-          {
-            idKelas: id,
-            title: data.judul,
-            content: data.konten
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${session?.user?.token}`
-            }
+  // CREATE
+  const createMutation = useMutation({
+    mutationFn: async (payload: { title: string; content: string }) => {
+      const res = await api.post(
+        `pengumuman-kelas`,
+        { idKelas: id, ...payload },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
           }
-        );
+        }
+      );
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dashboardWaliKelas', id] });
+      toast.success('Pengumuman berhasil ditambahkan');
+    },
+    onError: (err: any) =>
+      toast.error(err?.response?.data?.message || 'Gagal menambah pengumuman')
+  });
 
-        setEditId(null);
-      } else {
-        await api.post(
-          `pengumuman-kelas`,
-          {
-            idKelas: id,
-            title: data.judul,
-            content: data.konten
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${session?.user?.token}`
-            }
+  // UPDATE
+  const updateMutation = useMutation({
+    mutationFn: async (vars: {
+      id: string;
+      title: string;
+      content: string;
+    }) => {
+      const res = await api.put(
+        `pengumuman-kelas/${vars.id}`,
+        { idKelas: id, title: vars.title, content: vars.content },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
           }
-        );
-      }
+        }
+      );
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dashboardWaliKelas', id] });
+      toast.success('Pengumuman berhasil diperbarui');
+    },
+    onError: () => toast.error('Gagal update pengumuman')
+  });
 
-      toast.success('Berhasil membuat atau mengubah pengumuman');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    } finally {
-      reset();
-      setValue('konten', '');
-      setLoading(false);
-      toggleTrigger();
+  // DELETE
+  const deleteMutation = useMutation({
+    mutationFn: async (idPengumuman: string) => {
+      const res = await api.delete(`pengumuman-kelas/${idPengumuman}`, {
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
+      });
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dashboardWaliKelas', id] });
+      toast.success('Pengumuman berhasil dihapus');
+    },
+    onError: () => toast.error('Gagal menghapus pengumuman')
+  });
+
+  const onSubmit = (data: FormValues) => {
+    if (editId) {
+      updateMutation.mutate({
+        id: editId,
+        title: data.judul,
+        content: data.konten
+      });
+      setEditId(null);
+    } else {
+      createMutation.mutate({ title: data.judul, content: data.konten });
     }
+    reset();
+    setValue('konten', '');
   };
 
   const handleEdit = (id: string) => {
@@ -110,25 +127,10 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
     setEditId(id);
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      await api.delete(`pengumuman-kelas/${id}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-      toast.success('Berhasil menghapus pengumuman');
-      toggleTrigger();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    }
-  };
-
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Pengumuman Kelas</CardTitle>
+        <CardTitle className='text-base'>Pengumuman Kelas</CardTitle>
       </CardHeader>
       <CardContent className='space-y-8'>
         {/* Form */}
@@ -144,14 +146,8 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
               <RichTextEditor content={field.value} onChange={field.onChange} />
             )}
           />
-          <Button type='submit' className='mt-10' disabled={loading}>
-            {loading
-              ? editId
-                ? 'Menyimpan Perubahan...'
-                : 'Menambahkan...'
-              : editId
-                ? 'Update Pengumuman'
-                : 'Tambah Pengumuman'}
+          <Button type='submit' className='mt-10'>
+            {editId ? 'Update Pengumuman' : 'Tambah Pengumuman'}
           </Button>
         </form>
 
@@ -165,7 +161,7 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
                 key={p.id}
                 className='relative flex rounded-xl shadow-sm transition-shadow hover:shadow-md'
               >
-                <CardHeader className=''>
+                <CardHeader>
                   <CardTitle className='text-base font-semibold'>
                     {p.title}
                   </CardTitle>
@@ -174,7 +170,7 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
                   </span>
                 </CardHeader>
 
-                <CardFooter className='absolute -right-2 top-4 flex justify-end gap-2'>
+                <CardFooter className='absolute -right-2 top-4 flex gap-2'>
                   <Button
                     size='icon'
                     variant='outline'
@@ -183,12 +179,11 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
                   >
                     <Pencil className='h-4 w-4' />
                   </Button>
-
                   <Button
                     size='icon'
                     variant='destructive'
                     className='h-8 w-8 rounded-full'
-                    onClick={() => handleDelete(p.id)}
+                    onClick={() => deleteMutation.mutate(p.id)}
                   >
                     <Trash2 className='h-4 w-4' />
                   </Button>

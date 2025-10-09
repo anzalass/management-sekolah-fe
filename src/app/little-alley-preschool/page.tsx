@@ -1,4 +1,4 @@
-import LapView from '@/components/lap/lap-view';
+import LapView from '@/components/lap-lac/lap-view';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {

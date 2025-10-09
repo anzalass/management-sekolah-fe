@@ -1,18 +1,17 @@
+'use client';
+
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { API } from '@/lib/server';
 import { toast } from 'sonner';
 import { Pencil, Trash2 } from 'lucide-react';
 import ModalInputNilaiManual from './modal-input-manual';
-import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-// Tipe Props
 interface Student {
   id: string;
   nama: string;
@@ -20,12 +19,12 @@ interface Student {
   gender?: 'Laki-laki' | 'Perempuan';
   kelas?: string;
 }
+
 type InputNilaiProps = {
   idKelas: string;
   listSiswa: Student[];
 };
 
-// Tipe data nilai siswa
 type NilaiItem = {
   id: string;
   nama: string;
@@ -33,7 +32,6 @@ type NilaiItem = {
   jenisNilai: string;
 };
 
-// Tipe untuk form tambah jenis nilai
 type JenisNilaiForm = {
   jenis: string;
   bobot: number;
@@ -44,228 +42,176 @@ export default function InputNilaiKelas({
   listSiswa
 }: InputNilaiProps) {
   const { register, handleSubmit, reset } = useForm<JenisNilaiForm>();
-  const [openModal, setOpenModal] = useState(false);
-  const [listNilai, setListNilai] = useState<NilaiItem[]>([]);
-  const [fullNilaiList, setFullNilaiList] = useState<NilaiItem[]>([]);
-  const [jenisNilai, setJenisNilai] = useState<any[]>([]);
-  const [defaultJenisNilai, setDefaultJenisNilai] = useState<string>('');
-  const { trigger, toggleTrigger } = useRenderTrigger();
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
 
-  // Ambil data jenis nilai + nilai siswa
-  const fetchJenisNilai = async () => {
-    try {
+  // 🔹 Fetch data penilaian & nilai siswa
+  const { data, isLoading } = useQuery({
+    queryKey: ['penilaianKelas', idKelas],
+    queryFn: async () => {
       const res = await api.get(`penilaian/kelas/${idKelas}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
-      const jenisData = res.data.jenisNilai;
-      const nilaiSiswa = res.data.nilaiSiswa ?? [];
+      return res.data;
+    },
+    enabled: !!session?.user?.token
+  });
 
-      setJenisNilai(jenisData);
-      setFullNilaiList(nilaiSiswa);
+  const jenisNilai = data?.jenisNilai ?? [];
+  const nilaiSiswa = data?.nilaiSiswa ?? [];
 
-      const jenisAwal = jenisData[0]?.jenis ?? '';
-      setDefaultJenisNilai(jenisAwal);
+  const [defaultJenisNilai, setDefaultJenisNilai] = useState<string>('');
 
-      const filtered = nilaiSiswa.filter(
-        (item: NilaiItem) => item.jenisNilai === jenisAwal
-      );
-      setListNilai(filtered);
-    } catch (err) {
-      toast.error('Gagal fetch data');
+  useEffect(() => {
+    if (jenisNilai.length > 0) {
+      setDefaultJenisNilai(jenisNilai[0]?.jenis);
     }
-  };
+  }, [jenisNilai]);
 
-  useEffect(() => {
-    fetchJenisNilai();
-  }, [idKelas, trigger]);
+  const listNilai = nilaiSiswa.filter(
+    (item: NilaiItem) => item.jenisNilai === defaultJenisNilai
+  );
 
-  useEffect(() => {
-    const filtered = fullNilaiList.filter(
-      (item: NilaiItem) => item.jenisNilai === defaultJenisNilai
-    );
-    setListNilai(filtered);
-  }, [defaultJenisNilai, fullNilaiList, trigger]);
-
-  // Tambah jenis penilaian
-  const onSubmit = async (data: JenisNilaiForm) => {
-    try {
-      await api.post(
+  // 🔹 Mutation Tambah Jenis Nilai
+  const tambahJenisMutation = useMutation({
+    mutationFn: async (data: JenisNilaiForm) => {
+      return api.post(
         `penilaian`,
-        {
-          idKelasMapel: idKelas,
-          jenis: data.jenis,
-          bobot: Number(data.bobot)
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session?.user?.token}`
-          }
-        }
+        { idKelasMapel: idKelas, ...data },
+        { headers: { Authorization: `Bearer ${session?.user?.token}` } }
       );
+    },
+    onSuccess: () => {
+      toast.success('Jenis penilaian ditambahkan');
       reset();
-      fetchJenisNilai();
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message ?? 'Gagal tambah jenis nilai');
+      queryClient.invalidateQueries({ queryKey: ['penilaianKelas', idKelas] });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || 'Gagal tambah jenis nilai');
     }
-  };
+  });
 
-  // Tambah state untuk edit jenis nilai
+  // 🔹 Mutation Update Jenis Nilai
+  const updateJenisMutation = useMutation({
+    mutationFn: async (item: { id: string; jenis: string; bobot: number }) => {
+      return api.put(
+        `penilaian/${item.id}`,
+        { jenis: item.jenis, bobot: item.bobot },
+        { headers: { Authorization: `Bearer ${session?.user?.token}` } }
+      );
+    },
+    onSuccess: () => {
+      toast.success('Jenis penilaian diupdate');
+      queryClient.invalidateQueries({ queryKey: ['penilaianKelas', idKelas] });
+    },
+    onError: (err: any) =>
+      toast.error(err?.response?.data?.message || 'Gagal update')
+  });
+
+  // 🔹 Mutation Delete Jenis Nilai
+  const deleteJenisMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return api.delete(`penilaian/${id}`, {
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
+      });
+    },
+    onSuccess: () => {
+      toast.success('Jenis penilaian dihapus');
+      queryClient.invalidateQueries({ queryKey: ['penilaianKelas', idKelas] });
+    },
+    onError: (err: any) =>
+      toast.error(err?.response?.data?.message || 'Gagal hapus')
+  });
+
+  // 🔹 Mutation Update Nilai
+  const updateNilaiMutation = useMutation({
+    mutationFn: async (nilai: NilaiItem) => {
+      return api.put(
+        `nilai-siswa/${nilai.id}`,
+        { nilai: nilai.nilai },
+        { headers: { Authorization: `Bearer ${session?.user?.token}` } }
+      );
+    },
+    onSuccess: () => {
+      toast.success('Nilai berhasil disimpan');
+      queryClient.invalidateQueries({ queryKey: ['penilaianKelas', idKelas] });
+    },
+    onError: (err: any) =>
+      toast.error(err?.response?.data?.message || 'Gagal simpan nilai')
+  });
+
+  // 🔹 Mutation Delete Nilai
+  const deleteNilaiMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return api.delete(`nilai-siswa/${id}`, {
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
+      });
+    },
+    onSuccess: () => {
+      toast.success('Nilai dihapus');
+      queryClient.invalidateQueries({ queryKey: ['penilaianKelas', idKelas] });
+    },
+    onError: (err: any) =>
+      toast.error(err?.response?.data?.message || 'Gagal hapus nilai')
+  });
+
+  // 🔹 State Edit Jenis
   const [editJenis, setEditJenis] = useState<{
     id: string;
     jenis: string;
     bobot: number;
   } | null>(null);
 
-  // Edit jenis nilai
-  const handleEditJenis = (item: any) => {
-    setEditJenis(item);
-  };
-
-  // Simpan edit jenis nilai
-  const handleUpdateJenis = async () => {
-    if (!editJenis) return;
-    try {
-      await api.put(
-        `penilaian/${editJenis.id}`,
-        {
-          jenis: editJenis.jenis,
-          bobot: Number(editJenis.bobot)
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session?.user?.token}`
-          }
-        }
-      );
-      toast.success('Jenis penilaian berhasil diupdate');
-      setEditJenis(null);
-      fetchJenisNilai();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    }
-  };
-
-  // Hapus jenis nilai
-  const handleDeleteJenis = async (id: string) => {
-    try {
-      await api.delete(`penilaian/${id}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-      toast.success('Jenis penilaian berhasil dihapus');
-      toggleTrigger();
-      fetchJenisNilai();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    }
-  };
-
-  // Simpan nilai per siswa
-  const SimpanNilai = async (nilai: NilaiItem) => {
-    try {
-      await api.put(
-        `nilai-siswa/${nilai.id}`,
-        {
-          nilai: nilai.nilai
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session?.user?.token}`
-          }
-        }
-      );
-      toast.success('Berhasil Menyimpan Nilai');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    }
-  };
-
-  const DeleteNilai = async (nilai: NilaiItem) => {
-    try {
-      await api.delete(`nilai-siswa/${nilai.id}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-      toast.success('Berhasil menghapus Nilai');
-      toggleTrigger();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    }
-  };
-
-  // Handle ubah nilai dari input
-  const handleChangeNilai = (index: number, newValue: string) => {
-    const parsedValue = parseInt(newValue);
-    const safeValue = isNaN(parsedValue) ? 0 : parsedValue;
-
-    const updated = [...listNilai];
-    updated[index] = { ...updated[index], nilai: safeValue };
-    setListNilai(updated);
-
-    // Juga update full list biar sinkron kalau ganti jenis nilai
-    const fullUpdated = fullNilaiList.map((item) =>
-      item.id === updated[index].id ? updated[index] : item
-    );
-    setFullNilaiList(fullUpdated);
-  };
+  if (isLoading) return <p>Loading...</p>;
 
   return (
     <div className='space-y-6'>
-      {/* Section Jenis Penilaian */}
+      {/* Jenis Penilaian */}
       <Card>
         <CardHeader>
-          <CardTitle>Jenis Penilaian</CardTitle>
+          <CardTitle className='text-base'>Jenis Penilaian</CardTitle>
         </CardHeader>
         <CardContent className='space-y-2'>
           <div className='flex flex-wrap gap-2'>
-            {jenisNilai.map((d: any, i) => (
+            {jenisNilai.map((d: any) => (
               <div
-                key={i}
+                key={d.id}
                 className='flex items-center gap-2 rounded border px-2 py-1'
               >
                 {editJenis?.id === d.id ? (
                   <>
                     <Input
-                      value={editJenis?.jenis ?? ''}
-                      onChange={(e) => {
-                        if (editJenis) {
-                          setEditJenis({
-                            id: editJenis.id,
-                            jenis: e.target.value,
-                            bobot: editJenis.bobot
-                          });
-                        }
-                      }}
+                      value={editJenis?.jenis}
+                      onChange={(e) =>
+                        setEditJenis((prev) =>
+                          prev ? { ...prev, jenis: e.target.value } : prev
+                        )
+                      }
                       className='w-24'
                     />
-
                     <Input
                       type='number'
-                      value={editJenis?.bobot ?? 0}
-                      onChange={(e) => {
-                        if (editJenis) {
-                          setEditJenis({
-                            id: editJenis.id,
-                            jenis: editJenis.jenis,
-                            bobot: Number(e.target.value)
-                          });
-                        }
-                      }}
+                      value={editJenis?.bobot}
+                      onChange={(e) =>
+                        setEditJenis((prev) =>
+                          prev
+                            ? { ...prev, bobot: Number(e.target.value) }
+                            : prev
+                        )
+                      }
                       className='w-20'
                     />
-
-                    <Button size='sm' onClick={handleUpdateJenis}>
+                    <Button
+                      size='sm'
+                      onClick={() =>
+                        editJenis?.id &&
+                        updateJenisMutation.mutate({
+                          id: editJenis.id,
+                          jenis: editJenis.jenis,
+                          bobot: editJenis.bobot
+                        })
+                      }
+                    >
                       Save
                     </Button>
                     <Button
@@ -290,14 +236,20 @@ export default function InputNilaiKelas({
                       <Button
                         size='icon'
                         variant='ghost'
-                        onClick={() => handleEditJenis(d)}
+                        onClick={() =>
+                          setEditJenis({
+                            id: d.id,
+                            jenis: d.jenis,
+                            bobot: d.bobot
+                          })
+                        }
                       >
                         <Pencil size={15} />
                       </Button>
                       <Button
                         size='icon'
                         variant='ghost'
-                        onClick={() => handleDeleteJenis(d.id)}
+                        onClick={() => deleteJenisMutation.mutate(d.id)}
                       >
                         <Trash2 size={15} />
                       </Button>
@@ -308,9 +260,10 @@ export default function InputNilaiKelas({
             ))}
           </div>
 
+          {/* Form Tambah Jenis */}
           <form
-            onSubmit={handleSubmit(onSubmit)}
-            className='flex w-fit gap-2 pt-4'
+            onSubmit={handleSubmit((data) => tambahJenisMutation.mutate(data))}
+            className='flex gap-2 pt-4'
           >
             <Input
               placeholder='Jenis penilaian'
@@ -326,23 +279,29 @@ export default function InputNilaiKelas({
         </CardContent>
       </Card>
 
-      {/* Section Tabel Input Nilai */}
+      {/* Tabel Nilai */}
       <Card>
         <CardHeader>
           <div className='flex justify-between'>
-            <CardTitle>Input Nilai: {defaultJenisNilai}</CardTitle>
+            <CardTitle className='text-base'>
+              Input Nilai: {defaultJenisNilai}
+            </CardTitle>
             <ModalInputNilaiManual
               jenisNilaiList={jenisNilai}
               siswaList={listSiswa}
               idKelas={idKelas}
-              onSuccess={fetchJenisNilai} // supaya setelah simpan data langsung refresh
+              onSuccess={() =>
+                queryClient.invalidateQueries({
+                  queryKey: ['penilaianKelas', idKelas]
+                })
+              }
             />
           </div>
         </CardHeader>
         <CardContent>
           <table className='w-full border-collapse'>
             <thead>
-              <tr className=''>
+              <tr>
                 <th className='border p-2'>No</th>
                 <th className='border p-2'>Nama</th>
                 <th className='w-[25%] border p-2'>Nilai</th>
@@ -350,7 +309,7 @@ export default function InputNilaiKelas({
               </tr>
             </thead>
             <tbody>
-              {listNilai.map((nilai, index) => (
+              {listNilai.map((nilai: NilaiItem, index: number) => (
                 <tr key={nilai.id}>
                   <td className='border p-2'>{index + 1}</td>
                   <td className='border p-2'>{nilai.nama}</td>
@@ -359,16 +318,32 @@ export default function InputNilaiKelas({
                       type='number'
                       min={0}
                       max={100}
-                      className='w-full'
                       value={nilai.nilai}
-                      onChange={(e) => handleChangeNilai(index, e.target.value)}
+                      onChange={(e) =>
+                        queryClient.setQueryData(
+                          ['penilaianKelas', idKelas],
+                          (old: any) => {
+                            if (!old) return old;
+                            return {
+                              ...old,
+                              nilaiSiswa: old.nilaiSiswa.map((n: any) =>
+                                n.id === nilai.id
+                                  ? { ...n, nilai: Number(e.target.value) }
+                                  : n
+                              )
+                            };
+                          }
+                        )
+                      }
                     />
                   </td>
                   <td className='flex space-x-2 border p-2'>
-                    <Button onClick={() => SimpanNilai(nilai)}>Simpan</Button>
+                    <Button onClick={() => updateNilaiMutation.mutate(nilai)}>
+                      Simpan
+                    </Button>
                     <Button
                       className='bg-red-600 text-white hover:bg-red-700'
-                      onClick={() => DeleteNilai(nilai)}
+                      onClick={() => deleteNilaiMutation.mutate(nilai.id)}
                     >
                       Hapus
                     </Button>

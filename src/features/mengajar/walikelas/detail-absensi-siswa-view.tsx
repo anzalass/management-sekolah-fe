@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -31,6 +31,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { Trash2 } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 type KehadiranSiswa = {
   id: string;
@@ -55,74 +56,64 @@ export default function DetailAbsensiSiswaView({ idKelas, idSiswa }: Props) {
   const form = useForm<FormData>({
     defaultValues: { tanggal: '', keterangan: '' }
   });
-  const [dataKehadiran, setDataKehadiran] = useState<KehadiranSiswa[]>([]);
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
 
   // filter
   const [filterDate, setFilterDate] = useState('');
 
-  const getDataAbsensi = async () => {
-    try {
+  // fetch absensi
+  const { data: dataKehadiran = [], isLoading } = useQuery<KehadiranSiswa[]>({
+    queryKey: ['absensi-siswa', idKelas, idSiswa],
+    queryFn: async () => {
       const res = await api.get(`absensi-siswa/${idKelas}/${idSiswa}`, {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
-      setDataKehadiran(res.data);
-    } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message ?? 'Gagal mengambil data absensi'
-      );
-    }
-  };
+      return res.data;
+    },
+    enabled: !!idKelas && !!idSiswa // hanya jalan kalau ada param
+  });
 
-  useEffect(() => {
-    if (idKelas && idSiswa) {
-      getDataAbsensi();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idKelas, idSiswa]);
-
-  const onSubmit = async (values: FormData) => {
-    try {
+  // mutation tambah absen
+  const addAbsensi = useMutation({
+    mutationFn: async (values: FormData) => {
       const waktuISO = new Date(values.tanggal).toISOString();
       await api.post(
         'kehadiran-manual',
-        {
-          idKelas,
-          idSiswa,
-          waktu: waktuISO,
-          keterangan: values.keterangan
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
-          }
-        }
+        { idKelas, idSiswa, waktu: waktuISO, keterangan: values.keterangan },
+        { headers: { Authorization: `Bearer ${session?.user?.token}` } }
       );
-
+    },
+    onSuccess: () => {
       toast.success('Absen berhasil ditambahkan');
+      queryClient.invalidateQueries({
+        queryKey: ['absensi-siswa', idKelas, idSiswa]
+      });
       setOpen(false);
       form.reset();
-      getDataAbsensi();
-    } catch (error: any) {
+    },
+    onError: (error: any) => {
       toast.error(error?.response?.data?.message ?? 'Gagal menambahkan absen');
     }
-  };
+  });
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Yakin ingin menghapus data absen ini?')) return;
-
-    try {
+  // mutation hapus absen
+  const deleteAbsensi = useMutation({
+    mutationFn: async (id: string) => {
       await api.delete(`kehadiran-manual/${id}`, {
         headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
+    },
+    onSuccess: () => {
       toast.success('Data absen berhasil dihapus');
-      getDataAbsensi();
-    } catch (error: any) {
+      queryClient.invalidateQueries({
+        queryKey: ['absensi-siswa', idKelas, idSiswa]
+      });
+    },
+    onError: (error: any) => {
       toast.error(error?.response?.data?.message ?? 'Gagal menghapus absen');
     }
-  };
+  });
 
   // filter di FE
   const filteredData = dataKehadiran.filter((item) => {
@@ -150,7 +141,9 @@ export default function DetailAbsensiSiswaView({ idKelas, idSiswa }: Props) {
               <DialogTitle>Tambah Absen Manual</DialogTitle>
             </DialogHeader>
             <form
-              onSubmit={form.handleSubmit(onSubmit)}
+              onSubmit={form.handleSubmit((values) =>
+                addAbsensi.mutate(values)
+              )}
               className='space-y-4'
               noValidate
             >
@@ -203,7 +196,9 @@ export default function DetailAbsensiSiswaView({ idKelas, idSiswa }: Props) {
               </div>
 
               <DialogFooter>
-                <Button type='submit'>Simpan</Button>
+                <Button type='submit' disabled={addAbsensi.isPending}>
+                  {addAbsensi.isPending ? 'Menyimpan...' : 'Simpan'}
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -222,14 +217,20 @@ export default function DetailAbsensiSiswaView({ idKelas, idSiswa }: Props) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredData?.length === 0 ? (
+          {isLoading ? (
+            <TableRow>
+              <TableCell colSpan={5} className='py-4 text-center'>
+                Loading...
+              </TableCell>
+            </TableRow>
+          ) : filteredData?.length === 0 ? (
             <TableRow>
               <TableCell colSpan={5} className='py-4 text-center'>
                 Tidak ada data kehadiran
               </TableCell>
             </TableRow>
           ) : (
-            filteredData?.map((item) => (
+            filteredData.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>
                   {new Date(item.waktu).toLocaleDateString('id-ID', {
@@ -245,7 +246,12 @@ export default function DetailAbsensiSiswaView({ idKelas, idSiswa }: Props) {
                   <Button
                     size='icon'
                     variant='destructive'
-                    onClick={() => handleDelete(item.id)}
+                    onClick={() => {
+                      if (confirm('Yakin ingin menghapus data absen ini?')) {
+                        deleteAbsensi.mutate(item.id);
+                      }
+                    }}
+                    disabled={deleteAbsensi.isPending}
                   >
                     <Trash2 className='h-4 w-4' />
                   </Button>

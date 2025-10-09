@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -10,11 +12,10 @@ import {
 import { Clock, Trash2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import axios from 'axios';
 import { toast } from 'sonner';
-import { API } from '@/lib/server';
-import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api';
 
 const today = new Date()
   .toLocaleDateString('id-ID', {
@@ -24,13 +25,13 @@ const today = new Date()
 
 type Props = {
   jadwalGuru: any[];
-  fetchData: () => void;
 };
 
-export default function ListJadwalGuru({ jadwalGuru, fetchData }: Props) {
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+export default function ListJadwalGuru({ jadwalGuru }: Props) {
   const { data: session } = useSession();
   const [dateStr, setDateStr] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const formatter = new Intl.DateTimeFormat('id-ID', {
@@ -42,29 +43,43 @@ export default function ListJadwalGuru({ jadwalGuru, fetchData }: Props) {
     setDateStr(formatter.format(new Date()));
   }, []);
 
-  if (!dateStr) return null; // avoid SSR mismatch
-
-  const jadwalHariIni = jadwalGuru.filter(
-    (jadwal) => jadwal.hari?.toLowerCase() === today
-  );
-
-  const handleDelete = async (id: string) => {
-    setDeletingId(id);
-    try {
+  // ==============================
+  // MUTATION: Delete jadwal
+  // ==============================
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      setDeletingId(id);
       await api.delete(`jadwal-mengajar/delete/${id}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
+    },
+    onSuccess: () => {
       toast.success('Jadwal berhasil dihapus');
-      fetchData();
-    } catch (error: any) {
+      queryClient.invalidateQueries({ queryKey: ['dashboard-mengajar'] });
+      setDeletingId(null);
+    },
+    onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    } finally {
       setDeletingId(null);
     }
-  };
+  });
+
+  if (!dateStr) {
+    return (
+      <Card className='shadow-md'>
+        <CardHeader>
+          <CardTitle>Loading...</CardTitle>
+        </CardHeader>
+      </Card>
+    );
+  }
+
+  const jadwalHariIni = jadwalGuru.filter(
+    (jadwal) => jadwal.hari?.toLowerCase() === today
+  );
 
   return (
     <Card className='shadow-md'>
@@ -90,15 +105,15 @@ export default function ListJadwalGuru({ jadwalGuru, fetchData }: Props) {
                   <TableCell>
                     {jadwal.jamMulai} - {jadwal.jamSelesai}
                   </TableCell>
-                  <TableCell>{jadwal.kelas}</TableCell>
                   <TableCell>{jadwal.namaMapel}</TableCell>
+                  <TableCell>{jadwal.kelas}</TableCell>
                   <TableCell>{jadwal.ruang}</TableCell>
                   <TableCell>
                     <Button
                       variant='destructive'
                       size='sm'
                       disabled={deletingId === jadwal.id}
-                      onClick={() => handleDelete(jadwal.id)}
+                      onClick={() => deleteMutation.mutate(jadwal.id)}
                     >
                       {deletingId === jadwal.id ? (
                         <span className='text-xs'>Menghapus...</span>

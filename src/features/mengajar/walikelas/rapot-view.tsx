@@ -66,7 +66,10 @@ export default function RapotView({ idSiswa, idKelas }: Props) {
         <CardContent className='grid grid-cols-2 gap-4'>
           <div>
             <p className='font-semibold'>Nama:</p>
-            <p>{data?.siswa?.nama}</p>
+            <p>
+              {data?.siswa?.nama}
+              {data?.rataRata}
+            </p>
           </div>
           <div>
             <p className='font-semibold'>NIS:</p>

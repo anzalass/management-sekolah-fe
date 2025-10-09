@@ -19,19 +19,16 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import axios from 'axios';
-import { API } from '@/lib/server';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type JenisNilai = { id: string; jenis: string; bobot: number };
 interface Student {
   id: string;
   nama: string;
   nis?: string;
-  gender?: 'Laki-laki' | 'Perempuan';
-  kelas?: string;
 }
 
 interface FormValues {
@@ -54,8 +51,9 @@ export default function ModalInputNilaiManual({
   onSuccess
 }: ModalInputNilaiProps) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
+
   const {
     register,
     handleSubmit,
@@ -70,10 +68,10 @@ export default function ModalInputNilaiManual({
     }
   });
 
-  const onSubmit = async (data: FormValues) => {
-    try {
-      setLoading(true);
-      await api.post(
+  // ✅ Mutation React Query
+  const mutation = useMutation({
+    mutationFn: async (data: FormValues) => {
+      return api.post(
         `nilai-siswa`,
         {
           idSiswa: data.idSiswa,
@@ -88,15 +86,21 @@ export default function ModalInputNilaiManual({
           }
         }
       );
+    },
+    onSuccess: () => {
       toast.success('Nilai berhasil disimpan');
+      queryClient.invalidateQueries({ queryKey: ['rekap-nilai', idKelas] }); // refresh rekap nilai
       setOpen(false);
       reset();
       onSuccess?.();
-    } catch (err) {
+    },
+    onError: () => {
       toast.error('Gagal menyimpan nilai');
-    } finally {
-      setLoading(false);
     }
+  });
+
+  const onSubmit = (data: FormValues) => {
+    mutation.mutate(data);
   };
 
   return (
@@ -106,7 +110,7 @@ export default function ModalInputNilaiManual({
       </DialogTrigger>
       <DialogContent className='max-w-md'>
         <DialogHeader>
-          <DialogTitle></DialogTitle>
+          <DialogTitle>Tambah Nilai</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
@@ -152,9 +156,9 @@ export default function ModalInputNilaiManual({
                 <SelectValue placeholder='Pilih siswa' />
               </SelectTrigger>
               <SelectContent>
-                {siswaList?.map((s: any) => (
-                  <SelectItem key={s.id} value={s.Siswa.id}>
-                    {s.Siswa.nis} - {s.Siswa.nama}
+                {siswaList.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.nis} - {s.nama}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -195,8 +199,8 @@ export default function ModalInputNilaiManual({
             >
               Batal
             </Button>
-            <Button type='submit' disabled={loading}>
-              {loading ? 'Menyimpan...' : 'Simpan'}
+            <Button type='submit' disabled={mutation.isPending}>
+              {mutation.isPending ? 'Menyimpan...' : 'Simpan'}
             </Button>
           </div>
         </form>

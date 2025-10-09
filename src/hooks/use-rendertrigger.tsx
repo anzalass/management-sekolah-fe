@@ -1,4 +1,5 @@
 'use client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createContext, useContext, useState } from 'react';
 
 interface RenderTriggerContextType {
@@ -16,13 +17,15 @@ export const RenderTriggerProvider = ({
   children: React.ReactNode;
 }) => {
   const [trigger, setTrigger] = useState(false);
-
+  const [queryClient] = useState(() => new QueryClient());
   const toggleTrigger = () => setTrigger((prev) => !prev); // Toggle true/false
 
   return (
-    <RenderTriggerContext.Provider value={{ trigger, toggleTrigger }}>
-      {children}
-    </RenderTriggerContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <RenderTriggerContext.Provider value={{ trigger, toggleTrigger }}>
+        {children}
+      </RenderTriggerContext.Provider>
+    </QueryClientProvider>
   );
 };
 

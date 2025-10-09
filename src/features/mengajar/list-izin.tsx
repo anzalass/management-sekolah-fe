@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -13,11 +13,8 @@ import {
 } from '@/components/ui/select';
 import { Calendar, Search, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import axios from 'axios';
-import { API } from '@/lib/server';
 import { toast } from 'sonner';
 import { useSession } from 'next-auth/react';
-import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import api from '@/lib/api';
 import {
   Table,
@@ -29,6 +26,7 @@ import {
 } from '@/components/ui/table';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 type Izin = {
   id: string;
@@ -54,109 +52,84 @@ const statusColor = {
   ditolak: 'bg-red-100 text-red-700'
 };
 
-type Props = {
-  izin: Izin[];
-  fetchData: () => void;
-};
 export default function CardListIzin() {
   const { data: session } = useSession();
-  const { trigger, toggleTrigger } = useRenderTrigger();
-  // Toggle antara 'perizinan' atau 'kehadiran'
+  const queryClient = useQueryClient();
+
   const [toggleTab, setToggleTab] = useState<'perizinan' | 'kehadiran'>(
     'perizinan'
   );
 
-  // Data izin
-  const [listIzin, setListIzin] = useState<Izin[]>([]);
+  // Filter izin
   const [searchIzin, setSearchIzin] = useState('');
   const [statusFilter, setStatusFilter] = useState<
     'semua' | 'disetujui' | 'menunggu' | 'ditolak'
   >('semua');
-  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Data kehadiran
-  const [dataKehadiran, setDataKehadiran] = useState<KehadiranGuru[]>([]);
+  // State untuk kehadiran
   const [tanggalKehadiran, setTanggalKehadiran] = useState('');
   const [pageLimit, setPageLimit] = useState(10);
   const [page, setPage] = useState(1);
-  const [loadingKehadiran, setLoadingKehadiran] = useState(false);
 
-  // --- Fungsi fetch data izin ---
-  const fetchIzin = async () => {
-    if (!session?.user?.token) return;
-    try {
+  // --- Query Izin ---
+  const { data: izinList = [], isPending: izinLoading } = useQuery<Izin[]>({
+    queryKey: ['izin', session?.user?.token],
+    queryFn: async () => {
       const res = await api.get(`perizinan-guru`, {
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
-      setListIzin(res.data.data || []);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-      setListIzin([]);
-    }
-  };
+      return res.data.data || [];
+    },
+    enabled: !!session?.user?.token
+  });
 
-  // --- Fungsi fetch data kehadiran ---
-  const fetchKehadiran = async () => {
-    if (!session?.user?.token) return;
-    try {
-      setLoadingKehadiran(true);
+  // --- Query Kehadiran ---
+  const { data: dataKehadiran = [], isPending: loadingKehadiran } = useQuery<
+    KehadiranGuru[]
+  >({
+    queryKey: [
+      'kehadiran',
+      session?.user?.token,
+      page,
+      pageLimit,
+      tanggalKehadiran
+    ],
+    queryFn: async () => {
       const res = await api.get(
-        `kehadiran-guru?page=${page}&pageSize=${pageLimit}&nip=${session.user.nip}&tanggal=${tanggalKehadiran}`,
+        `kehadiran-guru?page=${page}&pageSize=${pageLimit}&nip=${session?.user?.nip}&tanggal=${tanggalKehadiran}`,
         {
           headers: {
-            'Content-Type': 'application/json',
             Authorization: `Bearer ${session?.user?.token}`
           }
         }
       );
-      setDataKehadiran(res.data.data.data || []);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-      setDataKehadiran([]);
-    } finally {
-      setLoadingKehadiran(false);
-    }
-  };
+      return res.data.data.data || [];
+    },
+    enabled: !!session?.user?.token
+  });
 
-  useEffect(() => {
-    fetchIzin();
-  }, [session, trigger]);
-
-  useEffect(() => {
-    fetchKehadiran();
-  }, [
-    session,
-    page,
-    pageLimit,
-    tanggalKehadiran ?? '', // jamin selalu ada nilai
-    trigger
-  ]);
-
-  // Hapus izin
-  const handleDelete = async (id: string) => {
-    setDeletingId(id);
-    try {
-      await api.delete(`/perizinan-guru/delete/${id}`, {
+  // --- Mutasi Delete Izin ---
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return await api.delete(`/perizinan-guru/delete/${id}`, {
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
+    },
+    onSuccess: () => {
       toast.success('Data izin berhasil dihapus');
-      fetchIzin();
-    } catch (error: any) {
+      queryClient.invalidateQueries({ queryKey: ['izin'] });
+    },
+    onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    } finally {
-      setDeletingId(null);
     }
-  };
+  });
 
-  // Filter izin berdasarkan search dan status
   const filteredIzin = useMemo(() => {
-    return listIzin.filter((izin) => {
+    return izinList.filter((izin) => {
       const cocokStatus =
         statusFilter === 'semua' || izin.status === statusFilter;
       const cocokSearch = izin.keterangan
@@ -164,7 +137,7 @@ export default function CardListIzin() {
         .includes(searchIzin.toLowerCase());
       return cocokStatus && cocokSearch;
     });
-  }, [listIzin, searchIzin, statusFilter]);
+  }, [izinList, searchIzin, statusFilter]);
 
   return (
     <Card className='space-y-6 p-5'>
@@ -215,7 +188,9 @@ export default function CardListIzin() {
           </div>
 
           {/* List Perizinan */}
-          {filteredIzin.length === 0 ? (
+          {izinLoading ? (
+            <p className='text-center text-muted-foreground'>Loading...</p>
+          ) : filteredIzin.length === 0 ? (
             <p className='text-center text-muted-foreground'>
               Tidak ada data izin yang cocok.
             </p>
@@ -252,10 +227,14 @@ export default function CardListIzin() {
                         <Button
                           variant='destructive'
                           size='sm'
-                          disabled={deletingId === izin.id}
-                          onClick={() => handleDelete(izin.id)}
+                          disabled={
+                            deleteMutation.isPending &&
+                            deleteMutation.variables === izin.id
+                          }
+                          onClick={() => deleteMutation.mutate(izin.id)}
                         >
-                          {deletingId === izin.id ? (
+                          {deleteMutation.isPending &&
+                          deleteMutation.variables === izin.id ? (
                             <Loader2 className='h-4 w-4 animate-spin' />
                           ) : (
                             <Trash2 className='h-4 w-4' />
@@ -303,71 +282,69 @@ export default function CardListIzin() {
             />
           </div>
           <div className='mx-auto w-[100%] overflow-x-auto'>
-            <div className='overflow-x-auto'>
-              <Table className='border border-gray-200'>
-                <TableHeader className='bg-gray-100'>
-                  <TableRow>
-                    <TableHead className=''>Tanggal</TableHead>
-                    <TableHead className=''>Nama</TableHead>
-                    <TableHead className=''>NIP</TableHead>
-                    <TableHead className=''>Jam Masuk</TableHead>
-                    <TableHead className=''>Jam Pulang</TableHead>
-                    <TableHead className=''>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
+            <Table className='border border-gray-200'>
+              <TableHeader className='bg-gray-100'>
+                <TableRow>
+                  <TableHead>Tanggal</TableHead>
+                  <TableHead>Nama</TableHead>
+                  <TableHead>NIP</TableHead>
+                  <TableHead>Jam Masuk</TableHead>
+                  <TableHead>Jam Pulang</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
 
-                <TableBody>
-                  {loadingKehadiran ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className='py-6 text-center'>
-                        Loading...
+              <TableBody>
+                {loadingKehadiran ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className='py-6 text-center'>
+                      Loading...
+                    </TableCell>
+                  </TableRow>
+                ) : dataKehadiran.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className='py-6 text-center text-gray-500'
+                    >
+                      Tidak ada data kehadiran
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  dataKehadiran.map((item) => (
+                    <TableRow
+                      key={item.id}
+                      className='odd:bg-white even:bg-gray-50 hover:bg-gray-100'
+                    >
+                      <TableCell>
+                        {new Date(item.tanggal).toLocaleDateString('id-ID')}
                       </TableCell>
-                    </TableRow>
-                  ) : dataKehadiran.length === 0 ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={6}
-                        className='py-6 text-center text-gray-500'
-                      >
-                        Tidak ada data kehadiran
+                      <TableCell>{item.nama}</TableCell>
+                      <TableCell>{item.nip}</TableCell>
+                      <TableCell>
+                        {item.jamMasuk
+                          ? format(
+                              new Date(item.jamMasuk),
+                              'dd MMM yyyy, HH:mm',
+                              { locale: id }
+                            )
+                          : '-'}
                       </TableCell>
+                      <TableCell>
+                        {item.jamPulang
+                          ? format(
+                              new Date(item.jamPulang),
+                              'dd MMM yyyy, HH:mm',
+                              { locale: id }
+                            )
+                          : '-'}
+                      </TableCell>
+                      <TableCell>{item.status}</TableCell>
                     </TableRow>
-                  ) : (
-                    dataKehadiran.map((item) => (
-                      <TableRow
-                        key={item.id}
-                        className='odd:bg-white even:bg-gray-50 hover:bg-gray-100'
-                      >
-                        <TableCell>
-                          {new Date(item.tanggal).toLocaleDateString('id-ID')}
-                        </TableCell>
-                        <TableCell>{item.nama}</TableCell>
-                        <TableCell>{item.nip}</TableCell>
-                        <TableCell>
-                          {item.jamMasuk
-                            ? format(
-                                new Date(item.jamMasuk),
-                                'dd MMM yyyy, HH:mm',
-                                { locale: id }
-                              )
-                            : '-'}
-                        </TableCell>
-                        <TableCell>
-                          {item.jamPulang
-                            ? format(
-                                new Date(item.jamPulang),
-                                'dd MMM yyyy, HH:mm',
-                                { locale: id }
-                              )
-                            : '-'}
-                        </TableCell>
-                        <TableCell>{item.status}</TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+                  ))
+                )}
+              </TableBody>
+            </Table>
           </div>
         </>
       )}

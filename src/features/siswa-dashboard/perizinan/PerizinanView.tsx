@@ -15,12 +15,16 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   CalendarIcon,
   CheckCircle2,
+  ClipboardList,
   Clock,
+  FileText,
+  Filter,
   ImageIcon,
   Loader2,
   Plus,
   Search,
   Trash2,
+  X,
   XCircle
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -34,7 +38,7 @@ import BottomNav from '../bottom-nav';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import FilterMobile from './perizinan-filter';
-import Loading from '../loading';
+import HeaderSiswa from '../header-siswa';
 
 interface Izin {
   id: string;
@@ -52,6 +56,7 @@ export default function Perizinan() {
   const [open, setOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const [showFilter, setShowFilter] = useState(false);
 
   const { register, handleSubmit, reset, formState } = useForm({
     defaultValues: { keterangan: '', tanggal: '', bukti: null as File | null }
@@ -103,7 +108,7 @@ export default function Perizinan() {
       });
     },
     onMutate: (id: string) => {
-      setDeletingId(id); // set ID yang sedang dihapus
+      setDeletingId(id);
     },
     onSuccess: () => {
       toast.success('Berhasil menghapus izin');
@@ -133,186 +138,368 @@ export default function Perizinan() {
   };
 
   return (
-    <div className='relative mx-auto mb-36 space-y-2'>
-      <NavbarSiswa title='Perizinan Siswa' />
+    <div className='relative mx-auto mb-36 min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50'>
+      <div className='mx-auto w-full'>
+        {/* Header + Stats */}
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        {/* Tombol Ajukan Izin biasa (ngikut layout) */}
-        <div className='p-4'>
-          <DialogTrigger asChild>
-            <Button className='flex gap-1 rounded-md bg-blue-600 px-5 py-3 text-white shadow hover:bg-blue-700'>
-              <Plus size={16} />
-              Ajukan Izin
-            </Button>
-          </DialogTrigger>
-        </div>
+        <HeaderSiswa
+          title='Perizinan'
+          titleContent='Total Pengajuan'
+          mainContent={filteredData.length}
+          icon={<ClipboardList className='h-7 w-7 text-white' />}
+          data={[
+            {
+              label: 'Disetujui',
+              value: filteredData.filter((i) => i.status === 'disetujui')
+                .length,
+              color: 'text-white'
+            },
+            {
+              label: 'Menunggu',
+              value: filteredData.filter((i) => i.status === 'menunggu').length,
+              color: 'text-white'
+            },
+            {
+              label: 'Ditolak',
+              value: filteredData.filter((i) => i.status === 'menunggu').length,
+              color: 'text-white'
+            }
+          ]}
+        />
 
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Form Pengajuan Izin</DialogTitle>
-          </DialogHeader>
-          <form
-            onSubmit={handleSubmit((data) => submitMutation.mutate(data))}
-            className='relative space-y-4'
+        <div className='mx-auto max-w-6xl px-2'>
+          <Button
+            onClick={() => setOpen(true)}
+            className='group mt-3 flex h-12 w-full items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-2.5 text-white shadow-lg shadow-blue-500/30 transition-all hover:shadow-xl hover:shadow-blue-500/40'
           >
-            {/* overlay loading pas submit */}
-            {submitMutation.isPending && (
-              <div className='absolute inset-0 z-10 flex items-center justify-center rounded-md bg-white/50 backdrop-blur-sm'>
-                <Loader2 className='h-6 w-6 animate-spin text-blue-600' />
-              </div>
-            )}
-
-            <div>
-              <Label>Keterangan</Label>
-              <Textarea
-                {...register('keterangan', { required: true })}
-                placeholder='Alasan atau penjelasan izin'
-              />
-            </div>
-
-            <div>
-              <Label>Tanggal</Label>
-              <Input type='date' {...register('tanggal', { required: true })} />
-            </div>
-
-            <div>
-              <Label htmlFor='bukti'>Upload Bukti (opsional)</Label>
-              <div className='flex items-center gap-2'>
-                <ImageIcon className='h-4 w-4 text-muted-foreground' />
-                <Input type='file' accept='image/*' {...register('bukti')} />
-              </div>
-            </div>
-
-            <div className='flex justify-end'>
-              <Button
-                type='submit'
-                disabled={formState.isSubmitting || submitMutation.isPending}
-              >
-                {submitMutation.isPending ? (
-                  <>
-                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />{' '}
-                    Mengirim...
-                  </>
-                ) : (
-                  'Kirim Izin'
-                )}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Filter desktop */}
-      <div className='hidden flex-col gap-4 p-4 sm:flex sm:flex-row sm:items-center sm:justify-between'>
-        <div className='relative w-full'>
-          <Search className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
-          <Input
-            placeholder='Cari keterangan...'
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className='pl-10'
-          />
+            <Plus
+              size={18}
+              className='transition-transform group-hover:rotate-90'
+            />
+            <span className='hidden sm:inline'>Ajukan Izin</span>
+            <span className='sm:hidden'>Ajukan</span>
+          </Button>
         </div>
-        <div className='relative w-full sm:max-w-xs'>
-          <CalendarIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
-          <Input
-            type='date'
-            value={filterTanggal}
-            onChange={(e) => setFilterTanggal(e.target.value)}
-            className='pl-10'
-          />
-        </div>
-        <Button onClick={resetFilter}>Reset</Button>
-      </div>
 
-      <FilterMobile
-        searchValue={search}
-        setSearchValue={setSearch}
-        tanggalValue={filterTanggal}
-        setTanggalValue={setFilterTanggal}
-      />
+        <Dialog open={open} onOpenChange={setOpen}>
+          {/* Form Dialog */}
+          <DialogContent className='max-w-6xl rounded-2xl'>
+            <DialogHeader>
+              <DialogTitle className='flex items-center gap-2 text-xl'>
+                <div className='flex h-10 w-10 items-center justify-center rounded-full bg-blue-100'>
+                  <Plus className='h-5 w-5 text-blue-600' />
+                </div>
+                Form Pengajuan Izin
+              </DialogTitle>
+            </DialogHeader>
+            <form
+              onSubmit={handleSubmit((data) => submitMutation.mutate(data))}
+              className='relative space-y-5'
+            >
+              {submitMutation.isPending && (
+                <div className='absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-white/90 backdrop-blur-sm'>
+                  <div className='text-center'>
+                    <Loader2 className='mx-auto h-8 w-8 animate-spin text-blue-600' />
+                    <p className='mt-2 text-sm font-medium text-gray-600'>
+                      Mengirim izin...
+                    </p>
+                  </div>
+                </div>
+              )}
 
-      {/* Daftar Perizinan */}
-      <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4'>
-        {isLoading ? (
-          <Loading />
-        ) : filteredData.length > 0 ? (
-          filteredData.map((izin) => (
-            <Card key={izin.id} className='p-4'>
-              <div className='flex items-center justify-between'>
-                <p className='text-sm font-bold md:text-lg'>
-                  {new Date(izin.time).toLocaleDateString('id-ID', {
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric'
-                  })}
-                </p>
-
-                <div className='flex items-center gap-2'>
-                  {izin.status === 'disetujui' && (
-                    <CheckCircle2 className='text-green-600' size={20} />
-                  )}
-                  {izin.status === 'ditolak' && (
-                    <XCircle className='text-red-600' size={20} />
-                  )}
-                  {izin.status === 'menunggu' && (
-                    <Clock className='text-yellow-500' size={20} />
-                  )}
-                  <span className='text-sm capitalize'>{izin.status}</span>
+              <div className='space-y-2'>
+                <Label>Keterangan</Label>
+                <Textarea
+                  {...register('keterangan', { required: true })}
+                  placeholder='Jelaskan alasan izin Anda...'
+                  className='min-h-[100px] resize-none rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500'
+                />
+              </div>
+              <div className='space-y-2'>
+                <Label>Tanggal</Label>
+                <div className='relative'>
+                  <CalendarIcon className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
+                  <Input
+                    type='date'
+                    {...register('tanggal', { required: true })}
+                    className='rounded-xl border-gray-200 pl-10 focus:border-blue-500 focus:ring-blue-500'
+                  />
                 </div>
               </div>
+              <div className='space-y-2'>
+                <Label htmlFor='bukti'>
+                  Upload Bukti{' '}
+                  <span className='text-xs text-muted-foreground'>
+                    (opsional)
+                  </span>
+                </Label>
+                <div className='group relative'>
+                  <div className='flex items-center gap-3 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-4 hover:border-blue-300 hover:bg-blue-50/50'>
+                    <div className='flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 group-hover:bg-blue-200'>
+                      <ImageIcon className='h-5 w-5 text-blue-600' />
+                    </div>
+                    <div className='flex-1'>
+                      <Input
+                        type='file'
+                        accept='image/*'
+                        {...register('bukti')}
+                        className='cursor-pointer border-0 bg-transparent p-0 text-sm file:mr-4 file:cursor-pointer file:rounded-lg file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700'
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className='flex justify-end gap-3 pt-2'>
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={() => setOpen(false)}
+                  className='rounded-xl'
+                >
+                  Batal
+                </Button>
+                <Button
+                  type='submit'
+                  disabled={formState.isSubmitting || submitMutation.isPending}
+                  className='rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40'
+                >
+                  {submitMutation.isPending ? (
+                    <>
+                      <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                      Mengirim...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className='mr-2 h-4 w-4' />
+                      Kirim Izin
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
 
-              <div className='mt-2 space-y-2 text-sm text-muted-foreground'>
-                <p>{izin.keterangan}</p>
+        {/* Search + Filter + Ajukan */}
+        <div className='relative z-10 mx-auto mb-6 mt-10 max-w-6xl px-2'>
+          <div className='flex gap-2'>
+            <div className='relative flex-1'>
+              <Search className='absolute left-3 top-6 h-5 w-5 -translate-y-1/2 text-gray-400' />
+              <Input
+                placeholder='Cari keterangan izin...'
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className='h-12 w-full rounded-xl border border-gray-200 bg-white p-4 py-3 pl-10 transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100'
+              />
+            </div>
+            <button
+              onClick={() => setShowFilter(!showFilter)}
+              className={`flex h-12 w-12 items-center justify-center rounded-xl transition-all ${
+                showFilter
+                  ? 'bg-blue-600 text-white'
+                  : 'border border-gray-200 bg-white text-gray-600'
+              }`}
+            >
+              <Filter className='h-5 w-5' />
+            </button>
+          </div>
 
-                {izin.bukti && (
-                  <div className='mt-1'>
+          {/* Filter Panel */}
+          {showFilter && (
+            <div className='mt-3 rounded-xl border border-gray-200 bg-white p-4 shadow-lg'>
+              <div className='mb-3 flex items-center justify-between'>
+                <h3 className='font-semibold text-gray-900'>Filter Tanggal</h3>
+                <button
+                  onClick={() => setShowFilter(false)}
+                  className='text-gray-400'
+                >
+                  <X className='h-5 w-5' />
+                </button>
+              </div>
+              <div className='relative'>
+                <CalendarIcon className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
+                <Input
+                  type='date'
+                  value={filterTanggal}
+                  onChange={(e) => setFilterTanggal(e.target.value)}
+                  className='w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 focus:border-blue-500 focus:outline-none'
+                />
+              </div>
+              <div className='mt-3 flex justify-end'>
+                <Button
+                  onClick={resetFilter}
+                  variant='outline'
+                  className='rounded-xl px-4'
+                >
+                  <XCircle className='mr-2 h-4 w-4' />
+                  Reset
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile Filter */}
+        {/* <div className='mb-6 sm:hidden'>
+          <FilterMobile
+            searchValue={search}
+            setSearchValue={setSearch}
+            tanggalValue={filterTanggal}
+            setTanggalValue={setFilterTanggal}
+          />
+        </div> */}
+      </div>
+
+      {/* List izin */}
+      <div className='mx-auto max-w-6xl px-2'>
+        {isLoading ? (
+          <div className='mx-auto flex min-h-[400px] items-center justify-center'>
+            <Loader2 className='h-12 w-12 animate-spin text-blue-600' />
+          </div>
+        ) : filteredData.length > 0 ? (
+          <div className='grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
+            {filteredData.map((izin) => (
+              <Card
+                key={izin.id}
+                className='group overflow-hidden border-0 shadow-md hover:shadow-xl'
+              >
+                <div
+                  className={`h-1.5 w-full ${
+                    izin.status === 'disetujui'
+                      ? 'bg-green-500'
+                      : izin.status === 'ditolak'
+                        ? 'bg-red-500'
+                        : 'bg-yellow-500'
+                  }`}
+                />
+                <div className='p-5'>
+                  <div className='mb-4 flex items-start justify-between'>
+                    <div className='flex items-center gap-2'>
+                      <div
+                        className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                          izin.status === 'disetujui'
+                            ? 'bg-green-100'
+                            : izin.status === 'ditolak'
+                              ? 'bg-red-100'
+                              : 'bg-yellow-100'
+                        }`}
+                      >
+                        <CalendarIcon
+                          className={`h-5 w-5 ${
+                            izin.status === 'disetujui'
+                              ? 'text-green-600'
+                              : izin.status === 'ditolak'
+                                ? 'text-red-600'
+                                : 'text-yellow-600'
+                          }`}
+                        />
+                      </div>
+                      <div>
+                        <p className='text-sm font-bold'>
+                          {new Date(izin.time).toLocaleDateString('id-ID', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                          })}
+                        </p>
+                        <div className='mt-1 flex items-center gap-1.5'>
+                          {izin.status === 'disetujui' && (
+                            <CheckCircle2 className='h-4 w-4 text-green-600' />
+                          )}
+                          {izin.status === 'ditolak' && (
+                            <XCircle className='h-4 w-4 text-red-600' />
+                          )}
+                          {izin.status === 'menunggu' && (
+                            <Clock className='h-4 w-4 text-yellow-600' />
+                          )}
+                          <span className='text-xs font-semibold capitalize'>
+                            {izin.status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <p className='line-clamp-3 text-sm text-gray-600'>
+                    {izin.keterangan}
+                  </p>
+                  {izin.bukti && (
                     <Dialog>
                       <VisuallyHidden>
                         <DialogTitle>Bukti Foto</DialogTitle>
                       </VisuallyHidden>
                       <DialogTrigger asChild>
-                        <p className='cursor-pointer text-xs text-blue-600 underline'>
+                        <button className='mt-3 flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-xs font-medium text-blue-600 hover:bg-blue-100'>
+                          <ImageIcon className='h-4 w-4' />
                           Lihat Bukti
-                        </p>
+                        </button>
                       </DialogTrigger>
-                      <DialogContent className='max-w-lg'>
-                        <Image
-                          alt='bukti'
-                          src={izin.bukti}
-                          width={800}
-                          height={800}
-                          className='w-full rounded-lg object-contain'
-                        />
+                      <DialogContent className='max-w-3xl rounded-2xl'>
+                        <DialogHeader>
+                          <DialogTitle>Bukti Perizinan</DialogTitle>
+                        </DialogHeader>
+                        <div className='overflow-hidden rounded-xl bg-gray-100'>
+                          <Image
+                            alt='bukti'
+                            src={izin.bukti}
+                            width={1200}
+                            height={1200}
+                            className='w-full object-contain'
+                          />
+                        </div>
                       </DialogContent>
                     </Dialog>
-                  </div>
-                )}
-              </div>
-
-              {izin.status === 'menunggu' && (
-                <div className='mt-4 flex justify-end'>
-                  <Button
-                    variant='destructive'
-                    size='sm'
-                    onClick={() => deleteMutation.mutate(izin.id)}
-                    className='flex items-center gap-1'
-                    disabled={deletingId === izin.id}
-                  >
-                    <Trash2 size={16} />
-                    {deletingId === izin.id ? 'Menghapus...' : 'Hapus'}
-                  </Button>
+                  )}
+                  {izin.status === 'menunggu' && (
+                    <div className='mt-4 border-t pt-4'>
+                      <Button
+                        variant='destructive'
+                        size='sm'
+                        onClick={() => deleteMutation.mutate(izin.id)}
+                        className='w-full rounded-lg'
+                        disabled={deletingId === izin.id}
+                      >
+                        {deletingId === izin.id ? (
+                          <>
+                            <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                            Menghapus...
+                          </>
+                        ) : (
+                          <>
+                            <Trash2 className='mr-2 h-4 w-4' />
+                            Hapus Izin
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
                 </div>
-              )}
-            </Card>
-          ))
+              </Card>
+            ))}
+          </div>
         ) : (
-          <p className='col-span-full text-sm text-muted-foreground'>
-            Tidak ada data ditemukan.
-          </p>
+          <Card className='border-0 p-12 text-center shadow-sm'>
+            <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100'>
+              <CalendarIcon className='h-8 w-8 text-gray-400' />
+            </div>
+            <h3 className='mb-2 text-lg font-semibold'>Belum Ada Data Izin</h3>
+            <p className='mb-6 text-sm text-muted-foreground'>
+              {search || filterTanggal
+                ? 'Tidak ada izin yang sesuai dengan filter Anda'
+                : 'Mulai ajukan izin dengan klik tombol di atas'}
+            </p>
+            {(search || filterTanggal) && (
+              <Button
+                onClick={resetFilter}
+                variant='outline'
+                className='rounded-xl'
+              >
+                <XCircle className='mr-2 h-4 w-4' />
+                Reset Filter
+              </Button>
+            )}
+          </Card>
         )}
       </div>
-
       <BottomNav />
     </div>
   );

@@ -275,13 +275,11 @@ export default function ListKelasGuru({
       />
 
       <ModalTambahKelas
-        fetchData={fetchData}
         openModal={openModalEdit}
         setOpenModal={setOpenModalEdit}
         dataEdit={dataEditKelas}
       />
       <ModalTambahKelasMapel
-        fetchData={fetchData}
         openModal={openModalEdit}
         dataEdit={dataEditMapel}
         setOpenModal={setOpenModalEdit}

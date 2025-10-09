@@ -149,12 +149,12 @@ export const navItems: NavItem[] = [
         icon: 'userPen',
         shortcut: ['n', 'n']
       },
-      // {
-      //   title: 'Mata Pelajaran',
-      //   url: '/dashboard/master-data/mata-pelajaran',
-      //   icon: 'userPen',
-      //   shortcut: ['n', 'n']
-      // },
+      {
+        title: 'Mata Pelajaran',
+        url: '/dashboard/master-data/mata-pelajaran',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
+      },
       {
         title: 'Pengumuman',
         url: '/dashboard/master-data/pengumuman',

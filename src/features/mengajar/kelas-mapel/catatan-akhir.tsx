@@ -21,6 +21,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
 
 interface Siswa {
   id: string;
@@ -129,11 +130,13 @@ export default function CatatanAkhirSiswa({
   );
 
   return (
-    <div className='space-y-6'>
+    <Card className='space-y-6 p-5'>
       {/* List Catatan */}
-      <div className='rounded-lg p-4 shadow'>
+      <div className=' '>
         <div className='mb-4 flex items-center justify-between'>
-          <h3 className='text-lg font-semibold'>Daftar Catatan Akhir Siswa</h3>
+          <h3 className='text-base font-semibold'>
+            Daftar Catatan Akhir Siswa
+          </h3>
           <Input
             placeholder='Cari catatan...'
             value={searchTerm}
@@ -180,7 +183,7 @@ export default function CatatanAkhirSiswa({
 
       {/* Form Tambah/Edit Catatan */}
       <div className='rounded-lg p-4 shadow'>
-        <h3 className='mb-4 text-lg font-semibold'>
+        <h3 className='mb-4 text-base font-semibold'>
           {editingId ? 'Edit Catatan' : 'Tambah Catatan'}
         </h3>
         <Form {...form}>
@@ -253,6 +256,6 @@ export default function CatatanAkhirSiswa({
           </form>
         </Form>
       </div>
-    </div>
+    </Card>
   );
 }

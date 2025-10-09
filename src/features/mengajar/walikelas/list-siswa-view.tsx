@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -15,72 +15,70 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import api from '@/lib/api';
 import { Switch } from '@/components/ui/switch';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 type Props = {
-  idKelas: String;
+  idKelas: string;
 };
 
 export default function ListSiswaView({ idKelas }: Props) {
-  const [data, setData] = useState<any[]>([]);
-  const [search, setSearch] = useState('');
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
+  const [search, setSearch] = useState('');
 
-  const getSiswa = async () => {
-    try {
-      const response2 = await api.get(`kelas-walikelas/siswa/${idKelas}`, {
+  // 🔹 Fetch siswa dengan react-query
+  const { data: siswa, isLoading } = useQuery({
+    queryKey: ['siswa', idKelas],
+    queryFn: async () => {
+      const res = await api.get(`kelas-walikelas/siswa/${idKelas}`, {
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
+      return res.data;
+    },
+    enabled: !!session?.user?.token
+  });
 
-      setData(response2?.data);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
-    }
-  };
-
-  useEffect(() => {
-    getSiswa();
-  }, [idKelas]);
-
-  // Filter data berdasarkan namaSiswa
-  const filteredData = data.filter((item: any) =>
-    item.namaSiswa.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const handleRemove = async (id: string) => {
-    try {
-      await api.delete(`kelas-walikelas/remove/${id}`);
-      setData((prev) => prev.filter((s) => s.idSiswa !== id));
+  // 🔹 Mutation remove siswa
+  const removeMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`kelas-walikelas/remove/${id}`, {
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
+      });
+    },
+    onSuccess: () => {
       toast.success('Siswa berhasil dihapus');
-      getSiswa();
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
+      queryClient.invalidateQueries({ queryKey: ['siswa', idKelas] });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || 'Gagal hapus siswa');
     }
-  };
+  });
 
-  const handleToggleRapot = async (id: string, value: boolean) => {
-    try {
+  // 🔹 Mutation toggle rapot
+  const toggleRapotMutation = useMutation({
+    mutationFn: async ({ id, value }: { id: string; value: boolean }) => {
       await api.patch(
         `kelas-walikelas/terbit/${id}`,
         { value: value ? 'Terbit' : 'Belum Terbit' },
-        {
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
-          }
-        }
+        { headers: { Authorization: `Bearer ${session?.user?.token}` } }
       );
-
-      setData((prev) =>
-        prev.map((s) => (s.idSiswa === id ? { ...s, rapotTerbit: value } : s))
-      );
-      getSiswa();
+    },
+    onSuccess: (_, { value }) => {
       toast.success(value ? 'Rapot berhasil diterbitkan' : 'Rapot dibatalkan');
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
+      queryClient.invalidateQueries({ queryKey: ['siswa', idKelas] });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || 'Gagal update rapot');
     }
-  };
+  });
+
+  // 🔹 Filtering
+  const filteredData =
+    siswa?.filter((item: any) =>
+      item.namaSiswa.toLowerCase().includes(search.toLowerCase())
+    ) || [];
 
   return (
     <div className='overflow-x-auto p-5'>
@@ -105,7 +103,13 @@ export default function ListSiswaView({ idKelas }: Props) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredData.length === 0 ? (
+          {isLoading ? (
+            <TableRow>
+              <TableCell colSpan={4} className='py-6 text-center'>
+                Loading...
+              </TableCell>
+            </TableRow>
+          ) : filteredData.length === 0 ? (
             <TableRow>
               <TableCell colSpan={4} className='py-6 text-center'>
                 Tidak ada siswa
@@ -120,9 +124,9 @@ export default function ListSiswaView({ idKelas }: Props) {
                 {/* Toggle rapot */}
                 <TableCell>
                   <Switch
-                    checked={item.rapotSiswa === 'Terbit' ? true : false}
+                    checked={item.rapotSiswa === 'Terbit'}
                     onCheckedChange={(value) =>
-                      handleToggleRapot(item.id, value)
+                      toggleRapotMutation.mutate({ id: item.id, value })
                     }
                   />
                 </TableCell>
@@ -131,9 +135,10 @@ export default function ListSiswaView({ idKelas }: Props) {
                   <Button
                     size='sm'
                     variant='destructive'
-                    onClick={() => handleRemove(item.id)}
+                    onClick={() => removeMutation.mutate(item.id)}
+                    disabled={removeMutation.isPending}
                   >
-                    Remove
+                    {removeMutation.isPending ? '...' : 'Remove'}
                   </Button>
                   <Link
                     href={`/mengajar/walikelas/${idKelas}/rekap-absensi/${item.idSiswa}`}

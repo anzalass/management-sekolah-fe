@@ -1,15 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import PengumumanKelas from './pengumuman-kelas';
 import CatatanPerkembanganSiswa from './perkembangan-siswa';
-import axios from 'axios';
-import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
-import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import PresensiSiswa from './presensi-siswa';
@@ -19,6 +16,7 @@ import JadwalPelajaran from './jadwalPelajaran';
 import PerizinanSiswaView from './perizinan-siswa-view';
 import TambahWeeklyActivity from './tambah-weekly-activity';
 import WeeklyActivityList from './weekly-activity-view';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 type IDKelas = {
   id: string;
@@ -36,19 +34,11 @@ interface Student2 {
   nis: string;
 }
 
-interface Izin {
-  id: number;
-  studentId: number;
-  studentName: string;
-  tanggal: string;
-  alasan: string;
-}
-
 export type PengumumanKelasType = {
   id: string;
   idKelas: string;
   title: string;
-  time: Date; // Kalau data dari API biasanya string, bisa diganti string
+  time: Date | string;
   content: string;
 };
 
@@ -61,116 +51,120 @@ export type CatatanPerkembanganSiswaType = {
 
 const DashboardWaliKelas = ({ id }: IDKelas) => {
   const { data: session } = useSession();
-  const { trigger, toggleTrigger } = useRenderTrigger();
-  const [masterSiswa, setMasterSiswa] = useState<Student2[]>([]);
-  const [kelasSiswa, setKelasSiswa] = useState<Student[]>([]);
-  const [pengumumanKelas, setPengumumanKelas] = useState<PengumumanKelasType[]>(
-    []
-  );
-  const [fetch, setFetch] = useState(false);
-  const [catatanPerkembangan, setCatatanPerkembangan] = useState<
-    CatatanPerkembanganSiswaType[]
-  >([]);
-
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredMasterSiswa, setFilteredMasterSiswa] = useState<Student2[]>(
-    []
-  );
-  const fetchData = async () => {
-    try {
-      const response = await api.get(`user/get-all-siswa-master`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+
+  const token = session?.user?.token;
+
+  // ✅ Query: fetch master siswa
+  const { data: masterSiswa = [] } = useQuery<Student2[]>({
+    queryKey: ['masterSiswa'],
+    queryFn: async () => {
+      const res = await api.get(`user/get-all-siswa-master`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      const response2 = await api.get(`kelas-walikelas/siswa/${id}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+      return res.data.result.data;
+    },
+    enabled: !!token
+  });
+
+  // ✅ Query: fetch siswa dalam kelas
+  const { data: kelasSiswa = [] } = useQuery<Student[]>({
+    queryKey: ['kelasSiswa', id],
+    queryFn: async () => {
+      const res = await api.get(`kelas-walikelas/siswa/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      const response3 = await api.get(`dashboard-walikelas/${id}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+      return res.data;
+    },
+    enabled: !!token && !!id
+  });
+
+  // ✅ Query: fetch dashboard wali kelas (pengumuman + catatan)
+  const { data: dashboardData } = useQuery<{
+    data: {
+      pengumuman: PengumumanKelasType[];
+      catatanMap: CatatanPerkembanganSiswaType[];
+    };
+  }>({
+    queryKey: ['dashboardWaliKelas', id],
+    queryFn: async () => {
+      const res = await api.get(`dashboard-walikelas/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
+      return res.data;
+    },
+    enabled: !!token && !!id
+  });
 
-      setMasterSiswa(response.data.result.data);
-      setKelasSiswa(response2?.data);
-      setPengumumanKelas(response3?.data?.data?.pengumuman);
-      setCatatanPerkembangan(response3?.data?.data?.catatanMap);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    }
-  };
+  const pengumumanKelas = dashboardData?.data?.pengumuman ?? [];
+  const catatanPerkembangan = dashboardData?.data?.catatanMap ?? [];
 
-  useEffect(() => {
-    fetchData();
-  }, [trigger]);
-
-  useEffect(() => {
-    const filtered = masterSiswa.filter(
-      (s) =>
-        s?.nama?.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        !kelasSiswa?.find((k: any) => k?.Siswa?.nis === s?.nis) // jangan tampilkan yg sudah masuk kelas
-    );
-    setFilteredMasterSiswa(filtered);
-  }, [searchTerm, masterSiswa, kelasSiswa]);
-
-  const handleAddSiswaToKelas = async (siswa: Student2) => {
-    try {
-      const response = await api.post(
+  // ✅ Mutation: tambah siswa ke kelas
+  const addSiswaMutation = useMutation({
+    mutationFn: async (siswa: Student2) => {
+      await api.post(
         `kelas-walikelas/add`,
         {
           nisSiswa: siswa.nis,
           namaSiswa: siswa.nama,
           idSiswa: siswa.id,
-          idKelas: id // pastikan juga kirim ID kelasMapel
+          idKelas: id
         },
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${session?.user?.token}`
+            Authorization: `Bearer ${token}`
           }
         }
       );
-
+    },
+    onSuccess: () => {
       toast.success('Siswa berhasil ditambahkan ke kelas');
-      toggleTrigger();
+      queryClient.invalidateQueries({ queryKey: ['kelasSiswa', id] });
+      queryClient.invalidateQueries({ queryKey: ['kehadiran'] });
+
       setSearchTerm('');
-    } catch (error: any) {
+    },
+    onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
-  };
+  });
+
+  // ✅ Filtered siswa master
+  const filteredMasterSiswa = useMemo(() => {
+    return masterSiswa.filter(
+      (s) =>
+        s?.nama?.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        !kelasSiswa?.find((k: any) => k?.Siswa?.nis === s?.nis)
+    );
+  }, [searchTerm, masterSiswa, kelasSiswa]);
 
   return (
     <div className='space-y-8 overflow-x-auto p-4 pb-16'>
       <div className='flex flex-wrap items-center justify-between gap-4'>
-        <h1 className='text-2xl font-bold'>Dashboard Wali Kelas</h1>
         <div className='flex gap-2'>
-          <Button asChild variant='default'>
+          <Button asChild>
             <Link href={`/mengajar/walikelas/${id}/rekap-absensi`}>
               Rekap Absensi
             </Link>
           </Button>
-          <Button asChild variant='default'>
+          <Button asChild>
             <Link href={`/mengajar/walikelas/${id}/rekap-nilai`}>
               Rekap Nilai
             </Link>
           </Button>
-          <Button asChild variant='default'>
+          <Button asChild>
             <Link href={`/mengajar/walikelas/${id}/list-siswa`}>
               List Siswa
             </Link>
           </Button>
-          <Button asChild variant='default'>
+          <Button asChild>
             <Link href={`/mengajar/walikelas/${id}/kartu-ujian`}>
               Cetak Kartu Ujian
             </Link>
           </Button>
-          <Button asChild variant='default'>
+          <Button asChild>
             <Link href={`/mengajar/walikelas/${id}/perizinan-siswa`}>
               Perizinan Siswa
             </Link>
@@ -178,20 +172,21 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
           <TambahWeeklyActivity idKelas={id} />
         </div>
       </div>
+
       <div className='w-[100%] overflow-x-scroll'>
         <PerizinanSiswaView idKelas={id} />
       </div>
       <div className='w-[100%] overflow-x-scroll'>
         <PresensiSiswa idKelas={id} />
       </div>
-
       <div className='w-[100%] overflow-x-scroll'>
         <JadwalPelajaran idKelas={id} />
       </div>
 
+      {/* Tambah siswa */}
       <Card className='w-full'>
         <CardHeader>
-          <CardTitle>Tambah Siswa ke Kelas</CardTitle>
+          <CardTitle className='text-base'>Tambah Siswa ke Kelas</CardTitle>
         </CardHeader>
         <CardContent className='space-y-4'>
           <Input
@@ -212,9 +207,10 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
                     </span>
                     <Button
                       size='sm'
-                      onClick={() => handleAddSiswaToKelas(siswa)}
+                      onClick={() => addSiswaMutation.mutate(siswa)}
+                      disabled={addSiswaMutation.isPending}
                     >
-                      Tambah
+                      {addSiswaMutation.isPending ? 'Menambahkan...' : 'Tambah'}
                     </Button>
                   </li>
                 ))}

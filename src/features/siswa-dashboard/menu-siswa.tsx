@@ -12,7 +12,8 @@ import {
   MoreHorizontal,
   BookCopy,
   CalendarCheck,
-  CalendarArrowUp
+  CalendarArrowUp,
+  NotebookText
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -107,11 +108,17 @@ export default function MenuFiturSiswa() {
       icon: <CalendarCheck />,
       label: 'Weekly Activity',
       color: 'text-indigo-500'
+    },
+    {
+      href: '/siswa/weekly-activity',
+      icon: <NotebookText />,
+      label: 'Catatan Harian Siswa',
+      color: 'text-indigo-500'
     }
   ];
 
   return (
-    <div className='mt-3 grid grid-cols-4 gap-2 px-4 sm:grid-cols-4 md:gap-3 lg:grid-cols-8'>
+    <div className='grid grid-cols-4 gap-2 rounded-b-2xl bg-blue-800 px-4 sm:grid-cols-4 md:gap-3 lg:grid-cols-8'>
       {fiturUtama.map((fitur, i) => (
         <Link
           key={i}

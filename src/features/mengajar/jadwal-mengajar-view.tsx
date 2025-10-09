@@ -1,5 +1,5 @@
 'use client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -8,86 +8,93 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { Clock, Trash2 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import axios from 'axios';
 import { toast } from 'sonner';
-import { API } from '@/lib/server';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
 import ModalTambahJadwal from './modal-tambah-jadwal';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+interface Jadwal {
+  id: string;
+  hari: string;
+  jamMulai: string;
+  jamSelesai: string;
+  kelas: string;
+  namaMapel: string;
+  ruang: string;
+}
 
 export default function JadwalMengajarView() {
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const { data: session } = useSession();
-  const [dateStr, setDateStr] = useState('');
-  const [jadwal, setJadwal] = useState<any[]>([]);
+  const queryClient = useQueryClient();
   const [showJadwalModal, setShowJadwalModal] = useState(false);
 
-  const fetchData = async () => {
-    try {
-      const res = await api.get(`jadwal-guru`, {
+  // urutan hari
+  const hariOrder = [
+    'Senin',
+    'Selasa',
+    'Rabu',
+    'Kamis',
+    'Jumat',
+    'Sabtu',
+    'Minggu'
+  ];
+
+  // Fetch data jadwal
+  const {
+    data: jadwal = [],
+    isLoading,
+    isError
+  } = useQuery<Jadwal[]>({
+    queryKey: ['jadwalMengajar'],
+    queryFn: async () => {
+      const res = await api.get('jadwal-guru', {
         headers: {
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
 
-      // Urutan hari manual
-      const hariOrder = [
-        'Senin',
-        'Selasa',
-        'Rabu',
-        'Kamis',
-        'Jumat',
-        'Sabtu',
-        'Minggu'
-      ];
-
-      // Sort berdasarkan hari & jamMulai
+      // sort hari + jam
       const sortedData = res.data.data.sort((a: any, b: any) => {
         const dayDiff = hariOrder.indexOf(a.hari) - hariOrder.indexOf(b.hari);
-
-        // Jika hari sama, urutkan berdasarkan jamMulai
         if (dayDiff === 0) {
           return a.jamMulai.localeCompare(b.jamMulai);
         }
-
         return dayDiff;
       });
 
-      setJadwal(sortedData);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
-    }
-  };
+      return sortedData;
+    },
+    enabled: !!session?.user?.token
+  });
 
-  useEffect(() => {
-    fetchData();
-  }, [session]);
-
-  const handleDelete = async (id: string) => {
-    setDeletingId(id);
-    try {
+  // Mutation hapus jadwal
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
       await api.delete(`jadwal-mengajar/delete/${id}`, {
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
+    },
+    onSuccess: () => {
       toast.success('Jadwal berhasil dihapus');
-      fetchData();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    } finally {
-      setDeletingId(null);
+      queryClient.invalidateQueries({ queryKey: ['jadwalMengajar'] });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Terjadi kesalahan');
     }
-  };
+  });
 
   return (
     <Card className='shadow-md'>
       <ModalTambahJadwal
-        fetchData={fetchData}
+        fetchData={() =>
+          queryClient.invalidateQueries({ queryKey: ['jadwalMengajar'] })
+        }
         openModal={showJadwalModal}
         setOpenModal={setShowJadwalModal}
       />
@@ -97,38 +104,40 @@ export default function JadwalMengajarView() {
         </Button>
       </CardHeader>
       <CardContent>
-        {jadwal.length > 0 ? (
+        {isLoading ? (
+          <p className='text-sm italic text-muted-foreground'>Memuat...</p>
+        ) : isError ? (
+          <p className='text-sm text-red-500'>Gagal memuat data.</p>
+        ) : jadwal.length > 0 ? (
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Hari</TableHead>
                 <TableHead>Jam</TableHead>
-                <TableHead>Mata Pelajaran</TableHead>
                 <TableHead>Kelas</TableHead>
+                <TableHead>Mata Pelajaran</TableHead>
                 <TableHead>Ruang Kelas</TableHead>
                 <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {jadwal.map((jadwal, index) => (
-                <TableRow key={index}>
-                  <TableCell>{jadwal.hari}</TableCell>
-
+              {jadwal.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.hari}</TableCell>
                   <TableCell>
-                    {jadwal.jamMulai} - {jadwal.jamSelesai}
+                    {item.jamMulai} - {item.jamSelesai}
                   </TableCell>
-
-                  <TableCell>{jadwal.kelas}</TableCell>
-                  <TableCell>{jadwal.namaMapel}</TableCell>
-                  <TableCell>{jadwal.ruang}</TableCell>
+                  <TableCell>{item.kelas}</TableCell>
+                  <TableCell>{item.namaMapel}</TableCell>
+                  <TableCell>{item.ruang}</TableCell>
                   <TableCell>
                     <Button
                       variant='destructive'
                       size='sm'
-                      disabled={deletingId === jadwal.id}
-                      onClick={() => handleDelete(jadwal.id)}
+                      disabled={deleteMutation.isPending}
+                      onClick={() => deleteMutation.mutate(item.id)}
                     >
-                      {deletingId === jadwal.id ? (
+                      {deleteMutation.isPending ? (
                         <span className='text-xs'>Menghapus...</span>
                       ) : (
                         <Trash2 className='h-4 w-4' />

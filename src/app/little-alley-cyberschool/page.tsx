@@ -1,4 +1,4 @@
-import LacView from '@/components/lac/lac-view';
+import LacView from '@/components/lap-lac/lac-view';
 import React from 'react';
 import { Metadata } from 'next';
 

@@ -5,6 +5,7 @@ import { Breadcrumbs } from '../breadcrumbs';
 import SearchInput from '../search-input';
 import { UserNav } from './user-nav';
 import ThemeToggle from './ThemeToggle/theme-toggle';
+import NotificationGuru from './notification-guru';
 
 export default function Header() {
   return (
@@ -18,6 +19,7 @@ export default function Header() {
       <div className='flex items-center gap-2 px-4'>
         <div className='hidden md:flex'>
           <SearchInput />
+          <NotificationGuru />
         </div>
         <UserNav />
         <ThemeToggle />

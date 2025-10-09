@@ -33,7 +33,6 @@ import {
 } from '@/components/ui/sidebar';
 
 import {
-  BadgeCheck,
   ChevronRight,
   ChevronsUpDown,
   GalleryVerticalEnd,
@@ -47,6 +46,7 @@ import { Icons } from '../icons';
 import { NavItem } from 'types';
 import api from '@/lib/api';
 import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
 
 export const company = {
   name: 'Little Alley',
@@ -54,13 +54,33 @@ export const company = {
   plan: 'Enterprise'
 };
 
+// 🔹 fetcher untuk sidebar
+const fetchSidebar = async (token: string) => {
+  const res = await api.get('sidebar', {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return res.data.data;
+};
+
 export default function AppSidebarMengajar() {
   const { data: session } = useSession();
   const pathname = usePathname();
   const { state } = useSidebar();
-  const [dataSidebar, setDataSidebar] = React.useState<any>([]);
 
   const jabatan = session?.user?.jabatan || '';
+
+  // 🔹 React Query untuk Sidebar
+  const {
+    data: dataSidebar,
+    isLoading,
+    error
+  } = useQuery({
+    queryKey: ['sidebar'],
+    queryFn: () => fetchSidebar(session?.user?.token as string),
+    enabled: !!session?.user?.token // hanya jalan kalau ada token
+  });
 
   const filterNavItemsByRole = (
     navItems: NavItem[],
@@ -83,31 +103,23 @@ export default function AppSidebarMengajar() {
   };
 
   const handleLogout = () => {
-    // Kalau simpan sesuatu di localStorage, hapus manual
     localStorage.removeItem('token');
-
-    // Hapus session next-auth (cookie)
     signOut({ callbackUrl: '/login' });
   };
 
-  const getDataSidebar = async () => {
-    try {
-      const res = await api.get('sidebar', {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-      setDataSidebar(res.data.data);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
-    }
-  };
+  const filteredNavItems = filterNavItemsByRole(dataSidebar || [], jabatan);
 
-  React.useEffect(() => {
-    getDataSidebar();
-  }, [session]);
+  if (isLoading) {
+    return (
+      <div className='p-6'>
+        <p className='text-sm text-muted-foreground'>Loading sidebar...</p>
+      </div>
+    );
+  }
 
-  const filteredNavItems = filterNavItemsByRole(dataSidebar, jabatan);
+  if (error) {
+    toast.error('Gagal memuat data sidebar');
+  }
 
   return (
     <Sidebar collapsible='icon'>
@@ -127,67 +139,63 @@ export default function AppSidebarMengajar() {
         <SidebarGroup>
           <SidebarGroupLabel>Overview</SidebarGroupLabel>
           <SidebarMenu>
-            {filteredNavItems
-              .filter(
-                (item): item is NavItem => item !== null && item !== undefined
-              )
-              .map((item) => {
-                const IconName = item.icon as keyof typeof Icons;
-                const Icon = Icons[IconName] || Icons.logo;
+            {filteredNavItems.map((item) => {
+              const IconName = item.icon as keyof typeof Icons;
+              const Icon = Icons[IconName] || Icons.logo;
 
-                return Array.isArray(item.items) && item.items.length > 0 ? (
-                  <Collapsible
-                    key={item.title}
-                    asChild
-                    defaultOpen={item.isActive}
-                    className='group/collapsible'
-                  >
-                    <SidebarMenuItem>
-                      <CollapsibleTrigger asChild>
-                        <SidebarMenuButton
-                          tooltip={item.title}
-                          isActive={pathname === item.url}
-                        >
-                          {item.icon && <Icon />}
-                          <span>{item.title}</span>
-                          <ChevronRight className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
-                        </SidebarMenuButton>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <SidebarMenuSub>
-                          {(item.items as NavItem[]).map(
-                            (subItem: NavItem, i: any) => (
-                              <SidebarMenuSubItem key={i}>
-                                <SidebarMenuSubButton
-                                  asChild
-                                  isActive={pathname === subItem.url}
-                                >
-                                  <Link href={subItem.url}>
-                                    <span>{subItem.title}</span>
-                                  </Link>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            )
-                          )}
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    </SidebarMenuItem>
-                  </Collapsible>
-                ) : (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      tooltip={item.title}
-                      isActive={pathname === item.url}
-                    >
-                      <Link href={item.url}>
-                        <Icon />
+              return Array.isArray(item.items) && item.items.length > 0 ? (
+                <Collapsible
+                  key={item.title}
+                  asChild
+                  defaultOpen={item.isActive}
+                  className='group/collapsible'
+                >
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton
+                        tooltip={item.title}
+                        isActive={pathname === item.url}
+                      >
+                        {item.icon && <Icon />}
                         <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
+                        <ChevronRight className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {(item.items as NavItem[]).map(
+                          (subItem: NavItem, i: any) => (
+                            <SidebarMenuSubItem key={i}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={pathname === subItem.url}
+                              >
+                                <Link href={subItem.url}>
+                                  <span>{subItem.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          )
+                        )}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
                   </SidebarMenuItem>
-                );
-              })}
+                </Collapsible>
+              ) : (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.title}
+                    isActive={pathname === item.url}
+                  >
+                    <Link href={item.url}>
+                      <Icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
