@@ -17,8 +17,8 @@ import { format } from 'date-fns';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
-import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import RichTextEditor from '@/features/texteditor/textEditor';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface FormValues {
   judul: string;
@@ -33,9 +33,8 @@ type Props = {
 export default function TambahWeeklyActivity({ idKelas }: Props) {
   const [open, setOpen] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [loading, setLoading] = useState(false);
   const { data: session } = useSession();
-  const { toggleTrigger } = useRenderTrigger();
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -72,11 +71,9 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
     setSelectedFiles(newFiles);
   };
 
-  const onSubmit = async (data: FormValues) => {
-    try {
-      setLoading(true);
-
-      // Buat formData
+  // --- React Query mutation
+  const mutation = useMutation({
+    mutationFn: async (data: FormValues) => {
       const formData = new FormData();
       formData.append('judul', data.judul);
       formData.append('content', data.content);
@@ -87,26 +84,27 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
         formData.append('foto', file);
       });
 
-      // Hit API backend langsung
       const res = await api.post('weekly-activity', formData, {
         headers: {
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
-
-      if (res.status === 201) {
-        setSelectedFiles([]);
-        setOpen(false);
-        reset();
-        toggleTrigger();
-        toast.success('Berhasil membuat weekly activity');
-      }
-    } catch (err) {
-      console.error(err);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Berhasil membuat weekly activity');
+      queryClient.invalidateQueries({ queryKey: ['weekly-activity', idKelas] });
+      setSelectedFiles([]);
+      setOpen(false);
+      reset();
+    },
+    onError: () => {
       toast.error('Terjadi kesalahan saat mengirim data');
-    } finally {
-      setLoading(false);
     }
+  });
+
+  const onSubmit = (data: FormValues) => {
+    mutation.mutate(data);
   };
 
   return (
@@ -233,8 +231,8 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
             >
               Batal
             </Button>
-            <Button type='submit' disabled={loading}>
-              {loading ? 'Menyimpan...' : 'Simpan'}
+            <Button type='submit' disabled={mutation.isPending}>
+              {mutation.isPending ? 'Menyimpan...' : 'Simpan'}
             </Button>
           </div>
         </form>

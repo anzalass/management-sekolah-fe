@@ -1,13 +1,18 @@
 'use client';
 import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
-import axios from 'axios';
 import { Button } from '@/components/ui/button';
-import { API } from '@/lib/server';
 import { toast } from 'sonner';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
-import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
+import api from '@/lib/api';
+import { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
 
 export type Tagihan = {
   id: string;
@@ -19,6 +24,54 @@ export type Tagihan = {
   status: string;
   keterangan: string;
   nominal: number;
+  buktiUrl?: string | null;
+};
+
+const getStatusConfig = (status: string) => {
+  switch (status) {
+    case 'BELUM_BAYAR':
+      return {
+        text: 'Belum Bayar',
+        bgColor: 'bg-red-100',
+        textColor: 'text-red-600',
+        borderColor: 'border-red-500'
+      };
+    case 'PENDING':
+      return {
+        text: 'Pending',
+        bgColor: 'bg-yellow-100',
+        textColor: 'text-yellow-600',
+        borderColor: 'border-yellow-500'
+      };
+    case 'LUNAS':
+      return {
+        text: 'Lunas',
+        bgColor: 'bg-green-100',
+        textColor: 'text-green-600',
+        borderColor: 'border-green-500'
+      };
+    case 'MENUNGGU_KONFIRMASI':
+      return {
+        text: 'Menunggu Konfirmasi',
+        bgColor: 'bg-yellow-100',
+        textColor: 'text-yellow-600',
+        borderColor: 'border-yellow-500'
+      };
+    case 'BUKTI_TIDAK_VALID':
+      return {
+        text: 'Bukti Tidak Valid',
+        bgColor: 'bg-red-100',
+        textColor: 'text-red-600',
+        borderColor: 'border-red-500'
+      };
+    default:
+      return {
+        text: status,
+        bgColor: 'bg-gray-100',
+        textColor: 'text-gray-600',
+        borderColor: 'border-gray-500'
+      };
+  }
 };
 
 export const columns: ColumnDef<Tagihan>[] = [
@@ -70,11 +123,120 @@ export const columns: ColumnDef<Tagihan>[] = [
       }).format(time);
     }
   },
+
+  // ✅ Kolom status dengan warna
   {
     accessorKey: 'status',
     header: 'Status',
-    cell: ({ row }) => row.original.status
+    cell: ({ row }) => {
+      const { text, bgColor, textColor, borderColor } = getStatusConfig(
+        row.original.status
+      );
+      return (
+        <span
+          className={`inline-block rounded-lg border ${borderColor} ${bgColor} ${textColor} px-3 py-1 text-sm font-medium`}
+        >
+          {text}
+        </span>
+      );
+    }
   },
+
+  // ✅ Kolom bukti pembayaran pakai modal
+  {
+    accessorKey: 'buktiPembayaran',
+    header: 'Bukti Pembayaran',
+    cell: ({ row }) => {
+      const bukti = row.original.buktiUrl;
+      const { id } = row.original;
+
+      const [open, setOpen] = useState(false);
+      const { data: session } = useSession();
+      const { toggleTrigger } = useRenderTrigger();
+
+      const handleKonfirmasi = async () => {
+        try {
+          await api.post(
+            `bayar-tagihan/${id}`,
+            { metodeBayar: 'Transfer' },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.user?.token}`
+              }
+            }
+          );
+          toast.success(`Pembayaran trasnsfer berhasil!`);
+          setOpen(false);
+          toggleTrigger();
+        } catch (error: any) {
+          toast.error(error.response?.data?.message || 'Terjadi kesalahan');
+        }
+      };
+
+      const handleKonfirmasiTidakValid = async () => {
+        try {
+          await api.patch(`pembayaran-bukti-tidak-valid/${id}`, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          });
+          toast.success(`Bukti tidak valid!`);
+          setOpen(false);
+          toggleTrigger();
+        } catch (error: any) {
+          toast.error(error.response?.data?.message || 'Terjadi kesalahan');
+        }
+      };
+
+      if (!bukti)
+        return <span className='italic text-gray-400'>Belum diupload</span>;
+
+      return (
+        <>
+          <button
+            onClick={() => setOpen(true)}
+            className='text-blue-600 underline hover:text-blue-800'
+          >
+            Lihat Bukti
+          </button>
+
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogContent className='sm:max-w-lg'>
+              <DialogHeader>
+                <DialogTitle>Bukti Pembayaran</DialogTitle>
+              </DialogHeader>
+
+              <div className='mt-2 flex flex-col items-center space-y-4'>
+                <img
+                  src={bukti}
+                  alt='Bukti Pembayaran'
+                  className='max-h-[400px] w-auto rounded-lg border object-contain'
+                />
+
+                <div className='flex w-full justify-between gap-4'>
+                  <Button
+                    onClick={handleKonfirmasi}
+                    className='w-1/2 bg-green-600 text-white hover:bg-green-700'
+                  >
+                    Transfer Berhasil
+                  </Button>
+                  <Button
+                    onClick={handleKonfirmasiTidakValid}
+                    className='w-1/2 bg-red-600 text-white hover:bg-red-700'
+                  >
+                    Bukti Tidak Valid
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </>
+      );
+    }
+  },
+
   {
     accessorKey: 'keterangan',
     header: 'Keterangan',
@@ -86,17 +248,14 @@ export const columns: ColumnDef<Tagihan>[] = [
     header: 'Bayar',
     cell: ({ row }) => {
       const { status, id } = row.original;
-
-      const { toggleTrigger } = useRenderTrigger(); // pindahkan ke sini
+      const { toggleTrigger } = useRenderTrigger();
       const { data: session } = useSession();
 
       const handleBayar = async (tipe: 'Cash' | 'Transfer') => {
         try {
           await api.post(
             `bayar-tagihan/${id}`,
-            {
-              metodeBayar: tipe
-            },
+            { metodeBayar: tipe },
             {
               headers: {
                 'Content-Type': 'application/json',
@@ -131,12 +290,13 @@ export const columns: ColumnDef<Tagihan>[] = [
               </Button>
             </>
           ) : (
-            <p>Sudah Bayar</p>
+            <p className='text-sm italic text-gray-500'>Sudah Bayar</p>
           )}
         </div>
       );
     }
   },
+
   {
     id: 'actions',
     header: 'Actions',

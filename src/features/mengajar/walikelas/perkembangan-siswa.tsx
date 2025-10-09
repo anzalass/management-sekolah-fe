@@ -18,25 +18,17 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import axios from 'axios';
-import { API } from '@/lib/server';
 import { toast } from 'sonner';
-import { CatatanPerkembanganSiswaType } from './walikelas-view';
-import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { Pencil, Trash2 } from 'lucide-react';
-import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api';
 
-interface Student2 {
-  id: string;
-  namaSiswa: string;
-  nisSiswa: string;
-}
-type Props = {
+interface Props {
   idKelas: string;
-  siswa: Student2[];
-  catatanList: CatatanPerkembanganSiswaType[];
-};
+  siswa: any[];
+  catatanList: any[];
+}
 
 interface FormValues {
   studentId: string;
@@ -46,89 +38,109 @@ interface FormValues {
 const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
   const [editId, setEditId] = useState<string | null>(null);
   const { data: session } = useSession();
-  const { toggleTrigger } = useRenderTrigger();
+  const token = session?.user?.token || '';
+  const queryClient = useQueryClient();
 
   const { control, handleSubmit, reset, setValue } = useForm<FormValues>({
-    defaultValues: {
-      studentId: '',
-      keterangan: ''
-    }
+    defaultValues: { studentId: '', keterangan: '' }
   });
 
-  const onSubmit = async (data: FormValues) => {
-    try {
-      const { idSiswa, nisSiswa, nama }: any = data.studentId; // udah langsung bisa ambil
-      console.log('dasa', data);
-
-      if (editId) {
-        await api.put(
-          `catatan-siswa/${editId}`,
-          {
-            idKelas: idKelas,
-            idSiswa: data.studentId,
-            content: data.keterangan
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${session?.user?.token}`
-            }
+  // CREATE
+  const createMutation = useMutation({
+    mutationFn: async (payload: { idSiswa: string; content: string }) => {
+      const res = await api.post(
+        `catatan-siswa`,
+        { idKelas, ...payload },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
           }
-        );
-        setEditId(null);
-      } else {
-        await api.post(
-          `catatan-siswa`,
-          {
-            idKelas: idKelas,
-            idSiswa: data.studentId,
-            content: data.keterangan
-          },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${session?.user?.token}`
-            }
-          }
-        );
-      }
+        }
+      );
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dashboardWaliKelas'] }); // invalidasi query dashboard
+      toast.success('Catatan berhasil ditambahkan');
+    },
+    onError: (err: any) =>
+      toast.error(err?.response?.data?.message || 'Gagal menambah catatan')
+  });
 
-      toggleTrigger();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
+  // UPDATE
+  const updateMutation = useMutation({
+    mutationFn: async (vars: {
+      id: string;
+      idSiswa: string;
+      content: string;
+    }) => {
+      const res = await api.put(
+        `catatan-siswa/${vars.id}`,
+        { idKelas, idSiswa: vars.idSiswa, content: vars.content },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dashboardWaliKelas'] });
+      toast.success('Catatan berhasil diperbarui');
+    },
+    onError: (err: any) =>
+      toast.error(err?.response?.data?.message || 'Gagal update catatan')
+  });
+
+  // DELETE
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await api.delete(`catatan-siswa/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return res.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dashboardWaliKelas'] });
+      toast.success('Catatan berhasil dihapus');
+    },
+    onError: () => toast.error('Gagal menghapus catatan')
+  });
+
+  const onSubmit = (data: FormValues) => {
+    console.log(data);
+
+    if (editId) {
+      updateMutation.mutate({
+        id: editId,
+        idSiswa: data.studentId,
+        content: data.keterangan
+      });
+      setEditId(null);
+    } else {
+      createMutation.mutate({
+        idSiswa: data.studentId,
+        content: data.keterangan
+      });
     }
-
     reset();
   };
 
   const handleEdit = (id: string) => {
-    const catatan = catatanList.find((c) => c.id === id);
+    const catatan = catatanList.find((c: any) => c.id === id);
     if (!catatan) return;
-
-    setValue('studentId', catatan.idSiswa); // pakai id aja
+    setValue('studentId', catatan.idSiswa);
     setValue('keterangan', catatan.catatan);
     setEditId(id);
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      await api.delete(`catatan-siswa/${id}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-      toggleTrigger();
-      toast.success('Catatan berhasil dihapus');
-    } catch {
-      toast.error('Gagal menghapus catatan');
-    }
-  };
-
   return (
-    <Card className='mb-[200px]'>
+    <Card>
       <CardHeader>
-        <CardTitle>Catatan Perkembangan Siswa</CardTitle>
+        <CardTitle className='text-base'>Catatan Perkembangan Siswa</CardTitle>
       </CardHeader>
       <CardContent className='space-y-4'>
         {/* Form */}
@@ -143,16 +155,15 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
                   <SelectValue placeholder='Pilih siswa' />
                 </SelectTrigger>
                 <SelectContent>
-                  {siswa?.map((s: any) => (
-                    <SelectItem key={s.id} value={s.idSiswa}>
-                      {s.namaSiswa}
+                  {siswa?.map((s) => (
+                    <SelectItem key={s.id} value={s.Siswa.id}>
+                      {s.namaSiswa} {s.Siswa.id}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             )}
           />
-
           <Controller
             name='keterangan'
             control={control}
@@ -164,31 +175,29 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
               />
             )}
           />
-
-          <Button type='submit'>
+          <Button
+            type='submit'
+            disabled={createMutation.isPending || updateMutation.isPending}
+          >
             {editId ? 'Update Catatan' : 'Tambah Catatan'}
           </Button>
         </form>
 
         {/* List */}
-        {catatanList?.length === 0 ? (
+        {catatanList.length === 0 ? (
           <p className='text-sm text-muted-foreground'>
             Belum ada catatan perkembangan.
           </p>
         ) : (
           <div className='grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4'>
-            {catatanList.map((c) => (
-              <Card
-                key={c.id}
-                className='relative flex rounded-xl shadow-sm transition-shadow hover:shadow-md'
-              >
+            {catatanList.map((c: any) => (
+              <Card key={c.id} className='relative rounded-xl shadow-sm'>
                 <CardHeader>
                   <CardTitle className='text-base font-semibold'>
                     {c.nama}
                   </CardTitle>
                   <span className='text-xs text-gray-500'>{c.catatan}</span>
                 </CardHeader>
-
                 <CardFooter className='absolute -right-2 top-4 flex gap-2'>
                   <Button
                     size='icon'
@@ -202,7 +211,7 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
                     size='icon'
                     variant='destructive'
                     className='h-8 w-8 rounded-full'
-                    onClick={() => handleDelete(c.id)}
+                    onClick={() => deleteMutation.mutate(c.id)}
                   >
                     <Trash2 className='h-4 w-4' />
                   </Button>

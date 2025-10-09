@@ -1,12 +1,12 @@
 import { auth } from '@/lib/auth';
 
 import Header from '@/components/layout/header';
-import Providers from '@/components/layout/providers';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import AppSidebarMengajar from '@/components/layout/sidebar-mengajar';
 import KBarMengajar from '@/components/kbar-mengajar';
+import ProvidersMengajar from '@/components/layout/provider-mengajar';
 // import { setApiToken } from '@/lib/api';
 
 export const metadata: Metadata = {
@@ -28,7 +28,7 @@ export default async function DashboardLayout({
   // setApiToken(session?.user?.token || null);
 
   return (
-    <Providers session={session}>
+    <ProvidersMengajar session={session}>
       <KBarMengajar>
         <SidebarProvider defaultOpen={defaultOpen}>
           <AppSidebarMengajar />
@@ -38,6 +38,6 @@ export default async function DashboardLayout({
           </SidebarInset>
         </SidebarProvider>
       </KBarMengajar>
-    </Providers>
+    </ProvidersMengajar>
   );
 }

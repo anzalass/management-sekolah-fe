@@ -14,21 +14,10 @@ import 'react-quill/dist/quill.snow.css';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
-import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { GoogleGenAI } from '@google/genai';
-
-interface Tugas {
-  id: number;
-  idKelas: string;
-  judul: string;
-  konten: string;
-  iframeSlide?: string;
-  iframeYoutube?: string;
-  pdfFile?: File | null;
-  link?: string;
-}
 
 interface ModalTugasProps {
   open: boolean;
@@ -50,8 +39,6 @@ export default function ModalTugas({
   onOpenChange,
   idKelas
 }: ModalTugasProps) {
-  const { toggleTrigger } = useRenderTrigger();
-
   const { register, handleSubmit, control, reset, setValue, watch } =
     useForm<FormValues>({
       defaultValues: {
@@ -63,78 +50,84 @@ export default function ModalTugas({
         deadline: ''
       }
     });
+
   const { data: session } = useSession();
-  const [TugasList, setTugasList] = useState<Tugas[]>([]);
+  const queryClient = useQueryClient();
   const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const promptValue = watch('prompt');
   const [editorInstance, setEditorInstance] = useState<any>(null);
 
   const ai = new GoogleGenAI({
-    apiKey: 'AIzaSyAaiszp38RzeZquyKjOsB3kbDVIVc7eRvc'
+    apiKey: process.env.NEXT_PUBLIC_GEMINI_KEY
   });
 
-  const onSubmit = async (data: FormValues) => {
-    if (!data.judul.trim() || !data.konten.trim()) return;
-
-    setIsLoading(true);
-    try {
+  // 🔹 Mutation: Create Tugas
+  const createTugasMutation = useMutation({
+    mutationFn: async (data: FormValues) => {
       const formData = new FormData();
       formData.append('judul', data.judul);
       formData.append('idKelasMapel', idKelas);
       formData.append('konten', data.konten);
       formData.append('deadline', data.deadline);
-
       formData.append('iframeGoogleSlide', data.iframeSlide);
       formData.append('iframeYoutube', data.iframeYoutube);
 
       if (pdfFile) formData.append('pdf', pdfFile);
 
-      await api.post(`Tugas`, formData, {
+      return api.post(`Tugas`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
-
+    },
+    onSuccess: () => {
       toast.success('Berhasil membuat Tugas');
       reset();
-      onOpenChange(false);
-      toggleTrigger();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    } finally {
-      setIsLoading(false);
       setPdfFile(null);
+      onOpenChange(false);
+      queryClient.invalidateQueries({ queryKey: ['kelasMapel', idKelas] });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
+  });
+
+  // 🔹 Mutation: Generate konten AI
+  const generateAIMutation = useMutation({
+    mutationFn: async (prompt: string) => {
+      const response = await ai.models.generateContent({
+        model: 'gemma-3-27b-it',
+        contents: `${prompt}, output nya html aja, tetapi tanpa tag html gausa ada css nya`
+      });
+      return response.text;
+    },
+    onSuccess: (text) => {
+      if (text && editorInstance) {
+        editorInstance.commands.setContent(text);
+        setValue('konten', text);
+        toast.success('Konten AI berhasil dibuat');
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Gagal generate AI');
+    }
+  });
+
+  const onSubmit = (data: FormValues) => {
+    if (!data.judul.trim() || !data.konten.trim()) {
+      toast.error('Judul dan Konten tidak boleh kosong');
+      return;
+    }
+    createTugasMutation.mutate(data);
   };
 
-  const generateAireal = async () => {
+  const handleGenerateAI = () => {
+    const promptValue = watch('prompt');
     if (!promptValue.trim()) {
       toast.error('Prompt tidak boleh kosong');
       return;
     }
-
-    setIsLoading(true);
-    try {
-      const response = await ai.models.generateContent({
-        model: 'gemma-3-27b-it',
-        contents: `${promptValue}, output nya html aja gausa ada css nya` // gunakan prompt dari input
-      });
-
-      if (response.text && editorInstance) {
-        // langsung set konten di editor
-        editorInstance.commands.setContent(response.text);
-        // update form value juga
-
-        setValue('konten', response.text);
-        toast.success('Konten AI berhasil dibuat');
-      }
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
-    } finally {
-      setIsLoading(false);
-    }
+    generateAIMutation.mutate(promptValue);
   };
 
   return (
@@ -142,8 +135,9 @@ export default function ModalTugas({
       <DialogContent className='h-screen max-w-5xl overflow-auto'>
         <VisuallyHidden>
           <DialogTitle>Tambah Tugas</DialogTitle>
-        </VisuallyHidden>{' '}
-        <DialogHeader></DialogHeader>
+        </VisuallyHidden>
+        <DialogHeader />
+
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           <div>
             <label>Judul Tugas</label>
@@ -168,7 +162,7 @@ export default function ModalTugas({
                   type='tugas'
                   value={field.value}
                   onChange={field.onChange}
-                  editorRef={setEditorInstance} // pasang editorRef supaya bisa set content dari luar
+                  editorRef={setEditorInstance}
                 />
               )}
             />
@@ -190,37 +184,22 @@ export default function ModalTugas({
             />
           </div>
 
-          {/* <div>
-            <label>Upload PDF</label>
-            <Input
-              type='file'
-              accept='application/pdf'
-              onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
-            />
-            {pdfFile && (
-              <p className='text-sm text-muted-foreground'>{pdfFile.name}</p>
-            )}
-          </div> */}
-
           <div className='flex gap-2'>
-            <Button type='submit' disabled={isLoading}>
-              {isLoading ? 'Menyimpan...' : 'Simpan Tugas'}
+            <Button type='submit' disabled={createTugasMutation.isPending}>
+              {createTugasMutation.isPending ? 'Menyimpan...' : 'Simpan Tugas'}
             </Button>
             <Button
               type='button'
               variant='outline'
-              disabled={isLoading}
-              onClick={generateAireal}
+              disabled={generateAIMutation.isPending}
+              onClick={handleGenerateAI}
             >
-              {isLoading ? 'Loading...' : 'Generate Tugas By AI'}
+              {generateAIMutation.isPending
+                ? 'Loading...'
+                : 'Generate Tugas By AI'}
             </Button>
           </div>
         </form>
-        {/* Optional preview */}
-        {/* <div
-          className='prose max-w-none mt-6'
-          dangerouslySetInnerHTML={{ __html: watch('konten') }}
-        ></div> */}
       </DialogContent>
     </Dialog>
   );

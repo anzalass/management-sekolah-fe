@@ -203,7 +203,7 @@ html {
 }
 
 .bg-lap {
-  background-image: url('../../public/banner.svg');
+  background-image: url('../../public/banner.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -213,7 +213,7 @@ html {
 }
 
 .bg-lac {
-  background-image: url('../../public/banner.svg');
+  background-image: url('../../public/banner.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

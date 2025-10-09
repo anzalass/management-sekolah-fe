@@ -1,11 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import axios from 'axios';
-import { API } from '@/lib/server';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
@@ -17,6 +15,9 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog';
 import { AlertDialogHeader } from '@/components/ui/alert-dialog';
+import { useQuery } from '@tanstack/react-query';
+import Image from 'next/image';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 interface Summary {
   id: number;
@@ -47,36 +48,53 @@ function stripHtml(html = '') {
   return div.textContent || div.innerText || '';
 }
 
-/** potong jadi preview */
 function excerptFromHtml(html = '', maxLen = 120) {
   const text = stripHtml(html).trim();
   if (text.length <= maxLen) return text;
   return text.slice(0, maxLen).trim() + '...';
 }
-export default function MateriView({ id }: IDMateri) {
-  const [materi, setMateri] = useState<Materi>();
-  const { data: session } = useSession();
 
-  const items = materi?.SummaryMateri || [];
+export default function MateriView({ id }: IDMateri) {
+  const { data: session } = useSession();
   const [openItem, setOpenItem] = useState<any>(null);
 
-  const getData = async () => {
-    try {
-      const response = await api.get(`materi-summary/${id}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-      setMateri(response.data.data);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    }
-  };
+  // 🔹 React Query untuk fetch materi
+  const {
+    data: materi,
+    isLoading,
+    isError
+  } = useQuery<Materi>({
+    queryKey: ['materi-summary', id],
+    queryFn: async () => {
+      try {
+        const response = await api.get(`materi-summary/${id}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        });
+        return response.data.data;
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
+        throw error;
+      }
+    },
+    enabled: !!session?.user?.token // hanya jalan kalau token sudah ada
+  });
 
-  useEffect(() => {
-    getData();
-  }, []);
+  if (isLoading) {
+    return (
+      <p className='text-center text-sm text-muted-foreground'>Loading...</p>
+    );
+  }
+
+  if (isError || !materi) {
+    return (
+      <p className='text-center text-sm text-red-500'>
+        Gagal memuat data materi
+      </p>
+    );
+  }
 
   return (
     <div className='space-y-8'>
@@ -86,22 +104,22 @@ export default function MateriView({ id }: IDMateri) {
           <CardTitle>📘 {materi?.judul}</CardTitle>
         </CardHeader>
         <CardContent className='prose max-w-none dark:prose-invert'>
-          <div dangerouslySetInnerHTML={{ __html: materi?.konten }} />{' '}
+          <div dangerouslySetInnerHTML={{ __html: materi?.konten }} />
           <div className='mx-auto w-full items-center justify-center'>
-            <div
-              className='mx-auto mb-10'
-              dangerouslySetInnerHTML={{ __html: materi?.iframeYoutube }}
-            />{' '}
-            <div
-              className='mx-auto'
-              dangerouslySetInnerHTML={{ __html: materi?.iframeGoogleSlide }}
-            />{' '}
-            {materi?.pdfUrl && (
-              <img
-                src={
-                  'https://res.cloudinary.com/dyofh7ecq/raw/upload/v1758702097/materi/materi%20pdf%20baru_1758702095608'
-                }
+            {materi?.iframeYoutube && (
+              <div
+                className='mx-auto mb-10'
+                dangerouslySetInnerHTML={{ __html: materi.iframeYoutube }}
               />
+            )}
+            {materi?.iframeGoogleSlide && (
+              <div
+                className='mx-auto'
+                dangerouslySetInnerHTML={{ __html: materi.iframeGoogleSlide }}
+              />
+            )}
+            {materi?.pdfUrl && (
+              <img src={materi.pdfUrl} alt='Materi PDF' className='mx-auto' />
             )}
           </div>
         </CardContent>
@@ -120,7 +138,7 @@ export default function MateriView({ id }: IDMateri) {
           )}
 
           <ScrollArea className='max-h-[300px] pr-2'>
-            <div className='grid grid-cols-4 space-y-4'>
+            <div className='grid grid-cols-4 gap-4'>
               {materi?.SummaryMateri.map((s: any) => (
                 <Dialog
                   key={s.id}
@@ -156,6 +174,39 @@ export default function MateriView({ id }: IDMateri) {
                     <div className='prose mt-4 max-h-[70vh] overflow-auto'>
                       <div dangerouslySetInnerHTML={{ __html: s?.content }} />
                     </div>
+
+                    {s?.fotoSummary?.length > 0 && (
+                      <div className='mt-3 grid grid-cols-2 gap-3'>
+                        {s?.fotoSummary.map((foto: any, i: number) => (
+                          <Dialog key={i}>
+                            <VisuallyHidden>
+                              <DialogTitle>Detail</DialogTitle>
+                            </VisuallyHidden>
+                            <DialogTrigger asChild>
+                              <Image
+                                src={foto.fotoUrl}
+                                alt={`summary-foto-${i}`}
+                                width={300}
+                                height={300}
+                                className='h-32 w-full cursor-pointer rounded-lg object-cover transition hover:opacity-80'
+                              />
+                            </DialogTrigger>
+
+                            <DialogContent className='max-w-5xl border-none bg-black/95 p-4'>
+                              <div className='flex flex-col items-center justify-center'>
+                                <Image
+                                  src={foto.fotoUrl}
+                                  alt={`foto-detail-${i}`}
+                                  width={800}
+                                  height={800}
+                                  className='max-h-[80vh] w-auto rounded-lg object-contain'
+                                />
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        ))}
+                      </div>
+                    )}
                   </DialogContent>
                 </Dialog>
               ))}

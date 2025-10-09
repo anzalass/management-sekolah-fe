@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import {
   Table,
@@ -13,8 +12,6 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -24,6 +21,7 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import api from '@/lib/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 type SelesaiUjian = {
   id: string;
@@ -45,49 +43,44 @@ type UjianIframe = {
 };
 
 export default function DetailUjianView({ id }: { id: string }) {
-  const [data, setData] = useState<UjianIframe | null>(null);
-  const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [openConfirm, setOpenConfirm] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await api.get(`/ujian-iframe-guru/${id}`);
-        setData(res.data);
-      } catch (err) {
-        toast.error('Gagal mengambil data ujian');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [id]);
+  const queryClient = useQueryClient();
 
-  const handleDelete = async () => {
-    if (!selectedId) return;
-    try {
-      await api.delete(`/selesai-ujian/delete/${selectedId}`);
+  // ✅ Fetch ujian
+  const { data, isLoading, isError } = useQuery<UjianIframe>({
+    queryKey: ['ujian-iframe', id],
+    queryFn: async () => {
+      const res = await api.get(`/ujian-iframe-guru/${id}`);
+      return res.data;
+    }
+  });
+
+  // ✅ Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/selesai-ujian/delete/${id}`);
+    },
+    onSuccess: () => {
       toast.success('Data berhasil dihapus');
-      // refresh data
-      setData((prev) =>
-        prev
-          ? {
-              ...prev,
-              SelesaiUjian: prev.SelesaiUjian.filter((s) => s.id !== selectedId)
-            }
-          : prev
-      );
-    } catch (err) {
-      toast.error('Gagal menghapus data');
-    } finally {
+      queryClient.invalidateQueries({ queryKey: ['ujian-iframe', id] });
       setOpenConfirm(false);
+    },
+    onError: () => {
+      toast.error('Gagal menghapus data');
+    }
+  });
+
+  const handleDelete = () => {
+    if (selectedId) {
+      deleteMutation.mutate(selectedId);
     }
   };
 
-  if (loading) return <p className='py-6 text-center'>Loading...</p>;
-
-  if (!data) return <p className='py-6 text-center'>Data tidak ditemukan</p>;
+  if (isLoading) return <p className='py-6 text-center'>Loading...</p>;
+  if (isError || !data)
+    return <p className='py-6 text-center'>Data tidak ditemukan</p>;
 
   return (
     <div className='space-y-6'>
@@ -95,14 +88,6 @@ export default function DetailUjianView({ id }: { id: string }) {
       <Card>
         <CardHeader>
           <CardTitle className='text-lg'>{data.nama}</CardTitle>
-          {/* <div className='text-sm text-muted-foreground'>
-            Deadline:{' '}
-            {data.deadline
-              ? format(new Date(data.deadline), 'dd MMMM yyyy HH:mm', {
-                  locale: id
-                })
-              : '-'}
-          </div> */}
         </CardHeader>
         <CardContent>
           <div className='aspect-video w-full overflow-hidden rounded-lg border'>
@@ -152,11 +137,6 @@ export default function DetailUjianView({ id }: { id: string }) {
                         {item.status}
                       </Badge>
                     </TableCell>
-                    {/* <TableCell>
-                      {format(new Date(item.createdAt), 'dd MMMM yyyy HH:mm', {
-                        locale: id
-                      })}
-                    </TableCell> */}
                     <TableCell className='text-right'>
                       <Button
                         variant='destructive'
@@ -190,8 +170,12 @@ export default function DetailUjianView({ id }: { id: string }) {
             <Button variant='outline' onClick={() => setOpenConfirm(false)}>
               Batal
             </Button>
-            <Button variant='destructive' onClick={handleDelete}>
-              Hapus
+            <Button
+              variant='destructive'
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? 'Menghapus...' : 'Hapus'}
             </Button>
           </DialogFooter>
         </DialogContent>

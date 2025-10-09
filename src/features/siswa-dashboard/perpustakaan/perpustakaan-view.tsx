@@ -43,8 +43,8 @@ export default function PerpustakaanView() {
       });
       return res.data.data;
     },
-    enabled: !!session?.user?.token,
-    staleTime: 1000 * 60 * 5 // 5 menit
+    enabled: !!session?.user?.token
+    // staleTime: 1000 * 60 * 5 // 5 menit
   });
 
   useEffect(() => {

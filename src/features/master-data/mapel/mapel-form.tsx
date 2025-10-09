@@ -48,8 +48,7 @@ export default function MapelForm({
 
   // Default Values dengan Fallback
   const defaultValue = {
-    nama: initialData?.nama,
-    kelas: initialData?.kelas
+    nama: initialData?.nama
   };
 
   const form = useForm({
@@ -119,7 +118,7 @@ export default function MapelForm({
                       placeholder='Masukkan Nama Mata Pelajaran...'
                       {...form.register('nama', {
                         required: 'Nama Mata Pelajaran wajib diisi',
-                        minLength: { value: 6, message: 'Minimal 6 karakter' }
+                        minLength: { value: 3, message: 'Minimal 3 karakter' }
                       })}
                     />
                   </FormControl>
@@ -129,24 +128,6 @@ export default function MapelForm({
                 </FormItem>
 
                 {/* Keterangan */}
-                <FormItem>
-                  <FormLabel>Kelas</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder='Masukkan Kelas...'
-                      {...form.register('kelas', {
-                        required: 'Kelas wajib diisi',
-                        minLength: {
-                          value: 3,
-                          message: 'Masukkan Kelas Minimal 3 Karakter'
-                        }
-                      })}
-                    />
-                  </FormControl>
-                  <FormMessage>
-                    {form.formState.errors.kelas?.message}
-                  </FormMessage>
-                </FormItem>
               </div>
             </div>
             {/* Tombol Submit */}

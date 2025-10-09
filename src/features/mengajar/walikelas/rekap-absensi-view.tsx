@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -9,12 +9,13 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { Notebook, Search } from 'lucide-react';
+import { Notebook } from 'lucide-react';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
+import { useQuery } from '@tanstack/react-query';
 
 interface RekapAbsensi {
   idSiswa: string | null;
@@ -34,16 +35,18 @@ interface RekapAbsensiByKelasProps {
 export default function RekapAbsensiByKelasView({
   idKelas
 }: RekapAbsensiByKelasProps) {
-  const [data, setData] = useState<RekapAbsensi[]>([]);
   const { data: session } = useSession();
-  const [loading, setLoading] = useState(false);
-
-  // filter state
   const [search, setSearch] = useState('');
 
-  useEffect(() => {
-    const fetchRekap = async () => {
-      setLoading(true);
+  // fetch data pakai react-query
+  const {
+    data: rekap = [],
+    isLoading,
+    isError,
+    error
+  } = useQuery<RekapAbsensi[]>({
+    queryKey: ['rekap-absensi', idKelas],
+    queryFn: async () => {
       try {
         const res = await api.get(`rekap-absensi/${idKelas}`, {
           headers: {
@@ -51,22 +54,25 @@ export default function RekapAbsensiByKelasView({
             Authorization: `Bearer ${session?.user?.token}`
           }
         });
-
-        setData(res.data);
-      } catch (error: any) {
-        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-      } finally {
-        setLoading(false);
+        return res.data;
+      } catch (err: any) {
+        throw new Error(
+          err?.response?.data?.message || 'Gagal memuat data rekap absensi'
+        );
       }
-    };
-
-    fetchRekap();
-  }, [idKelas]);
+    },
+    enabled: !!idKelas // hanya jalan kalau idKelas ada
+  });
 
   // filter nama
-  const filteredData = data.filter((item) =>
+  const filteredData = rekap.filter((item) =>
     item.namaSiswa.toLowerCase().includes(search.toLowerCase())
   );
+
+  // error toast (bisa juga di onError)
+  if (isError) {
+    toast.error((error as Error).message);
+  }
 
   return (
     <div className='space-y-4 p-4'>
@@ -81,7 +87,7 @@ export default function RekapAbsensiByKelasView({
         />
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <p>Loading...</p>
       ) : (
         <div>

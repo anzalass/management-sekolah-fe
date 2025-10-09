@@ -8,7 +8,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className='relative z-10 w-full bg-white shadow-md'>
+    <header className='relative z-50 w-full bg-white shadow-md'>
       <div className='mx-auto flex max-w-6xl items-center justify-between px-4 py-4'>
         {/* Logo dan Nama */}
         <div className='flex items-center gap-3'>

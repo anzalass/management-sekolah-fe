@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -9,15 +8,21 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { API } from '@/lib/server';
 import api from '@/lib/api';
+import { useQuery } from '@tanstack/react-query';
+
+type NilaiDetail = {
+  nilai: number;
+  bobot: number;
+};
 
 type NilaiRecord = {
   idSiswa: string;
   nis: string;
   nama: string;
-  nilai: Record<string, number>;
-  total: number;
+  nilai: Record<string, NilaiDetail>;
+  totalNilai: number;
+  rataRata: number;
 };
 
 interface RekapNilaiByKelasProps {
@@ -25,52 +30,94 @@ interface RekapNilaiByKelasProps {
 }
 
 export default function RekapNilaiTable({ idKelas }: RekapNilaiByKelasProps) {
-  const [data, setData] = useState<NilaiRecord[]>([]);
-  const [dynamicKeys, setDynamicKeys] = useState<string[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['rekap-nilai', idKelas],
+    queryFn: async (): Promise<NilaiRecord[]> => {
       const res = await api.get(`rekap-nilai-siswa/${idKelas}`);
-      const json = await res.data;
-      setData(json?.data);
+      return res.data?.data ?? [];
+    }
+  });
 
-      if (json?.data.length > 0) {
-        setDynamicKeys(Object.keys(json.data[0].nilai));
-      }
-    };
+  // Ambil semua key dari data pertama
+  const dynamicKeys = data && data.length > 0 ? Object.keys(data[0].nilai) : [];
 
-    fetchData();
-  }, [idKelas]);
+  if (isLoading)
+    return (
+      <div className='p-4 text-center text-muted-foreground'>
+        Memuat data...
+      </div>
+    );
+
+  if (isError)
+    return (
+      <div className='p-4 text-center text-red-500'>
+        Gagal memuat data nilai.
+      </div>
+    );
 
   return (
     <div className='w-full overflow-x-auto rounded-lg p-4 shadow-sm'>
-      <Table className='w-full overflow-x-auto'>
+      <Table className='w-full'>
         <TableHeader>
           <TableRow>
             <TableHead className='w-[100px]'>NIS</TableHead>
             <TableHead className='w-[20%]'>Nama</TableHead>
-            {dynamicKeys.map((key) => (
-              <TableHead key={key}>{key}</TableHead>
-            ))}
-            <TableHead>Total</TableHead>
+
+            {/* tampilkan nama + bobot di header */}
+            {dynamicKeys.map((key) => {
+              const bobot = data?.[0]?.nilai?.[key]?.bobot ?? 0;
+              return (
+                <TableHead key={key} className='text-center capitalize'>
+                  {key} ({bobot}%)
+                </TableHead>
+              );
+            })}
+
+            <TableHead className='text-center'>Total Nilai</TableHead>
+            <TableHead className='text-center'>Rata-Rata</TableHead>
           </TableRow>
         </TableHeader>
+
         <TableBody>
-          {data.length > 0 ? (
+          {data && data.length > 0 ? (
             data.map((row) => (
               <TableRow key={row.idSiswa}>
                 <TableCell>{row.nis}</TableCell>
                 <TableCell>{row.nama}</TableCell>
-                {dynamicKeys.map((key) => (
-                  <TableCell key={key}>{row.nilai[key] ?? '-'}</TableCell>
-                ))}
-                <TableCell>{row.total}</TableCell>
+
+                {dynamicKeys.map((key) => {
+                  const nilaiObj = row.nilai[key];
+                  return (
+                    <TableCell key={key} className='text-center'>
+                      {nilaiObj ? (
+                        <>
+                          {nilaiObj.nilai}
+                          {nilaiObj.bobot === 0 && (
+                            <span className='text-xs text-gray-400'>
+                              {' '}
+                              (bobot 0)
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        '-'
+                      )}
+                    </TableCell>
+                  );
+                })}
+
+                <TableCell className='text-center font-medium'>
+                  {row.totalNilai}
+                </TableCell>
+                <TableCell className='text-center'>
+                  {row.rataRata.toFixed(2)}
+                </TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow>
               <TableCell
-                colSpan={dynamicKeys.length + 3}
+                colSpan={dynamicKeys.length + 4}
                 className='text-center text-muted-foreground'
               >
                 Tidak ada data

@@ -1,13 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { CalendarIcon, Timer, Book } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import api from '@/lib/api';
-import NavbarSiswa from '../navbar-siswa';
-import BottomNav from '../bottom-nav';
+import { toast } from 'sonner';
+import Link from 'next/link';
+import Image from 'next/image';
+
+import {
+  CalendarIcon,
+  Timer,
+  Book,
+  XCircle,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  Clock,
+  SearchIcon
+} from 'lucide-react';
+
+import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectTrigger,
@@ -16,24 +30,31 @@ import {
   SelectItem
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { useQuery } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import HeaderSiswa from '../header-siswa';
+import BottomNav from '../bottom-nav';
 import FilterMobileLogPresensi from './filter-mobile-presensi';
 import EmptyState from '../empty-state';
 
 interface Presensi {
   id: number;
-  waktu: string;
+  waktu: string; // ISO string
   keterangan: 'Hadir' | 'Sakit' | 'Izin' | 'Alpha';
+  lokasi?: string;
+  catatan?: string;
 }
 
 export default function LogPresensiView() {
   const { data: session } = useSession();
-  const [filterTanggal, setFilterTanggal] = useState('');
-  const [filterBulan, setFilterBulan] = useState('');
-  const [filterTahun, setFilterTahun] = useState('');
-  const [filterKeterangan, setFilterKeterangan] = useState('');
 
+  // filters / ui state
+  const [search, setSearch] = useState('');
+  const [filterTanggal, setFilterTanggal] = useState(''); // yyyy-mm-dd
+  const [filterBulan, setFilterBulan] = useState(''); // '01'..'12'
+  const [filterTahun, setFilterTahun] = useState(''); // yyyy
+  const [filterKeterangan, setFilterKeterangan] = useState('');
+  const [showFilter, setShowFilter] = useState(false);
+
+  // fetch presensi
   const {
     data: presensi = [],
     isLoading,
@@ -45,10 +66,10 @@ export default function LogPresensiView() {
       const res = await api.get('siswa/presensi', {
         headers: { Authorization: `Bearer ${session.user.token}` }
       });
-      return res.data.data;
+      return res.data.data as Presensi[];
     },
     enabled: !!session?.user?.token,
-    staleTime: 1000 * 60 * 5
+    staleTime: 1000 * 60 * 2 // 2 menit
   });
 
   useEffect(() => {
@@ -61,189 +82,426 @@ export default function LogPresensiView() {
     }
   }, [error]);
 
-  const filtered = presensi.filter((item) => {
-    const dateObj = new Date(item.waktu);
-    const dateOnly = dateObj.toISOString().split('T')[0];
-    const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
-    const year = dateObj.getFullYear().toString();
+  // helper: available tahun dari data
+  const tahunList = useMemo(() => {
+    const setT = new Set<string>();
+    presensi.forEach((p) => {
+      try {
+        const y = new Date(p.waktu).getFullYear().toString();
+        setT.add(y);
+      } catch {
+        // ignore
+      }
+    });
+    return Array.from(setT).sort((a, b) => Number(b) - Number(a));
+  }, [presensi]);
 
-    return (
-      (!filterTanggal || dateOnly === filterTanggal) &&
-      (!filterBulan || month === filterBulan) &&
-      (!filterTahun || year === filterTahun) &&
-      (!filterKeterangan || item.keterangan === filterKeterangan)
-    );
-  });
+  // filtering logic (search + tanggal + bulan + tahun + keterangan)
+  const filtered = presensi
+    .filter((p) => {
+      if (!search) return true;
+      const hay = p.catatan
+        ? `${p.catatan} ${p.lokasi ?? ''}`.toLowerCase()
+        : '';
+      // also check ISO date string and keterangan
+      return (
+        p.keterangan.toLowerCase().includes(search.toLowerCase()) ||
+        hay.includes(search.toLowerCase())
+      );
+    })
+    .filter((p) => {
+      if (!filterTanggal) return true;
+      const dateOnly = new Date(p.waktu).toISOString().split('T')[0];
+      return dateOnly === filterTanggal;
+    })
+    .filter((p) => {
+      if (!filterBulan) return true;
+      const month = String(new Date(p.waktu).getMonth() + 1).padStart(2, '0');
+      return month === filterBulan;
+    })
+    .filter((p) => {
+      if (!filterTahun) return true;
+      const year = String(new Date(p.waktu).getFullYear());
+      return year === filterTahun;
+    })
+    .filter((p) => {
+      if (!filterKeterangan) return true;
+      return p.keterangan === filterKeterangan;
+    });
 
-  const handleReset = () => {
+  // summary stats
+  const summary = filtered.reduce(
+    (acc, item) => {
+      if (item.keterangan === 'Hadir') acc.hadir++;
+      if (item.keterangan === 'Sakit') acc.sakit++;
+      if (item.keterangan === 'Izin') acc.izin++;
+      if (item.keterangan === 'Alpha') acc.alpha++;
+      return acc;
+    },
+    { hadir: 0, sakit: 0, izin: 0, alpha: 0 }
+  );
+
+  const totalCount = filtered.length;
+
+  const resetFilters = () => {
+    setSearch('');
     setFilterTanggal('');
     setFilterBulan('');
     setFilterTahun('');
     setFilterKeterangan('');
   };
 
-  const tahunList = Array.from(
-    new Set(presensi.map((i) => new Date(i.waktu).getFullYear().toString()))
-  );
+  const formatDateFull = (iso: string) =>
+    new Date(iso).toLocaleDateString('id-ID', {
+      weekday: 'long',
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
 
-  const summary = filtered.reduce(
-    (acc, item) => {
-      if (item.keterangan === 'Hadir') acc.hadir++;
-      else if (item.keterangan === 'Sakit') acc.sakit++;
-      else if (item.keterangan === 'Izin') acc.izin++;
-      else if (item.keterangan === 'Alpha') acc.alpha++;
-      return acc;
-    },
-    { hadir: 0, sakit: 0, izin: 0, alpha: 0 }
-  );
+  const formatTime = (iso: string) =>
+    new Date(iso).toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+
+  // card style helper
+  const getStyleFor = (k: Presensi['keterangan']) => {
+    switch (k) {
+      case 'Hadir':
+        return {
+          gradient: 'from-green-500 to-emerald-500',
+          badgeBg: 'bg-green-100',
+          badgeText: 'text-green-700',
+          iconColor: 'text-green-600'
+        };
+      case 'Sakit':
+        return {
+          gradient: 'from-blue-500 to-cyan-500',
+          badgeBg: 'bg-blue-100',
+          badgeText: 'text-blue-700',
+          iconColor: 'text-blue-600'
+        };
+      case 'Izin':
+        return {
+          gradient: 'from-yellow-500 to-amber-500',
+          badgeBg: 'bg-yellow-100',
+          badgeText: 'text-yellow-700',
+          iconColor: 'text-yellow-600'
+        };
+      case 'Alpha':
+      default:
+        return {
+          gradient: 'from-red-500 to-rose-500',
+          badgeBg: 'bg-red-100',
+          badgeText: 'text-red-700',
+          iconColor: 'text-red-600'
+        };
+    }
+  };
 
   return (
-    <div className='relative mx-auto mb-14 w-full space-y-2 sm:space-y-6'>
-      <NavbarSiswa title='Log Presensi' />
+    <div className='min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50 pb-20'>
+      {/* HEADER with blue theme + stats */}
+      <div className='bg-blue-800 px-4 pb-24 pt-6'>
+        <div className='mx-auto max-w-6xl'>
+          <div className='mb-6 flex items-center gap-3'>
+            <Link
+              href={'/siswa'}
+              className='flex h-12 w-12 items-center justify-center rounded-full bg-white/20'
+            >
+              <ArrowIcon />
+            </Link>
+            <div className='flex h-12 w-12 items-center justify-center rounded-full bg-white/20'>
+              <Book />
+            </div>
+            <div>
+              <h1 className='text-2xl font-bold text-white'>Log Presensi</h1>
+              <p className='text-sm text-blue-100'>Riwayat kehadiran siswa</p>
+            </div>
+          </div>
 
-      <FilterMobileLogPresensi
-        tanggalValue={filterTanggal}
-        setTanggalValue={setFilterTanggal}
-        bulanValue={filterBulan}
-        setBulanValue={setFilterBulan}
-        tahunValue={filterTahun}
-        setTahunValue={setFilterTahun}
-        tahunList={tahunList}
-        keteranganValue={filterKeterangan}
-        setKeteranganValue={setFilterKeterangan}
-      />
+          {/* stats small cards */}
+          <div className='grid grid-cols-2 gap-3 lg:grid-cols-4'>
+            <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
+              <div className='mb-2 flex items-center gap-2'>
+                <TrendingUpIcon />
+                <p className='text-xs text-blue-100'>Total</p>
+              </div>
+              <p className='text-2xl font-bold text-white'>{totalCount}</p>
+            </div>
 
-      {/* Filter */}
-      <div className='hidden w-full grid-cols-1 gap-3 p-4 sm:grid sm:w-[70%] sm:grid-cols-2 md:grid-cols-5'>
-        <div className='relative'>
-          <CalendarIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
-          <Input
-            type='date'
-            value={filterTanggal}
-            onChange={(e) => setFilterTanggal(e.target.value)}
-            className='pl-10'
-          />
+            <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
+              <p className='mb-2 text-xs text-blue-100'>Hadir</p>
+              <p className='text-2xl font-bold text-white'>{summary.hadir}</p>
+            </div>
+
+            <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
+              <p className='mb-2 text-xs text-blue-100'>Sakit</p>
+              <p className='text-2xl font-bold text-white'>{summary.sakit}</p>
+            </div>
+
+            <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
+              <p className='mb-2 text-xs text-blue-100'>Izin</p>
+              <p className='text-2xl font-bold text-white'>{summary.izin}</p>
+            </div>
+          </div>
         </div>
-
-        <Select value={filterBulan} onValueChange={setFilterBulan}>
-          <SelectTrigger>
-            <SelectValue placeholder='Pilih Bulan' />
-          </SelectTrigger>
-          <SelectContent>
-            {Array.from({ length: 12 }, (_, i) => {
-              const bulan = (i + 1).toString().padStart(2, '0');
-              const namaBulan = new Date(2000, i).toLocaleString('id-ID', {
-                month: 'long'
-              });
-              return (
-                <SelectItem key={bulan} value={bulan}>
-                  {namaBulan}
-                </SelectItem>
-              );
-            })}
-          </SelectContent>
-        </Select>
-
-        <Select value={filterTahun} onValueChange={setFilterTahun}>
-          <SelectTrigger>
-            <SelectValue placeholder='Pilih Tahun' />
-          </SelectTrigger>
-          <SelectContent>
-            {tahunList.map((t) => (
-              <SelectItem key={t} value={t}>
-                {t}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select value={filterKeterangan} onValueChange={setFilterKeterangan}>
-          <SelectTrigger>
-            <SelectValue placeholder='Pilih Keterangan' />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value='Hadir'>Hadir</SelectItem>
-            <SelectItem value='Sakit'>Sakit</SelectItem>
-            <SelectItem value='Izin'>Izin</SelectItem>
-            <SelectItem value='Alpha'>Alpha</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Button variant='outline' onClick={handleReset}>
-          Reset Filter
-        </Button>
       </div>
 
-      {/* Summary */}
-      <div className='mx-auto flex w-11/12 flex-wrap gap-4 rounded-md border border-blue-600 p-3 px-4 text-sm font-medium md:w-full'>
-        <span className='text-green-600'>Hadir: {summary.hadir}</span>
-        <span className='text-blue-600'>Sakit: {summary.sakit}</span>
-        <span className='text-yellow-600'>Izin: {summary.izin}</span>
-        <span className='text-red-600'>Alpha: {summary.alpha}</span>
-      </div>
+      {/* SEARCH + FILTER (card below header) */}
+      <div className='mx-auto -mt-16 max-w-6xl px-4'>
+        <div className='rounded-2xl bg-white p-4 shadow-xl'>
+          <div className='mb-3 flex gap-2'>
+            <div className='relative flex-1'>
+              <SearchIcon className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
+              <Input
+                placeholder='Cari Keterangan'
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className='h-[47px] w-full pl-10'
+              />
+            </div>
 
-      {/* Daftar Presensi */}
-      {isLoading ? (
-        <p className='p-4 text-center'>Loading presensi...</p>
-      ) : error ? (
-        <p className='p-4 text-center text-red-500'>Gagal memuat data</p>
-      ) : (
-        <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6'>
-          {filtered.length > 0 ? (
-            filtered.map((item) => (
-              <Card key={item.id} className='shadow-sm'>
-                <CardHeader>
-                  <CardTitle className='text-base font-semibold'>
-                    {new Date(item.waktu).toLocaleDateString('id-ID', {
-                      day: '2-digit',
-                      month: 'long',
-                      year: 'numeric'
+            <button
+              onClick={() => setShowFilter(!showFilter)}
+              className={`flex h-12 w-12 items-center justify-center rounded-xl transition-all ${
+                showFilter
+                  ? 'bg-blue-600 text-white'
+                  : 'border border-gray-200 bg-gray-50 text-gray-600'
+              }`}
+            >
+              <FilterIcon />
+            </button>
+          </div>
+
+          {showFilter && (
+            <div className='animate-[slideDown_0.2s_ease-out] space-y-3'>
+              <div className='grid gap-3 sm:grid-cols-4'>
+                <div className='relative'>
+                  <CalendarIcon className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
+                  <Input
+                    type='date'
+                    value={filterTanggal}
+                    onChange={(e) => setFilterTanggal(e.target.value)}
+                    className='h-11 rounded-xl border-gray-200 pl-10'
+                  />
+                </div>
+
+                <Select
+                  value={filterBulan || 'all'}
+                  onValueChange={(v) => setFilterBulan(v === 'all' ? '' : v)}
+                >
+                  <SelectTrigger className='h-11 rounded-xl'>
+                    <SelectValue placeholder='Bulan' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>Semua Bulan</SelectItem>
+                    {Array.from({ length: 12 }, (_, i) => {
+                      const bulan = (i + 1).toString().padStart(2, '0');
+                      const namaBulan = new Date(2000, i).toLocaleString(
+                        'id-ID',
+                        { month: 'long' }
+                      );
+                      return (
+                        <SelectItem key={bulan} value={bulan}>
+                          {namaBulan}
+                        </SelectItem>
+                      );
                     })}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className='space-y-2 text-sm text-muted-foreground'>
-                  <p className='flex items-center gap-2'>
-                    <Timer className='h-4 w-4 text-green-500' />
-                    Jam :{' '}
-                    {item.keterangan === 'Hadir' ? (
-                      <span className='font-medium text-foreground'>
-                        {new Date(item.waktu).toLocaleTimeString('id-ID', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          second: '2-digit'
-                        })}
-                      </span>
-                    ) : (
-                      <span className='text-red-500'>-</span>
-                    )}
-                  </p>
-                  <p className='flex items-center gap-2'>
-                    <Book className='h-4 w-4 text-blue-500' />
-                    Keterangan:{' '}
-                    <span
-                      className={`${
-                        item.keterangan === 'Hadir'
-                          ? 'text-green-500'
-                          : item.keterangan === 'Sakit'
-                            ? 'text-blue-500'
-                            : item.keterangan === 'Izin'
-                              ? 'text-yellow-500'
-                              : 'text-red-500'
-                      } font-medium text-foreground`}
-                    >
-                      {item.keterangan}
-                    </span>
-                  </p>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            <EmptyState />
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={filterTahun || 'all'}
+                  onValueChange={(v) => setFilterTahun(v === 'all' ? '' : v)}
+                >
+                  <SelectTrigger className='h-11 rounded-xl'>
+                    <SelectValue placeholder='Tahun' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>Semua Tahun</SelectItem>
+                    {tahunList.map((t) => (
+                      <SelectItem key={t} value={t}>
+                        {t}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={filterKeterangan || 'all'}
+                  onValueChange={(v) =>
+                    setFilterKeterangan(v === 'all' ? '' : v)
+                  }
+                >
+                  <SelectTrigger className='h-11 rounded-xl'>
+                    <SelectValue placeholder='Status' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>Semua</SelectItem>
+                    <SelectItem value='Hadir'>Hadir</SelectItem>
+                    <SelectItem value='Sakit'>Sakit</SelectItem>
+                    <SelectItem value='Izin'>Izin</SelectItem>
+                    <SelectItem value='Alpha'>Alpha</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className='flex justify-end gap-2'>
+                <Button
+                  variant='outline'
+                  onClick={resetFilters}
+                  className='rounded-xl'
+                >
+                  <XCircle className='mr-2 h-4 w-4' />
+                  Reset
+                </Button>
+              </div>
+            </div>
           )}
         </div>
-      )}
+      </div>
+
+      {/* CONTENT */}
+      <div className='mx-auto max-w-6xl px-4 py-8'>
+        {isLoading ? (
+          <div className='py-12 text-center'>
+            <Loader2 className='mx-auto h-12 w-12 animate-spin text-blue-600' />
+            <p className='mt-4 text-gray-600'>Memuat data presensi...</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className='py-12 text-center'>
+            <EmptyState
+              title={
+                filterTanggal || filterBulan || filterTahun || filterKeterangan
+                  ? 'Tidak ada data yang sesuai filter'
+                  : 'Belum ada riwayat presensi'
+              }
+              description={
+                filterTanggal || filterBulan || filterTahun || filterKeterangan
+                  ? 'Coba reset filter'
+                  : 'Presensi belum tercatat'
+              }
+            />
+          </div>
+        ) : (
+          <div className='grid gap-4 md:grid-cols-2'>
+            {filtered.map((item) => {
+              const style = getStyleFor(item.keterangan);
+              return (
+                <Card
+                  key={item.id}
+                  className='group overflow-hidden border-0 shadow-md'
+                >
+                  <div
+                    className={`h-1.5 w-full bg-gradient-to-r ${style.gradient}`}
+                  />
+
+                  <CardHeader className='pb-7'>
+                    <div className='flex items-start justify-between'>
+                      <div className='flex items-start gap-3'>
+                        <div className='flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-sm'>
+                          <Clock className={`h-6 w-6 ${style.iconColor}`} />
+                        </div>
+
+                        <div className='min-w-0'>
+                          <div className='mb-1 flex items-center gap-2'>
+                            <span
+                              className={`rounded-full px-2 py-1 text-xs font-bold ${style.badgeBg} ${style.badgeText}`}
+                            >
+                              {item.keterangan}
+                            </span>
+                          </div>
+
+                          <CardTitle className='mt-2 text-sm font-bold text-gray-900'>
+                            {formatDateFull(item.waktu)}
+                          </CardTitle>
+                        </div>
+                      </div>
+
+                      <div className='flex-shrink-0 text-right'>
+                        <p className='text-2xl font-bold text-gray-900'>
+                          {formatTime(item.waktu)}
+                        </p>
+                        <p className='text-xs text-muted-foreground'>Waktu</p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       <BottomNav />
+
+      <style>{`
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
+  );
+}
+
+/* ---------- Small helper icons as inline components to avoid extra imports ---------- */
+function ArrowIcon() {
+  return (
+    <svg
+      width='18'
+      height='18'
+      viewBox='0 0 24 24'
+      fill='none'
+      className='text-white'
+    >
+      <path
+        d='M15 18l-6-6 6-6'
+        stroke='currentColor'
+        strokeWidth='2'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      />
+    </svg>
+  );
+}
+function TrendingUpIcon() {
+  return (
+    <svg
+      width='16'
+      height='16'
+      viewBox='0 0 24 24'
+      fill='none'
+      className='text-white'
+    >
+      <path
+        d='M3 17l6-6 4 4 8-8'
+        stroke='currentColor'
+        strokeWidth='2'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      />
+    </svg>
+  );
+}
+function FilterIcon() {
+  return (
+    <svg
+      width='16'
+      height='16'
+      viewBox='0 0 24 24'
+      fill='none'
+      className='text-inherit'
+    >
+      <path
+        d='M4 6h16M6 12h12M10 18h4'
+        stroke='currentColor'
+        strokeWidth='2'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      />
+    </svg>
   );
 }

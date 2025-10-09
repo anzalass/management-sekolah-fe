@@ -10,11 +10,6 @@ export const columns: ColumnDef<Mapel>[] = [
     cell: ({ row }) => row.original.nama
   },
   {
-    accessorKey: 'kelas', // NIP
-    header: 'Kelas',
-    cell: ({ row }) => row.original.kelas
-  },
-  {
     id: 'actions', // Actions (untuk tombol aksi seperti edit, delete)
     header: 'Actions',
     cell: ({ row }) => <CellAction data={row.original} />

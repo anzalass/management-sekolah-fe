@@ -73,7 +73,6 @@
 //     ];
 //   }
 // });
-
 const withPWA = require('next-pwa')({
   dest: 'public',
   register: true,
@@ -129,6 +128,9 @@ module.exports = withPWA({
       'https://management-sekolah.zeabur.app',
       'https://api.sandbox.midtrans.com',
       'https://app.sandbox.midtrans.com',
+      'https://generativelanguage.googleapis.com', // ✅ allow Google Generative Language API
+      'https://*.googleapis.com', // ✅ wildcard semua Google APIs
+      'https://www.google-analytics.com', // ✅ GA
       ...(isDev ? ['http://localhost:5000'] : [])
     ].join(' ');
 
@@ -139,19 +141,19 @@ module.exports = withPWA({
           {
             key: 'Content-Security-Policy',
             value: `
-            default-src 'self';
-            script-src 'self' 'unsafe-eval' 'unsafe-inline'
-              https://snap-assets.al-pc-id-b.cdn.gtflabs.io
-              https://api.sandbox.midtrans.com
-              https://app.sandbox.midtrans.com
-              https://pay.google.com
-              https://js-agent.newrelic.com
-              https://bam.nr-data.net;
-            frame-src 'self' https://app.sandbox.midtrans.com https://api.sandbox.midtrans.com;
-            connect-src ${connectSrc} data: blob:;
-            img-src * data: blob:;
-            style-src 'self' 'unsafe-inline';
-          `.replace(/\s{2,}/g, ' ')
+              default-src 'self';
+              script-src 'self' 'unsafe-eval' 'unsafe-inline'
+                https://snap-assets.al-pc-id-b.cdn.gtflabs.io
+                https://api.sandbox.midtrans.com
+                https://app.sandbox.midtrans.com
+                https://pay.google.com
+                https://js-agent.newrelic.com
+                https://bam.nr-data.net;
+              frame-src 'self' https://app.sandbox.midtrans.com https://api.sandbox.midtrans.com;
+              connect-src ${connectSrc} data: blob:;
+              img-src * data: blob:;
+              style-src 'self' 'unsafe-inline';
+            `.replace(/\s{2,}/g, ' ')
           }
         ]
       }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -20,6 +20,8 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Card } from '@/components/ui/card';
 
 interface Perizinan {
   id: string;
@@ -39,73 +41,65 @@ interface Perizinan {
 type Props = {
   idKelas: string;
 };
+
 export default function PerizinanSiswaView({ idKelas }: Props) {
-  const [data, setData] = useState<Perizinan[]>([]);
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
   const [selectedBukti, setSelectedBukti] = useState<string | null>(null);
 
-  const fetchData = async () => {
-    try {
+  const token = session?.user?.token;
+
+  // ✅ Query ambil data
+  const { data: perizinan = [], isLoading } = useQuery<Perizinan[]>({
+    queryKey: ['perizinan', idKelas],
+    queryFn: async () => {
       const res = await api.get(`perizinan-siswa-hari-ini/${idKelas}`, {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+        headers: { Authorization: `Bearer ${token}` }
       });
+      return res.data.data;
+    },
+    enabled: !!token && !!idKelas
+  });
 
-      setData(res.data.data);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Gagal ambil data');
-    }
-  };
-
-  const handleSetujui = async (id: string) => {
-    try {
+  // ✅ Mutation setujui
+  const setujuiMutation = useMutation({
+    mutationFn: async (id: string) => {
       await api.patch(
         `perizinan-siswa-status/${id}`,
-        {
-          status: 'disetujui'
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
-          }
-        }
+        { status: 'disetujui' },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
+    },
+    onSuccess: () => {
       toast.success('Perizinan disetujui');
-      fetchData();
-    } catch (err: any) {
+      queryClient.invalidateQueries({ queryKey: ['perizinan', idKelas] });
+    },
+    onError: () => {
       toast.error('Gagal setujui');
     }
-  };
+  });
 
-  const handleTolak = async (id: string) => {
-    try {
+  // ✅ Mutation tolak
+  const tolakMutation = useMutation({
+    mutationFn: async (id: string) => {
       await api.patch(
         `perizinan-siswa-status/${id}`,
-        {
-          status: 'ditolak'
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
-          }
-        }
+        { status: 'ditolak' },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
+    },
+    onSuccess: () => {
       toast.success('Perizinan ditolak');
-      fetchData();
-    } catch (err: any) {
+      queryClient.invalidateQueries({ queryKey: ['perizinan', idKelas] });
+    },
+    onError: () => {
       toast.error('Gagal tolak');
     }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, [idKelas]);
+  });
 
   return (
-    <div className=''>
-      <h1 className='mb-4 text-xl font-semibold'>Daftar Perizinan Siswa</h1>
+    <Card className='p-5'>
+      <h1 className='mb-4 text-base font-semibold'>Daftar Perizinan Siswa</h1>
       <div className='rounded-xl border'>
         <Table>
           <TableHeader>
@@ -122,14 +116,21 @@ export default function PerizinanSiswaView({ idKelas }: Props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.length === 0 && (
+            {isLoading && (
+              <TableRow>
+                <TableCell colSpan={10} className='text-center'>
+                  Loading...
+                </TableCell>
+              </TableRow>
+            )}
+            {!isLoading && perizinan.length === 0 && (
               <TableRow>
                 <TableCell colSpan={10} className='text-center'>
                   Tidak ada data
                 </TableCell>
               </TableRow>
             )}
-            {data.map((izin, idx) => (
+            {perizinan.map((izin, idx) => (
               <TableRow key={izin.id}>
                 <TableCell>{idx + 1}</TableCell>
                 <TableCell>{izin.namaSiswa}</TableCell>
@@ -141,7 +142,7 @@ export default function PerizinanSiswaView({ idKelas }: Props) {
                     day: '2-digit',
                     month: 'long',
                     year: 'numeric'
-                  })}{' '}
+                  })}
                 </TableCell>
                 <TableCell>
                   <span
@@ -197,16 +198,18 @@ export default function PerizinanSiswaView({ idKelas }: Props) {
                   <Button
                     size='sm'
                     className='bg-green-600 text-white hover:bg-green-700'
-                    onClick={() => handleSetujui(izin.id)}
+                    onClick={() => setujuiMutation.mutate(izin.id)}
+                    disabled={setujuiMutation.isPending}
                   >
-                    Setujui
+                    {setujuiMutation.isPending ? '...' : 'Setujui'}
                   </Button>
                   <Button
                     size='sm'
                     variant='destructive'
-                    onClick={() => handleTolak(izin.id)}
+                    onClick={() => tolakMutation.mutate(izin.id)}
+                    disabled={tolakMutation.isPending}
                   >
-                    Tolak
+                    {tolakMutation.isPending ? '...' : 'Tolak'}
                   </Button>
                 </TableCell>
               </TableRow>
@@ -214,6 +217,6 @@ export default function PerizinanSiswaView({ idKelas }: Props) {
           </TableBody>
         </Table>
       </div>
-    </div>
+    </Card>
   );
 }

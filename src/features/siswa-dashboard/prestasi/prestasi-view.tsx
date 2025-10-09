@@ -1,107 +1,233 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import api from '@/lib/api';
-import { SearchIcon, Sparkles } from 'lucide-react';
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import NavbarSiswa from '../navbar-siswa';
-import BottomNav from '../bottom-nav';
-import { useEffect, useState } from 'react';
+import api from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
 import { toast } from 'sonner';
-
-interface Prestasi {
-  id: number;
-  keterangan: string;
-  waktu: string;
-}
+import {
+  ArrowLeft,
+  Award,
+  Calendar,
+  Filter,
+  Search,
+  Sparkles,
+  Star,
+  Trophy
+} from 'lucide-react';
+import BottomNav from '../bottom-nav';
 
 export default function PrestasiView() {
   const { data: session } = useSession();
   const [search, setSearch] = useState('');
+  const [filterTanggal, setFilterTanggal] = useState('');
+  const [showFilter, setShowFilter] = useState(false);
+
+  // 🔹 Fetch Prestasi
+  const fetchPrestasi = async () => {
+    const res = await api.get('siswa/prestasi', {
+      headers: {
+        Authorization: `Bearer ${session?.user?.token}`
+      }
+    });
+    return res.data.data;
+  };
 
   const {
     data: prestasi = [],
     isLoading,
+    isError,
     error
-  } = useQuery<Prestasi[]>({
-    queryKey: ['prestasi-siswa'],
-    queryFn: async () => {
-      if (!session?.user?.token) return [];
-      const res = await api.get('siswa/prestasi', {
-        headers: { Authorization: `Bearer ${session.user.token}` }
-      });
-      return res.data.data;
-    },
-    enabled: !!session?.user?.token,
-    staleTime: 1000 * 60 * 5 // cache 5 menit
+  } = useQuery({
+    queryKey: ['prestasi-siswa', session?.user?.token],
+    queryFn: fetchPrestasi,
+    enabled: !!session?.user?.token
   });
 
-  useEffect(() => {
-    if (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : 'Terjadi kesalahan saat memuat data'
-      );
-    }
-  }, [error]);
+  if (isError) {
+    toast.error((error as any)?.response?.data?.message || 'Terjadi kesalahan');
+  }
 
-  const filtered = prestasi.filter((p) =>
-    p.keterangan.toLowerCase().includes(search.toLowerCase())
-  );
+  // 🔹 Filter Data
+  const filtered = prestasi
+    .filter((p: any) =>
+      p.keterangan.toLowerCase().includes(search.toLowerCase())
+    )
+    .filter((p: any) => !filterTanggal || p.waktu.startsWith(filterTanggal));
+
+  // 🔹 Statistik
+  const totalPrestasi = filtered.length;
+  const tahunIni = filtered.filter(
+    (p: any) => new Date(p.waktu).getFullYear() === new Date().getFullYear()
+  ).length;
+  const bulanIni = filtered.filter(
+    (p: any) =>
+      new Date(p.waktu).getMonth() === new Date().getMonth() &&
+      new Date(p.waktu).getFullYear() === new Date().getFullYear()
+  ).length;
+
+  const formatDate = (dateString: any) => {
+    return new Date(dateString).toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
 
   return (
-    <div className='mx-auto mb-14 w-full space-y-3'>
-      <NavbarSiswa title='Prestasi Siswa' />
+    <div className='min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 pb-20'>
+      {/* Header */}
+      <div className='bg-gradient-to-r from-yellow-500 to-orange-500 px-4 pb-24 pt-6'>
+        <div className='mx-auto max-w-6xl'>
+          <div className='mb-6 flex items-center gap-3'>
+            <Link
+              href={'/siswa'}
+              className='flex h-12 w-12 items-center justify-center rounded-full bg-white/20'
+            >
+              <ArrowLeft />
+            </Link>
+            <div className='flex h-12 w-12 items-center justify-center rounded-full bg-white/20'>
+              <Trophy className='h-7 w-7 text-white' />
+            </div>
+            <div>
+              <h1 className='text-2xl font-bold text-white'>Prestasi Siswa</h1>
+              <p className='text-sm text-yellow-100'>
+                Catatan pencapaian & penghargaanmu
+              </p>
+            </div>
+          </div>
 
-      <div className='px-4'>
-        <div className='relative w-full sm:w-[30%]'>
-          <SearchIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
-          <Input
-            placeholder='Cari Prestasi...'
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className='pl-10'
-          />
+          {/* Statistik */}
+          <div className='grid grid-cols-3 gap-3'>
+            <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
+              <p className='text-xs text-yellow-100'>Total Prestasi</p>
+              <p className='text-2xl font-bold text-white'>{totalPrestasi}</p>
+            </div>
+            <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
+              <p className='text-xs text-yellow-100'>Tahun Ini</p>
+              <p className='text-2xl font-bold text-white'>{tahunIni}</p>
+            </div>
+            <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
+              <p className='text-xs text-yellow-100'>Bulan Ini</p>
+              <p className='text-2xl font-bold text-white'>{bulanIni}</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {isLoading ? (
-        <p className='p-4 text-center'>Loading prestasi...</p>
-      ) : error ? (
-        <p className='p-4 text-center text-red-500'>Gagal memuat prestasi</p>
-      ) : (
-        <div className='grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 xl:grid-cols-3'>
-          {filtered.length > 0 ? (
-            filtered.map((item, i) => (
-              <Card key={item.id} className='border shadow-sm'>
-                <CardHeader className='flex justify-between'>
-                  <CardTitle className='flex gap-2 text-lg'>
-                    <Sparkles className='h-5 text-yellow-500' />
-                    Prestasi : {i + 1}
-                  </CardTitle>
-                  <span className='w-fit rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-700'>
-                    {new Date(item.waktu).toLocaleDateString('id-ID', {
-                      day: '2-digit',
-                      month: 'long',
-                      year: 'numeric'
-                    })}
-                  </span>
-                </CardHeader>
-                <CardContent className='text-sm text-muted-foreground'>
-                  {item.keterangan}
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            <p className='col-span-full text-center text-sm text-muted-foreground'>
-              Tidak ada prestasi ditemukan.
-            </p>
+      {/* Search & Filter */}
+      <div className='relative z-10 mx-auto -mt-16 mb-6 max-w-6xl px-4'>
+        <div className='rounded-2xl bg-white p-4 shadow-xl'>
+          <div className='mb-3 flex gap-2'>
+            <div className='relative flex-1'>
+              <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
+              <input
+                type='text'
+                placeholder='Cari keterangan prestasi...'
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className='w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-100'
+              />
+            </div>
+            <button
+              onClick={() => setShowFilter(!showFilter)}
+              className={`flex h-12 w-12 items-center justify-center rounded-xl transition-all ${
+                showFilter
+                  ? 'bg-yellow-500 text-white'
+                  : 'border border-gray-200 bg-gray-50 text-gray-600'
+              }`}
+            >
+              <Filter className='h-5 w-5' />
+            </button>
+          </div>
+
+          {showFilter && (
+            <div className='animate-[slideDown_0.2s_ease-out] space-y-3'>
+              <div className='relative'>
+                <Calendar className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
+                <input
+                  type='date'
+                  value={filterTanggal}
+                  onChange={(e) => setFilterTanggal(e.target.value)}
+                  className='w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 focus:border-yellow-500 focus:outline-none'
+                />
+              </div>
+
+              <button
+                onClick={() => {
+                  setSearch('');
+                  setFilterTanggal('');
+                }}
+                className='w-full rounded-xl bg-gray-100 px-4 py-3 font-medium text-gray-700 active:bg-gray-200'
+              >
+                Reset Filter
+              </button>
+            </div>
           )}
         </div>
-      )}
+      </div>
+
+      {/* Content */}
+      <div className='mx-auto max-w-6xl px-4'>
+        {isLoading ? (
+          <div className='py-12 text-center'>
+            <div className='mx-auto h-12 w-12 animate-spin rounded-full border-4 border-yellow-500 border-t-transparent'></div>
+            <p className='mt-4 text-gray-600'>Memuat data prestasi...</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className='py-12 text-center'>
+            <Award className='mx-auto mb-4 h-16 w-16 text-yellow-500' />
+            <h3 className='mb-2 text-lg font-semibold text-gray-900'>
+              Belum ada prestasi
+            </h3>
+            <p className='text-gray-500'>
+              Tetap semangat untuk berprestasi! 🏆
+            </p>
+          </div>
+        ) : (
+          <div className='grid gap-4 md:grid-cols-2'>
+            {filtered.map((p: any, i: number) => (
+              <div
+                key={p.id}
+                className='active:scale-98 rounded-2xl border-l-4 border-yellow-500 bg-white p-5 shadow-md transition-all'
+              >
+                <div className='mb-4 flex items-start justify-between gap-3'>
+                  <div className='flex items-start gap-3'>
+                    <div className='flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-orange-400'>
+                      <Star className='h-6 w-6 text-white' />
+                    </div>
+                    <div>
+                      <p className='text-sm font-bold text-gray-900'>
+                        {p.keterangan}
+                      </p>
+                      <p className='text-xs text-gray-500'>
+                        {formatDate(p.waktu)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className='text-right'>
+                    <Sparkles className='mx-auto mb-1 h-5 w-5 text-yellow-500' />
+                    <p className='text-xs font-medium text-yellow-600'>
+                      #{i + 1}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <style>{`
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .active\\:scale-98:active {
+          transform: scale(0.98);
+        }
+      `}</style>
 
       <BottomNav />
     </div>

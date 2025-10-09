@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -17,6 +17,7 @@ import { useForm } from 'react-hook-form';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 type Jadwal = {
   id: string;
@@ -33,58 +34,78 @@ type IDKelas = {
 
 export default function JadwalPelajaran({ idKelas }: IDKelas) {
   const { data: session } = useSession();
-  const [jadwals, setJadwals] = useState<Jadwal[]>([]);
+  const queryClient = useQueryClient();
 
-  const getJadwalPelajaran = async () => {
-    try {
+  // ✅ Fetch jadwal
+  const { data: jadwals, isLoading } = useQuery<Jadwal[]>({
+    queryKey: ['jadwal', idKelas],
+    queryFn: async () => {
       const res = await api.get(`jadwal/${idKelas}`, {
         headers: {
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
-      setJadwals(res.data.data);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
-    }
-  };
+      return res.data.data;
+    },
+    enabled: !!session?.user?.token // jangan fetch kalau belum ada token
+  });
 
-  useEffect(() => {
-    getJadwalPelajaran();
-  }, [idKelas]);
-
-  const [openModal, setOpenModal] = useState(false);
-  const { register, handleSubmit, reset } = useForm<Jadwal>();
-
-  const onSubmit = async (data: Jadwal) => {
-    try {
-      const newJadwal = {
-        ...data,
-        idKelas: idKelas
-      };
-      await api.post('jadwal', newJadwal, {
+  // ✅ Tambah jadwal
+  const addJadwalMutation = useMutation({
+    mutationFn: async (newJadwal: Omit<Jadwal, 'id'>) => {
+      const res = await api.post('jadwal', newJadwal, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
-
-      setJadwals([...jadwals, newJadwal]);
-      reset();
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['jadwal', idKelas] });
+      toast.success('Jadwal berhasil ditambahkan');
       setOpenModal(false);
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message);
+      reset();
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || 'Gagal menambahkan jadwal');
     }
-  };
+  });
 
-  const handleDelete = (id: string) => {
-    setJadwals(jadwals.filter((j) => j.id !== id));
+  // ✅ Hapus jadwal
+  const deleteJadwalMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return api.delete(`jadwal/${id}`, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['jadwal', idKelas] });
+      toast.success('Jadwal berhasil dihapus');
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || 'Gagal menghapus jadwal');
+    }
+  });
+
+  // Modal tambah
+  const [openModal, setOpenModal] = useState(false);
+  const { register, handleSubmit, reset } = useForm<Jadwal>();
+
+  const onSubmit = (data: Jadwal) => {
+    addJadwalMutation.mutate({
+      ...data,
+      idKelas
+    });
   };
 
   return (
-    <div className=''>
+    <Card className='p-5'>
       {/* Header */}
       <div className='mb-4 flex items-center justify-between'>
-        <h1 className='text-xl font-bold'>Jadwal Pelajaran</h1>
+        <h1 className='text-base font-bold'>Jadwal Pelajaran</h1>
         <Button onClick={() => setOpenModal(true)}>
           <Plus className='mr-2 h-4 w-4' />
           Tambah Jadwal
@@ -93,9 +114,10 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
 
       {/* List Jadwal */}
       <div className='space-y-3'>
-        {jadwals.map((jadwal, i) => (
+        {isLoading && <p>Loading...</p>}
+        {jadwals?.map((jadwal) => (
           <Card
-            key={i}
+            key={jadwal.id}
             className='flex items-center justify-between rounded-xl p-4 shadow-md'
           >
             <div>
@@ -107,7 +129,7 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
             <Button
               variant='destructive'
               size='icon'
-              onClick={() => handleDelete(jadwal.id)}
+              onClick={() => deleteJadwalMutation.mutate(jadwal.id)}
             >
               <Trash2 className='h-4 w-4' />
             </Button>
@@ -153,11 +175,13 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
               </div>
             </div>
             <DialogFooter>
-              <Button type='submit'>Simpan</Button>
+              <Button type='submit' disabled={addJadwalMutation.isPending}>
+                {addJadwalMutation.isPending ? 'Menyimpan...' : 'Simpan'}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+    </Card>
   );
 }

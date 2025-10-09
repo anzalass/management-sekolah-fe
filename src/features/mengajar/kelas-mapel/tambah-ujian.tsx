@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface FormValues {
   namaUjian: string;
@@ -28,7 +29,7 @@ type Props = {
 
 export default function TambahUjian({ idKelasMapel }: Props) {
   const [open, setOpen] = useState(false);
-  const { trigger, toggleTrigger } = useRenderTrigger();
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -37,21 +38,31 @@ export default function TambahUjian({ idKelasMapel }: Props) {
     formState: { errors }
   } = useForm<FormValues>();
 
-  const onSubmit = async (data: FormValues) => {
-    try {
-      await api.post(`ujian-iframe`, {
-        idKelasMapel: idKelasMapel,
+  // 👉 definisi mutation react-query
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (data: FormValues) => {
+      return await api.post(`ujian-iframe`, {
+        idKelasMapel,
         nama: data.namaUjian,
         deadline: data.deadline,
         iframe: data.iframeUrl
       });
+    },
+    onSuccess: () => {
+      toast.success('Ujian berhasil ditambahkan');
       reset();
       setOpen(false);
-      toggleTrigger();
-    } catch (error: any) {
-      console.log(error);
-      toast.error(error?.response?.data?.message);
+      queryClient.invalidateQueries({
+        queryKey: ['kelasMapel', idKelasMapel]
+      });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Gagal menambahkan ujian');
     }
+  });
+
+  const onSubmit = (data: FormValues) => {
+    mutate(data);
   };
 
   return (
@@ -122,10 +133,13 @@ export default function TambahUjian({ idKelasMapel }: Props) {
               type='button'
               variant='outline'
               onClick={() => setOpen(false)}
+              disabled={isPending}
             >
               Batal
             </Button>
-            <Button type='submit'>Simpan</Button>
+            <Button type='submit' disabled={isPending}>
+              {isPending ? 'Menyimpan...' : 'Simpan'}
+            </Button>
           </div>
         </form>
       </DialogContent>

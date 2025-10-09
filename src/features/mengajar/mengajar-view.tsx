@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Camera from '../presensi/Camera';
@@ -11,64 +11,72 @@ import ModalTambahIzin from './modal-tambah-izin';
 import ListKelasGuru from './list-kelas-guru';
 import ListJadwalGuru from './list-jadwal-guru';
 import CardListIzin from './list-izin';
-import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import api from '@/lib/api';
-import { useRenderTrigger } from '@/hooks/use-rendertrigger';
-import JanjiTemuView from './janji-temu';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+// 🔹 fetcher untuk dashboard
+const fetchDashboard = async (token: string) => {
+  const response = await api.get('dashboard-mengajar', {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return response.data.data;
+};
+
+// 🔹 post absen pulang
+const postAbsenPulang = async (token: string) => {
+  const response = await api.post(
+    'absen-pulang',
+    {
+      lat: '-6.09955851839959',
+      long: '106.51911493230111'
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+  return response.data;
+};
 
 export default function MengajarViewPage() {
   const { data: session } = useSession();
-  const { trigger, toggleTrigger } = useRenderTrigger();
-  const [dashboard, setDashboard] = useState({
-    statusMasuk: false,
-    statusKeluar: false,
-    statusIzin: false,
-    jadwalGuru: [],
-    kelasWaliKelas: [],
-    kelasMapel: [],
-    perizinan: []
+  const queryClient = useQueryClient();
+
+  // 🔹 Query Dashboard
+  const {
+    data: dashboard,
+    isLoading,
+    error
+  } = useQuery({
+    queryKey: ['dashboard-mengajar'],
+    queryFn: () => fetchDashboard(session?.user?.token as string),
+    enabled: !!session?.user?.token // hanya jalan kalau ada token
   });
 
-  const dataDashboard = async () => {
-    try {
-      const response = await api.get('dashboard-mengajar', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-
-      const data = response.data.data; // biasanya axios responsenya { data: {...} }
-
-      setDashboard({
-        statusMasuk: data.statusMasuk,
-        statusKeluar: data.statusKeluar,
-        statusIzin: data.statusIzin,
-        jadwalGuru: data.jadwalGuru,
-        kelasWaliKelas: data.kelasWaliKelas,
-        kelasMapel: data.kelasMapel,
-        perizinan: data.perizinan
-      });
-    } catch (error: any) {
+  // 🔹 Mutation Absen Pulang
+  const absenPulangMutation = useMutation({
+    mutationFn: () => postAbsenPulang(session?.user?.token as string),
+    onSuccess: (res) => {
+      toast.success(res.message || 'Absen pulang berhasil');
+      queryClient.invalidateQueries({ queryKey: ['dashboard-mengajar'] });
+    },
+    onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
-  };
+  });
 
   const [showIzinModal, setShowIzinModal] = useState(false);
   const [showJadwalModal, setShowJadwalModal] = useState(false);
   const [openModal, setOpenModal] = useState<string | null>(null);
-  const [absenType, setAbsenType] = useState<any>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
 
-  useEffect(() => {
-    if (session?.user?.token) {
-      dataDashboard();
-    }
-  }, [session, trigger]);
-
-  // Contoh data (ganti dengan data asli dari props atau API)
   const today = new Date().toLocaleDateString('id-ID', {
     weekday: 'long',
     day: 'numeric',
@@ -76,29 +84,13 @@ export default function MengajarViewPage() {
     year: 'numeric'
   });
 
-  const absenPulang = async () => {
-    try {
-      const response = await api.post(
-        'absen-pulang',
-        {
-          lat: '-6.09955851839959',
-          long: '106.51911493230111'
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session?.user?.token}`
-          }
-        }
-      );
+  if (isLoading) {
+    return <p className='p-6'>Loading dashboard...</p>;
+  }
 
-      // axios langsung return response.data
-      dataDashboard();
-      toast.success(response.data.message || 'Absen pulang berhasil');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    }
-  };
+  if (error) {
+    return <p className='p-6 text-red-500'>Gagal memuat data dashboard</p>;
+  }
 
   return (
     <div className='relative min-h-screen space-y-6 p-6'>
@@ -106,7 +98,11 @@ export default function MengajarViewPage() {
       {isCameraOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
           <Camera
-            fetchData={dataDashboard}
+            fetchData={() =>
+              queryClient.invalidateQueries({
+                queryKey: ['dashboard-mengajar']
+              })
+            }
             open={isCameraOpen}
             setOpen={setIsCameraOpen}
           />
@@ -118,32 +114,33 @@ export default function MengajarViewPage() {
         <h1 className='text-xl font-bold'>
           Selamat datang, {session?.user?.nama} 👋
         </h1>
+        <p className='text-sm text-muted-foreground'>{today}</p>
       </div>
 
       {/* Absen Buttons */}
       <div className='flex flex-wrap gap-4'>
         <Button
           onClick={() => setIsCameraOpen(true)}
-          disabled={dashboard.statusMasuk || dashboard.statusIzin}
+          disabled={dashboard?.statusMasuk || dashboard?.statusIzin}
         >
-          {dashboard.statusMasuk
+          {dashboard?.statusMasuk
             ? `✅ Sudah Absen Masuk (${dashboard.statusMasuk})`
             : '🕘 Absen Masuk'}
         </Button>
         <Button
-          onClick={absenPulang}
-          disabled={dashboard.statusKeluar || dashboard.statusIzin}
+          onClick={() => absenPulangMutation.mutate()}
+          disabled={dashboard?.statusKeluar || dashboard?.statusIzin}
         >
-          {dashboard.statusKeluar
+          {dashboard?.statusKeluar
             ? `✅ Sudah Absen Pulang (${dashboard.statusKeluar})`
             : '🏁 Absen Pulang'}
         </Button>
         <Button
           variant='outline'
           onClick={() => setShowIzinModal(true)}
-          disabled={dashboard.statusMasuk}
+          disabled={dashboard?.statusMasuk}
         >
-          {dashboard.statusIzin
+          {dashboard?.statusIzin
             ? '📋 Telah Izin Tidak Hadir'
             : '📋 Izin Tidak Hadir'}
         </Button>
@@ -152,14 +149,19 @@ export default function MengajarViewPage() {
         </Button>
       </div>
 
+      {/* Modals */}
       <ModalTambahJadwal
-        fetchData={dataDashboard}
+        fetchData={() =>
+          queryClient.invalidateQueries({ queryKey: ['dashboard-mengajar'] })
+        }
         openModal={showJadwalModal}
         setOpenModal={setShowJadwalModal}
       />
 
       <ModalTambahIzin
-        fetchData={dataDashboard}
+        fetchData={() =>
+          queryClient.invalidateQueries({ queryKey: ['dashboard-mengajar'] })
+        }
         openModal={showIzinModal}
         setOpenModal={setShowIzinModal}
       />
@@ -170,23 +172,23 @@ export default function MengajarViewPage() {
           <p className='mb-1 text-xs text-muted-foreground'>Status Masuk</p>
           <p
             className={`text-sm font-semibold ${
-              dashboard.statusMasuk ? 'text-green-600' : 'text-red-500'
+              dashboard?.statusMasuk ? 'text-green-600' : 'text-red-500'
             }`}
           >
-            {dashboard.statusMasuk
+            {dashboard?.statusMasuk
               ? `✅ (${dashboard.statusMasuk})`
               : '❌ Belum Absen'}
           </p>
         </Card>
 
         <Card className='flex flex-col items-center justify-center p-4 text-center'>
-          <p className='mb-1 text-sm text-muted-foreground'>Status Pulang</p>
+          <p className='mb-1 text-xs text-muted-foreground'>Status Pulang</p>
           <p
             className={`text-sm font-semibold ${
-              dashboard.statusKeluar ? 'text-green-600' : 'text-red-500'
+              dashboard?.statusKeluar ? 'text-green-600' : 'text-red-500'
             }`}
           >
-            {dashboard.statusKeluar
+            {dashboard?.statusKeluar
               ? `✅ (${dashboard.statusKeluar})`
               : '❌ Belum Absen'}
           </p>
@@ -196,43 +198,35 @@ export default function MengajarViewPage() {
           <p className='mb-1 text-sm text-muted-foreground'>Status Izin</p>
           <p
             className={`text-sm font-semibold ${
-              dashboard.statusIzin ? 'text-yellow-600' : ''
+              dashboard?.statusIzin ? 'text-yellow-600' : ''
             }`}
           >
-            {dashboard.statusIzin ? '📋 Izin Tidak Hadir' : '❌ Tidak Izin'}
+            {dashboard?.statusIzin ? '📋 Izin Tidak Hadir' : '❌ Tidak Izin'}
           </p>
         </Card>
       </div>
 
       {/* Jadwal Hari Ini */}
-      <ListJadwalGuru
-        jadwalGuru={dashboard?.jadwalGuru}
-        fetchData={dataDashboard}
-      />
+      <ListJadwalGuru jadwalGuru={dashboard?.jadwalGuru || []} />
 
       {/* Wali Kelas & Kelas Diajar */}
       <ListKelasGuru
         kelasMapel={dashboard?.kelasMapel || []}
         kelasWaliKelas={dashboard?.kelasWaliKelas || []}
         setOpenModal={setOpenModal}
-        fetchData={dataDashboard}
+        fetchData={() =>
+          queryClient.invalidateQueries({ queryKey: ['dashboard-mengajar'] })
+        }
       />
 
       {/* Modal Tambah Kelas */}
-      <ModalTambahKelas
-        fetchData={dataDashboard}
-        openModal={openModal}
-        setOpenModal={setOpenModal}
-      />
+      <ModalTambahKelas openModal={openModal} setOpenModal={setOpenModal} />
 
       {/* Modal Tambah Kelas Mapel */}
       <ModalTambahKelasMapel
-        fetchData={dataDashboard}
         openModal={openModal}
         setOpenModal={setOpenModal}
       />
-
-      <div className=''></div>
 
       <CardListIzin />
     </div>

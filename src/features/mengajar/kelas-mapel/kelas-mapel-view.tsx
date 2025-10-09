@@ -1,21 +1,21 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import InputNilaiKelas from './input-nilai-kelas';
 import ModalMateri from './tambah-materi-kelas';
-import { Trash2 } from 'lucide-react';
+import { Edit, Eye, Trash2 } from 'lucide-react';
 import ModalTugas from './tambah-tugas';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
 import api from '@/lib/api';
 import CatatanAkhirSiswa from './catatan-akhir';
 import TambahUjian from './tambah-ujian';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface Student {
   id: string;
@@ -44,159 +44,150 @@ type KelasMapelID = {
 };
 
 export default function KelasMapelView({ id }: KelasMapelID) {
+  console.log('idk', id);
+
   const { data: session } = useSession();
-  const { trigger, toggleTrigger } = useRenderTrigger();
+  const queryClient = useQueryClient();
 
-  const [masterSiswa, setMasterSiswa] = useState<Student[]>([]);
-  const [kelasSiswa, setKelasSiswa] = useState<Student[]>([]);
-  const [materiList, setMateriList] = useState<Materi[]>([]);
-  const [tugasList, setTugasList] = useState<Tugas[]>([]);
-  const [ujianList, setUjianList] = useState<any[]>([]);
-
+  // modal states
   const [showModal, setShowModal] = useState(false);
   const [showTugasModal, setShowTugasModal] = useState(false);
 
-  // search siswa
+  // search states
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredMasterSiswa, setFilteredMasterSiswa] = useState<Student[]>([]);
-
-  // search materi/tugas/ujian
   const [searchMateri, setSearchMateri] = useState('');
   const [searchTugas, setSearchTugas] = useState('');
   const [searchUjian, setSearchUjian] = useState('');
 
-  const fetchData = async () => {
-    try {
-      const response = await api.get(`user/get-all-siswa-master`, {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+  // ================== FETCHING ==================
+  const { data: masterSiswa = [] } = useQuery<Student[]>({
+    queryKey: ['masterSiswa'],
+    queryFn: async () => {
+      const res = await api.get(`user/get-all-siswa-master`, {
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
-      const response2 = await api.get(`dashboard-kelas-mapel/${id}`, {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+      return res.data.result.data;
+    },
+    enabled: !!session?.user?.token
+  });
+
+  const { data: kelasData } = useQuery({
+    queryKey: ['kelasMapel', id],
+    queryFn: async () => {
+      const res = await api.get(`dashboard-kelas-mapel/${id}`, {
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
+      return res.data.data;
+    },
+    enabled: !!session?.user?.token
+  });
 
-      setMasterSiswa(response.data.result.data);
-      setKelasSiswa(response2?.data?.data.siswaKelas);
-      setMateriList(response2?.data?.data.materiKelas);
-      setUjianList(response2?.data?.data.ujianKelas);
-      setTugasList(response2?.data?.data.tugasKelas);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    }
-  };
+  const kelasSiswa = kelasData?.siswaKelas || [];
+  const materiList = kelasData?.materiKelas || [];
+  const tugasList = kelasData?.tugasKelas || [];
+  const ujianList = kelasData?.ujianKelas || [];
 
-  useEffect(() => {
-    fetchData();
-  }, [trigger]);
-
-  useEffect(() => {
-    const filtered = masterSiswa.filter(
-      (s) =>
-        s?.nama.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        !kelasSiswa?.find((k: any) => k.Siswa.nis === s.nis)
-    );
-    setFilteredMasterSiswa(filtered);
-  }, [searchTerm, masterSiswa, kelasSiswa]);
-
-  const handleAddSiswaToKelas = async (siswa: Student) => {
-    try {
-      const response = await api.post(
+  // ================== MUTATIONS ==================
+  const addSiswaMutation = useMutation({
+    mutationFn: async (siswa: Student) =>
+      api.post(
         `kelas-mapel/add-siswa`,
         {
           idSiswa: siswa.id,
           nisSiswa: siswa.nis,
           namaSiswa: siswa.nama,
-          idKelas: id // pastikan juga kirim ID kelasMapel
+          idKelas: id
         },
         {
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
-          }
+          headers: { Authorization: `Bearer ${session?.user?.token}` }
         }
-      );
-
-      toast.success('Siswa berhasil ditambahkan ke kelas');
-      fetchData();
+      ),
+    onSuccess: () => {
+      toast.success('Siswa berhasil ditambahkan');
+      queryClient.invalidateQueries({ queryKey: ['kelasMapel', id] });
       setSearchTerm('');
-    } catch (error) {
-      console.error('Gagal menambahkan siswa:', error);
-      toast.error('Gagal menambahkan siswa ke kelas');
-    }
-  };
+    },
+    onError: () => toast.error('Gagal menambahkan siswa')
+  });
 
-  const hapusSiswa = async (id: any) => {
-    try {
-      await api.delete(`kelas-mapel/remove-siswa/${id}`, {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
+  const hapusSiswaMutation = useMutation({
+    mutationFn: async (idSiswa: string) =>
+      api.delete(`kelas-mapel/remove-siswa/${idSiswa}`, {
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
+      }),
+    onSuccess: () => {
       toast.success('Berhasil menghapus siswa');
-      toggleTrigger();
-    } catch (error) {
-      toast.error('Gagal menghapus siswa');
-    }
-  };
-  const hapusMateri = async (id: any) => {
-    try {
-      await api.delete(`materi/${id}`, {
-        headers: { Authorization: `Bearer ${session?.user?.token}` }
-      });
-      toast.success('Berhasil menghapus materi');
-      toggleTrigger();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    }
-  };
+      queryClient.invalidateQueries({ queryKey: ['kelasMapel', id] });
+    },
+    onError: () => toast.error('Gagal menghapus siswa')
+  });
 
-  const hapusTugas = async (id: any) => {
-    try {
-      await api.delete(`tugas/${id}`, {
+  const hapusMateriMutation = useMutation({
+    mutationFn: async (idMateri: number) =>
+      api.delete(`materi/${idMateri}`, {
         headers: { Authorization: `Bearer ${session?.user?.token}` }
-      });
-      toast.success('Berhasil menghapus tugas');
-      toggleTrigger();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    }
-  };
+      }),
+    onSuccess: () => {
+      toast.success('Materi dihapus');
+      queryClient.invalidateQueries({ queryKey: ['kelasMapel', id] });
+    },
+    onError: (e: any) =>
+      toast.error(e.response?.data?.message || 'Terjadi kesalahan')
+  });
 
-  const hapusUjian = async (id: any) => {
-    try {
-      await api.delete(`ujian-iframe/${id}`, {
+  const hapusTugasMutation = useMutation({
+    mutationFn: async (idTugas: number) =>
+      api.delete(`tugas/${idTugas}`, {
         headers: { Authorization: `Bearer ${session?.user?.token}` }
-      });
-      toast.success('Berhasil menghapus Ujian');
-      toggleTrigger();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    }
-  };
+      }),
+    onSuccess: () => {
+      toast.success('Tugas dihapus');
+      queryClient.invalidateQueries({ queryKey: ['kelasMapel', id] });
+    },
+    onError: (e: any) =>
+      toast.error(e.response?.data?.message || 'Terjadi kesalahan')
+  });
 
-  // filter array FE
-  const filteredMateri = materiList.filter((m) =>
+  const hapusUjianMutation = useMutation({
+    mutationFn: async (idUjian: number) =>
+      api.delete(`ujian-iframe/${idUjian}`, {
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
+      }),
+    onSuccess: () => {
+      toast.success('Ujian dihapus');
+      queryClient.invalidateQueries({ queryKey: ['kelasMapel', id] });
+    },
+    onError: (e: any) =>
+      toast.error(e.response?.data?.message || 'Terjadi kesalahan')
+  });
+
+  // ================== FILTER ==================
+  const filteredMasterSiswa = masterSiswa.filter(
+    (s) =>
+      s?.nama.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      !kelasSiswa?.find((k: any) => k.Siswa.nis === s.nis)
+  );
+
+  const filteredMateri = materiList.filter((m: Materi) =>
     m.judul.toLowerCase().includes(searchMateri.toLowerCase())
   );
-  const filteredTugas = tugasList.filter((t) =>
+  const filteredTugas = tugasList.filter((t: Tugas) =>
     t.judul.toLowerCase().includes(searchTugas.toLowerCase())
   );
-  const filteredUjian = ujianList.filter((u) =>
+  const filteredUjian = ujianList.filter((u: any) =>
     u.nama.toLowerCase().includes(searchUjian.toLowerCase())
   );
 
+  // ================== RENDER ==================
   return (
     <div className='space-y-6'>
       <h1 className='text-2xl font-bold'>Dashboard Kelas Mapel</h1>
 
-      {/* Siswa */}
-      {/* ... bagian siswa tetap sama ... */}
+      {/* Tambah siswa */}
       <Card className='block justify-between gap-4 p-4 lg:flex'>
         <Card className='w-full lg:w-1/2'>
           <CardHeader>
-            <CardTitle>Tambah Siswa ke Kelas</CardTitle>
+            <CardTitle className='text-base'>Tambah Siswa ke Kelas</CardTitle>
           </CardHeader>
           <CardContent className='space-y-4'>
             <Input
@@ -217,7 +208,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
                       </span>
                       <Button
                         size='sm'
-                        onClick={() => handleAddSiswaToKelas(siswa)}
+                        onClick={() => addSiswaMutation.mutate(siswa)}
                       >
                         Tambah
                       </Button>
@@ -229,13 +220,16 @@ export default function KelasMapelView({ id }: KelasMapelID) {
           </CardContent>
         </Card>
 
+        {/* daftar siswa */}
         <Card className='w-full lg:w-1/2'>
           <CardHeader>
-            <CardTitle>Daftar Siswa di Kelas Ini</CardTitle>
+            <CardTitle className='text-base'>
+              Daftar Siswa di Kelas Ini
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <ul className='ml-5 w-fit list-disc'>
-              {kelasSiswa.map((s: any, index) => (
+              {kelasSiswa.map((s: any, index: number) => (
                 <li
                   key={s.id ?? index}
                   className='mt-3 flex items-center justify-between'
@@ -243,23 +237,26 @@ export default function KelasMapelView({ id }: KelasMapelID) {
                   <span>
                     {s.Siswa.nama} - {s.Siswa.nis}
                   </span>
-
                   <Trash2
-                    className='ml-5'
+                    className='ml-5 cursor-pointer'
                     size={16}
-                    onClick={() => hapusSiswa(s.id)}
+                    onClick={() => hapusSiswaMutation.mutate(s.id)}
                   />
                 </li>
               ))}
             </ul>
-            {kelasSiswa.length === 0 ? <p>Belum ada Siswa</p> : null}
+            {kelasSiswa.length === 0 && <p>Belum ada Siswa</p>}
           </CardContent>
         </Card>
       </Card>
 
       <div className='flex space-x-2'>
-        <Button onClick={() => setShowModal(true)}>Tambah Materi</Button>
-        <Button onClick={() => setShowTugasModal(true)}>Tambah Tugas</Button>
+        <Link href={`/mengajar/kelas-mapel/${id}/materi/add/new`}>
+          <Button>Tambah Materi</Button>
+        </Link>
+        <Link href={`/mengajar/kelas-mapel/${id}/tugas/add/new`}>
+          <Button>Tambah Tugas</Button>
+        </Link>
         <TambahUjian idKelasMapel={id} />
       </div>
 
@@ -270,119 +267,178 @@ export default function KelasMapelView({ id }: KelasMapelID) {
         onOpenChange={setShowTugasModal}
       />
 
-      {/* Materi */}
-      <div>
-        <h4 className='text-md mb-2 font-semibold'>Daftar Materi</h4>
-        <Input
-          placeholder='Cari materi...'
-          value={searchMateri}
-          onChange={(e) => setSearchMateri(e.target.value)}
-          className='mb-2 w-80'
-        />
-        {filteredMateri?.length === 0 && (
-          <p className='text-sm text-muted-foreground'>
-            Tidak ada materi ditemukan.
-          </p>
-        )}
-        <div className='grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3'>
-          {filteredMateri?.map((materi) => (
-            <Card key={materi.id} className='relative cursor-pointer p-4'>
-              <button
-                onClick={() => hapusMateri(materi.id)}
-                className='absolute right-2 top-2 text-gray-500 hover:text-red-500'
+      <Card className='p-5'>
+        {/* Materi */}
+        <div>
+          <h4 className='text-md mb-2 font-semibold'>Daftar Materi</h4>
+          <Input
+            placeholder='Cari materi...'
+            value={searchMateri}
+            onChange={(e) => setSearchMateri(e.target.value)}
+            className='mb-2 w-80'
+          />
+          {filteredMateri?.length === 0 && (
+            <p className='text-sm text-muted-foreground'>
+              Tidak ada materi ditemukan.
+            </p>
+          )}
+          <div className='grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3'>
+            {filteredMateri?.map((materi: any) => (
+              <Card
+                key={materi.id}
+                className='group relative cursor-pointer p-4 shadow-sm transition-all duration-200 hover:shadow-md'
               >
-                <Trash2 size={16} />
-              </button>
-              <Link
-                href={`/mengajar/kelas-mapel/${id}/materi/${materi.id}`}
-                className='mt-2'
-              >
-                <p className='font-semibold'>{materi.judul}</p>
-              </Link>
-              <p className='text-sm text-muted-foreground'>
-                Dibuat pada:{' '}
-                {dayjs(materi?.tanggal).locale('id').format('DD MMMM YYYY')}
-              </p>
-            </Card>
-          ))}
-        </div>
-      </div>
+                {/* Tombol aksi */}
+                <div className='absolute right-2 top-2 flex items-center gap-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
+                  {/* Tombol detail */}
+                  <Link
+                    href={`/mengajar/kelas-mapel/${id}/materi/${materi.id}`}
+                    className='rounded-md p-1.5 text-gray-500 transition-colors hover:bg-blue-100 hover:text-blue-600'
+                    title='Lihat Detail'
+                  >
+                    <Eye size={16} />
+                  </Link>
 
-      {/* Tugas */}
-      <div>
-        <h4 className='text-md mb-2 font-semibold'>Daftar Tugas</h4>
-        <Input
-          placeholder='Cari tugas...'
-          value={searchTugas}
-          onChange={(e) => setSearchTugas(e.target.value)}
-          className='mb-2 w-80'
-        />
-        {filteredTugas?.length === 0 && (
-          <p className='text-sm text-muted-foreground'>
-            Tidak ada tugas ditemukan.
-          </p>
-        )}
-        <div className='grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3'>
-          {filteredTugas?.map((tugas) => (
-            <Card key={tugas.id} className='relative cursor-pointer p-4'>
-              <button
-                onClick={() => hapusTugas(tugas.id)}
-                className='absolute right-2 top-2 text-gray-500 hover:text-red-500'
-              >
-                <Trash2 size={16} />
-              </button>
-              <Link
-                href={`/mengajar/kelas-mapel/${id}/tugas/${tugas.id}`}
-                className='mt-2'
-              >
-                <p className='font-semibold'>{tugas.judul}</p>
-              </Link>
-              <p className='text-sm text-muted-foreground'>
-                Deadline:{' '}
-                {dayjs(tugas?.deadline).locale('id').format('DD MMMM YYYY')}
-              </p>
-            </Card>
-          ))}
-        </div>
-      </div>
+                  {/* Tombol edit */}
+                  <Link
+                    href={`/mengajar/kelas-mapel/${id}/materi/add/${materi.id}`}
+                    className='rounded-md p-1.5 text-gray-500 transition-colors hover:bg-yellow-100 hover:text-yellow-600'
+                    title='Edit Materi'
+                  >
+                    <Edit size={16} />
+                  </Link>
 
-      {/* Ujian */}
-      <div>
-        <h4 className='text-md mb-2 font-semibold'>Daftar Ujian</h4>
-        <Input
-          placeholder='Cari ujian...'
-          value={searchUjian}
-          onChange={(e) => setSearchUjian(e.target.value)}
-          className='mb-2 w-80'
-        />
-        {filteredUjian?.length === 0 && (
-          <p className='text-sm text-muted-foreground'>
-            Tidak ada ujian ditemukan.
-          </p>
-        )}
-        <div className='grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3'>
-          {filteredUjian?.map((ujian) => (
-            <Card key={ujian.id} className='relative cursor-pointer p-4'>
-              <button
-                onClick={() => hapusUjian(ujian.id)}
-                className='absolute right-2 top-2 text-gray-500 hover:text-red-500'
-              >
-                <Trash2 size={16} />
-              </button>
-              <Link
-                href={`/mengajar/kelas-mapel/${id}/ujian/${ujian.id}`}
-                className='mt-2'
-              >
-                <p className='font-semibold'>{ujian.nama}</p>
-              </Link>{' '}
-              <p className='text-sm text-muted-foreground'>
-                Deadline:{' '}
-                {dayjs(ujian?.deadline).locale('id').format('DD MMMM YYYY')}
-              </p>
-            </Card>
-          ))}
+                  {/* Tombol hapus */}
+                  <button
+                    onClick={() => hapusMateriMutation.mutate(materi.id)}
+                    className='rounded-md p-1.5 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600'
+                    title='Hapus Materi'
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+                <Link
+                  href={`/mengajar/kelas-mapel/${id}/materi/${materi.id}`}
+                  className='mt-2'
+                >
+                  <p className='font-semibold'>{materi.judul}</p>
+                </Link>
+                <p className='text-sm text-muted-foreground'>
+                  Dibuat:{' '}
+                  {dayjs(materi?.tanggal).locale('id').format('DD MMMM YYYY')}
+                </p>
+              </Card>
+            ))}
+          </div>
         </div>
-      </div>
+
+        {/* Tugas */}
+        <div className='mt-9'>
+          <h4 className='text-md mb-2 font-semibold'>Daftar Tugas</h4>
+          <Input
+            placeholder='Cari tugas...'
+            value={searchTugas}
+            onChange={(e) => setSearchTugas(e.target.value)}
+            className='mb-2 w-80'
+          />
+          {filteredTugas?.length === 0 && (
+            <p className='text-sm text-muted-foreground'>
+              Tidak ada tugas ditemukan.
+            </p>
+          )}
+          <div className='grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3'>
+            {filteredTugas?.map((tugas: any) => (
+              <Card
+                key={tugas.id}
+                className='group relative cursor-pointer p-4 shadow-sm transition-all duration-200 hover:shadow-md'
+              >
+                {/* Tombol aksi */}
+                <div className='absolute right-2 top-2 flex items-center gap-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
+                  {/* Tombol detail */}
+                  <Link
+                    href={`/mengajar/kelas-mapel/${id}/tugas/${tugas.id}`}
+                    className='rounded-md p-1.5 text-gray-500 transition-colors hover:bg-blue-100 hover:text-blue-600'
+                    title='Lihat Detail'
+                  >
+                    <Eye size={16} />
+                  </Link>
+
+                  {/* Tombol edit */}
+                  <Link
+                    href={`/mengajar/kelas-mapel/${id}/tugas/add/${tugas.id}`}
+                    className='rounded-md p-1.5 text-gray-500 transition-colors hover:bg-yellow-100 hover:text-yellow-600'
+                    title='Edit Tugas'
+                  >
+                    <Edit size={16} />
+                  </Link>
+
+                  {/* Tombol hapus */}
+                  <button
+                    onClick={() => hapusTugasMutation.mutate(tugas.id)}
+                    className='rounded-md p-1.5 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600'
+                    title='Hapus Tugas'
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+
+                {/* Konten card */}
+                <div className='flex flex-col gap-1'>
+                  <p className='line-clamp-1 text-base font-semibold text-gray-800'>
+                    {tugas.judul}
+                  </p>
+                  <p className='text-sm text-muted-foreground'>
+                    Deadline:{' '}
+                    <span className='font-medium text-gray-700'>
+                      {dayjs(tugas.deadline)
+                        .locale('id')
+                        .format('DD MMMM YYYY')}
+                    </span>
+                  </p>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Ujian */}
+        <div className='mt-9'>
+          <h4 className='text-md mb-2 font-semibold'>Daftar Ujian</h4>
+          <Input
+            placeholder='Cari ujian...'
+            value={searchUjian}
+            onChange={(e) => setSearchUjian(e.target.value)}
+            className='mb-2 w-80'
+          />
+          {filteredUjian?.length === 0 && (
+            <p className='text-sm text-muted-foreground'>
+              Tidak ada ujian ditemukan.
+            </p>
+          )}
+          <div className='grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3'>
+            {filteredUjian?.map((ujian: any) => (
+              <Card key={ujian.id} className='relative cursor-pointer p-4'>
+                <button
+                  onClick={() => hapusUjianMutation.mutate(ujian.id)}
+                  className='absolute right-2 top-2 text-gray-500 hover:text-red-500'
+                >
+                  <Trash2 size={16} />
+                </button>
+                <Link
+                  href={`/mengajar/kelas-mapel/${id}/ujian/${ujian.id}`}
+                  className='mt-2'
+                >
+                  <p className='font-semibold'>{ujian.nama}</p>
+                </Link>
+                <p className='text-sm text-muted-foreground'>
+                  Deadline:{' '}
+                  {dayjs(ujian?.deadline).locale('id').format('DD MMMM YYYY')}
+                </p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </Card>
 
       <InputNilaiKelas listSiswa={kelasSiswa} idKelas={id} />
       <CatatanAkhirSiswa listSiswa={kelasSiswa} idKelasMapel={id} />

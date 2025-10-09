@@ -1,4 +1,6 @@
 'use client';
+
+import Link from 'next/link';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -22,7 +24,9 @@ export function Breadcrumbs() {
           <Fragment key={item.title}>
             {index !== items.length - 1 && (
               <BreadcrumbItem className='hidden md:block'>
-                <BreadcrumbLink href={item.link}>{item.title}</BreadcrumbLink>
+                <BreadcrumbLink asChild>
+                  <Link href={item.link}>{item.title}</Link>
+                </BreadcrumbLink>
               </BreadcrumbItem>
             )}
             {index < items.length - 1 && (

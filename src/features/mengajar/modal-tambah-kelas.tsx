@@ -9,11 +9,19 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useForm } from 'react-hook-form';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { toast } from 'sonner';
 import { useSession } from 'next-auth/react';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import api from '@/lib/api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Select } from '@radix-ui/react-select';
+import {
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
 type FormValues = {
   nama: string;
@@ -25,7 +33,6 @@ type FormValues = {
 
 type Props = {
   openModal: string | null;
-  fetchData: () => void;
   setOpenModal: (val: string | null) => void;
   dataEdit?: {
     id: string;
@@ -38,8 +45,7 @@ type Props = {
 export default function ModalTambahKelas({
   openModal,
   setOpenModal,
-  dataEdit,
-  fetchData
+  dataEdit
 }: Props) {
   const { data: session } = useSession();
   const {
@@ -50,9 +56,10 @@ export default function ModalTambahKelas({
     formState: { errors }
   } = useForm<FormValues>();
 
-  const [isLoading, setIsLoading] = useState(false);
   const isEdit = !!dataEdit;
+  const queryClient = useQueryClient();
 
+  // prefill data kalau edit
   useEffect(() => {
     if (dataEdit) {
       setValue('nama', dataEdit.nama);
@@ -62,11 +69,11 @@ export default function ModalTambahKelas({
     }
   }, [dataEdit, setValue, reset]);
 
-  const onSubmit = async (data: FormValues) => {
-    setIsLoading(true);
-    if (!session?.user) return;
+  // === React Query Mutation ===
+  const mutation = useMutation({
+    mutationFn: async (data: FormValues) => {
+      if (!session?.user) throw new Error('Unauthorized');
 
-    try {
       const formData = new FormData();
       formData.append('nama', data.nama);
       formData.append('ruangKelas', data.ruangKelas);
@@ -83,25 +90,45 @@ export default function ModalTambahKelas({
 
       const method = isEdit ? api.put : api.post;
 
-      await method(endpoint, formData, {
+      return method(endpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
-
+    },
+    onSuccess: () => {
       toast.success(
         isEdit ? 'Kelas berhasil diperbarui' : 'Kelas berhasil ditambahkan'
       );
-      fetchData();
+      queryClient.invalidateQueries({ queryKey: ['dashboard-mengajar'] }); // kalau ada dashboard
       setOpenModal(null);
       reset();
-    } catch (error: any) {
+    },
+    onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    } finally {
-      setIsLoading(false);
     }
+  });
+
+  const onSubmit = (data: FormValues) => {
+    mutation.mutate(data);
   };
+
+  const { data: kelasList } = useQuery({
+    queryKey: ['list-kelas-input'],
+    queryFn: async () => {
+      const res = await api.get('list-kelas-input');
+      return res.data;
+    }
+  });
+
+  const { data: ruangList } = useQuery({
+    queryKey: ['ruang2'],
+    queryFn: async () => {
+      const res = await api.get('ruang2');
+      return res.data.data;
+    }
+  });
 
   return (
     <Dialog
@@ -115,27 +142,51 @@ export default function ModalTambahKelas({
           </VisuallyHidden>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-3'>
+          {/* Select Kelas */}
           <div>
-            <Input
-              placeholder='Nama Kelas'
-              {...register('nama', { required: 'Nama kelas wajib diisi' })}
-            />
+            <Select
+              onValueChange={(val) => setValue('nama', val)}
+              defaultValue={dataEdit?.nama || ''}
+            >
+              <SelectTrigger className='w-full'>
+                <SelectValue placeholder='Pilih Kelas' />
+              </SelectTrigger>
+              <SelectContent>
+                {kelasList?.map((k: any) => (
+                  <SelectItem key={k.id} value={k.namaKelas}>
+                    {k.namaKelas}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {errors.nama && (
               <p className='text-sm text-red-500'>{errors.nama.message}</p>
             )}
           </div>
+
+          {/* Select Ruangan */}
           <div>
-            <Input
-              placeholder='Ruangan'
-              {...register('ruangKelas', { required: 'Ruangan wajib diisi' })}
-            />
+            <Select
+              onValueChange={(val) => setValue('ruangKelas', val)}
+              defaultValue={dataEdit?.ruangKelas || ''}
+            >
+              <SelectTrigger className='w-full'>
+                <SelectValue placeholder='Pilih Ruangan' />
+              </SelectTrigger>
+              <SelectContent>
+                {ruangList?.map((r: any) => (
+                  <SelectItem key={r.id} value={r.nama}>
+                    {r.nama}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {errors.ruangKelas && (
               <p className='text-sm text-red-500'>
                 {errors.ruangKelas.message}
               </p>
             )}
           </div>
-          {/* Input Banner File */}
           <div>
             <Input type='file' accept='image/*' {...register('banner')} />
             {isEdit && dataEdit?.bannerUrl && (
@@ -145,8 +196,8 @@ export default function ModalTambahKelas({
             )}
           </div>
           <div className='flex justify-end'>
-            <Button type='submit' disabled={isLoading}>
-              {isLoading
+            <Button type='submit' disabled={mutation.isPending}>
+              {mutation.isPending
                 ? isEdit
                   ? 'Menyimpan...'
                   : 'Mengirim...'

@@ -1,4 +1,5 @@
-import { StepBack } from 'lucide-react';
+import { Arrow } from '@radix-ui/react-dropdown-menu';
+import { ArrowLeft, StepBack } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import React from 'react';
@@ -11,13 +12,13 @@ export default function NavbarSiswa({ title }: { title: string }) {
   return (
     <div className='sticky top-0 z-50 flex items-center justify-between'>
       {' '}
-      <div className='relative flex h-[10vh] w-full items-center justify-between rounded-b-lg bg-gradient-to-r from-blue-400 to-blue-600 p-6 text-white'>
+      <div className='relative flex w-full items-center justify-between bg-blue-800 px-2 py-6 pb-4 text-white'>
         {/* Tombol Back */}
         <button
           onClick={() => window.history.back()}
           className='flex items-center gap-1 text-white hover:opacity-80'
         >
-          <StepBack />
+          <ArrowLeft />
         </button>
 
         <h1 className='text-lg font-semibold'>{title}</h1>

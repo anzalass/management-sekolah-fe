@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardHeader,
@@ -11,10 +11,10 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CalendarIcon, User, UserCheck } from 'lucide-react';
-import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api';
 
 interface JanjiTemu {
   id: string;
@@ -30,58 +30,57 @@ interface JanjiTemu {
 }
 
 export default function JanjiTemuView() {
-  const [data, setData] = useState<JanjiTemu[]>([]);
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
 
   // filter state
   const [searchNama, setSearchNama] = useState('');
   const [searchTanggal, setSearchTanggal] = useState('');
 
-  const fetchData = async () => {
-    try {
+  // Fetch data pakai react-query
+  const { data, isLoading, isError } = useQuery<JanjiTemu[]>({
+    queryKey: ['janjiTemu'],
+    queryFn: async () => {
       const res = await api.get('/janji-temu-guru', {
         headers: {
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
-      setData(res.data.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+      return res.data.data;
+    },
+    enabled: !!session?.user?.token // hanya jalan kalau sudah ada token
+  });
 
-  const handleSetujui = async (id: string) => {
-    try {
+  // Mutation: setujui
+  const setujuiMutation = useMutation({
+    mutationFn: async (id: string) => {
       await api.put(
         `/janji-temu-status/${id}`,
         { status: 'setujui' },
         { headers: { Authorization: `Bearer ${session?.user?.token}` } }
       );
-      fetchData();
-    } catch (err) {
-      console.error(err);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['janjiTemu'] });
     }
-  };
+  });
 
-  const handleTolak = async (id: string) => {
-    try {
+  // Mutation: tolak
+  const tolakMutation = useMutation({
+    mutationFn: async (id: string) => {
       await api.put(
         `/janji-temu/${id}`,
         { status: 'tolak' },
         { headers: { Authorization: `Bearer ${session?.user?.token}` } }
       );
-      fetchData();
-    } catch (err) {
-      console.error(err);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['janjiTemu'] });
     }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  });
 
   // filter logic
-  const filteredData = data.filter((item) => {
+  const filteredData = (data || []).filter((item) => {
     const matchNama = item.siswaNama
       ?.toLowerCase()
       .includes(searchNama.toLowerCase());
@@ -90,6 +89,14 @@ export default function JanjiTemuView() {
       : true;
     return matchNama && matchTanggal;
   });
+
+  if (isLoading) {
+    return <p className='text-sm text-muted-foreground'>Loading...</p>;
+  }
+
+  if (isError) {
+    return <p className='text-sm text-red-500'>Gagal memuat data</p>;
+  }
 
   return (
     <div className='space-y-4'>
@@ -139,7 +146,7 @@ export default function JanjiTemuView() {
 
               <Badge
                 variant={
-                  item.status === 'setuju'
+                  item.status === 'setujui'
                     ? 'default'
                     : item.status === 'tolak'
                       ? 'destructive'
@@ -167,12 +174,17 @@ export default function JanjiTemuView() {
             <CardFooter className='flex justify-end gap-3'>
               <Button
                 variant='destructive'
-                onClick={() => handleTolak(item.id)}
+                disabled={tolakMutation.isPending}
+                onClick={() => tolakMutation.mutate(item.id)}
               >
-                Tolak
+                {tolakMutation.isPending ? 'Memproses...' : 'Tolak'}
               </Button>
-              <Button variant='default' onClick={() => handleSetujui(item.id)}>
-                Setujui
+              <Button
+                variant='default'
+                disabled={setujuiMutation.isPending}
+                onClick={() => setujuiMutation.mutate(item.id)}
+              >
+                {setujuiMutation.isPending ? 'Memproses...' : 'Setujui'}
               </Button>
             </CardFooter>
           </Card>

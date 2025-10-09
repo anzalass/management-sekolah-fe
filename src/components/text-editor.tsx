@@ -104,7 +104,7 @@ export default function TextEditor({
   };
 
   return (
-    <div className='h-[50vh] overflow-auto rounded-md border bg-white p-2'>
+    <div className='min-h-screen overflow-auto rounded-md border bg-white p-2'>
       <div className='mb-2 flex flex-wrap gap-2 border-b pb-2'>
         <button
           type='button'
