@@ -328,7 +328,7 @@ export default function HomeView() {
       </section>
 
       {/* Teachers Section */}
-      <section className='bg-white py-20'>
+      <section className='overflow-x-hidden bg-white py-20'>
         <div className='mx-auto max-w-7xl px-4'>
           <div className='mb-16 text-center'>
             <h2 className='mb-4 text-4xl font-bold text-gray-900 md:text-5xl'>
@@ -343,7 +343,8 @@ export default function HomeView() {
             </p>
           </div>
 
-          <div className='mb-8 flex items-center justify-center gap-4'>
+          {/* 🧠 Tambah responsive scaling */}
+          <div className='mb-8 flex items-center justify-center gap-2 sm:gap-4'>
             {[-2, -1, 0, 1, 2].map((offset) => {
               const teacher = teachers[getTeacherIndex(offset)];
               const isCenter = offset === 0;
@@ -352,14 +353,22 @@ export default function HomeView() {
                 <div
                   key={offset}
                   className={`transition-all duration-500 ${
-                    isCenter ? 'scale-100' : 'scale-75 opacity-40'
+                    isCenter
+                      ? 'scale-100'
+                      : 'scale-75 opacity-40 sm:scale-90 sm:opacity-60'
                   }`}
                 >
                   <div
-                    className={`relative ${isCenter ? 'h-48 w-48' : 'h-32 w-32'}`}
+                    className={`relative ${
+                      isCenter
+                        ? 'h-36 w-36 sm:h-48 sm:w-48'
+                        : 'h-20 w-20 sm:h-32 sm:w-32'
+                    }`}
                   >
                     <div
-                      className={`absolute inset-0 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 opacity-20 blur-xl ${isCenter ? 'scale-110' : ''}`}
+                      className={`absolute inset-0 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 opacity-20 blur-xl ${
+                        isCenter ? 'scale-110' : ''
+                      }`}
                     ></div>
                     <img
                       src={teacher?.imageUrl}
@@ -368,11 +377,10 @@ export default function HomeView() {
                     />
                   </div>
                   {isCenter && (
-                    <div className='mt-4 text-center'>
-                      <p className='text-lg font-bold text-gray-900'>
+                    <div className='mt-3 text-center'>
+                      <p className='text-base font-bold text-gray-900 sm:text-lg'>
                         {teacher?.name}
                       </p>
-                      {/* <p className='text-gray-600'>{teacher.subject}</p> */}
                     </div>
                   )}
                 </div>
@@ -383,15 +391,15 @@ export default function HomeView() {
           <div className='flex justify-center gap-4'>
             <button
               onClick={prevTeacher}
-              className='flex h-12 w-12 items-center justify-center rounded-full border-2 border-gray-300 transition-all hover:scale-110 hover:border-blue-600 hover:text-blue-600'
+              className='flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300 transition-all hover:scale-110 hover:border-blue-600 hover:text-blue-600 sm:h-12 sm:w-12'
             >
-              <ChevronLeft className='h-6 w-6' />
+              <ChevronLeft className='h-5 w-5 sm:h-6 sm:w-6' />
             </button>
             <button
               onClick={nextTeacher}
-              className='flex h-12 w-12 items-center justify-center rounded-full border-2 border-gray-300 transition-all hover:scale-110 hover:border-blue-600 hover:text-blue-600'
+              className='flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300 transition-all hover:scale-110 hover:border-blue-600 hover:text-blue-600 sm:h-12 sm:w-12'
             >
-              <ChevronRight className='h-6 w-6' />
+              <ChevronRight className='h-5 w-5 sm:h-6 sm:w-6' />
             </button>
           </div>
         </div>
