@@ -73,6 +73,7 @@
 //     ];
 //   }
 // });
+
 const withPWA = require('next-pwa')({
   dest: 'public',
   register: true,
@@ -126,11 +127,12 @@ module.exports = withPWA({
     const connectSrc = [
       "'self'",
       'https://management-sekolah.zeabur.app',
+      'https://ytam-be.zeabur.app', // ✅ tambahkan ini
       'https://api.sandbox.midtrans.com',
       'https://app.sandbox.midtrans.com',
-      'https://generativelanguage.googleapis.com', // ✅ allow Google Generative Language API
-      'https://*.googleapis.com', // ✅ wildcard semua Google APIs
-      'https://www.google-analytics.com', // ✅ GA
+      'https://generativelanguage.googleapis.com',
+      'https://*.googleapis.com',
+      'https://www.google-analytics.com',
       ...(isDev ? ['http://localhost:5000'] : [])
     ].join(' ');
 
