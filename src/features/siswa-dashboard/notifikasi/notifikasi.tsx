@@ -1,5 +1,7 @@
 'use client';
+
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   Bell,
   Check,
@@ -14,137 +16,52 @@ import {
   FileText,
   Trash2
 } from 'lucide-react';
+import BottomNav from '../bottom-nav';
+import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 export default function NotificationPage() {
   const [filter, setFilter] = useState('all');
+  const { data: session } = useSession();
   const [showFilterMenu, setShowFilterMenu] = useState(false);
 
-  // Dummy data
-  const notifications = [
-    {
-      id: '1',
-      idSiswa: 'siswa-001',
-      idKelas: 'kelas-10a',
-      idGuru: null,
-      redirectSiswa: '/siswa/tugas/math-001',
-      redirectGuru: null,
-      status: 'unread',
-      idTerkait: 'tugas-001',
-      kategori: 'tugas',
-      keterangan:
-        'Tugas Matematika "Integral dan Diferensial" sudah tersedia. Deadline: 25 Oktober 2025',
-      createdAt: '2025-10-03T10:30:00',
-      createdBy: 'guru-math-001'
-    },
-    {
-      id: '2',
-      idSiswa: 'siswa-001',
-      idKelas: null,
-      idGuru: null,
-      redirectSiswa: '/siswa/pembayaran',
-      redirectGuru: null,
-      status: 'read',
-      idTerkait: 'payment-001',
-      kategori: 'pembayaran',
-      keterangan: 'Pembayaran SPP bulan Oktober berhasil! Total Rp 500.000',
-      createdAt: '2025-10-02T14:20:00',
-      createdBy: 'system'
-    },
-    {
-      id: '3',
-      idSiswa: 'siswa-001',
-      idKelas: null,
-      idGuru: null,
-      redirectSiswa: '/siswa/prestasi',
-      redirectGuru: null,
-      status: 'unread',
-      idTerkait: 'prestasi-001',
-      kategori: 'prestasi',
-      keterangan:
-        'Selamat! Anda mendapat juara 1 Lomba Matematika Tingkat Provinsi 🏆',
-      createdAt: '2025-10-01T09:15:00',
-      createdBy: 'admin-001'
-    },
-    {
-      id: '4',
-      idSiswa: 'siswa-001',
-      idKelas: 'kelas-10a',
-      idGuru: 'guru-fisika',
-      redirectSiswa: '/siswa/nilai',
-      redirectGuru: null,
-      status: 'read',
-      idTerkait: 'nilai-001',
-      kategori: 'nilai',
-      keterangan: 'Nilai Ulangan Fisika Bab 3 sudah keluar. Nilai kamu: 85',
-      createdAt: '2025-09-30T16:45:00',
-      createdBy: 'guru-fisika'
-    },
-    {
-      id: '5',
-      idSiswa: 'siswa-001',
-      idKelas: null,
-      idGuru: null,
-      redirectSiswa: '/siswa/pengumuman',
-      redirectGuru: null,
-      status: 'unread',
-      idTerkait: 'pengumuman-001',
-      kategori: 'pengumuman',
-      keterangan:
-        'Libur Nasional: Sekolah diliburkan pada tanggal 28 Oktober 2025',
-      createdAt: '2025-09-29T08:00:00',
-      createdBy: 'admin-001'
-    },
-    {
-      id: '6',
-      idSiswa: 'siswa-001',
-      idKelas: 'kelas-10a',
-      idGuru: null,
-      redirectSiswa: '/siswa/pelanggaran',
-      redirectGuru: null,
-      status: 'read',
-      idTerkait: 'pelanggaran-001',
-      kategori: 'pelanggaran',
-      keterangan: 'Anda mendapat peringatan karena terlambat 3 kali minggu ini',
-      createdAt: '2025-09-28T11:30:00',
-      createdBy: 'guru-bk'
-    },
-    {
-      id: '7',
-      idSiswa: 'siswa-001',
-      idKelas: null,
-      idGuru: null,
-      redirectSiswa: '/siswa/kalender',
-      redirectGuru: null,
-      status: 'unread',
-      idTerkait: 'event-001',
-      kategori: 'jadwal',
-      keterangan:
-        'Reminder: Ujian Tengah Semester dimulai besok tanggal 4 Oktober 2025',
-      createdAt: '2025-09-27T15:00:00',
-      createdBy: 'system'
-    },
-    {
-      id: '8',
-      idSiswa: 'siswa-001',
-      idKelas: 'kelas-10a',
-      idGuru: 'guru-english',
-      redirectSiswa: '/siswa/tugas/english-001',
-      redirectGuru: null,
-      status: 'read',
-      idTerkait: 'tugas-002',
-      kategori: 'tugas',
-      keterangan:
-        'Tugas Bahasa Inggris "Essay Writing" sudah dinilai. Nilai: 90',
-      createdAt: '2025-09-26T13:20:00',
-      createdBy: 'guru-english'
-    }
-  ];
+  // === FETCH DATA DARI API ===
+  const {
+    data: notifications = [],
+    isLoading,
+    isError,
+    refetch
+  } = useQuery({
+    queryKey: ['notifikasii'],
+    queryFn: async () => {
+      const res = await api.get('notifikasi', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user.token}`
+        }
+      });
 
+      return res.data.data.uniqueNotif;
+    },
+    enabled: !!session?.user?.token,
+    staleTime: 1000 * 60 // cache 1 menit
+  });
+
+  console.log(notifications);
+
+  // === CATEGORIES ===
   const categories = [
     { value: 'all', label: 'Semua', icon: Bell, color: 'text-gray-600' },
-    { value: 'tugas', label: 'Tugas', icon: BookOpen, color: 'text-blue-600' },
+    { value: 'Tugas', label: 'Tugas', icon: BookOpen, color: 'text-blue-600' },
     {
-      value: 'pembayaran',
+      value: 'Materi',
+      label: 'Materi',
+      icon: BookOpen,
+      color: 'text-blue-600'
+    },
+
+    {
+      value: 'Pembayaran',
       label: 'Pembayaran',
       icon: DollarSign,
       color: 'text-green-600'
@@ -156,7 +73,7 @@ export default function NotificationPage() {
       color: 'text-yellow-600'
     },
     {
-      value: 'nilai',
+      value: 'Nilai',
       label: 'Nilai',
       icon: FileText,
       color: 'text-purple-600'
@@ -172,19 +89,11 @@ export default function NotificationPage() {
       label: 'Pelanggaran',
       icon: AlertCircle,
       color: 'text-red-600'
-    },
-    {
-      value: 'jadwal',
-      label: 'Jadwal',
-      icon: Calendar,
-      color: 'text-indigo-600'
     }
   ];
 
-  const getCategoryConfig = (kategori: any) => {
-    const config = categories.find((c) => c.value === kategori);
-    return config || categories[0];
-  };
+  const getCategoryConfig = (kategori: any) =>
+    categories.find((c) => c.value === kategori) || categories[0];
 
   const formatDate = (dateString: any) => {
     const date = new Date(dateString);
@@ -207,12 +116,39 @@ export default function NotificationPage() {
   const filteredNotifications =
     filter === 'all'
       ? notifications
-      : notifications.filter((n) => n.kategori === filter);
+      : notifications?.filter((n: any) => n.kategori === filter);
 
-  const unreadCount = notifications.filter((n) => n.status === 'unread').length;
+  const unreadCount = notifications?.filter(
+    (n: any) => n.status === 'Belum Dibaca'
+  ).length;
+
+  // === LOADING STATE ===
+  if (isLoading) {
+    return (
+      <div className='flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50'>
+        <p className='animate-pulse text-gray-500'>Memuat notifikasi...</p>
+      </div>
+    );
+  }
+
+  // === ERROR STATE ===
+  if (isError) {
+    return (
+      <div className='flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50'>
+        <AlertCircle className='mb-3 h-10 w-10 text-red-500' />
+        <p className='mb-4 text-gray-600'>Gagal memuat notifikasi</p>
+        <button
+          onClick={() => refetch()}
+          className='rounded-full bg-blue-600 px-5 py-2 font-semibold text-white hover:bg-blue-700'
+        >
+          Coba Lagi
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-gray-50 to-blue-50'>
+    <div className='min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20'>
       {/* Header */}
       <div className='sticky top-0 z-40 bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg'>
         <div className='mx-auto max-w-6xl px-4 py-4'>
@@ -263,7 +199,7 @@ export default function NotificationPage() {
                 const count =
                   cat.value === 'all'
                     ? notifications.length
-                    : notifications.filter((n) => n.kategori === cat.value)
+                    : notifications.filter((n: any) => n.kategori === cat.value)
                         .length;
 
                 return (
@@ -298,7 +234,7 @@ export default function NotificationPage() {
         </div>
       )}
 
-      {/* Notifications List */}
+      {/* Notification List */}
       <div className='mx-auto max-w-6xl px-4 py-4'>
         <div className='space-y-3'>
           {filteredNotifications.length === 0 ? (
@@ -313,10 +249,9 @@ export default function NotificationPage() {
               </p>
             </div>
           ) : (
-            filteredNotifications.map((notif) => {
+            filteredNotifications.map((notif: any) => {
               const categoryConfig = getCategoryConfig(notif.kategori);
               const Icon = categoryConfig.icon;
-
               return (
                 <a
                   key={notif.id}
@@ -328,7 +263,6 @@ export default function NotificationPage() {
                   }`}
                 >
                   <div className='flex gap-3'>
-                    {/* Icon */}
                     <div
                       className={`h-12 w-12 flex-shrink-0 rounded-xl ${
                         notif.status === 'unread'
@@ -339,7 +273,6 @@ export default function NotificationPage() {
                       <Icon className={`h-6 w-6 ${categoryConfig.color}`} />
                     </div>
 
-                    {/* Content */}
                     <div className='min-w-0 flex-1'>
                       <div className='mb-1 flex items-start justify-between gap-2'>
                         <div className='flex items-center gap-2'>
@@ -356,15 +289,6 @@ export default function NotificationPage() {
                             <div className='h-2 w-2 animate-pulse rounded-full bg-blue-500'></div>
                           )}
                         </div>
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            alert('Hapus notifikasi');
-                          }}
-                          className='p-1 text-gray-400 transition-all hover:text-red-500 active:scale-95'
-                        >
-                          <Trash2 className='h-4 w-4' />
-                        </button>
                       </div>
 
                       <p
@@ -393,29 +317,15 @@ export default function NotificationPage() {
             })
           )}
         </div>
-
-        {/* Load More */}
-        {filteredNotifications.length > 0 && (
-          <div className='mt-6 text-center'>
-            <button className='rounded-full border border-gray-200 bg-white px-6 py-3 font-semibold text-gray-700 shadow-md transition-all duration-200 active:scale-95'>
-              Muat Lebih Banyak
-            </button>
-          </div>
-        )}
       </div>
 
       <style>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .active\:scale-98:active {
-          transform: scale(0.98);
-        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .active\\:scale-98:active { transform: scale(0.98); }
       `}</style>
+
+      <BottomNav />
     </div>
   );
 }

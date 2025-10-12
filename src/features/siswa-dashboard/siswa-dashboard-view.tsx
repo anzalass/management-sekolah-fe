@@ -25,7 +25,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import MenuFiturSiswa from './menu-siswa';
 import BottomNav from './bottom-nav';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import {
   Dialog,
@@ -74,36 +74,32 @@ interface SiswaData {
 export default function SiswaHomeView() {
   const router = useRouter();
   const { data: session } = useSession();
+  const queryClient = useQueryClient(); // ✅ untuk invalidasi query
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPengumuman, setSelectedPengumuman] =
     useState<Pengumuman | null>(null);
 
-  // --- Fetcher ---
+  // --- Fetchers ---
   const fetchSiswaData = async (): Promise<SiswaData> => {
     if (!session?.user?.token)
       return { kelasAktif: [], jadwalPelajaran: [], berandaInformasi: [] };
 
     const res = await api.get('siswa', {
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${session.user.token}`
       }
     });
-
     return res.data.result as SiswaData;
   };
 
   const fetchNotifikasi = async (): Promise<number> => {
     if (!session?.user?.token) return 0;
-
-    const res = await api.get('notifikasi', {
+    const res = await api.get('notifikasi-total', {
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${session.user.token}`
       }
     });
-
     return res.data.data.total;
   };
 
@@ -112,7 +108,7 @@ export default function SiswaHomeView() {
     data: siswaData,
     error: siswaError,
     isLoading: siswaLoading
-  } = useQuery<SiswaData, unknown>({
+  } = useQuery<SiswaData>({
     queryKey: ['siswa-data'],
     queryFn: fetchSiswaData,
     enabled: !!session?.user?.token,
@@ -124,12 +120,14 @@ export default function SiswaHomeView() {
     data: totalNotif,
     error: notifError,
     isLoading: notifLoading
-  } = useQuery<number, unknown>({
+  } = useQuery<number>({
     queryKey: ['notifikasi'],
     queryFn: fetchNotifikasi,
     enabled: !!session?.user?.token,
     staleTime: 1000 * 60 * 20
   });
+
+  console.log(totalNotif);
 
   useEffect(() => {
     if (siswaError || notifError) {
@@ -141,6 +139,7 @@ export default function SiswaHomeView() {
   const jadwalPelajaran: JadwalPelajaran[] = siswaData?.jadwalPelajaran ?? [];
   const pengumuman: Pengumuman[] = siswaData?.berandaInformasi ?? [];
 
+  // --- Avatar & Logout ---
   const getInitials = (nama?: string) => {
     if (!nama) return '';
     const parts = nama.trim().split(' ');
@@ -151,12 +150,44 @@ export default function SiswaHomeView() {
 
   const handleLogout = async () =>
     await signOut({ callbackUrl: '/login-siswa' });
+
   const handleChangePassword = () => router.push('/siswa/ubah-password');
 
   const openModal = (info: Pengumuman) => {
     setSelectedPengumuman(info);
     setIsModalOpen(true);
   };
+
+  // --- ✅ Mutation notifikasi ---
+  const { mutate: markAllNotifikasi, isPending: updatingNotif } = useMutation({
+    mutationFn: async () => {
+      const res = await api.put(
+        'notifikasi/siswa',
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        }
+      );
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Semua notifikasi telah diperbarui');
+      // invalidate cache biar jumlah notifikasi refresh
+      queryClient.invalidateQueries({ queryKey: ['notifikasi'] });
+    },
+    onError: () => {
+      toast.error('Gagal memperbarui notifikasi');
+    }
+  });
+
+  // --- handler trigger ---
+  const handlerNotifikasi = () => {
+    markAllNotifikasi();
+  };
+
+  // ... return JSX (UI) kamu seperti biasa
 
   if (siswaLoading || notifLoading) return <Loading />;
 
@@ -179,7 +210,7 @@ export default function SiswaHomeView() {
           <div className='relative flex items-center gap-3'>
             <div className='relative'>
               <div className='rounded-full bg-white/20 p-2 backdrop-blur-sm transition-all hover:scale-110 hover:bg-white/30'>
-                <Link href={'/siswa/notifikasi'}>
+                <Link onClick={handlerNotifikasi} href={'/siswa/notifikasi'}>
                   <Bell size={24} className='drop- text-white' />
                 </Link>
               </div>
@@ -238,7 +269,7 @@ export default function SiswaHomeView() {
         <Card className='hover: border-2 border-purple-200/50 bg-white/95 p-6 backdrop-blur-sm transition-all duration-300'>
           <div className='pb-4 pt-2'>
             <CardTitle className='bg-blue-800 bg-clip-text text-base font-bold text-transparent md:text-xl'>
-              ✨ Daftar Kelas Aktif
+              ✨ Active Classroom
             </CardTitle>
           </div>
           <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4'>
@@ -286,21 +317,21 @@ export default function SiswaHomeView() {
 
         {/* Jadwal */}
         <Card className='hover: overflow-hidden border-2 border-purple-200/50 bg-white/95 backdrop-blur-sm transition-all duration-300'>
-          <CardHeader className='bg-gradient-to-r from-violet-50 via-purple-50 to-fuchsia-50'>
+          <CardHeader className=''>
             <div className='flex items-center gap-3'>
               <div className='rounded-lg bg-blue-800 p-2.5'>
                 <CalendarClock className='h-5 w-5 text-white' />
               </div>
-              <CardTitle className='bg-blue-800 bg-clip-text text-lg font-bold text-transparent'>
-                📅 Jadwal Pelajaran
+              <CardTitle className='bg-blue-800 bg-clip-text text-base font-bold text-transparent'>
+                📅 Lesson Timetable
               </CardTitle>
             </div>
           </CardHeader>
           <CardContent className='overflow-x-auto p-2 md:p-6'>
             {jadwalPelajaran.length === 0 ? (
               <EmptyState
-                title='Jadwal Kosong'
-                description='Belum ada jadwal pelajaran untuk ditampilkan.'
+                title='No Schedule'
+                description='No Schedule Displayed'
               />
             ) : (
               <div className='overflow-hidden rounded-xl border-2 border-purple-100'>
@@ -308,13 +339,13 @@ export default function SiswaHomeView() {
                   <thead className='bg-gradient-to-r from-violet-100 via-purple-100 to-fuchsia-100'>
                     <tr>
                       <th className='border-b-2 border-purple-200 p-3 text-left font-bold text-purple-900'>
-                        Hari
+                        Day
                       </th>
                       <th className='border-b-2 border-purple-200 p-3 text-left font-bold text-purple-900'>
-                        Jam
+                        Time
                       </th>
                       <th className='border-b-2 border-purple-200 p-3 text-left font-bold text-purple-900'>
-                        Mata Pelajaran
+                        Subjects
                       </th>
                     </tr>
                   </thead>
@@ -346,13 +377,13 @@ export default function SiswaHomeView() {
 
         {/* Pengumuman */}
         <Card className='hover: overflow-hidden border-2 border-purple-200/50 bg-white/95 backdrop-blur-sm transition-all duration-300'>
-          <CardHeader className='bg-gradient-to-r from-fuchsia-50 via-pink-50 to-rose-50'>
+          <CardHeader className=''>
             <div className='flex items-center gap-3'>
               <div className='rounded-lg bg-blue-800 p-2.5'>
                 <Info className='h-5 w-5 text-white' />
               </div>
               <CardTitle className='bg-blue-800 bg-clip-text text-lg font-bold text-transparent'>
-                📢 Beranda Informasi
+                📢 Information
               </CardTitle>
             </div>
           </CardHeader>
@@ -362,7 +393,7 @@ export default function SiswaHomeView() {
                 <div
                   key={i}
                   onClick={() => openModal(info)}
-                  className='hover: group cursor-pointer rounded-2xl border-2 border-purple-200 bg-gradient-to-br from-purple-50 via-pink-50 to-fuchsia-50 p-4 transition-all duration-300 hover:scale-[1.02] hover:border-purple-300'
+                  className='hover: group cursor-pointer rounded-2xl border-2 p-4 transition-all duration-300 hover:scale-[1.02] hover:border-purple-300'
                 >
                   <div className='mb-2 font-bold text-purple-900 group-hover:text-fuchsia-700'>
                     {info.title}
@@ -376,7 +407,7 @@ export default function SiswaHomeView() {
             ) : (
               <div className='rounded-xl border-2 border-dashed border-purple-200 bg-purple-50/50 p-8 text-center'>
                 <p className='text-sm font-medium text-purple-600'>
-                  Belum ada pengumuman terbaru
+                  No Information Yet
                 </p>
               </div>
             )}

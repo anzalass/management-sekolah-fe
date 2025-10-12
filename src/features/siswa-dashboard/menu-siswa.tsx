@@ -29,43 +29,43 @@ export default function MenuFiturSiswa() {
     {
       href: '/siswa/pembayaran',
       icon: <CreditCardIcon />,
-      label: 'Pembayaran',
+      label: 'Payemnt',
       color: 'text-indigo-500'
     },
     {
       href: '/siswa/kelas',
       icon: <School />,
-      label: 'Kelas',
+      label: 'Classroom',
       color: 'text-indigo-500'
     },
     {
       href: '/siswa/perizinan',
       icon: <ScrollTextIcon />,
-      label: 'Perizinan',
+      label: 'Permission',
       color: 'text-indigo-500'
     },
     {
       href: '/siswa/pengumuman',
       icon: <NewspaperIcon />,
-      label: 'Pengumuman',
+      label: 'Announcment',
       color: 'text-indigo-500'
     },
     {
       href: '/siswa/pelanggaran',
       icon: <AlertTriangleIcon />,
-      label: 'Pelanggaran',
+      label: 'Violation',
       color: 'text-indigo-500'
     },
     {
       href: '/siswa/prestasi',
       icon: <Award />,
-      label: 'Prestasi',
+      label: 'Achivement',
       color: 'text-indigo-500'
     },
     {
       href: '/siswa/log-presensi',
       icon: <FileTextIcon />,
-      label: 'Log Presensi',
+      label: 'Attendence',
       color: 'text-indigo-500'
     }
   ];
@@ -80,26 +80,26 @@ export default function MenuFiturSiswa() {
     {
       href: '/siswa/janji-temu',
       icon: <CalendarClock />,
-      label: 'Janji Temu',
+      label: 'Apointment',
       color: 'text-indigo-500'
     },
 
     {
       href: '/siswa/kalender-akademik',
       icon: <CalendarArrowUp />,
-      label: 'Kalender Akademik',
+      label: 'Calendar Academic',
       color: 'text-indigo-500'
     },
     {
       href: '/siswa/nilai-siswa',
       icon: <ClipboardList />,
-      label: 'Nilai Siswa',
+      label: 'Student Score',
       color: 'text-indigo-500'
     },
     {
       href: '/siswa/perpustakaan',
       icon: <BookCopy />,
-      label: 'Perpustakaan',
+      label: 'Library',
       color: 'text-indigo-500'
     },
 
@@ -110,9 +110,9 @@ export default function MenuFiturSiswa() {
       color: 'text-indigo-500'
     },
     {
-      href: '/siswa/weekly-activity',
+      href: '/siswa/catatan-perkembangan-siswa',
       icon: <NotebookText />,
-      label: 'Catatan Harian Siswa',
+      label: 'Student Development Notes',
       color: 'text-indigo-500'
     }
   ];
@@ -144,12 +144,12 @@ export default function MenuFiturSiswa() {
               <MoreHorizontal className='text-indigo-500' />
             </div>
             <span className='text-center text-xs font-medium text-white sm:text-sm'>
-              Menu Lainnya
+              More Fitur
             </span>
           </button>
         </DialogTrigger>
         <DialogContent className='max-w-lg rounded-lg'>
-          <DialogTitle>Fitur Lainnya</DialogTitle>
+          <DialogTitle> More Fitur</DialogTitle>
           <div className='grid grid-cols-3 gap-4'>
             {fiturTambahan.map((fitur, i) => (
               <Link

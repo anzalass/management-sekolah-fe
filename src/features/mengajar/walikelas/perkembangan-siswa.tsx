@@ -33,6 +33,7 @@ interface Props {
 interface FormValues {
   studentId: string;
   keterangan: string;
+  kategori: string;
 }
 
 const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
@@ -41,13 +42,25 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
   const token = session?.user?.token || '';
   const queryClient = useQueryClient();
 
-  const { control, handleSubmit, reset, setValue } = useForm<FormValues>({
-    defaultValues: { studentId: '', keterangan: '' }
+  console.log(catatanList);
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors } // <== ambil error state
+  } = useForm<FormValues>({
+    defaultValues: { studentId: '', keterangan: '', kategori: '' }
   });
 
   // CREATE
   const createMutation = useMutation({
-    mutationFn: async (payload: { idSiswa: string; content: string }) => {
+    mutationFn: async (payload: {
+      idSiswa: string;
+      content: string;
+      kategori: string;
+    }) => {
       const res = await api.post(
         `catatan-siswa`,
         { idKelas, ...payload },
@@ -61,7 +74,7 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
       return res.data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['dashboardWaliKelas'] }); // invalidasi query dashboard
+      queryClient.invalidateQueries({ queryKey: ['dashboardWaliKelas'] });
       toast.success('Catatan berhasil ditambahkan');
     },
     onError: (err: any) =>
@@ -74,10 +87,16 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
       id: string;
       idSiswa: string;
       content: string;
+      kategori: string;
     }) => {
       const res = await api.put(
         `catatan-siswa/${vars.id}`,
-        { idKelas, idSiswa: vars.idSiswa, content: vars.content },
+        {
+          idKelas,
+          idSiswa: vars.idSiswa,
+          content: vars.content,
+          kategori: vars.kategori
+        },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -111,19 +130,19 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
   });
 
   const onSubmit = (data: FormValues) => {
-    console.log(data);
-
     if (editId) {
       updateMutation.mutate({
         id: editId,
         idSiswa: data.studentId,
-        content: data.keterangan
+        content: data.keterangan,
+        kategori: data.kategori
       });
       setEditId(null);
     } else {
       createMutation.mutate({
         idSiswa: data.studentId,
-        content: data.keterangan
+        content: data.keterangan,
+        kategori: data.kategori
       });
     }
     reset();
@@ -134,6 +153,7 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
     if (!catatan) return;
     setValue('studentId', catatan.idSiswa);
     setValue('keterangan', catatan.catatan);
+    setValue('kategori', catatan.kategori);
     setEditId(id);
   };
 
@@ -144,37 +164,86 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
       </CardHeader>
       <CardContent className='space-y-4'>
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-2'>
-          <Controller
-            name='studentId'
-            control={control}
-            rules={{ required: 'Pilih siswa wajib diisi' }}
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className='w-full'>
-                  <SelectValue placeholder='Pilih siswa' />
-                </SelectTrigger>
-                <SelectContent>
-                  {siswa?.map((s) => (
-                    <SelectItem key={s.id} value={s.Siswa.id}>
-                      {s.namaSiswa} {s.Siswa.id}
+        <form onSubmit={handleSubmit(onSubmit)} className='space-y-3'>
+          {/* === PILIH SISWA === */}
+          <div>
+            <Controller
+              name='studentId'
+              control={control}
+              rules={{ required: 'Pilih siswa wajib diisi' }}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className='w-full'>
+                    <SelectValue placeholder='Pilih siswa' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {siswa?.map((s) => (
+                      <SelectItem key={s.id} value={s.Siswa.id}>
+                        {s.namaSiswa}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.studentId && (
+              <p className='mt-1 text-sm text-red-500'>
+                {errors.studentId.message}
+              </p>
+            )}
+          </div>
+
+          {/* === KATEGORI === */}
+          <div>
+            <Controller
+              name='kategori'
+              control={control}
+              rules={{ required: 'Kategori wajib dipilih' }}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className='w-full'>
+                    <SelectValue placeholder='Pilih kategori' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='Academic'>Academic</SelectItem>
+                    <SelectItem value='Social Emotional'>
+                      Social Emotional
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    <SelectItem value='Extracurricular'>
+                      Extracurricular
+                    </SelectItem>
+                    <SelectItem value='Behavior'>Behavior</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.kategori && (
+              <p className='mt-1 text-sm text-red-500'>
+                {errors.kategori.message}
+              </p>
             )}
-          />
-          <Controller
-            name='keterangan'
-            control={control}
-            rules={{ required: 'Keterangan wajib diisi' }}
-            render={({ field }) => (
-              <Textarea
-                placeholder='Tulis catatan perkembangan...'
-                {...field}
-              />
+          </div>
+
+          {/* === KETERANGAN === */}
+          <div>
+            <Controller
+              name='keterangan'
+              control={control}
+              rules={{ required: 'Keterangan wajib diisi' }}
+              render={({ field }) => (
+                <Textarea
+                  placeholder='Tulis catatan perkembangan...'
+                  {...field}
+                />
+              )}
+            />
+            {errors.keterangan && (
+              <p className='mt-1 text-sm text-red-500'>
+                {errors.keterangan.message}
+              </p>
             )}
-          />
+          </div>
+
           <Button
             type='submit'
             disabled={createMutation.isPending || updateMutation.isPending}
@@ -183,7 +252,7 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
           </Button>
         </form>
 
-        {/* List */}
+        {/* === LIST CATATAN === */}
         {catatanList.length === 0 ? (
           <p className='text-sm text-muted-foreground'>
             Belum ada catatan perkembangan.
@@ -196,7 +265,8 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
                   <CardTitle className='text-base font-semibold'>
                     {c.nama}
                   </CardTitle>
-                  <span className='text-xs text-gray-500'>{c.catatan}</span>
+                  <span className='text-xs text-gray-500'>{c.kategori}</span>
+                  <p className='text-sm'>{c.catatan}</p>
                 </CardHeader>
                 <CardFooter className='absolute -right-2 top-4 flex gap-2'>
                   <Button

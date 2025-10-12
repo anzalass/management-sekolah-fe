@@ -16,6 +16,7 @@ import api from '@/lib/api';
 import CatatanAkhirSiswa from './catatan-akhir';
 import TambahUjian from './tambah-ujian';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import CatatanPerkembanganSiswa from '../walikelas/perkembangan-siswa';
 
 interface Student {
   id: string;

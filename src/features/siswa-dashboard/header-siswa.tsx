@@ -23,7 +23,7 @@ export default function HeaderSiswa({
   data
 }: Props) {
   return (
-    <div className={`bg-blue-800 pb-${title !== 'Pembayaran' ? '14' : '24'}`}>
+    <div className={`bg-blue-800 pb-${title !== 'Payment' ? '14' : '24'}`}>
       <div className='mx-auto max-w-6xl'>
         <NavbarSiswa title={title} />
         {/* Summary Card */}

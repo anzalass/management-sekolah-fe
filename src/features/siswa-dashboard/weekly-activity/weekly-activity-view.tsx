@@ -150,7 +150,9 @@ export default function WeeklyActivityList() {
               <Calendar className='h-7 w-7 text-white' />
             </div>
             <div>
-              <h1 className='text-2xl font-bold text-white'>Weekly Activity</h1>
+              <h1 className='text-base font-bold text-white lg:text-2xl'>
+                Weekly Activity
+              </h1>
               <p className='text-sm text-purple-100'>
                 Dokumentasi kegiatan mingguan
               </p>

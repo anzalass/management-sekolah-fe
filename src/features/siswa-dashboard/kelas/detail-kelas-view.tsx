@@ -120,7 +120,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
       <Tabs
         value={tab}
         onValueChange={setTab}
-        className='mx-auto max-w-7xl px-4 py-6'
+        className='mx-auto max-w-7xl px-4 pb-6'
       >
         {/* Header with Tabs */}
         <TabsList className='my-3 grid h-[70px] w-full grid-cols-3 rounded-2xl bg-white p-1.5 shadow-md sm:inline-grid sm:w-auto'>
@@ -190,11 +190,11 @@ export default function DetailKelasView({ id }: DetailKelasId) {
           </div>
 
           {/* Stats Card */}
-          <div className='grid grid-cols-2 gap-4 sm:grid-cols-3'>
+          <div className='grid grid-cols-3 gap-4'>
             <Card className='border-0 bg-gradient-to-br from-blue-50 to-cyan-50 shadow-sm'>
               <CardContent className='p-4'>
                 <p className='text-sm text-blue-700'>Total Materi</p>
-                <p className='mt-1 text-2xl font-bold text-blue-900'>
+                <p className='mt-1 text-base font-bold text-blue-900 lg:text-2xl'>
                   {filteredMateri?.length || 0}
                 </p>
               </CardContent>
@@ -202,7 +202,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
             <Card className='border-0 bg-gradient-to-br from-green-50 to-emerald-50 shadow-sm'>
               <CardContent className='p-4'>
                 <p className='text-sm text-green-700'>Selesai</p>
-                <p className='mt-1 text-2xl font-bold text-green-900'>
+                <p className='mt-1 text-base font-bold text-green-900 lg:text-2xl'>
                   {filteredMateri?.filter((m) => m.past).length || 0}
                 </p>
               </CardContent>
@@ -210,7 +210,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
             <Card className='border-0 bg-gradient-to-br from-yellow-50 to-amber-50 shadow-sm'>
               <CardContent className='p-4'>
                 <p className='text-sm text-yellow-700'>Belum Selesai</p>
-                <p className='mt-1 text-2xl font-bold text-yellow-900'>
+                <p className='mt-1 text-base font-bold text-yellow-900 lg:text-2xl'>
                   {filteredMateri?.filter((m) => !m.past).length || 0}
                 </p>
               </CardContent>
@@ -347,11 +347,11 @@ export default function DetailKelasView({ id }: DetailKelasId) {
           </div>
 
           {/* Stats Card */}
-          <div className='grid grid-cols-2 gap-4 sm:grid-cols-3'>
+          <div className='grid grid-cols-3 gap-4'>
             <Card className='border-0 bg-gradient-to-br from-purple-50 to-violet-50 shadow-sm'>
               <CardContent className='p-4'>
                 <p className='text-sm text-purple-700'>Total Tugas</p>
-                <p className='mt-1 text-2xl font-bold text-purple-900'>
+                <p className='mt-1 text-base font-bold text-purple-900 lg:text-2xl'>
                   {filteredTugas?.length || 0}
                 </p>
               </CardContent>
@@ -359,7 +359,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
             <Card className='border-0 bg-gradient-to-br from-green-50 to-emerald-50 shadow-sm'>
               <CardContent className='p-4'>
                 <p className='text-sm text-green-700'>Selesai</p>
-                <p className='mt-1 text-2xl font-bold text-green-900'>
+                <p className='mt-1 text-base font-bold text-green-900 lg:text-2xl'>
                   {filteredTugas?.filter((t) => t.past).length || 0}
                 </p>
               </CardContent>
@@ -367,7 +367,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
             <Card className='border-0 bg-gradient-to-br from-yellow-50 to-amber-50 shadow-sm'>
               <CardContent className='p-4'>
                 <p className='text-sm text-yellow-700'>Belum Selesai</p>
-                <p className='mt-1 text-2xl font-bold text-yellow-900'>
+                <p className='mt-1 text-base font-bold text-yellow-900 lg:text-2xl'>
                   {filteredTugas?.filter((t) => !t.past).length || 0}
                 </p>
               </CardContent>
@@ -485,11 +485,11 @@ export default function DetailKelasView({ id }: DetailKelasId) {
           </div>
 
           {/* Stats Card */}
-          <div className='grid grid-cols-2 gap-4 sm:grid-cols-3'>
+          <div className='grid grid-cols-3 gap-4'>
             <Card className='border-0 bg-gradient-to-br from-orange-50 to-red-50 shadow-sm'>
               <CardContent className='p-4'>
                 <p className='text-sm text-orange-700'>Total Ujian</p>
-                <p className='mt-1 text-2xl font-bold text-orange-900'>
+                <p className='lg:text-2xlfont-bold mt-1 text-base text-orange-900'>
                   {filteredUjian?.length || 0}
                 </p>
               </CardContent>
@@ -497,7 +497,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
             <Card className='border-0 bg-gradient-to-br from-green-50 to-emerald-50 shadow-sm'>
               <CardContent className='p-4'>
                 <p className='text-sm text-green-700'>Selesai</p>
-                <p className='mt-1 text-2xl font-bold text-green-900'>
+                <p className='lg:text-2xlfont-bold mt-1 text-base text-green-900'>
                   {filteredUjian?.filter((u) => u.past).length || 0}
                 </p>
               </CardContent>
@@ -505,7 +505,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
             <Card className='border-0 bg-gradient-to-br from-yellow-50 to-amber-50 shadow-sm'>
               <CardContent className='p-4'>
                 <p className='text-sm text-yellow-700'>Belum Selesai</p>
-                <p className='mt-1 text-2xl font-bold text-yellow-900'>
+                <p className='lg:text-2xlfont-bold mt-1 text-base text-yellow-900'>
                   {filteredUjian?.filter((u) => !u.past).length || 0}
                 </p>
               </CardContent>

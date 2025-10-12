@@ -133,20 +133,20 @@ export default function PelanggaranView() {
         <div className='mx-auto max-w-6xl'>
           <div className='mb-6 flex items-center gap-3'>
             <Link
-              href={'/siswa'}
-              className='flex h-12 w-12 items-center justify-center space-x-3 rounded-full bg-white/20'
+              href='/siswa'
+              className='flex h-12 w-12 items-center justify-center rounded-full bg-white/20'
             >
-              <ArrowLeft />
+              <ArrowLeft className='h-7 w-7 text-white' />
             </Link>
             <div className='flex h-12 w-12 items-center justify-center space-x-3 rounded-full bg-white/20'>
               <AlertTriangle className='h-7 w-7 text-white' />
             </div>
             <div>
-              <h1 className='text-2xl font-bold text-white'>
-                Pelanggaran Siswa
+              <h1 className='text-base font-bold text-white lg:text-2xl'>
+                Student Violation
               </h1>
               <p className='text-sm text-red-100'>
-                Catatan pelanggaran & sanksi
+                Records of violations and penalties
               </p>
             </div>
           </div>
@@ -156,20 +156,20 @@ export default function PelanggaranView() {
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
               <div className='mb-2 flex items-center gap-2'>
                 <TrendingUp className='h-5 w-5 text-white' />
-                <p className='text-xs text-red-100'>Total Poin</p>
+                <p className='text-xs text-red-100'>Total Point</p>
               </div>
               <p className='text-2xl font-bold text-white'>{totalPoin}</p>
             </div>
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
-              <p className='mb-2 text-xs text-red-100'>Berat</p>
+              <p className='mb-2 text-xs text-red-100'>High</p>
               <p className='text-2xl font-bold text-white'>{totalBerat}</p>
             </div>
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
-              <p className='mb-2 text-xs text-red-100'>Sedang</p>
+              <p className='mb-2 text-xs text-red-100'>Medium</p>
               <p className='text-2xl font-bold text-white'>{totalSedang}</p>
             </div>
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
-              <p className='mb-2 text-xs text-red-100'>Ringan</p>
+              <p className='mb-2 text-xs text-red-100'>Low</p>
               <p className='text-2xl font-bold text-white'>{totalRingan}</p>
             </div>
           </div>
@@ -184,7 +184,7 @@ export default function PelanggaranView() {
               <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
               <input
                 type='text'
-                placeholder='Cari keterangan pelanggaran...'
+                placeholder='Find description...'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className='w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100'
@@ -256,15 +256,15 @@ export default function PelanggaranView() {
         {isLoading ? (
           <div className='py-12 text-center'>
             <div className='mx-auto h-12 w-12 animate-spin rounded-full border-4 border-red-600 border-t-transparent'></div>
-            <p className='mt-4 text-gray-600'>Memuat data pelanggaran...</p>
+            <p className='mt-4 text-gray-600'>Loading data...</p>
           </div>
         ) : filtered.length === 0 ? (
           <div className='py-12 text-center'>
             <Award className='mx-auto mb-4 h-16 w-16 text-green-500' />
             <h3 className='mb-2 text-lg font-semibold text-gray-900'>
-              Tidak ada pelanggaran!
+              No data!
             </h3>
-            <p className='text-gray-500'>Pertahankan perilaku baik Anda 🎉</p>
+            <p className='text-gray-500'>Youre a kind people 🎉</p>
           </div>
         ) : (
           <div className='grid gap-4 md:grid-cols-2'>
@@ -314,15 +314,6 @@ export default function PelanggaranView() {
                       <span>{formatDate(violation.waktu)}</span>
                     </div>
                   </div>
-
-                  <div className={`${config.bgColor} rounded-xl p-3`}>
-                    <p className='mb-1 text-xs font-semibold text-gray-700'>
-                      Sanksi:
-                    </p>
-                    <p className={`text-sm font-medium ${config.textColor}`}>
-                      {violation.sanksi}
-                    </p>
-                  </div>
                 </div>
               );
             })}
@@ -340,19 +331,19 @@ export default function PelanggaranView() {
               </div>
               <div>
                 <h3 className='mb-2 text-lg font-bold text-blue-900'>
-                  Informasi Poin Pelanggaran
+                  Violation Point Information
                 </h3>
                 <ul className='space-y-1 text-sm text-blue-800'>
                   <li>
-                    • <strong>Ringan (1-25 poin):</strong> Teguran
-                    lisan/tertulis
+                    • <strong>Minor (1–25 points):</strong> Verbal/Written
+                    warning
                   </li>
                   <li>
-                    • <strong>Sedang (26-70 poin):</strong> Panggilan orang tua
+                    • <strong>Moderate (26–70 points):</strong> Parent meeting
                   </li>
                   <li>
-                    • <strong>Berat ({'>'}70 poin):</strong> Skorsing/tindakan
-                    serius
+                    • <strong>Severe ({'>'}70 points):</strong>{' '}
+                    Suspension/serious action
                   </li>
                 </ul>
               </div>

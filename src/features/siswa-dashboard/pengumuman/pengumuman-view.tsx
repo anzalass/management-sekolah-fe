@@ -110,7 +110,7 @@ export default function PengumumanView() {
       {/* Header */}
       <div className='w-full bg-blue-800'>
         <div className='mx-auto max-w-6xl'>
-          <NavbarSiswa title='Pengumuuman' />
+          <NavbarSiswa title='Announcment' />
         </div>
       </div>
       <div className='bg-blue-800 px-4 pb-8'>
@@ -118,7 +118,7 @@ export default function PengumumanView() {
           <div className='flex items-center justify-center gap-3'>
             <div>
               <p className='text-sm text-blue-100'>
-                {filteredPengumuman.length} pengumuman tersedia
+                {filteredPengumuman.length} Announcment Available
               </p>
             </div>
           </div>
@@ -133,7 +133,7 @@ export default function PengumumanView() {
               <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
               <input
                 type='text'
-                placeholder='Cari judul atau isi...'
+                placeholder='Find title or content...'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className='w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100'
@@ -181,15 +181,15 @@ export default function PengumumanView() {
         {isLoading ? (
           <div className='py-12 text-center'>
             <div className='mx-auto h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent'></div>
-            <p className='mt-4 text-gray-600'>Memuat pengumuman...</p>
+            <p className='mt-4 text-gray-600'>Loading data...</p>
           </div>
         ) : filteredPengumuman.length === 0 ? (
           <div className='py-12 text-center'>
             <Megaphone className='mx-auto mb-4 h-16 w-16 text-gray-300' />
             <h3 className='mb-2 text-lg font-semibold text-gray-900'>
-              Tidak ada pengumuman
+              No data.
             </h3>
-            <p className='text-gray-500'>Belum ada pengumuman yang tersedia</p>
+            <p className='text-gray-500'>Nothing Announcment Available</p>
           </div>
         ) : (
           <div className='grid gap-4 md:grid-cols-2'>
@@ -277,9 +277,7 @@ export default function PengumumanView() {
                   <div className='flex items-center gap-3 text-sm text-gray-600'>
                     <Clock className='h-5 w-5' />
                     <div>
-                      <p className='font-medium text-gray-900'>
-                        Waktu Publikasi
-                      </p>
+                      <p className='font-medium text-gray-900'>Time Release</p>
                       <p>
                         {formatDate(selectedPengumuman?.time)} •{' '}
                         {formatTime(selectedPengumuman?.time)}
