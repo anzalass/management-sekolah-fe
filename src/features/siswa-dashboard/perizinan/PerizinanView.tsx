@@ -143,24 +143,24 @@ export default function Perizinan() {
         {/* Header + Stats */}
 
         <HeaderSiswa
-          title='Perizinan'
-          titleContent='Total Pengajuan'
+          title='Permissions'
+          titleContent='Total Submissions'
           mainContent={filteredData.length}
           icon={<ClipboardList className='h-7 w-7 text-white' />}
           data={[
             {
-              label: 'Disetujui',
+              label: 'Approve',
               value: filteredData.filter((i) => i.status === 'disetujui')
                 .length,
               color: 'text-white'
             },
             {
-              label: 'Menunggu',
+              label: 'Pending',
               value: filteredData.filter((i) => i.status === 'menunggu').length,
               color: 'text-white'
             },
             {
-              label: 'Ditolak',
+              label: 'Reject',
               value: filteredData.filter((i) => i.status === 'menunggu').length,
               color: 'text-white'
             }
@@ -176,8 +176,8 @@ export default function Perizinan() {
               size={18}
               className='transition-transform group-hover:rotate-90'
             />
-            <span className='hidden sm:inline'>Ajukan Izin</span>
-            <span className='sm:hidden'>Ajukan</span>
+            <span className='hidden sm:inline'>Apply Permission</span>
+            <span className='sm:hidden'>Apply</span>
           </Button>
         </div>
 
@@ -189,7 +189,7 @@ export default function Perizinan() {
                 <div className='flex h-10 w-10 items-center justify-center rounded-full bg-blue-100'>
                   <Plus className='h-5 w-5 text-blue-600' />
                 </div>
-                Form Pengajuan Izin
+                Form Apply Permission
               </DialogTitle>
             </DialogHeader>
             <form
@@ -201,14 +201,14 @@ export default function Perizinan() {
                   <div className='text-center'>
                     <Loader2 className='mx-auto h-8 w-8 animate-spin text-blue-600' />
                     <p className='mt-2 text-sm font-medium text-gray-600'>
-                      Mengirim izin...
+                      Submit permission...
                     </p>
                   </div>
                 </div>
               )}
 
               <div className='space-y-2'>
-                <Label>Keterangan</Label>
+                <Label>Description</Label>
                 <Textarea
                   {...register('keterangan', { required: true })}
                   placeholder='Jelaskan alasan izin Anda...'
@@ -216,7 +216,7 @@ export default function Perizinan() {
                 />
               </div>
               <div className='space-y-2'>
-                <Label>Tanggal</Label>
+                <Label>Date</Label>
                 <div className='relative'>
                   <CalendarIcon className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
                   <Input
@@ -228,7 +228,7 @@ export default function Perizinan() {
               </div>
               <div className='space-y-2'>
                 <Label htmlFor='bukti'>
-                  Upload Bukti{' '}
+                  Upload Evidence{' '}
                   <span className='text-xs text-muted-foreground'>
                     (opsional)
                   </span>
@@ -256,7 +256,7 @@ export default function Perizinan() {
                   onClick={() => setOpen(false)}
                   className='rounded-xl'
                 >
-                  Batal
+                  Cancel
                 </Button>
                 <Button
                   type='submit'
@@ -266,12 +266,12 @@ export default function Perizinan() {
                   {submitMutation.isPending ? (
                     <>
                       <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                      Mengirim...
+                      Submitting...
                     </>
                   ) : (
                     <>
                       <CheckCircle2 className='mr-2 h-4 w-4' />
-                      Kirim Izin
+                      Apply Permission
                     </>
                   )}
                 </Button>
@@ -286,7 +286,7 @@ export default function Perizinan() {
             <div className='relative flex-1'>
               <Search className='absolute left-3 top-6 h-5 w-5 -translate-y-1/2 text-gray-400' />
               <Input
-                placeholder='Cari keterangan izin...'
+                placeholder='Find description...'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className='h-12 w-full rounded-xl border border-gray-200 bg-white p-4 py-3 pl-10 transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100'
@@ -308,7 +308,7 @@ export default function Perizinan() {
           {showFilter && (
             <div className='mt-3 rounded-xl border border-gray-200 bg-white p-4 shadow-lg'>
               <div className='mb-3 flex items-center justify-between'>
-                <h3 className='font-semibold text-gray-900'>Filter Tanggal</h3>
+                <h3 className='font-semibold text-gray-900'>Filter Date</h3>
                 <button
                   onClick={() => setShowFilter(false)}
                   className='text-gray-400'
@@ -425,17 +425,17 @@ export default function Perizinan() {
                   {izin.bukti && (
                     <Dialog>
                       <VisuallyHidden>
-                        <DialogTitle>Bukti Foto</DialogTitle>
+                        <DialogTitle>Foto</DialogTitle>
                       </VisuallyHidden>
                       <DialogTrigger asChild>
                         <button className='mt-3 flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-xs font-medium text-blue-600 hover:bg-blue-100'>
                           <ImageIcon className='h-4 w-4' />
-                          Lihat Bukti
+                          See Evidence
                         </button>
                       </DialogTrigger>
                       <DialogContent className='max-w-3xl rounded-2xl'>
                         <DialogHeader>
-                          <DialogTitle>Bukti Perizinan</DialogTitle>
+                          <DialogTitle>Permission Evidence</DialogTitle>
                         </DialogHeader>
                         <div className='overflow-hidden rounded-xl bg-gray-100'>
                           <Image
@@ -461,12 +461,12 @@ export default function Perizinan() {
                         {deletingId === izin.id ? (
                           <>
                             <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                            Menghapus...
+                            Removing...
                           </>
                         ) : (
                           <>
                             <Trash2 className='mr-2 h-4 w-4' />
-                            Hapus Izin
+                            Remove
                           </>
                         )}
                       </Button>
@@ -481,11 +481,11 @@ export default function Perizinan() {
             <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100'>
               <CalendarIcon className='h-8 w-8 text-gray-400' />
             </div>
-            <h3 className='mb-2 text-lg font-semibold'>Belum Ada Data Izin</h3>
+            <h3 className='mb-2 text-lg font-semibold'>No Data</h3>
             <p className='mb-6 text-sm text-muted-foreground'>
               {search || filterTanggal
-                ? 'Tidak ada izin yang sesuai dengan filter Anda'
-                : 'Mulai ajukan izin dengan klik tombol di atas'}
+                ? 'No permissions match your filters.'
+                : 'Start submitting a permission request by clicking the button above.'}
             </p>
             {(search || filterTanggal) && (
               <Button

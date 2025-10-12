@@ -10,8 +10,13 @@ import {
   Clock,
   TrendingUp,
   Award,
-  Heart
+  Heart,
+  ArrowLeft
 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import api from '@/lib/api';
+import Link from 'next/link';
 
 export default function StudentProgressNotesPage() {
   const [search, setSearch] = useState('');
@@ -19,96 +24,61 @@ export default function StudentProgressNotesPage() {
   const [showFilter, setShowFilter] = useState(false);
   const [selectedNote, setSelectedNote] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading] = useState(false);
+  const [filterCategory, setFilterCategory] = useState('');
 
-  // Dummy data sesuai model
-  const progressNotesData = [
-    {
-      id: '1',
-      idKelas: 'kelas-1',
-      idSiswa: 'siswa-001',
-      content:
-        '<p>Ahmad menunjukkan peningkatan yang signifikan dalam pemahaman konsep Matematika. Sangat aktif bertanya dan berdiskusi di kelas. Namun perlu lebih fokus saat mengerjakan latihan soal.</p><p>Rekomendasi: Tingkatkan latihan soal di rumah dan manajemen waktu.</p>',
-      time: '2025-10-01T10:30:00',
-      Kelas: { nama: 'X IPA 1', tahunAjaran: '2024/2025' },
-      kategori: 'Akademik',
-      penulis: 'Ibu Siti Nurhaliza, S.Pd'
-    },
-    {
-      id: '2',
-      idKelas: 'kelas-1',
-      idSiswa: 'siswa-001',
-      content:
-        '<p>Siswa menunjukkan sikap yang baik dan kooperatif dengan teman-teman. Aktif dalam kegiatan kelompok dan membantu teman yang kesulitan.</p><p>Terus pertahankan sikap positif ini!</p>',
-      time: '2025-09-28T14:00:00',
-      Kelas: { nama: 'X IPA 1', tahunAjaran: '2024/2025' },
-      kategori: 'Sosial & Emosional',
-      penulis: 'Bapak Ahmad Fauzi, M.Pd'
-    },
-    {
-      id: '3',
-      idKelas: 'kelas-1',
-      idSiswa: 'siswa-001',
-      content:
-        '<p>Partisipasi dalam kegiatan ekstrakurikuler Basket sangat baik. Menunjukkan dedikasi dan semangat tinggi dalam latihan. Terpilih sebagai kapten tim.</p><p>Excellent leadership skills!</p>',
-      time: '2025-09-25T16:00:00',
-      Kelas: { nama: 'X IPA 1', tahunAjaran: '2024/2025' },
-      kategori: 'Ekstrakurikuler',
-      penulis: 'Coach Budi Santoso'
-    },
-    {
-      id: '4',
-      idKelas: 'kelas-1',
-      idSiswa: 'siswa-001',
-      content:
-        '<p>Kehadiran siswa sangat baik, tidak pernah terlambat. Namun terlihat kurang fokus di pelajaran pagi. Disarankan untuk tidur lebih awal.</p><p>Perlu perhatian orang tua untuk pola tidur anak.</p>',
-      time: '2025-09-20T08:30:00',
-      Kelas: { nama: 'X IPA 1', tahunAjaran: '2024/2025' },
-      kategori: 'Perilaku',
-      penulis: 'Wali Kelas X IPA 1'
-    },
-    {
-      id: '5',
-      idKelas: 'kelas-1',
-      idSiswa: 'siswa-001',
-      content:
-        '<p>Nilai ujian tengah semester menunjukkan hasil yang memuaskan. Peringkat 5 besar di kelas. Khususnya unggul dalam mata pelajaran Fisika dan Kimia.</p><p>Keep up the good work!</p>',
-      time: '2025-09-15T11:00:00',
-      Kelas: { nama: 'X IPA 1', tahunAjaran: '2024/2025' },
-      kategori: 'Akademik',
-      penulis: 'Tim Guru'
-    }
-  ];
+  const { data: session } = useSession();
+  const token = session?.user?.token;
 
-  const filtered = progressNotesData.filter((note) => {
+  // === FETCH DATA FROM API ===
+  const {
+    data: progressNotesData = [],
+    isLoading,
+    isError
+  } = useQuery({
+    queryKey: ['catatan-siswa-role-siswa'],
+    queryFn: async () => {
+      const res = await api.get('catatan-siswaa', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return res.data; // pastikan backend return dalam bentuk { data: [...] }
+    },
+    enabled: !!token // hanya jalan kalau token sudah ada
+  });
+
+  console.log(progressNotesData);
+
+  const filtered = progressNotesData.filter((note: any) => {
     const matchSearch =
-      note.content.toLowerCase().includes(search.toLowerCase()) ||
-      note.penulis.toLowerCase().includes(search.toLowerCase());
-    const matchDate = !filterDate || note.time.startsWith(filterDate);
-    return matchSearch && matchDate;
+      note.content?.toLowerCase().includes(search.toLowerCase()) ||
+      note.penulis?.toLowerCase().includes(search.toLowerCase());
+    const matchDate = !filterDate || note.time?.startsWith(filterDate);
+    const matchCategory = !filterCategory || note.kategori === filterCategory;
+    return matchSearch && matchDate && matchCategory;
   });
 
   const getCategoryConfig = (kategori: any) => {
     const configs: any = {
-      Akademik: {
+      Academic: {
         color: 'from-blue-500 to-cyan-500',
         bg: 'bg-blue-50',
         text: 'text-blue-700',
         icon: BookOpen
       },
-      'Sosial & Emosional': {
+      'Social Emotional': {
         color: 'from-pink-500 to-rose-500',
         bg: 'bg-pink-50',
         text: 'text-pink-700',
         icon: Heart
       },
-      Ekstrakurikuler: {
+      Extracurricular: {
         color: 'from-green-500 to-emerald-500',
         bg: 'bg-green-50',
         text: 'text-green-700',
         icon: Award
       },
-      Perilaku: {
+      Behavior: {
         color: 'from-orange-500 to-amber-500',
         bg: 'bg-orange-50',
         text: 'text-orange-700',
@@ -118,15 +88,14 @@ export default function StudentProgressNotesPage() {
     return configs[kategori] || configs['Akademik'];
   };
 
-  const formatDate = (dateString: any) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
+  const formatDate = (dateString: any) =>
+    new Date(dateString).toLocaleDateString('id-ID', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
-  };
 
   const stripHtml = (html: any) => {
     const tmp = document.createElement('div');
@@ -134,17 +103,30 @@ export default function StudentProgressNotesPage() {
     return tmp.textContent || tmp.innerText || '';
   };
 
+  if (isError)
+    return (
+      <div className='flex min-h-screen items-center justify-center text-red-500'>
+        Gagal memuat catatan siswa.
+      </div>
+    );
+
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 pb-20'>
       {/* Header */}
       <div className='bg-gradient-to-r from-indigo-600 to-purple-600 px-4 pb-8 pt-6'>
         <div className='mx-auto max-w-6xl'>
           <div className='mb-4 flex items-center gap-3'>
+            <Link
+              href='/siswa'
+              className='flex h-12 w-12 items-center justify-center rounded-full bg-white/20'
+            >
+              <ArrowLeft className='h-7 w-7 text-white' />
+            </Link>
             <div className='flex h-12 w-12 items-center justify-center rounded-full bg-white/20'>
               <TrendingUp className='h-7 w-7 text-white' />
             </div>
             <div>
-              <h1 className='text-2xl font-bold text-white'>
+              <h1 className='text-base font-bold text-white lg:text-2xl'>
                 Catatan Perkembangan
               </h1>
               <p className='text-sm text-indigo-100'>
@@ -156,13 +138,13 @@ export default function StudentProgressNotesPage() {
           {/* Stats */}
           <div className='grid grid-cols-4 gap-3'>
             {[
-              'Akademik',
-              'Sosial & Emosional',
-              'Ekstrakurikuler',
-              'Perilaku'
+              'Academic',
+              'Social Emotional',
+              'Extracurricular',
+              'Behavior'
             ].map((cat) => {
               const count = progressNotesData.filter(
-                (n) => n.kategori === cat
+                (n: any) => n.kategori === cat
               ).length;
               return (
                 <div
@@ -206,6 +188,7 @@ export default function StudentProgressNotesPage() {
 
           {showFilter && (
             <div className='animate-[slideDown_0.2s_ease-out] space-y-3'>
+              {/* Filter tanggal */}
               <div className='relative'>
                 <Calendar className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
                 <input
@@ -215,10 +198,28 @@ export default function StudentProgressNotesPage() {
                   className='w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 focus:border-indigo-500 focus:outline-none'
                 />
               </div>
+
+              {/* Filter kategori */}
+              <div className='relative'>
+                <Filter className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
+                <select
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  className='w-full appearance-none rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 focus:border-indigo-500 focus:outline-none'
+                  defaultValue=''
+                >
+                  <option value=''>Semua Kategori</option>
+                  <option value='Academic'>Academic</option>
+                  <option value='Social Emotional'>Social Emotional</option>
+                  <option value='Extracurricular'>Extracurricular</option>
+                  <option value='Behavior'>Behavior</option>
+                </select>
+              </div>
+
               <button
                 onClick={() => {
                   setSearch('');
                   setFilterDate('');
+                  setFilterCategory('');
                 }}
                 className='w-full rounded-xl bg-gray-100 px-4 py-3 font-medium text-gray-700 active:bg-gray-200'
               >
@@ -246,22 +247,17 @@ export default function StudentProgressNotesPage() {
           </div>
         ) : (
           <div className='relative'>
-            {/* Timeline Line */}
             <div className='absolute bottom-0 left-8 top-0 hidden w-0.5 bg-gradient-to-b from-indigo-200 to-purple-200 md:block'></div>
 
             <div className='space-y-6'>
-              {filtered.map((note, idx) => {
+              {filtered.map((note: any) => {
                 const config = getCategoryConfig(note.kategori);
                 const Icon = config.icon;
 
                 return (
                   <div key={note.id} className='relative'>
-                    {/* Timeline Dot */}
                     <div className='absolute left-8 z-10 hidden h-4 w-4 -translate-x-1/2 rounded-full border-4 border-indigo-600 bg-white md:flex'></div>
-
-                    {/* Card */}
                     <div className='overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-lg transition-all duration-300 hover:shadow-xl md:ml-16'>
-                      {/* Header */}
                       <div
                         className={`bg-gradient-to-r ${config.color} flex items-center justify-between px-6 py-4`}
                       >
@@ -274,13 +270,12 @@ export default function StudentProgressNotesPage() {
                               {note.kategori}
                             </h3>
                             <p className='text-sm text-white/80'>
-                              {note.Kelas.nama} • {note.Kelas.tahunAjaran}
+                              {note.Kelas?.nama} • {note.Kelas?.tahunAjaran}
                             </p>
                           </div>
                         </div>
                       </div>
 
-                      {/* Content */}
                       <div className='p-6'>
                         <div className='prose prose-sm mb-4 max-w-none'>
                           <p className='line-clamp-3 leading-relaxed text-gray-700'>
@@ -295,30 +290,12 @@ export default function StudentProgressNotesPage() {
                           }}
                           className='flex items-center gap-1 text-sm font-semibold text-indigo-600 hover:text-indigo-700'
                         >
-                          Baca Selengkapnya
-                          <svg
-                            className='h-4 w-4'
-                            fill='none'
-                            stroke='currentColor'
-                            viewBox='0 0 24 24'
-                          >
-                            <path
-                              strokeLinecap='round'
-                              strokeLinejoin='round'
-                              strokeWidth={2}
-                              d='M9 5l7 7-7 7'
-                            />
-                          </svg>
+                          Baca Selengkapnya →
                         </button>
                       </div>
 
-                      {/* Footer */}
                       <div className='border-t border-gray-100 bg-gray-50 px-6 py-4'>
                         <div className='flex items-center justify-between text-sm'>
-                          <div className='flex items-center gap-2 text-gray-600'>
-                            <User className='h-4 w-4' />
-                            <span>{note.penulis}</span>
-                          </div>
                           <div className='flex items-center gap-2 text-gray-500'>
                             <Clock className='h-4 w-4' />
                             <span>{formatDate(note.time)}</span>
@@ -334,17 +311,15 @@ export default function StudentProgressNotesPage() {
         )}
       </div>
 
-      {/* Modal */}
+      {/* Modal Detail */}
       {isModalOpen && selectedNote && (
         <div className='fixed inset-0 z-50 animate-[fadeIn_0.2s_ease-out]'>
           <div
             className='absolute inset-0 bg-black/50 backdrop-blur-sm'
             onClick={() => setIsModalOpen(false)}
-          ></div>
-
+          />
           <div className='absolute inset-x-0 bottom-0 animate-[slideUp_0.3s_ease-out] p-4 md:inset-0 md:flex md:items-center md:justify-center'>
             <div className='relative max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-t-3xl bg-white shadow-2xl md:rounded-3xl'>
-              {/* Header */}
               <div
                 className={`bg-gradient-to-r ${getCategoryConfig(selectedNote.kategori).color} px-6 py-5`}
               >
@@ -354,8 +329,8 @@ export default function StudentProgressNotesPage() {
                       {selectedNote.kategori}
                     </h2>
                     <p className='text-white/90'>
-                      {selectedNote.Kelas.nama} •{' '}
-                      {selectedNote.Kelas.tahunAjaran}
+                      {selectedNote.Kelas?.nama} •{' '}
+                      {selectedNote.Kelas?.tahunAjaran}
                     </p>
                   </div>
                   <button
@@ -367,7 +342,6 @@ export default function StudentProgressNotesPage() {
                 </div>
               </div>
 
-              {/* Content */}
               <div
                 className='overflow-y-auto p-6'
                 style={{ maxHeight: 'calc(90vh - 200px)' }}
@@ -378,17 +352,6 @@ export default function StudentProgressNotesPage() {
                 />
 
                 <div className='space-y-3 border-t border-gray-200 pt-4'>
-                  <div className='flex items-center gap-3'>
-                    <User className='h-5 w-5 text-gray-400' />
-                    <div>
-                      <p className='text-sm font-medium text-gray-900'>
-                        Ditulis oleh
-                      </p>
-                      <p className='text-sm text-gray-600'>
-                        {selectedNote.penulis}
-                      </p>
-                    </div>
-                  </div>
                   <div className='flex items-center gap-3'>
                     <Clock className='h-5 w-5 text-gray-400' />
                     <div>
@@ -406,33 +369,11 @@ export default function StudentProgressNotesPage() {
       )}
 
       <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes slideUp {
-          from { transform: translateY(100%); }
-          to { transform: translateY(0); }
-        }
-        .line-clamp-3 {
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-        .prose p {
-          margin-bottom: 1em;
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px);} to { opacity: 1; transform: translateY(0);} }
+        @keyframes slideUp { from { transform: translateY(100%);} to { transform: translateY(0);} }
+        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .prose p { margin-bottom: 1em; }
       `}</style>
     </div>
   );

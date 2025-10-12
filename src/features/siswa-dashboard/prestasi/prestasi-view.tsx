@@ -82,18 +82,20 @@ export default function PrestasiView() {
         <div className='mx-auto max-w-6xl'>
           <div className='mb-6 flex items-center gap-3'>
             <Link
-              href={'/siswa'}
+              href='/siswa'
               className='flex h-12 w-12 items-center justify-center rounded-full bg-white/20'
             >
-              <ArrowLeft />
+              <ArrowLeft className='h-7 w-7 text-white' />
             </Link>
             <div className='flex h-12 w-12 items-center justify-center rounded-full bg-white/20'>
               <Trophy className='h-7 w-7 text-white' />
             </div>
             <div>
-              <h1 className='text-2xl font-bold text-white'>Prestasi Siswa</h1>
+              <h1 className='text-base font-bold text-white lg:text-2xl'>
+                Achivement Student
+              </h1>
               <p className='text-sm text-yellow-100'>
-                Catatan pencapaian & penghargaanmu
+                Your records achivement so far
               </p>
             </div>
           </div>
@@ -101,15 +103,15 @@ export default function PrestasiView() {
           {/* Statistik */}
           <div className='grid grid-cols-3 gap-3'>
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
-              <p className='text-xs text-yellow-100'>Total Prestasi</p>
+              <p className='text-xs text-yellow-100'>Total Achivement</p>
               <p className='text-2xl font-bold text-white'>{totalPrestasi}</p>
             </div>
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
-              <p className='text-xs text-yellow-100'>Tahun Ini</p>
+              <p className='text-xs text-yellow-100'>This Year</p>
               <p className='text-2xl font-bold text-white'>{tahunIni}</p>
             </div>
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
-              <p className='text-xs text-yellow-100'>Bulan Ini</p>
+              <p className='text-xs text-yellow-100'>This Month</p>
               <p className='text-2xl font-bold text-white'>{bulanIni}</p>
             </div>
           </div>
@@ -124,7 +126,7 @@ export default function PrestasiView() {
               <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
               <input
                 type='text'
-                placeholder='Cari keterangan prestasi...'
+                placeholder='Find achivement...'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className='w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-100'
@@ -173,17 +175,15 @@ export default function PrestasiView() {
         {isLoading ? (
           <div className='py-12 text-center'>
             <div className='mx-auto h-12 w-12 animate-spin rounded-full border-4 border-yellow-500 border-t-transparent'></div>
-            <p className='mt-4 text-gray-600'>Memuat data prestasi...</p>
+            <p className='mt-4 text-gray-600'>Loading data...</p>
           </div>
         ) : filtered.length === 0 ? (
           <div className='py-12 text-center'>
             <Award className='mx-auto mb-4 h-16 w-16 text-yellow-500' />
             <h3 className='mb-2 text-lg font-semibold text-gray-900'>
-              Belum ada prestasi
+              No data
             </h3>
-            <p className='text-gray-500'>
-              Tetap semangat untuk berprestasi! 🏆
-            </p>
+            <p className='text-gray-500'>Dont give up! 🏆</p>
           </div>
         ) : (
           <div className='grid gap-4 md:grid-cols-2'>

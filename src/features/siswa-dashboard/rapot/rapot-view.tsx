@@ -3,6 +3,7 @@
 import { Card, CardTitle } from '@/components/ui/card';
 import api from '@/lib/api';
 import {
+  ArrowLeft,
   Calendar,
   CalendarIcon,
   CheckCircle,
@@ -93,17 +94,25 @@ export default function RapotView() {
       <div className='bg-gradient-to-r from-blue-600 to-indigo-600 px-4 pb-24 pt-6'>
         <div className='mx-auto max-w-6xl'>
           <div className='mb-6 flex items-center gap-3'>
+            <Link
+              href={'/siswa'}
+              className='flex h-12 w-12 items-center justify-center rounded-full bg-white/20'
+            >
+              <ArrowLeft className='h-7 w-7 text-white' />
+            </Link>
             <div className='flex h-12 w-12 items-center justify-center rounded-full bg-white/20'>
               <FileText className='h-7 w-7 text-white' />
             </div>
             <div>
-              <h1 className='text-2xl font-bold text-white'>Rapot Digital</h1>
+              <h1 className='text-base font-bold text-white lg:text-2xl'>
+                Rapot Digital
+              </h1>
               <p className='text-sm text-blue-100'>Laporan hasil belajar</p>
             </div>
           </div>
 
           {/* Stats Cards */}
-          <div className='grid grid-cols-3 gap-3'>
+          <div className='grid grid-cols-2 gap-3'>
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
               <div className='mb-2 flex items-center gap-2'>
                 <FileText className='h-5 w-5 text-white' />
@@ -117,15 +126,6 @@ export default function RapotView() {
                 <p className='text-xs text-blue-100'>Terbit</p>
               </div>
               <p className='text-2xl font-bold text-white'>{publishedCount}</p>
-            </div>
-            <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
-              <div className='mb-2 flex items-center gap-2'>
-                <TrendingUp className='h-5 w-5 text-white' />
-                <p className='text-xs text-blue-100'>Rata-rata</p>
-              </div>
-              <p className='text-2xl font-bold text-white'>
-                {/* {avgScore.toFixed(1)} */}
-              </p>
             </div>
           </div>
         </div>
@@ -306,6 +306,7 @@ export default function RapotView() {
           </div>
         </div>
       )}
+      <BottomNav />
     </div>
   );
 }

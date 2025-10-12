@@ -91,7 +91,7 @@ export default function KelasView() {
     <div className='min-h-screen bg-gradient-to-br from-gray-50 to-gray-100'>
       <div className='bg-blue-800 px-4 pb-8'>
         <div className='mx-auto max-w-6xl'>
-          <NavbarSiswa title='Daftar Kelas' />
+          <NavbarSiswa title='Classroom List' />
           <div className='flex items-center justify-center gap-3'>
             <div>
               <p className='text-center text-sm text-blue-100'></p>
@@ -176,7 +176,7 @@ export default function KelasView() {
                         <div className='flex items-center gap-1.5'>
                           <UsersIcon className='h-4 w-4 text-gray-400' />
                           <span className='text-xs font-medium'>
-                            {kelasItem.totalSiswa} Siswa
+                            {kelasItem.totalSiswa} Student
                           </span>
                         </div>
                       </div>
@@ -195,12 +195,12 @@ export default function KelasView() {
               <BookOpenIcon className='h-8 w-8 text-gray-400' />
             </div>
             <h3 className='mb-2 text-lg font-semibold text-gray-900'>
-              Tidak Ada Kelas Ditemukan
+              Nothing Classroom
             </h3>
             <p className='text-sm text-muted-foreground'>
               {search
-                ? `Tidak ada hasil untuk "${search}". Coba kata kunci lain.`
-                : 'Belum ada kelas yang tersedia saat ini.'}
+                ? `No results found for "${search}". Try a different keyword.`
+                : 'No classes available at the moment.'}
             </p>
           </Card>
         )}

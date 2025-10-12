@@ -17,7 +17,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Clock,
-  SearchIcon
+  SearchIcon,
+  ArrowLeft
 } from 'lucide-react';
 
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
@@ -38,7 +39,7 @@ import EmptyState from '../empty-state';
 interface Presensi {
   id: number;
   waktu: string; // ISO string
-  keterangan: 'Hadir' | 'Sakit' | 'Izin' | 'Alpha';
+  keterangan: 'Hadir' | 'Sakit' | 'Izin' | 'Tanpa Keterangan';
   lokasi?: string;
   catatan?: string;
 }
@@ -135,7 +136,7 @@ export default function LogPresensiView() {
       if (item.keterangan === 'Hadir') acc.hadir++;
       if (item.keterangan === 'Sakit') acc.sakit++;
       if (item.keterangan === 'Izin') acc.izin++;
-      if (item.keterangan === 'Alpha') acc.alpha++;
+      if (item.keterangan === 'Tanpa Keterangan') acc.alpha++;
       return acc;
     },
     { hadir: 0, sakit: 0, izin: 0, alpha: 0 }
@@ -190,7 +191,7 @@ export default function LogPresensiView() {
           badgeText: 'text-yellow-700',
           iconColor: 'text-yellow-600'
         };
-      case 'Alpha':
+      case 'Tanpa Keterangan':
       default:
         return {
           gradient: 'from-red-500 to-rose-500',
@@ -208,30 +209,24 @@ export default function LogPresensiView() {
         <div className='mx-auto max-w-6xl'>
           <div className='mb-6 flex items-center gap-3'>
             <Link
-              href={'/siswa'}
+              href='/siswa'
               className='flex h-12 w-12 items-center justify-center rounded-full bg-white/20'
             >
-              <ArrowIcon />
+              <ArrowLeft className='h-7 w-7 text-white' />
             </Link>
             <div className='flex h-12 w-12 items-center justify-center rounded-full bg-white/20'>
-              <Book />
+              <Book className='h-7 w-7 text-white' />
             </div>
             <div>
-              <h1 className='text-2xl font-bold text-white'>Log Presensi</h1>
+              <h1 className='text-base font-bold text-white lg:text-2xl'>
+                Log Presensi
+              </h1>
               <p className='text-sm text-blue-100'>Riwayat kehadiran siswa</p>
             </div>
           </div>
 
           {/* stats small cards */}
-          <div className='grid grid-cols-2 gap-3 lg:grid-cols-4'>
-            <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
-              <div className='mb-2 flex items-center gap-2'>
-                <TrendingUpIcon />
-                <p className='text-xs text-blue-100'>Total</p>
-              </div>
-              <p className='text-2xl font-bold text-white'>{totalCount}</p>
-            </div>
-
+          <div className='grid grid-cols-2 gap-3 lg:grid-cols-5'>
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
               <p className='mb-2 text-xs text-blue-100'>Hadir</p>
               <p className='text-2xl font-bold text-white'>{summary.hadir}</p>
@@ -245,6 +240,12 @@ export default function LogPresensiView() {
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
               <p className='mb-2 text-xs text-blue-100'>Izin</p>
               <p className='text-2xl font-bold text-white'>{summary.izin}</p>
+            </div>
+
+            {/* ✅ Tambahan baru */}
+            <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
+              <p className='mb-2 text-xs text-blue-100'>Tanpa Keterangan</p>
+              <p className='text-2xl font-bold text-white'>{summary.alpha}</p>
             </div>
           </div>
         </div>
@@ -343,7 +344,9 @@ export default function LogPresensiView() {
                     <SelectItem value='Hadir'>Hadir</SelectItem>
                     <SelectItem value='Sakit'>Sakit</SelectItem>
                     <SelectItem value='Izin'>Izin</SelectItem>
-                    <SelectItem value='Alpha'>Alpha</SelectItem>
+                    <SelectItem value='Tanpa Keterangan'>
+                      Tanpa Keterangan
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>

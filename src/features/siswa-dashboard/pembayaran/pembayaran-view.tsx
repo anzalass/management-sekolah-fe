@@ -206,7 +206,7 @@ export default function PembayaranSiswaView() {
     switch (status) {
       case 'BELUM_BAYAR':
         return {
-          text: 'Belum Bayar',
+          text: 'Unpaid',
           bgColor: 'bg-red-100',
           textColor: 'text-red-600',
           borderColor: 'border-red-500'
@@ -220,21 +220,21 @@ export default function PembayaranSiswaView() {
         };
       case 'LUNAS':
         return {
-          text: 'Lunas',
+          text: 'Paid',
           bgColor: 'bg-green-100',
           textColor: 'text-green-600',
           borderColor: 'border-green-500'
         };
       case 'MENUNGGU_KONFIRMASI':
         return {
-          text: 'Menunggu Konfirmasi',
+          text: 'Waiting Confirmation',
           bgColor: 'bg-yellow-100',
           textColor: 'text-yellow-600',
           borderColor: 'border-yellow-500'
         };
       case 'BUKTI_TIDAK_VALID':
         return {
-          text: 'Bukti Tidak Valid',
+          text: 'Invalid Evidence',
           bgColor: 'bg-red-100',
           textColor: 'text-red-600',
           borderColor: 'border-red-500'
@@ -252,26 +252,26 @@ export default function PembayaranSiswaView() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20'>
       <HeaderSiswa
-        title='Pembayaran'
-        titleContent='Total Tagihan'
+        title='Payment'
+        titleContent='Total Bill'
         mainContent={formatCurrency(totalBelumBayar)}
         icon={<CreditCard className='h-7 w-7 text-white' />}
         data={[
           {
-            label: 'Belum Bayar',
-            value: tagihanData.filter((t: any) => t.status === 'BELUM_BAYAR')
+            label: 'Unpaid',
+            value: tagihanData?.filter((t: any) => t.status === 'BELUM_BAYAR')
               .length,
             color: 'text-white'
           },
           {
             label: 'Pending',
-            value: tagihanData.filter((t: any) => t.status === 'PENDING')
+            value: tagihanData?.filter((t: any) => t.status === 'PENDING')
               .length,
             color: 'text-white'
           },
           {
-            label: 'Lunas',
-            value: riwayatData.filter((r: any) => r.status === 'LUNAS').length,
+            label: 'Paid',
+            value: riwayatData?.filter((r: any) => r.status === 'LUNAS').length,
             color: 'text-white'
           }
         ]}
@@ -317,7 +317,9 @@ export default function PembayaranSiswaView() {
             <input
               type='text'
               placeholder={
-                activeTab === 'tagihan' ? 'Cari tagihan...' : 'Cari riwayat...'
+                activeTab === 'tagihan'
+                  ? 'Find bill...'
+                  : 'Find history bill...'
               }
               value={activeTab === 'tagihan' ? searchTagihan : searchRiwayat}
               onChange={(e) =>
@@ -344,7 +346,7 @@ export default function PembayaranSiswaView() {
         {showFilter && (
           <div className='mt-3 animate-[slideDown_0.2s_ease-out] rounded-xl border border-gray-200 bg-white p-4 shadow-lg'>
             <div className='mb-3 flex items-center justify-between'>
-              <h3 className='font-semibold text-gray-900'>Filter Tanggal</h3>
+              <h3 className='font-semibold text-gray-900'>Filter Date</h3>
               <button
                 onClick={() => setShowFilter(false)}
                 className='text-gray-400'
@@ -384,10 +386,10 @@ export default function PembayaranSiswaView() {
                   <SelectValue placeholder='Status' />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='all'>Semua</SelectItem>
-                  <SelectItem value='BELUM_BAYAR'>Belum Bayar</SelectItem>
+                  <SelectItem value='all'>All</SelectItem>
+                  <SelectItem value='BELUM_BAYAR'>Unpaid</SelectItem>
                   <SelectItem value='PENDING'>Pending</SelectItem>
-                  <SelectItem value='LUNAS'>Lunas</SelectItem>
+                  <SelectItem value='LUNAS'>Paid</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -402,15 +404,15 @@ export default function PembayaranSiswaView() {
             {isLoading ? (
               <div className='py-12 text-center'>
                 <div className='mx-auto h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent'></div>
-                <p className='mt-4 text-gray-600'>Memuat data...</p>
+                <p className='mt-4 text-gray-600'>Loading data...</p>
               </div>
             ) : filteredTagihan.length === 0 ? (
               <div className='py-12 text-center'>
                 <Receipt className='mx-auto mb-4 h-16 w-16 text-gray-300' />
                 <h3 className='mb-2 text-lg font-semibold text-gray-900'>
-                  Tidak ada tagihan
+                  Nothing Bill
                 </h3>
-                <p className='text-gray-500'>Semua tagihan sudah lunas</p>
+                <p className='text-gray-500'>All bill paid</p>
               </div>
             ) : (
               filteredTagihan.map((tagihan: any) => {
@@ -444,10 +446,10 @@ export default function PembayaranSiswaView() {
 
                     <div className='mb-4 flex items-center gap-2 text-sm text-gray-600'>
                       <Calendar className='h-4 w-4' />
-                      <span>Jatuh Tempo: {formatDate(tagihan.jatuhTempo)}</span>
+                      <span>Due: {formatDate(tagihan.jatuhTempo)}</span>
                       {isOverdue && (
                         <span className='ml-2 font-semibold text-red-600'>
-                          • Terlambat
+                          • Over due
                         </span>
                       )}
                     </div>
@@ -455,7 +457,7 @@ export default function PembayaranSiswaView() {
                     {tagihan.status === 'LUNAS' && tagihan.tanggalBayar && (
                       <div className='mb-4 flex items-center gap-2 rounded-lg bg-green-50 p-2 text-sm text-green-600'>
                         <CheckCircle className='h-4 w-4' />
-                        <span>Dibayar: {formatDate(tagihan.tanggalBayar)}</span>
+                        <span>Paid: {formatDate(tagihan.tanggalBayar)}</span>
                       </div>
                     )}
 
@@ -467,7 +469,7 @@ export default function PembayaranSiswaView() {
                             onClick={() => alert('Memproses pembayaran...')}
                             className='flex w-[66%] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3 font-semibold text-white shadow-lg transition-all hover:shadow-xl active:scale-95'
                           >
-                            <span>Bayar Sekarang</span>
+                            <span>Pay Now</span>
                             <ArrowRight className='h-5 w-5' />
                           </button>
 
@@ -476,8 +478,8 @@ export default function PembayaranSiswaView() {
                             className='h-[45px] w-[34%] space-x-4 p-4 text-sm'
                           >
                             {tagihan.status === 'BUKTI_TIDAK_VALID'
-                              ? 'Upload Ulang Bukti Pembayaran'
-                              : 'Upload Bukti'}
+                              ? 'Reupload Evidence'
+                              : 'Upload Evidence'}
                             <Camera className='ml-2' />
                           </Button>
                         </div>
@@ -487,7 +489,7 @@ export default function PembayaranSiswaView() {
                       <Dialog open={open} onOpenChange={setOpen}>
                         <DialogContent className='sm:max-w-md'>
                           <DialogHeader>
-                            <DialogTitle>Upload Bukti Pembayaran</DialogTitle>
+                            <DialogTitle>Upload Evidence</DialogTitle>
                           </DialogHeader>
 
                           <div className='space-y-4'>
@@ -532,7 +534,7 @@ export default function PembayaranSiswaView() {
                         <div className='flex items-center gap-2'>
                           <Clock className='h-4 w-4' />
                           <span className='font-medium'>
-                            Menunggu konfirmasi pembayaran
+                            Waiting Confirmation
                           </span>
                         </div>
                       </div>
@@ -547,17 +549,15 @@ export default function PembayaranSiswaView() {
             {isLoading ? (
               <div className='py-12 text-center'>
                 <div className='mx-auto h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent'></div>
-                <p className='mt-4 text-gray-600'>Memuat data...</p>
+                <p className='mt-4 text-gray-600'>Loading data...</p>
               </div>
             ) : filteredRiwayat.length === 0 ? (
               <div className='py-12 text-center'>
                 <Clock className='mx-auto mb-4 h-16 w-16 text-gray-300' />
                 <h3 className='mb-2 text-lg font-semibold text-gray-900'>
-                  Belum ada riwayat
+                  Nothing History
                 </h3>
-                <p className='text-gray-500'>
-                  Riwayat pembayaran akan muncul di sini
-                </p>
+                <p className='text-gray-500'>Payment History Will Here</p>
               </div>
             ) : (
               filteredRiwayat.map((riwayat: any) => {
@@ -587,11 +587,11 @@ export default function PembayaranSiswaView() {
                     <div className='space-y-2'>
                       <div className='flex items-center gap-2 text-sm text-gray-600'>
                         <CheckCircle className='h-4 w-4 text-green-600' />
-                        <span>Dibayar: {riwayat.tanggalBayar}</span>
+                        <span>Pay : {riwayat.tanggalBayar}</span>
                       </div>
                       <div className='flex items-center gap-2 text-sm text-gray-600'>
                         <CreditCard className='h-4 w-4' />
-                        <span>Metode: {riwayat.metode}</span>
+                        <span>Method: {riwayat.metode}</span>
                       </div>
                     </div>
                   </div>
