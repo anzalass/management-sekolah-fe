@@ -136,7 +136,7 @@ export default function DetailAbsensiSiswaView({ idKelas, idSiswa }: Props) {
           <DialogTrigger asChild>
             <Button>Tambah Absen Manual</Button>
           </DialogTrigger>
-          <DialogContent className='sm:max-w-lg'>
+          <DialogContent className='dark:text-white sm:max-w-lg'>
             <DialogHeader>
               <DialogTitle>Tambah Absen Manual</DialogTitle>
             </DialogHeader>

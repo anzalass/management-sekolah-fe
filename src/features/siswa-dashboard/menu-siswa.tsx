@@ -155,7 +155,7 @@ export default function MenuFiturSiswa() {
             </span>
           </button>
         </DialogTrigger>
-        <DialogContent className='max-w-lg rounded-lg'>
+        <DialogContent className='max-w-lg rounded-lg bg-white'>
           <DialogTitle> More Fitur</DialogTitle>
           <div className='grid grid-cols-3 gap-4'>
             {fiturTambahan.map((fitur, i) => (

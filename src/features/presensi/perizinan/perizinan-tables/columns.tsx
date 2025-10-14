@@ -46,9 +46,9 @@ export const columns: ColumnDef<any>[] = [
       });
 
       return (
-        <div className='flex space-x-3 text-sm text-gray-800'>
+        <div className='flex space-x-3 text-sm'>
           <span>{formattedDate}</span>
-          <span className='flex items-center gap-1 text-gray-600'>
+          <span className='flex items-center gap-1'>
             <Clock className='h-4 w-4' />
             {formattedTime}
           </span>
@@ -108,11 +108,15 @@ export const columns: ColumnDef<any>[] = [
       const handleApprove = async () => {
         setLoading(true);
         try {
-          await api.put(`perizinan-guru/acc/${id}`, {
-            headers: {
-              Authorization: `Bearer ${session?.user?.token}`
+          await api.put(
+            `perizinan-guru/acc/${id}`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${session?.user?.token}`
+              }
             }
-          });
+          );
           toggleTrigger();
         } catch (error: any) {
           toast.error(error?.response?.data?.message || 'Terjadi Kesalahan');
@@ -124,11 +128,15 @@ export const columns: ColumnDef<any>[] = [
       const handleReject = async () => {
         setLoading(true);
         try {
-          await api.put(`perizinan-guru/reject/${id}`, {
-            headers: {
-              Authorization: `Bearer ${session?.user?.token}`
+          await api.put(
+            `perizinan-guru/reject/${id}`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${session?.user?.token}`
+              }
             }
-          });
+          );
           toggleTrigger();
         } catch (error: any) {
           toast.error(error.response?.data?.message || 'Terjadi kesalahan');

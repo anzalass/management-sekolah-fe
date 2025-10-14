@@ -47,8 +47,6 @@ export default function NotificationPage() {
     staleTime: 1000 * 60 // cache 1 menit
   });
 
-  console.log(notifications);
-
   // === CATEGORIES ===
   const categories = [
     { value: 'all', label: 'Semua', icon: Bell, color: 'text-gray-600' },

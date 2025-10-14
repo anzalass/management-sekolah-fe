@@ -177,8 +177,6 @@ export default function PembayaranSiswaView() {
     )
     .reduce((acc: any, t: any) => acc + t.nominal, 0);
 
-  console.log(totalBelumBayar);
-
   // Filter data
   // Filter data
   const filteredTagihan = tagihanData.filter(
@@ -276,9 +274,8 @@ export default function PembayaranSiswaView() {
       if (data.status === 200) {
         router.push(data.data.snap.redirect_url);
       }
-      console.log(data);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
     }
   };
 

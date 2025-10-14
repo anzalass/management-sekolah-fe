@@ -76,7 +76,11 @@ export default function ModalTambahKelasMapel({
   const { data: kelasList } = useQuery({
     queryKey: ['list-kelas-input'],
     queryFn: async () => {
-      const res = await api.get('list-kelas-input');
+      const res = await api.get('list-kelas-input', {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       return res.data;
     }
   });
@@ -84,7 +88,11 @@ export default function ModalTambahKelasMapel({
   const { data: ruangList } = useQuery({
     queryKey: ['ruang2'],
     queryFn: async () => {
-      const res = await api.get('ruang2');
+      const res = await api.get('ruang2', {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       return res.data.data;
     }
   });
@@ -151,7 +159,7 @@ export default function ModalTambahKelasMapel({
       open={openModal === 'mapel'}
       onOpenChange={() => setOpenModal(null)}
     >
-      <DialogContent>
+      <DialogContent className='dark:text-white'>
         <DialogHeader>
           <DialogTitle>
             {isEdit ? 'Edit Kelas Mapel' : 'Tambah Kelas Mapel'}
