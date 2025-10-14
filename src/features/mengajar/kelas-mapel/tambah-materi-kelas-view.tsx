@@ -168,7 +168,7 @@ export default function TambahMateriView({
   }
 
   return (
-    <div className='h-screen w-full'>
+    <div className='min-h-screen w-full pb-10'>
       <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
         <div>
           <label>Judul Materi</label>

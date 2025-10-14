@@ -118,7 +118,10 @@ export default function ModalTambahJadwal({
       </VisuallyHidden>
       <DialogContent>
         <DialogHeader></DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className='space-y-4 dark:text-white'
+        >
           <div>
             <label htmlFor='jamMulai'>Jam Mulai</label>
             <Input

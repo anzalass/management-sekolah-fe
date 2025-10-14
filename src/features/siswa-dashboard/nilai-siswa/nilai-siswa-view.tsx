@@ -144,7 +144,7 @@ export default function NilaiSiswaView() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20'>
       {/* Header */}
-      <NavbarSiswa title='Nilai Siswa' />
+      <NavbarSiswa title='Student Score' />
       <div className='bg-blue-800 px-4 pb-24 pt-6'>
         {/* <div className='bg-gradient-to-r from-blue-600 to-indigo-600 px-4 pb-24 pt-6'> */}
         <div className='mx-auto max-w-6xl'>
@@ -153,21 +153,21 @@ export default function NilaiSiswaView() {
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
               <div className='mb-2 flex items-center gap-2'>
                 <TrendingUp className='h-5 w-5 text-white' />
-                <p className='text-xs text-blue-100'>Rata-rata</p>
+                <p className='text-xs text-blue-100'>Average</p>
               </div>
               <p className='text-2xl font-bold text-white'>{avgNilai}</p>
             </div>
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
               <div className='mb-2 flex items-center gap-2'>
                 <Award className='h-5 w-5 text-white' />
-                <p className='text-xs text-blue-100'>Tertinggi</p>
+                <p className='text-xs text-blue-100'>Highest</p>
               </div>
               <p className='text-2xl font-bold text-white'>{maxNilai}</p>
             </div>
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
               <div className='mb-2 flex items-center gap-2'>
                 <BarChart3 className='h-5 w-5 text-white' />
-                <p className='text-xs text-blue-100'>Terendah</p>
+                <p className='text-xs text-blue-100'>Lowest</p>
               </div>
               <p className='text-2xl font-bold text-white'>{minNilai}</p>
             </div>
@@ -180,8 +180,9 @@ export default function NilaiSiswaView() {
         <div className='rounded-2xl bg-white p-6 shadow-xl'>
           <h3 className='mb-4 flex items-center gap-2 text-lg font-bold text-gray-900'>
             <BarChart3 className='h-5 w-5 text-blue-600' />
-            Rata-rata Nilai per Mata Pelajaran
+            Average Score per Subject
           </h3>
+
           <div className='space-y-3'>
             {chartData.map((data: any, idx) => (
               <div key={idx} className='flex items-center gap-3'>
@@ -212,7 +213,7 @@ export default function NilaiSiswaView() {
               <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
               <input
                 type='text'
-                placeholder='Cari mapel, guru, jenis nilai...'
+                placeholder='Search subject, teacher, or assessment type...'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className='w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100'
@@ -240,9 +241,7 @@ export default function NilaiSiswaView() {
                     : 'bg-gray-100 text-gray-700 active:bg-gray-200'
                 }`}
               >
-                {filterLastWeek
-                  ? '✓ Minggu Terakhir'
-                  : 'Filter Minggu Terakhir'}
+                {filterLastWeek ? '✓ Last Week' : 'Filter Last Week'}
               </button>
 
               <div className='grid grid-cols-2 gap-2'>
@@ -332,9 +331,10 @@ export default function NilaiSiswaView() {
 
                   <div className='flex items-center justify-between border-t border-gray-200 pt-3 text-sm text-gray-600'>
                     <div className='flex items-center gap-4'>
-                      <span>Kelas: {nilai.kelas}</span>
-                      <span>Bobot: {nilai.bobot}%</span>
+                      <span>Class: {nilai.kelas}</span>
+                      <span>Weight score: {nilai.bobot}%</span>
                     </div>
+
                     <div className='flex items-center gap-1'>
                       <Calendar className='h-4 w-4' />
                       <span>

@@ -1,7 +1,7 @@
 import FormCardSkeleton from '@/components/form-card-skeleton';
 import PageContainer from '@/components/layout/page-container';
 import { Suspense } from 'react';
-import PelanggaranPrestasiViewPage from '@/features/pelanggaran-prestasi/pelanggaran-prestasi-view';
+import PelanggaranPrestasiViewPageMengajar from '@/features/pelanggaran-prestasi/pelanggaran-prestasi-view-mengajar';
 
 export const metadata = {
   title: 'Dashboard : Anggaran'
@@ -14,7 +14,7 @@ export default async function Page(props: PageProps) {
     <PageContainer scrollable>
       <div className='flex-1 space-y-4'>
         <Suspense fallback={<FormCardSkeleton />}>
-          <PelanggaranPrestasiViewPage id={params.id} />
+          <PelanggaranPrestasiViewPageMengajar id={params.id} />
         </Suspense>
       </div>
     </PageContainer>

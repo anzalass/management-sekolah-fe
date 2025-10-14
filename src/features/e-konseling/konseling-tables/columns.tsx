@@ -11,6 +11,7 @@ export type Konseling = {
   namaSiswa: string;
   tanggal: string;
   keterangan: string;
+  kategori: string;
 };
 
 export const columns: ColumnDef<Konseling>[] = [
@@ -31,6 +32,11 @@ export const columns: ColumnDef<Konseling>[] = [
     accessorKey: 'keterangan',
     header: 'Keterangan',
     cell: ({ row }) => row.original.keterangan
+  },
+  {
+    accessorKey: 'kategori',
+    header: 'Kategori',
+    cell: ({ row }) => row.original.kategori
   },
   {
     id: 'actions',

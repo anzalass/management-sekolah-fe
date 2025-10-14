@@ -67,7 +67,6 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
     },
     enabled: !!token
   });
-
   // ✅ Query: fetch siswa dalam kelas
   const { data: kelasSiswa = [] } = useQuery<Student[]>({
     queryKey: ['kelasSiswa', id],
@@ -75,7 +74,7 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
       const res = await api.get(`kelas-walikelas/siswa/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      return res.data;
+      return res.data.siswaList;
     },
     enabled: !!token && !!id
   });
@@ -85,6 +84,7 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
     data: {
       pengumuman: PengumumanKelasType[];
       catatanMap: CatatanPerkembanganSiswaType[];
+      namaKelas: String;
     };
   }>({
     queryKey: ['dashboardWaliKelas', id],
@@ -142,6 +142,9 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
 
   return (
     <div className='space-y-8 overflow-x-auto p-4 pb-16'>
+      <p className='text-2xl font-bold'>
+        Dashboard Kelas - {dashboardData?.data.namaKelas}
+      </p>
       <div className='flex flex-wrap items-center justify-between gap-4'>
         <div className='flex gap-2'>
           <Button asChild>

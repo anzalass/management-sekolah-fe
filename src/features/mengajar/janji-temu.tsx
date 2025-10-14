@@ -41,7 +41,7 @@ export default function JanjiTemuView() {
   const { data, isLoading, isError } = useQuery<JanjiTemu[]>({
     queryKey: ['janjiTemu'],
     queryFn: async () => {
-      const res = await api.get('/janji-temu-guru', {
+      const res = await api.get('janji-temu-guru', {
         headers: {
           Authorization: `Bearer ${session?.user?.token}`
         }

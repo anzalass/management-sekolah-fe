@@ -18,85 +18,110 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Check, Loader2 } from 'lucide-react';
-import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
-import { PopoverContent } from '@/components/ui/popover';
+import { Loader2, Check } from 'lucide-react';
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent
+} from '@/components/ui/popover';
 import {
   Command,
+  CommandInput,
+  CommandList,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList
+  CommandItem
 } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
-import { Buku } from '../e-perpus/buku-tables/columns';
-import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
+import api from '@/lib/api';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
-type PinjamBuku = {
+type Konseling = {
   idSiswa: string;
-  namaBuku: string;
   namaSiswa: string;
-  nisSiswa: string;
-  idBuku: string;
-  waktuPinjam: string;
-  waktuKembali: string;
-  keterangan?: string;
+  tanggal: string;
+  keterangan: string;
+  kategori: string;
 };
 
 type Siswa = {
   id: string;
-  nis: string;
   nama: string;
 };
 
-export default function PinjamBukuForm({ pageTitle }: { pageTitle: string }) {
+export default function KonselingFormMengajar({
+  initialData,
+  id,
+  pageTitle
+}: {
+  initialData: Konseling | null;
+  id: string;
+  pageTitle: string;
+}) {
   const [loading, startTransition] = useTransition();
   const router = useRouter();
   const [siswaList, setSiswaList] = useState<Siswa[]>([]);
   const [open, setOpen] = useState(false);
-  const [openBuku, setOpenBuku] = useState(false);
-
-  const [dataBuku, setDataBuku] = useState<Buku[]>([]);
-
-  useEffect(() => {
-    api.get(`user/get-all-siswa-master`).then((res) => {
-      setSiswaList(res.data.result.data);
-    });
-
-    api.get(`buku`).then((res) => {
-      setDataBuku(res.data.data);
-    });
-  }, []);
-
-  const form = useForm<PinjamBuku>({
-    defaultValues: {
-      idSiswa: '',
-      namaSiswa: '',
-      nisSiswa: '',
-      idBuku: '',
-      namaBuku: '',
-      waktuPinjam: new Date().toISOString().split('T')[0], // default hari ini
-      waktuKembali: '',
-      keterangan: ''
-    }
-  });
-
   const { data: session } = useSession();
 
-  async function onSubmit(values: PinjamBuku) {
+  const defaultValue = {
+    idSiswa: initialData?.idSiswa || '',
+    namaSiswa: initialData?.namaSiswa || '',
+    tanggal: initialData?.tanggal ? initialData.tanggal.split('T')[0] : '',
+    keterangan: initialData?.keterangan || '',
+    kategoti: initialData?.kategori || ''
+  };
+
+  const form = useForm<Konseling>({
+    defaultValues: defaultValue
+  });
+
+  useEffect(() => {
+    api
+      .get(`user/get-all-siswa-master`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      })
+      .then((res) => {
+        setSiswaList(res.data.result.data);
+      });
+  }, []);
+
+  async function onSubmit(values: Konseling) {
     startTransition(async () => {
       try {
-        await api.post(`peminjaman`, values, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session?.user?.token}`
-          }
-        });
+        const payload = {
+          ...values
+        };
 
-        toast.success('Peminjaman buku berhasil disimpan');
-        router.push('/dashboard/e-perpus/peminjaman-pengembalian');
+        if (id !== 'new') {
+          await api.put(`konseling/${id}`, payload, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          });
+          toast.success('Data konseling berhasil diperbarui');
+        } else {
+          await api.post(`konseling/`, payload, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          });
+          toast.success('Data konseling berhasil disimpan');
+        }
+
+        router.push('/mengajar/e-konseling/konseling-siswa');
       } catch (error: any) {
         toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       }
@@ -114,7 +139,7 @@ export default function PinjamBukuForm({ pageTitle }: { pageTitle: string }) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-              {/* NIS Siswa */}
+              {/* Autocomplete Siswa */}
               <FormItem>
                 <FormLabel>Siswa</FormLabel>
                 <Popover open={open} onOpenChange={setOpen}>
@@ -145,8 +170,6 @@ export default function PinjamBukuForm({ pageTitle }: { pageTitle: string }) {
                               onSelect={() => {
                                 form.setValue('idSiswa', s.id);
                                 form.setValue('namaSiswa', s.nama);
-                                form.setValue('nisSiswa', s.nis);
-
                                 setOpen(false);
                               }}
                             >
@@ -171,90 +194,42 @@ export default function PinjamBukuForm({ pageTitle }: { pageTitle: string }) {
                 </FormMessage>
               </FormItem>
 
+              {/* Tanggal */}
               <FormItem>
-                <FormLabel>Buku</FormLabel>
-                <Popover open={openBuku} onOpenChange={setOpenBuku}>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant='outline'
-                        role='combobox'
-                        className={cn(
-                          'w-full justify-between',
-                          !form.watch('namaBuku') && 'text-muted-foreground'
-                        )}
-                      >
-                        {form.watch('namaBuku') || 'Pilih buku...'}
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className='w-[300px] p-0'>
-                    <Command>
-                      <CommandInput placeholder='Cari buku...' />
-                      <CommandList>
-                        <CommandEmpty>Tidak ditemukan.</CommandEmpty>
-                        <CommandGroup>
-                          {dataBuku.map((s) => (
-                            <CommandItem
-                              key={s.id}
-                              value={s.nama}
-                              onSelect={() => {
-                                form.setValue('idBuku', s.id);
-                                form.setValue('namaBuku', s.nama);
-
-                                setOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  'mr-2 h-4 w-4',
-                                  s.id === form.watch('idBuku')
-                                    ? 'opacity-100'
-                                    : 'opacity-0'
-                                )}
-                              />
-                              {s.nama}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                <FormMessage>
-                  {form.formState.errors.idBuku?.message}
-                </FormMessage>
-              </FormItem>
-
-              {/* Waktu Pinjam */}
-              <FormItem>
-                <FormLabel>Waktu Pinjam</FormLabel>
+                <FormLabel>Tanggal</FormLabel>
                 <FormControl>
                   <Input
                     type='date'
-                    {...form.register('waktuPinjam', {
-                      required: 'Waktu pinjam wajib diisi'
+                    {...form.register('tanggal', {
+                      required: 'Tanggal wajib diisi'
                     })}
                   />
                 </FormControl>
                 <FormMessage>
-                  {form.formState.errors.waktuPinjam?.message}
+                  {form.formState.errors.tanggal?.message}
                 </FormMessage>
               </FormItem>
 
-              {/* Waktu Kembali */}
               <FormItem>
-                <FormLabel>Waktu Kembali</FormLabel>
+                <FormLabel>Kategori</FormLabel>
                 <FormControl>
-                  <Input
-                    type='date'
-                    {...form.register('waktuKembali', {
-                      required: 'Waktu kembali wajib diisi'
-                    })}
-                  />
+                  <Select
+                    onValueChange={(value) => form.setValue('kategori', value)}
+                    defaultValue={form.getValues('kategori')}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder='Pilih kategori' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='akademik'>Akademik</SelectItem>
+                      <SelectItem value='sosial'>Sosial</SelectItem>
+                      <SelectItem value='keluarga'>Keluarga</SelectItem>
+                      <SelectItem value='karir'>Karir</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </FormControl>
                 <FormMessage>
-                  {form.formState.errors.waktuKembali?.message}
+                  {form.formState.errors.kategori?.message}
                 </FormMessage>
               </FormItem>
 
@@ -263,13 +238,19 @@ export default function PinjamBukuForm({ pageTitle }: { pageTitle: string }) {
                 <FormLabel>Keterangan</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder='Masukkan keterangan peminjaman...'
-                    {...form.register('keterangan')}
+                    placeholder='Masukkan keterangan...'
+                    {...form.register('keterangan', {
+                      required: 'Keterangan wajib diisi'
+                    })}
                   />
                 </FormControl>
+                <FormMessage>
+                  {form.formState.errors.keterangan?.message}
+                </FormMessage>
               </FormItem>
             </div>
 
+            {/* Submit */}
             <Button type='submit' disabled={loading}>
               {loading ? (
                 <Loader2 className='h-5 w-5 animate-spin' />

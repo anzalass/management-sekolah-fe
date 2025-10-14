@@ -78,14 +78,14 @@ export default function CatatanAkhirSiswa({
     try {
       if (editingId) {
         // update
-        await api.put(`/catatan-akhir-siswa/${editingId}`, {
+        await api.put(`catatan-akhir-siswa/${editingId}`, {
           ...values,
           idKelasMapel
         });
         toast.success('Catatan berhasil diperbarui');
       } else {
         // create
-        await api.post('/catatan-akhir-siswa', {
+        await api.post('catatan-akhir-siswa', {
           ...values,
           idKelasMapel
         });

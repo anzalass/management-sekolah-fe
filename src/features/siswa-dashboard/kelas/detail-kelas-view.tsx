@@ -116,7 +116,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
 
   return (
     <div className='mx-auto mb-14 min-h-screen w-full bg-gradient-to-br from-gray-50 via-blue-50/20 to-gray-50'>
-      <NavbarSiswa title='Detail Kelas' />
+      <NavbarSiswa title='Detail Class' />
       <Tabs
         value={tab}
         onValueChange={setTab}
@@ -137,7 +137,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
             className='flex h-12 items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-purple-700 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-purple-500/30'
           >
             <FileText className='h-4 w-4' />
-            Tugas
+            Task
           </TabsTrigger>
 
           <TabsTrigger
@@ -145,7 +145,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
             className='flex h-12 items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-orange-700 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-orange-500/30'
           >
             <ClipboardList className='h-4 w-4' />
-            Ujian
+            Exam
           </TabsTrigger>
         </TabsList>
 

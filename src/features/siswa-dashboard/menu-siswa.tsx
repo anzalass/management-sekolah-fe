@@ -13,7 +13,8 @@ import {
   BookCopy,
   CalendarCheck,
   CalendarArrowUp,
-  NotebookText
+  NotebookText,
+  UserCheck
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -113,6 +114,12 @@ export default function MenuFiturSiswa() {
       href: '/siswa/catatan-perkembangan-siswa',
       icon: <NotebookText />,
       label: 'Student Development Notes',
+      color: 'text-indigo-500'
+    },
+    {
+      href: '/siswa/konseling',
+      icon: <UserCheck />,
+      label: 'Konseling',
       color: 'text-indigo-500'
     }
   ];

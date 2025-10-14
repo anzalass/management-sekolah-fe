@@ -36,8 +36,6 @@ export default function NotificationGuru() {
     enabled: !!session?.user?.token // hanya jalan kalau ada token
   });
 
-  console.log(data);
-
   // default fallback
   const notifikasi = data?.uniqueNotif || [];
   const unreadCount = data?.total || 0;

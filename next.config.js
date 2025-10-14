@@ -73,7 +73,6 @@
 //     ];
 //   }
 // });
-
 const withPWA = require('next-pwa')({
   dest: 'public',
   register: true,
@@ -127,12 +126,22 @@ module.exports = withPWA({
     const connectSrc = [
       "'self'",
       'https://management-sekolah.zeabur.app',
-      'https://ytam-be.zeabur.app', // ✅ tambahkan ini
+      'https://ytam-be.zeabur.app',
       'https://api.sandbox.midtrans.com',
       'https://app.sandbox.midtrans.com',
       'https://generativelanguage.googleapis.com',
       'https://*.googleapis.com',
       'https://www.google-analytics.com',
+      ...(isDev ? ['http://localhost:5000'] : [])
+    ].join(' ');
+
+    const frameSrc = [
+      "'self'",
+      'https://app.sandbox.midtrans.com',
+      'https://api.sandbox.midtrans.com',
+      'https://docs.google.com',
+      'https://forms.gle',
+      'https://ytam-be.zeabur.app',
       ...(isDev ? ['http://localhost:5000'] : [])
     ].join(' ');
 
@@ -151,7 +160,7 @@ module.exports = withPWA({
                 https://pay.google.com
                 https://js-agent.newrelic.com
                 https://bam.nr-data.net;
-              frame-src 'self' https://app.sandbox.midtrans.com https://api.sandbox.midtrans.com;
+              frame-src ${frameSrc};
               connect-src ${connectSrc} data: blob:;
               img-src * data: blob:;
               style-src 'self' 'unsafe-inline';

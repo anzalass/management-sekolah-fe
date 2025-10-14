@@ -1,43 +1,59 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import PageContainer from '@/components/layout/page-container';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
 import { Boxes, DoorOpen, LucideIcon, School, User, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '@/lib/api';
+import { useQuery } from '@tanstack/react-query';
+
+// 🧠 Fungsi fetch data pakai API client
+const fetchDashboard = async (token: string) => {
+  const res = await api.get('dashboard-overview', {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.data.data;
+};
 
 export default function Overview2() {
   const { data: session } = useSession();
-  const token = session?.user?.token;
-  const [data2, setData] = useState<any>(null);
+  const token = session?.user?.token || '';
 
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const res = await api.get(`dashboard-overview`, {
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
-          }
-        });
-        setData(res.data.data);
-      } catch (error: any) {
-        toast.error(error?.response.data.message || 'Terjadi Kesalahan');
-      }
-    };
+  // 🧩 React Query untuk ambil data dashboard
+  const {
+    data: dashboard,
+    isLoading,
+    isError,
+    error,
+    refetch
+  } = useQuery({
+    queryKey: ['dashboard-overview', token],
+    queryFn: () => fetchDashboard(token),
+    enabled: !!token // hanya fetch kalau token tersedia
+  });
 
-    fetchDashboard();
-  }, [session?.user?.token]);
-
-  if (!data2) {
+  if (isLoading) {
     return (
       <PageContainer>
         <div className='py-10 text-center text-muted-foreground'>
           Loading dashboard...
+        </div>
+      </PageContainer>
+    );
+  }
+
+  if (isError || !dashboard) {
+    return (
+      <PageContainer>
+        <div className='py-10 text-center text-red-500'>
+          Gagal memuat dashboard.
+          <Button className='ml-2' onClick={() => refetch()}>
+            Coba Lagi
+          </Button>
         </div>
       </PageContainer>
     );
@@ -48,8 +64,7 @@ export default function Overview2() {
       <div className='flex flex-1 flex-col space-y-5'>
         <div className='my-5 flex flex-col items-center justify-between space-y-2 md:flex-row'>
           <h2 className='text-2xl font-bold tracking-tight'>
-            Hi, Welcome back {session?.user?.nama}
-            👋
+            Hi, Welcome back {session?.user?.nama} 👋
           </h2>
           <div className='flex space-x-3'>
             <Link href={'/mengajar'}>
@@ -60,11 +75,12 @@ export default function Overview2() {
           </div>
         </div>
 
+        {/* 🔹 Card Summary */}
         <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
           <DashboardCard
             title='Anggaran Sekolah'
             value={
-              data2.kasSekolah?.toLocaleString('id-ID', {
+              dashboard.kasSekolah?.toLocaleString('id-ID', {
                 style: 'currency',
                 currency: 'IDR'
               }) || 'Rp 0'
@@ -73,33 +89,35 @@ export default function Overview2() {
           />
           <DashboardCard
             title='Siswa Laki Laki'
-            value={data2.jumlahSiswa?.lakiLaki || 0}
+            value={dashboard.jumlahSiswa?.lakiLaki || 0}
             icon={User}
           />
           <DashboardCard
             title='Siswa Perempuan'
-            value={data2.jumlahSiswa?.perempuan || 0}
+            value={dashboard.jumlahSiswa?.perempuan || 0}
             icon={User}
           />
           <DashboardCard
             title='Guru dan Staff'
-            value={data2.totalGuru || 0}
+            value={dashboard.totalGuru || 0}
             icon={Users}
           />
         </div>
+
         <div className='mt-3 grid gap-5 md:grid-cols-2'>
           <DashboardCard
             icon={DoorOpen}
             title='Ruangan'
-            value={data2.totalRuangan || 0}
+            value={dashboard.totalRuangan || 0}
           />
           <DashboardCard
             icon={Boxes}
             title='Inventaris'
-            value={data2.totalInventaris || 0}
+            value={dashboard.totalInventaris || 0}
           />
         </div>
 
+        {/* 🔹 Data Pegawai dan Izin */}
         <div className='mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7'>
           <div className='col-span-4'>
             <Card className='p-4'>
@@ -107,8 +125,8 @@ export default function Overview2() {
                 Pegawai dengan absensi tercepat
               </p>
               <ul className='space-y-3'>
-                {data2.guruMasukPalingPagi?.length > 0 ? (
-                  data2.guruMasukPalingPagi
+                {dashboard.guruMasukPalingPagi?.length > 0 ? (
+                  dashboard.guruMasukPalingPagi
                     .slice(0, 3)
                     .map((item: any, idx: number) => (
                       <li key={idx} className='flex items-center space-x-3'>
@@ -150,8 +168,8 @@ export default function Overview2() {
             <Card className='p-4'>
               <p className='mb-4 text-base font-bold'>Perizinan hari ini</p>
               <ul className='space-y-3'>
-                {data2.izinGuruHariIni?.length > 0 ? (
-                  data2.izinGuruHariIni.map((item: any, idx: number) => (
+                {dashboard.izinGuruHariIni?.length > 0 ? (
+                  dashboard.izinGuruHariIni.map((item: any, idx: number) => (
                     <li key={idx} className='flex items-center space-x-3'>
                       <img
                         src={
@@ -185,8 +203,7 @@ export default function Overview2() {
   );
 }
 
-// Komponen Card Ringkas
-
+// 🧩 Komponen Card Ringkas
 function DashboardCard({
   title,
   value,

@@ -18,14 +18,17 @@ import { Input } from '@/components/ui/input';
 import { useQuery } from '@tanstack/react-query';
 
 interface RekapAbsensi {
-  idSiswa: string | null;
-  nisSiswa: string;
-  namaSiswa: string;
-  hadir: number;
-  izin: number;
-  sakit: number;
-  alpa: number;
-  total: number;
+  data: {
+    idSiswa: string | null;
+    nisSiswa: string;
+    namaSiswa: string;
+    hadir: number;
+    izin: number;
+    sakit: number;
+    alpa: number;
+    total: number;
+  }[];
+  namaKelas: string;
 }
 
 interface RekapAbsensiByKelasProps {
@@ -40,11 +43,11 @@ export default function RekapAbsensiByKelasView({
 
   // fetch data pakai react-query
   const {
-    data: rekap = [],
+    data: rekap,
     isLoading,
     isError,
     error
-  } = useQuery<RekapAbsensi[]>({
+  } = useQuery<RekapAbsensi>({
     queryKey: ['rekap-absensi', idKelas],
     queryFn: async () => {
       try {
@@ -65,7 +68,7 @@ export default function RekapAbsensiByKelasView({
   });
 
   // filter nama
-  const filteredData = rekap.filter((item) =>
+  const filteredData = rekap?.data?.filter((item: any) =>
     item.namaSiswa.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -78,7 +81,9 @@ export default function RekapAbsensiByKelasView({
     <div className='space-y-4 p-4'>
       {/* Search */}
       <div className='flex w-full items-center justify-between gap-2'>
-        <h2 className='text-xl font-semibold'>Rekap Absensi Kelas</h2>
+        <h2 className='text-xl font-semibold'>
+          Rekap Absensi Kelas - {rekap?.namaKelas}
+        </h2>
         <Input
           placeholder='Cari nama siswa...'
           value={search}
@@ -93,7 +98,7 @@ export default function RekapAbsensiByKelasView({
         <div>
           <Table className='overflow-hidden rounded-xl border border-gray-200 shadow-sm'>
             <TableHeader>
-              <TableRow className='bg-gray-100'>
+              <TableRow className=''>
                 <TableHead className='font-bold text-gray-700'>
                   Nama Siswa
                 </TableHead>
@@ -107,17 +112,17 @@ export default function RekapAbsensiByKelasView({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredData.length === 0 ? (
+              {filteredData?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className='py-4 text-center'>
                     Tidak ada data
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredData.map((item) => (
+                filteredData?.map((item) => (
                   <TableRow
                     key={item.idSiswa || item.nisSiswa}
-                    className='transition-colors hover:bg-gray-50'
+                    className='transition-colors'
                   >
                     <TableCell>{item.namaSiswa}</TableCell>
                     <TableCell>{item.nisSiswa}</TableCell>

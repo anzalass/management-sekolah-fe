@@ -33,7 +33,7 @@ type Buku = {
   stok: number;
 };
 
-export default function BukuForm({
+export default function BukuFormMengajar({
   initialData,
   id,
   pageTitle
@@ -95,7 +95,7 @@ export default function BukuForm({
           toast.success('Data buku berhasil disimpan');
         }
 
-        router.push('/dashboard/e-perpus/data-buku');
+        router.push('/mengajar/e-perpus/data-buku');
       } catch (error: any) {
         toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       }

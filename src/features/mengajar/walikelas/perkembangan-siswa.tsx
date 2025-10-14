@@ -42,8 +42,6 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
   const token = session?.user?.token || '';
   const queryClient = useQueryClient();
 
-  console.log(catatanList);
-
   const {
     control,
     handleSubmit,

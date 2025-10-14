@@ -33,7 +33,6 @@ export default function FilterMobile({
 
   const handleApply = () => {
     // logika terapkan filter
-    console.log('Filter applied');
     setOpen(false); // sheet otomatis nutup
   };
 

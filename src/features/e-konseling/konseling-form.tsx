@@ -35,12 +35,20 @@ import {
 import { cn } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
 import api from '@/lib/api';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
 type Konseling = {
   idSiswa: string;
   namaSiswa: string;
   tanggal: string;
   keterangan: string;
+  kategori: string;
 };
 
 type Siswa = {
@@ -67,7 +75,8 @@ export default function KonselingForm({
     idSiswa: initialData?.idSiswa || '',
     namaSiswa: initialData?.namaSiswa || '',
     tanggal: initialData?.tanggal ? initialData.tanggal.split('T')[0] : '',
-    keterangan: initialData?.keterangan || ''
+    keterangan: initialData?.keterangan || '',
+    kategoti: initialData?.kategori || ''
   };
 
   const form = useForm<Konseling>({
@@ -112,7 +121,7 @@ export default function KonselingForm({
           toast.success('Data konseling berhasil disimpan');
         }
 
-        router.push('/dashboard/e-konseling');
+        router.push('/dashboard/e-konseling/konseling-siswa');
       } catch (error: any) {
         toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       }
@@ -198,6 +207,29 @@ export default function KonselingForm({
                 </FormControl>
                 <FormMessage>
                   {form.formState.errors.tanggal?.message}
+                </FormMessage>
+              </FormItem>
+
+              <FormItem>
+                <FormLabel>Kategori</FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={(value) => form.setValue('kategori', value)}
+                    defaultValue={form.getValues('kategori')}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder='Pilih kategori' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='akademik'>Akademik</SelectItem>
+                      <SelectItem value='sosial'>Sosial</SelectItem>
+                      <SelectItem value='keluarga'>Keluarga</SelectItem>
+                      <SelectItem value='karir'>Karir</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage>
+                  {form.formState.errors.kategori?.message}
                 </FormMessage>
               </FormItem>
 

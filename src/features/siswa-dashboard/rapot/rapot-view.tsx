@@ -67,11 +67,15 @@ export default function RapotView() {
     });
   };
 
+  const downloadRapot = (idKelas: any, tahunAjaran: any) => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}rapot3?idKelas=${idKelas}&idSiswa=${session?.user?.idGuru}&tahunAjaran=${tahunAjaran}`;
+  };
+
   if (isLoading) {
     return (
       <div className='p-4'>
         <NavbarSiswa title='Rapot' />
-        <p className='text-sm text-muted-foreground'>Memuat rapot...</p>
+        <p className='text-sm text-muted-foreground'>Loading...</p>
       </div>
     );
   }
@@ -83,7 +87,7 @@ export default function RapotView() {
     return (
       <div className='p-4'>
         <NavbarSiswa title='Rapot' />
-        <p className='text-sm text-red-500'>Terjadi kesalahan</p>
+        <p className='text-sm text-red-500'>Something wrong</p>
       </div>
     );
   }
@@ -91,7 +95,7 @@ export default function RapotView() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20'>
       {/* Header */}
-      <div className='bg-gradient-to-r from-blue-600 to-indigo-600 px-4 pb-24 pt-6'>
+      <div className='bg-blue-800 px-4 pb-24 pt-6'>
         <div className='mx-auto max-w-6xl'>
           <div className='mb-6 flex items-center gap-3'>
             <Link
@@ -105,9 +109,11 @@ export default function RapotView() {
             </div>
             <div>
               <h1 className='text-base font-bold text-white lg:text-2xl'>
-                Rapot Digital
+                Digital Report Card
               </h1>
-              <p className='text-sm text-blue-100'>Laporan hasil belajar</p>
+              <p className='text-sm text-blue-100'>
+                Learning performance report
+              </p>
             </div>
           </div>
 
@@ -123,7 +129,7 @@ export default function RapotView() {
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
               <div className='mb-2 flex items-center gap-2'>
                 <CheckCircle className='h-5 w-5 text-white' />
-                <p className='text-xs text-blue-100'>Terbit</p>
+                <p className='text-xs text-blue-100'>Published</p>
               </div>
               <p className='text-2xl font-bold text-white'>{publishedCount}</p>
             </div>
@@ -136,16 +142,16 @@ export default function RapotView() {
         {isLoading ? (
           <div className='py-12 text-center'>
             <div className='mx-auto h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent'></div>
-            <p className='mt-4 text-gray-600'>Memuat data rapor...</p>
+            <p className='mt-4 text-gray-600'>Loading data...</p>
           </div>
         ) : rapot.length === 0 ? (
           <div className='rounded-2xl bg-white py-12 text-center shadow-xl'>
             <FileText className='mx-auto mb-4 h-16 w-16 text-gray-300' />
             <h3 className='mb-2 text-lg font-semibold text-gray-900'>
-              Belum ada rapor
+              No report available yet
             </h3>
             <p className='text-gray-500'>
-              Rapor akan muncul setelah diterbitkan oleh guru
+              The report will appear once it has been published by the teacher
             </p>
           </div>
         ) : (
@@ -172,11 +178,8 @@ export default function RapotView() {
                           }`}
                         >
                           {rapot.rapotSiswa === 'Terbit'
-                            ? '✓ Terbit'
-                            : '⏳ Belum Terbit'}
-                        </span>
-                        <span className='rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700'>
-                          Semester {rapot.semester}
+                            ? '✓ Published'
+                            : '⏳ Not Published'}
                         </span>
                       </div>
 
@@ -189,15 +192,15 @@ export default function RapotView() {
                         <div className='flex items-center gap-2 text-gray-700'>
                           <User className='h-4 w-4 text-gray-400' />
                           <span className='text-sm'>
-                            Wali Kelas: {rapot.namaGuru}
+                            Homeroom Teacher: {rapot.namaGuru}
                           </span>
                         </div>
                         <div className='flex items-center gap-2 text-gray-700'>
                           <Calendar className='h-4 w-4 text-gray-400' />
                           <span className='text-sm'>
                             {rapot.rapotSiswa === 'Terbit'
-                              ? `Diterbitkan: ${formatDate(rapot.tanggalTerbit)}`
-                              : 'Menunggu penerbitan'}
+                              ? `Published: ${formatDate(rapot.tanggalTerbit)}`
+                              : 'Waiting for publication'}
                           </span>
                         </div>
                         {rapot.nilaiRataRata && (
@@ -231,9 +234,14 @@ export default function RapotView() {
                             className='flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 font-semibold text-white transition-all hover:shadow-lg active:scale-95 lg:w-auto'
                           >
                             <Eye className='h-5 w-5' />
-                            Lihat Rapor
+                            See Detail
                           </a>
-                          <button className='flex w-full items-center justify-center gap-2 rounded-xl border-2 border-blue-600 bg-white px-6 py-3 font-semibold text-blue-600 transition-all hover:bg-blue-50 active:scale-95 lg:w-auto'>
+                          <button
+                            onClick={() =>
+                              downloadRapot(rapot.idKelas, rapot.tahunAjaran)
+                            }
+                            className='flex w-full items-center justify-center gap-2 rounded-xl border-2 border-blue-600 bg-white px-6 py-3 font-semibold text-blue-600 transition-all hover:bg-blue-50 active:scale-95 lg:w-auto'
+                          >
                             <Download className='h-5 w-5' />
                             Download PDF
                           </button>
@@ -242,10 +250,10 @@ export default function RapotView() {
                         <div className='rounded-xl bg-gray-50 p-4 text-center'>
                           <Clock className='mx-auto mb-2 h-8 w-8 text-gray-400' />
                           <p className='text-sm font-semibold text-gray-600'>
-                            Belum Tersedia
+                            Not Available
                           </p>
                           <p className='mt-1 text-xs text-gray-500'>
-                            Menunggu penerbitan
+                            Waiting for publication
                           </p>
                         </div>
                       )}
@@ -254,11 +262,11 @@ export default function RapotView() {
                 </div>
 
                 {/* Progress Bar */}
-                {rapot.nilaiRataRata && (
+                {/* {rapot.nilaiRataRata && (
                   <div className='border-t border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-3'>
                     <div className='mb-2 flex items-center justify-between text-sm'>
                       <span className='font-medium text-gray-700'>
-                        Progress Belajar
+                        Learning Progress
                       </span>
                       <span className='font-bold text-blue-600'>
                         {rapot.nilaiRataRata}%
@@ -277,7 +285,7 @@ export default function RapotView() {
                       ></div>
                     </div>
                   </div>
-                )}
+                )} */}
               </div>
             ))}
           </div>
@@ -294,12 +302,16 @@ export default function RapotView() {
               </div>
               <div>
                 <h3 className='mb-2 text-lg font-bold text-blue-900'>
-                  Informasi Rapor Digital
+                  Digital Report Card Information
                 </h3>
                 <ul className='space-y-1 text-sm text-blue-800'>
-                  <li>• Rapor dapat diunduh dalam format PDF</li>
-                  <li>• Rapor diterbitkan setiap akhir semester</li>
-                  <li>• Hubungi wali kelas jika ada pertanyaan</li>
+                  <li>• The report card can be downloaded in PDF format</li>
+                  <li>
+                    • The report card is issued at the end of each semester
+                  </li>
+                  <li>
+                    • Contact the homeroom teacher if you have any questions
+                  </li>
                 </ul>
               </div>
             </div>

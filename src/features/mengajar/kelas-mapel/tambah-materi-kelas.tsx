@@ -124,8 +124,6 @@ export default function ModalMateri({
         toast.success('Konten AI berhasil dibuat');
       }
     } catch (err) {
-      console.log(err);
-
       toast.error('Gagal generate konten AI');
     }
   };

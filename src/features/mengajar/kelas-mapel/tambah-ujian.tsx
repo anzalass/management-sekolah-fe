@@ -16,6 +16,7 @@ import api from '@/lib/api';
 import { toast } from 'sonner';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 
 interface FormValues {
   namaUjian: string;
@@ -30,6 +31,7 @@ type Props = {
 export default function TambahUjian({ idKelasMapel }: Props) {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
+  const { data: session } = useSession();
 
   const {
     register,
@@ -41,12 +43,20 @@ export default function TambahUjian({ idKelasMapel }: Props) {
   // 👉 definisi mutation react-query
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: FormValues) => {
-      return await api.post(`ujian-iframe`, {
-        idKelasMapel,
-        nama: data.namaUjian,
-        deadline: data.deadline,
-        iframe: data.iframeUrl
-      });
+      return await api.post(
+        `ujian-iframe`,
+        {
+          idKelasMapel,
+          nama: data.namaUjian,
+          deadline: data.deadline,
+          iframe: data.iframeUrl
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        }
+      );
     },
     onSuccess: () => {
       toast.success('Ujian berhasil ditambahkan');
@@ -72,7 +82,7 @@ export default function TambahUjian({ idKelasMapel }: Props) {
       </DialogTrigger>
       <DialogContent className='sm:max-w-md'>
         <DialogHeader>
-          <DialogTitle>Tambah Ujian</DialogTitle>
+          <DialogTitle className='dark:text-white'>Tambah Ujian</DialogTitle>
           <DialogDescription>
             Masukkan detail ujian di bawah ini.
           </DialogDescription>
@@ -80,9 +90,9 @@ export default function TambahUjian({ idKelasMapel }: Props) {
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           {/* Nama Ujian */}
           <div>
-            <label className='block text-sm font-medium text-gray-700'>
+            <p className='block text-sm font-medium dark:text-white'>
               Nama Ujian
-            </label>
+            </p>
             <Input
               type='text'
               placeholder='Contoh: Ujian Matematika Semester 1'
@@ -97,10 +107,11 @@ export default function TambahUjian({ idKelasMapel }: Props) {
 
           {/* Deadline */}
           <div>
-            <label className='block text-sm font-medium text-gray-700'>
+            <p className='block text-sm font-medium dark:text-white'>
               Deadline Ujian
-            </label>
+            </p>
             <Input
+              className='dark:text-white placeholder:dark:text-white'
               type='datetime-local'
               {...register('deadline', { required: 'Deadline wajib diisi' })}
             />
@@ -113,9 +124,9 @@ export default function TambahUjian({ idKelasMapel }: Props) {
 
           {/* Link Google Form */}
           <div>
-            <label className='block text-sm font-medium text-gray-700'>
+            <p className='block text-sm font-medium dark:text-white'>
               Link Google Form
-            </label>
+            </p>
             <Input
               type='url'
               placeholder='https://docs.google.com/forms/...'

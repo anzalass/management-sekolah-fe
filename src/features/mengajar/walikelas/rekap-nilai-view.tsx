@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/table';
 import api from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 
 type NilaiDetail = {
   nilai: number;
@@ -17,12 +18,15 @@ type NilaiDetail = {
 };
 
 type NilaiRecord = {
-  idSiswa: string;
-  nis: string;
-  nama: string;
-  nilai: Record<string, NilaiDetail>;
-  totalNilai: number;
-  rataRata: number;
+  namaKelas: string;
+  data: {
+    idSiswa: string;
+    nis: string;
+    nama: string;
+    nilai: Record<string, NilaiDetail>;
+    totalNilai: number;
+    rataRata: number;
+  }[];
 };
 
 interface RekapNilaiByKelasProps {
@@ -30,16 +34,26 @@ interface RekapNilaiByKelasProps {
 }
 
 export default function RekapNilaiTable({ idKelas }: RekapNilaiByKelasProps) {
+  const { data: session } = useSession();
   const { data, isLoading, isError } = useQuery({
     queryKey: ['rekap-nilai', idKelas],
-    queryFn: async (): Promise<NilaiRecord[]> => {
-      const res = await api.get(`rekap-nilai-siswa/${idKelas}`);
-      return res.data?.data ?? [];
-    }
+    queryFn: async (): Promise<NilaiRecord> => {
+      const res = await api.get(`rekap-nilai-siswa/${idKelas}`, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
+
+      return res.data;
+    },
+    enabled: !!session?.user?.token
   });
 
+  console.log(data);
+
   // Ambil semua key dari data pertama
-  const dynamicKeys = data && data.length > 0 ? Object.keys(data[0].nilai) : [];
+  const dynamicKeys =
+    data && data.data.length > 0 ? Object.keys(data.data[0].nilai) : [];
 
   if (isLoading)
     return (
@@ -57,6 +71,7 @@ export default function RekapNilaiTable({ idKelas }: RekapNilaiByKelasProps) {
 
   return (
     <div className='w-full overflow-x-auto rounded-lg p-4 shadow-sm'>
+      <p className='mb-7 text-lg font-bold'>Rekap Nilai - {data?.namaKelas}</p>
       <Table className='w-full'>
         <TableHeader>
           <TableRow>
@@ -65,7 +80,7 @@ export default function RekapNilaiTable({ idKelas }: RekapNilaiByKelasProps) {
 
             {/* tampilkan nama + bobot di header */}
             {dynamicKeys.map((key) => {
-              const bobot = data?.[0]?.nilai?.[key]?.bobot ?? 0;
+              const bobot = data?.data?.[0]?.nilai?.[key]?.bobot ?? 0;
               return (
                 <TableHead key={key} className='text-center capitalize'>
                   {key} ({bobot}%)
@@ -79,8 +94,8 @@ export default function RekapNilaiTable({ idKelas }: RekapNilaiByKelasProps) {
         </TableHeader>
 
         <TableBody>
-          {data && data.length > 0 ? (
-            data.map((row) => (
+          {data && data.data.length > 0 ? (
+            data.data.map((row) => (
               <TableRow key={row.idSiswa}>
                 <TableCell>{row.nis}</TableCell>
                 <TableCell>{row.nama}</TableCell>

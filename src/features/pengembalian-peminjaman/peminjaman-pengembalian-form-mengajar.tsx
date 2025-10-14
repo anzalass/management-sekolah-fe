@@ -51,7 +51,11 @@ type Siswa = {
   nama: string;
 };
 
-export default function PinjamBukuForm({ pageTitle }: { pageTitle: string }) {
+export default function PinjamBukuFormMengajar({
+  pageTitle
+}: {
+  pageTitle: string;
+}) {
   const [loading, startTransition] = useTransition();
   const router = useRouter();
   const [siswaList, setSiswaList] = useState<Siswa[]>([]);
@@ -96,7 +100,7 @@ export default function PinjamBukuForm({ pageTitle }: { pageTitle: string }) {
         });
 
         toast.success('Peminjaman buku berhasil disimpan');
-        router.push('/dashboard/e-perpus/peminjaman-pengembalian');
+        router.push('/mengajar/e-perpus/peminjaman-pengembalian');
       } catch (error: any) {
         toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       }

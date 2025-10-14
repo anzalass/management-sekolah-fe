@@ -219,32 +219,32 @@ export default function LogPresensiView() {
             </div>
             <div>
               <h1 className='text-base font-bold text-white lg:text-2xl'>
-                Log Presensi
+                Log Attendence
               </h1>
-              <p className='text-sm text-blue-100'>Riwayat kehadiran siswa</p>
+              <p className='text-sm text-blue-100'>History attendence</p>
             </div>
           </div>
 
           {/* stats small cards */}
           <div className='grid grid-cols-2 gap-3 lg:grid-cols-5'>
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
-              <p className='mb-2 text-xs text-blue-100'>Hadir</p>
+              <p className='mb-2 text-xs text-blue-100'>Present</p>
               <p className='text-2xl font-bold text-white'>{summary.hadir}</p>
             </div>
 
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
-              <p className='mb-2 text-xs text-blue-100'>Sakit</p>
+              <p className='mb-2 text-xs text-blue-100'>Sick</p>
               <p className='text-2xl font-bold text-white'>{summary.sakit}</p>
             </div>
 
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
-              <p className='mb-2 text-xs text-blue-100'>Izin</p>
+              <p className='mb-2 text-xs text-blue-100'>Permission</p>
               <p className='text-2xl font-bold text-white'>{summary.izin}</p>
             </div>
 
             {/* ✅ Tambahan baru */}
             <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
-              <p className='mb-2 text-xs text-blue-100'>Tanpa Keterangan</p>
+              <p className='mb-2 text-xs text-blue-100'>Alpha</p>
               <p className='text-2xl font-bold text-white'>{summary.alpha}</p>
             </div>
           </div>
@@ -258,7 +258,7 @@ export default function LogPresensiView() {
             <div className='relative flex-1'>
               <SearchIcon className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
               <Input
-                placeholder='Cari Keterangan'
+                placeholder='Find Desc...'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className='h-[47px] w-full pl-10'
@@ -295,10 +295,10 @@ export default function LogPresensiView() {
                   onValueChange={(v) => setFilterBulan(v === 'all' ? '' : v)}
                 >
                   <SelectTrigger className='h-11 rounded-xl'>
-                    <SelectValue placeholder='Bulan' />
+                    <SelectValue placeholder='Month' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='all'>Semua Bulan</SelectItem>
+                    <SelectItem value='all'>All Month</SelectItem>
                     {Array.from({ length: 12 }, (_, i) => {
                       const bulan = (i + 1).toString().padStart(2, '0');
                       const namaBulan = new Date(2000, i).toLocaleString(
@@ -321,7 +321,7 @@ export default function LogPresensiView() {
                     <SelectValue placeholder='Tahun' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='all'>Semua Tahun</SelectItem>
+                    <SelectItem value='all'>All Year</SelectItem>
                     {tahunList.map((t) => (
                       <SelectItem key={t} value={t}>
                         {t}
@@ -340,13 +340,11 @@ export default function LogPresensiView() {
                     <SelectValue placeholder='Status' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='all'>Semua</SelectItem>
-                    <SelectItem value='Hadir'>Hadir</SelectItem>
-                    <SelectItem value='Sakit'>Sakit</SelectItem>
-                    <SelectItem value='Izin'>Izin</SelectItem>
-                    <SelectItem value='Tanpa Keterangan'>
-                      Tanpa Keterangan
-                    </SelectItem>
+                    <SelectItem value='all'>All</SelectItem>
+                    <SelectItem value='Hadir'>Present</SelectItem>
+                    <SelectItem value='Sakit'>Sick</SelectItem>
+                    <SelectItem value='Izin'>Permission</SelectItem>
+                    <SelectItem value='Tanpa Keterangan'>Alpha</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -371,7 +369,7 @@ export default function LogPresensiView() {
         {isLoading ? (
           <div className='py-12 text-center'>
             <Loader2 className='mx-auto h-12 w-12 animate-spin text-blue-600' />
-            <p className='mt-4 text-gray-600'>Memuat data presensi...</p>
+            <p className='mt-4 text-gray-600'>Loading data...</p>
           </div>
         ) : filtered.length === 0 ? (
           <div className='py-12 text-center'>
@@ -424,10 +422,10 @@ export default function LogPresensiView() {
                       </div>
 
                       <div className='flex-shrink-0 text-right'>
-                        <p className='text-2xl font-bold text-gray-900'>
+                        <p className='text-base font-bold text-gray-900'>
                           {formatTime(item.waktu)}
                         </p>
-                        <p className='text-xs text-muted-foreground'>Waktu</p>
+                        <p className='text-xs text-muted-foreground'>Time</p>
                       </div>
                     </div>
                   </CardHeader>
@@ -451,44 +449,7 @@ export default function LogPresensiView() {
 }
 
 /* ---------- Small helper icons as inline components to avoid extra imports ---------- */
-function ArrowIcon() {
-  return (
-    <svg
-      width='18'
-      height='18'
-      viewBox='0 0 24 24'
-      fill='none'
-      className='text-white'
-    >
-      <path
-        d='M15 18l-6-6 6-6'
-        stroke='currentColor'
-        strokeWidth='2'
-        strokeLinecap='round'
-        strokeLinejoin='round'
-      />
-    </svg>
-  );
-}
-function TrendingUpIcon() {
-  return (
-    <svg
-      width='16'
-      height='16'
-      viewBox='0 0 24 24'
-      fill='none'
-      className='text-white'
-    >
-      <path
-        d='M3 17l6-6 4 4 8-8'
-        stroke='currentColor'
-        strokeWidth='2'
-        strokeLinecap='round'
-        strokeLinejoin='round'
-      />
-    </svg>
-  );
-}
+
 function FilterIcon() {
   return (
     <svg

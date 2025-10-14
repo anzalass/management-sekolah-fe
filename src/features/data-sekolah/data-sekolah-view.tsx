@@ -63,7 +63,11 @@ export default function SekolahForm() {
   useEffect(() => {
     const fetchSekolah = async () => {
       try {
-        const res = await api.get('sekolah');
+        const res = await api.get('sekolah', {
+          headers: {
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        });
         const data = res.data.data; // asumsi API mengembalikan 1 objek sekolah
         reset({
           nama: data.nama,
