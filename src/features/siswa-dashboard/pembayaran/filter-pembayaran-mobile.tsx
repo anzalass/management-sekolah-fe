@@ -72,7 +72,6 @@ export default function FilterMobile({
                 <Button
                   onClick={() => {
                     // trigger filter bisa di parent
-                    console.log('Filter applied');
                   }}
                 >
                   Terapkan

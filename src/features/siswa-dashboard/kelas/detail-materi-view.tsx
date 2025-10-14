@@ -97,8 +97,6 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
     enabled: !!session?.user?.token
   });
 
-  console.log(materi);
-
   const { data: listMateri } = useQuery<ListMateriItem[]>({
     queryKey: ['listMateri', idKelas],
     queryFn: async () => {

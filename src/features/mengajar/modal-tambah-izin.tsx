@@ -123,7 +123,7 @@ export default function ModalTambahIzin({
           {dataIzin ? 'Edit Izin' : 'Form Pengajuan Izin'}
         </DialogTitle>
       </VisuallyHidden>
-      <DialogContent>
+      <DialogContent className='dark:text-white'>
         <DialogHeader></DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           <div>

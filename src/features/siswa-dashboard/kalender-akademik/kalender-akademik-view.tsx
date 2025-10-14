@@ -7,6 +7,7 @@ import api from '@/lib/api';
 import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
 import Loading from '../loading';
+import { toast } from 'sonner';
 
 const localizer = momentLocalizer(moment);
 
@@ -34,8 +35,8 @@ export default function KegiatanKalender() {
         allDay: false // kalau mau full day bisa set true
       }));
       setEvents(mapped);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message);
     }
   };
 

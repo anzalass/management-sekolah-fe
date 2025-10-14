@@ -146,7 +146,7 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
 
       {/* Modal Tambah Jadwal */}
       <Dialog open={openModal} onOpenChange={setOpenModal}>
-        <DialogContent>
+        <DialogContent className='dark:text-white'>
           <DialogHeader>
             <DialogTitle>Tambah Jadwal</DialogTitle>
           </DialogHeader>

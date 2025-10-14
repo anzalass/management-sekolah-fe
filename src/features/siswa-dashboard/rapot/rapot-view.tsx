@@ -22,6 +22,7 @@ import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
 
 export default function RapotView() {
   const { data: session } = useSession();
@@ -195,14 +196,7 @@ export default function RapotView() {
                             Homeroom Teacher: {rapot.namaGuru}
                           </span>
                         </div>
-                        <div className='flex items-center gap-2 text-gray-700'>
-                          <Calendar className='h-4 w-4 text-gray-400' />
-                          <span className='text-sm'>
-                            {rapot.rapotSiswa === 'Terbit'
-                              ? `Published: ${formatDate(rapot.tanggalTerbit)}`
-                              : 'Waiting for publication'}
-                          </span>
-                        </div>
+
                         {rapot.nilaiRataRata && (
                           <div className='flex items-center gap-2'>
                             <TrendingUp className='h-4 w-4 text-gray-400' />
@@ -236,7 +230,7 @@ export default function RapotView() {
                             <Eye className='h-5 w-5' />
                             See Detail
                           </a>
-                          <button
+                          <Button
                             onClick={() =>
                               downloadRapot(rapot.idKelas, rapot.tahunAjaran)
                             }
@@ -244,7 +238,7 @@ export default function RapotView() {
                           >
                             <Download className='h-5 w-5' />
                             Download PDF
-                          </button>
+                          </Button>
                         </>
                       ) : (
                         <div className='rounded-xl bg-gray-50 p-4 text-center'>

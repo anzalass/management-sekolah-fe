@@ -135,7 +135,7 @@ export default function ModalTambahKelas({
       open={openModal === 'kelas'}
       onOpenChange={() => setOpenModal(null)}
     >
-      <DialogContent>
+      <DialogContent className='dark:text-white'>
         <DialogHeader>
           <VisuallyHidden>
             <DialogTitle>{isEdit ? 'Edit Kelas' : 'Tambah Kelas'}</DialogTitle>

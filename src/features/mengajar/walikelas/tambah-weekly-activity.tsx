@@ -112,7 +112,7 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
       <DialogTrigger asChild>
         <Button variant='default'>Tambah Weekly Activity</Button>
       </DialogTrigger>
-      <DialogContent className='max-h-[80vh] max-w-lg overflow-y-auto'>
+      <DialogContent className='max-h-[80vh] max-w-lg overflow-y-auto dark:text-white'>
         <DialogHeader>
           <DialogTitle>Tambah Weekly Activity</DialogTitle>
           <DialogDescription>
@@ -123,9 +123,7 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           {/* Judul */}
           <div>
-            <label className='block text-sm font-medium text-gray-700'>
-              Judul
-            </label>
+            <label className='block text-sm font-medium'>Judul</label>
             <Input
               type='text'
               {...register('judul', { required: 'Judul wajib diisi' })}
@@ -139,7 +137,7 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
 
           {/* Content */}
           <div>
-            <label className='block text-sm font-medium text-gray-700'>
+            <label className='block text-sm font-medium'>
               Deskripsi Aktivitas
             </label>
             <Controller
@@ -162,9 +160,7 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
 
           {/* Waktu */}
           <div>
-            <label className='block text-sm font-medium text-gray-700'>
-              Waktu
-            </label>
+            <label className='block text-sm font-medium'>Waktu</label>
             <Input
               type='datetime-local'
               {...register('waktu', { required: 'Waktu wajib diisi' })}
@@ -178,7 +174,7 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
 
           {/* Upload Foto */}
           <div>
-            <label className='mb-1 block text-sm font-medium text-gray-700'>
+            <label className='mb-1 block text-sm font-medium'>
               Upload Foto
             </label>
             <div

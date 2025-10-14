@@ -54,8 +54,6 @@ export default function ModalInputNilaiManual({
   const { data: session } = useSession();
   const queryClient = useQueryClient();
 
-  console.log(siswaList);
-
   const {
     register,
     handleSubmit,
@@ -110,7 +108,7 @@ export default function ModalInputNilaiManual({
       <DialogTrigger asChild>
         <Button>Tambah Nilai Manual</Button>
       </DialogTrigger>
-      <DialogContent className='max-w-md'>
+      <DialogContent className='max-w-md dark:text-white'>
         <DialogHeader>
           <DialogTitle>Tambah Nilai</DialogTitle>
         </DialogHeader>

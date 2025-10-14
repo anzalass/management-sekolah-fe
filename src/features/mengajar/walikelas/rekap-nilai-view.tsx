@@ -49,8 +49,6 @@ export default function RekapNilaiTable({ idKelas }: RekapNilaiByKelasProps) {
     enabled: !!session?.user?.token
   });
 
-  console.log(data);
-
   // Ambil semua key dari data pertama
   const dynamicKeys =
     data && data.data.length > 0 ? Object.keys(data.data[0].nilai) : [];
