@@ -27,6 +27,7 @@ import {
   ChevronLeft,
   Clock,
   FileText,
+  Loader2,
   Menu,
   Sparkles,
   StepBack,
@@ -35,16 +36,37 @@ import {
 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
-interface Summary {
+interface FotoSummaryTugas {
+  id: string;
+  fotoUrl: string;
+  fotoId?: string;
+}
+
+interface SummaryTugas {
   id: string;
   nama: string;
   idSiswa: string;
   content: string;
   fotoSiswa?: string;
   waktu: string;
+  FotoSummaryTugas?: FotoSummaryTugas[];
 }
 
-interface Tugas {
+interface TugasDetail {
+  nama: string;
+  tugas: {
+    id: string;
+    judul: string;
+    konten: string;
+    idKelasMapel: string;
+    iframeGoogleSlide?: string;
+    iframeYoutube?: string;
+    pdfUrl?: string;
+  };
+  summarySiswa: SummaryTugas | null;
+}
+
+interface TugasListItem {
   id: string;
   judul: string;
   konten: string;
@@ -52,7 +74,6 @@ interface Tugas {
   iframeYoutube?: string;
   pdfUrl?: string;
   past: boolean;
-  SummaryTugas: Summary[];
 }
 
 type IDTugas = {
@@ -75,10 +96,10 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
   });
 
   // Query ambil detail tugas
-  const { data: tugas, isLoading: loadingTugas } = useQuery<Tugas>({
+  const { data: tugas, isLoading: loadingTugas } = useQuery<TugasDetail>({
     queryKey: ['tugas', idTugas],
     queryFn: async () => {
-      const res = await api.get(`tugas-summary/${idTugas}`, {
+      const res = await api.get(`tugas-summary-siswa/${idTugas}`, {
         headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
       return res.data.data;
@@ -86,17 +107,18 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
     enabled: !!session?.user?.token
   });
 
-  // Query ambil list tugas (sidebar)
-  const { data: listTugas, isLoading: loadingList } = useQuery<Tugas[]>({
-    queryKey: ['kelas', idKelasMapel],
-    queryFn: async () => {
-      const res = await api.get(`kelas-mapel/${idKelasMapel}`, {
-        headers: { Authorization: `Bearer ${session?.user?.token}` }
-      });
-      return res.data.data.TugasMapel || [];
-    },
-    enabled: !!session?.user?.token
-  });
+  const { data: listTugas, isLoading: loadingList } = useQuery<TugasListItem[]>(
+    {
+      queryKey: ['kelas', idKelasMapel],
+      queryFn: async () => {
+        const res = await api.get(`kelas-mapel/${idKelasMapel}`, {
+          headers: { Authorization: `Bearer ${session?.user?.token}` }
+        });
+        return res.data.data.TugasMapel || [];
+      },
+      enabled: !!session?.user?.token
+    }
+  );
 
   // Mutation submit ringkasan
   const addSummaryMutation = useMutation({
@@ -138,44 +160,47 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
       photos: selectedPhotos
     });
   };
-
+  const firstInitial = session?.user?.nama?.split(' ')[0]?.[0] || '';
+  const secondInitial = session?.user?.nama?.split(' ')[1]?.[0] || '';
   // Filter summary hanya milik user login
-  const mySummary = tugas?.SummaryTugas?.filter(
-    (s) => s.idSiswa === session?.user?.idGuru
-  );
-
-  console.log(mySummary);
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20'>
       {/* Header */}
-      <div className='sticky top-0 z-40 bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-4 shadow-lg'>
-        <div className='mx-auto flex max-w-7xl items-center justify-between'>
-          <div className='flex items-center gap-3'>
-            <button
-              onClick={() => window.history.back()}
-              className='flex h-10 w-10 items-center justify-center rounded-full bg-white/20 transition-colors active:bg-white/30'
-            >
-              <ChevronLeft className='h-6 w-6 text-white' />
-            </button>
-            <button
-              onClick={() => setShowSidebar(true)}
-              className='flex h-10 w-10 items-center justify-center rounded-full bg-white/20 transition-colors active:bg-white/30 md:hidden'
-            >
-              <Menu className='h-6 w-6 text-white' />
-            </button>
-            <div>
-              <h1 className='text-lg font-bold text-white'>{tugas?.judul}</h1>
-              <p className='text-xs text-blue-100'>Matematika - Kelas X</p>
-            </div>
+      <div className='mx-auto flex w-full items-center justify-between bg-blue-800 p-5'>
+        <div className='flex items-center gap-3'>
+          <Link
+            href={`/siswa/kelas/${tugas?.tugas?.idKelasMapel}`}
+            className='flex h-10 w-10 items-center justify-center rounded-full bg-white/20 transition-colors active:bg-white/30'
+          >
+            <ChevronLeft className='h-6 w-6 text-white' />
+          </Link>
+          <div>
+            <h1 className='text-lg font-bold text-white'>
+              {tugas?.nama} - {tugas?.tugas?.judul}
+            </h1>
           </div>
-          <div className='h-10 w-10 overflow-hidden rounded-full border-2 border-white'>
-            <img
-              src={session?.user?.foto}
-              alt={session?.user?.nama}
-              className='h-full w-full object-cover'
-            />
-          </div>
+        </div>
+
+        {/* ✅ Tambah tombol menu khusus mobile */}
+        <button
+          onClick={() => setShowSidebar(true)}
+          className='flex h-10 w-10 items-center justify-center rounded-full bg-white/20 transition-colors active:bg-white/30 lg:hidden'
+        >
+          <Menu className='h-6 w-6 text-white' />
+        </button>
+
+        <div className='hidden h-10 w-10 overflow-hidden rounded-full border-2 border-white lg:block'>
+          <Image
+            src={
+              session?.user?.foto
+                ? session?.user?.foto
+                : `https://ui-avatars.com/api/?name=${firstInitial}+${secondInitial}&background=random&format=png`
+            }
+            alt='Foto User'
+            width={40}
+            height={40}
+          />
         </div>
       </div>
 
@@ -183,7 +208,7 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
         <div className='grid grid-cols-1 gap-6 lg:grid-cols-12'>
           {/* Sidebar Desktop */}
           <div className='hidden lg:col-span-3 lg:block'>
-            <div className='sticky top-24 rounded-2xl bg-white p-4 shadow-lg'>
+            <div className='sticky top-0 rounded-2xl bg-white p-4 shadow-lg'>
               <div className='mb-4 flex items-center gap-2 border-b border-gray-200 pb-3'>
                 <BookOpen className='h-5 w-5 text-blue-600' />
                 <h2 className='font-bold text-gray-900'>Daftar Materi</h2>
@@ -239,7 +264,7 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
                 <div className='flex items-center justify-between border-b border-gray-200 p-4'>
                   <h2 className='flex items-center gap-2 font-bold text-gray-900'>
                     <BookOpen className='h-5 w-5 text-blue-600' />
-                    Daftar Materi
+                    Daftar Tugas
                   </h2>
                   <button
                     onClick={() => setShowSidebar(false)}
@@ -252,7 +277,7 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
                   {listTugas?.map((m) => (
                     <Link
                       key={m.id}
-                      href={`/siswa/kelas/${idKelasMapel}/materi/${m.id}`}
+                      href={`/siswa/kelas/${idKelasMapel}/tugas/${m.id}`}
                     >
                       <button
                         key={m.id}
@@ -294,18 +319,20 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
               <div className='border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4'>
                 <h2 className='flex items-center gap-2 text-xl font-bold text-gray-900'>
                   <FileText className='h-6 w-6 text-blue-600' />
-                  {tugas?.judul}
+                  {tugas?.tugas?.judul}
                 </h2>
               </div>
               <div className='p-6'>
                 {/* Content */}
                 <div
                   className='prose prose-sm mb-6 max-w-none'
-                  dangerouslySetInnerHTML={{ __html: tugas?.konten || '' }}
+                  dangerouslySetInnerHTML={{
+                    __html: tugas?.tugas?.konten || ''
+                  }}
                 />
 
                 {/* Video */}
-                {tugas?.iframeYoutube && (
+                {tugas?.tugas?.iframeYoutube && (
                   <div className='mb-6'>
                     <div className='mb-3 rounded-xl bg-gradient-to-r from-red-50 to-pink-50 p-4'>
                       <div className='mb-2 flex items-center gap-2'>
@@ -321,7 +348,7 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
                     <div className='aspect-video overflow-hidden rounded-xl shadow-lg'>
                       <div
                         dangerouslySetInnerHTML={{
-                          __html: tugas?.iframeYoutube
+                          __html: tugas?.tugas?.iframeYoutube
                         }}
                         className='h-full w-full'
                       />
@@ -332,131 +359,156 @@ export default function DetailTugasView({ idTugas, idKelasMapel }: IDTugas) {
             </div>
           </div>
 
-          {/* Summary Sidebar */}
           <div className='lg:col-span-3'>
-            <div className='sticky top-24 rounded-2xl bg-white p-4 shadow-lg'>
+            <div className='sticky top-0 rounded-2xl bg-white p-4 shadow-lg'>
               <div className='mb-4 flex items-center gap-2 border-b border-gray-200 pb-3'>
                 <Sparkles className='h-5 w-5 text-yellow-600' />
                 <h2 className='font-bold text-gray-900'>Ringkasan Saya</h2>
               </div>
 
-              {/* Form Ringkasan */}
-              {mySummary?.length === 0 ? (
-                <div className='mb-4'>
-                  <form
-                    onSubmit={handleSubmit(onSubmit)}
-                    className='space-y-4'
-                    encType='multipart/form-data'
-                  >
-                    <label className='mb-1 block text-sm font-medium'>
-                      Summary
-                    </label>
-
-                    <Controller
-                      name='konten'
-                      control={control}
-                      render={({ field }) => (
-                        <TextEditor
-                          type='materi'
-                          value={field.value}
-                          onChange={field.onChange}
-                        />
-                      )}
-                    />
-
-                    {/* 📸 Upload Foto Multiple */}
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700'>
-                        Upload Foto (Opsional)
-                      </label>
-                      <input
-                        ref={fileInputRef}
-                        type='file'
-                        multiple
-                        accept='image/*'
-                        onChange={(e) => {
-                          if (e.target.files) {
-                            const files = Array.from(e.target.files);
-                            setSelectedPhotos(files);
-                          }
-                        }}
-                        className='mt-1 w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-2 text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-blue-600 hover:file:bg-blue-100'
+              {tugas?.summarySiswa === null && (
+                <form
+                  onSubmit={handleSubmit(onSubmit)}
+                  className='space-y-4'
+                  encType='multipart/form-data'
+                >
+                  <Controller
+                    name='konten'
+                    control={control}
+                    render={({ field }) => (
+                      <TextEditor
+                        type='materi'
+                        value={field.value}
+                        onChange={field.onChange}
                       />
+                    )}
+                  />
 
-                      {selectedPhotos.length > 0 && (
-                        <div className='mt-3 grid grid-cols-3 gap-2'>
-                          {selectedPhotos.map((photo, idx) => (
-                            <div key={idx} className='relative'>
-                              <img
-                                src={URL.createObjectURL(photo)}
-                                alt={`preview-${idx}`}
-                                className='h-24 w-full rounded-lg object-cover shadow-sm'
-                              />
-                              <button
-                                type='button'
-                                onClick={() => {
-                                  const newFiles = selectedPhotos.filter(
-                                    (_, i) => i !== idx
-                                  );
-                                  setSelectedPhotos(newFiles);
+                  <input
+                    ref={fileInputRef}
+                    type='file'
+                    multiple
+                    accept='image/*'
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        setSelectedPhotos(Array.from(e.target.files));
+                      }
+                    }}
+                    className='mt-1 w-full cursor-pointer rounded-lg border border-gray-200 bg-white p-2 text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-blue-600 hover:file:bg-blue-100'
+                  />
 
-                                  // Reset input jika semua foto dihapus
-                                  if (
-                                    newFiles.length === 0 &&
-                                    fileInputRef.current
-                                  ) {
-                                    fileInputRef.current.value = '';
-                                  }
-                                }}
-                                className='absolute right-1 top-1 rounded-full bg-black/50 p-1 text-white hover:bg-black/70'
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          ))}
+                  {selectedPhotos.length > 0 && (
+                    <div className='mt-3 grid grid-cols-3 gap-2'>
+                      {selectedPhotos.map((photo, idx) => (
+                        <div key={idx} className='relative'>
+                          <img
+                            src={URL.createObjectURL(photo)}
+                            alt={`preview-${idx}`}
+                            className='h-24 w-full rounded-lg object-cover shadow-sm'
+                          />
+                          <button
+                            type='button'
+                            onClick={() =>
+                              setSelectedPhotos((prev) =>
+                                prev.filter((_, i) => i !== idx)
+                              )
+                            }
+                            className='absolute right-1 top-1 rounded-full bg-black/50 p-1 text-white hover:bg-black/70'
+                          >
+                            ✕
+                          </button>
                         </div>
-                      )}
+                      ))}
                     </div>
+                  )}
 
-                    <Button type='submit' className='mt-2 w-full'>
-                      Simpan Ringkasan
-                    </Button>
-                  </form>
-                </div>
-              ) : null}
+                  <Button
+                    type='submit'
+                    className='w-full'
+                    disabled={addSummaryMutation.isPending}
+                  >
+                    {addSummaryMutation.isPending ? (
+                      <>
+                        <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                        Menyimpan...
+                      </>
+                    ) : (
+                      'Simpan Ringkasan'
+                    )}
+                  </Button>
+                </form>
+              )}
 
-              {/* List Ringkasan */}
-              <div className='max-h-[400px] space-y-3 overflow-y-auto'>
-                {tugas?.SummaryTugas.map((summary: any) => (
+              <div className='mt-4 max-h-[400px] space-y-3 overflow-y-auto'>
+                {!tugas?.summarySiswa ? (
+                  <p className='text-sm text-gray-500'>Belum ada ringkasan.</p>
+                ) : (
                   <div
-                    key={summary.id}
+                    key={tugas?.summarySiswa.id}
                     className='rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-4'
                   >
                     <div className='mb-3 flex items-start gap-3'>
-                      <img
-                        src={summary?.fotoSiswa}
-                        alt={summary.nama}
-                        className='h-10 w-10 rounded-full border-2 border-white object-cover shadow-md'
+                      <Image
+                        src={
+                          session?.user?.foto
+                            ? session?.user?.foto
+                            : `https://ui-avatars.com/api/?name=${firstInitial}+${secondInitial}&background=random&format=png`
+                        }
+                        alt='Foto User'
+                        width={40}
+                        height={40}
+                        className='rounded-full'
                       />
-                      <div className='min-w-0 flex-1'>
+                      <div>
                         <p className='text-sm font-semibold text-gray-900'>
-                          {summary.nama}
+                          {tugas?.summarySiswa.nama}
                         </p>
                         <div className='flex items-center gap-1 text-xs text-gray-500'>
                           <Clock className='h-3 w-3' />
-                          <span>{summary.waktu}</span>
+                          <span>
+                            {new Date(
+                              tugas?.summarySiswa.waktu
+                            ).toLocaleDateString('id-ID', {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric'
+                            })}
+                          </span>
                         </div>
                       </div>
                     </div>
+
                     <div
                       className='prose prose-sm max-w-none text-gray-700'
-                      dangerouslySetInnerHTML={{ __html: summary.content }}
+                      dangerouslySetInnerHTML={{
+                        __html: tugas?.summarySiswa.content
+                      }}
                     />
+
+                    {(tugas?.summarySiswa?.FotoSummaryTugas?.length ?? 0) >
+                      0 && (
+                      <div className='mt-3 grid grid-cols-2 gap-3'>
+                        {(tugas?.summarySiswa?.FotoSummaryTugas ?? []).map(
+                          (foto, i) => (
+                            <Image
+                              key={i}
+                              src={foto.fotoUrl}
+                              alt='summary-foto'
+                              width={300}
+                              height={300}
+                              className='h-32 w-full rounded-lg object-cover'
+                            />
+                          )
+                        )}
+                      </div>
+                    )}
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>
+
+          {/* Summary Sidebar */}
         </div>
       </div>
 

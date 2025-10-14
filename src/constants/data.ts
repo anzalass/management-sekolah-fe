@@ -23,15 +23,15 @@ export const navItems: NavItem[] = [
   {
     title: 'Data Sekolah',
     url: '/dashboard/data-sekolah',
-    icon: 'dashboard',
+    icon: 'university',
     isActive: false,
     shortcut: ['d', 'd'],
     items: []
   },
   {
-    title: 'Pendaftaran Siswaa',
+    title: 'Pendaftaran Siswa',
     url: '/dashboard/pendaftaran',
-    icon: 'dashboard',
+    icon: 'userPLus',
     isActive: false,
     shortcut: ['d', 'd'],
     items: []
@@ -39,7 +39,7 @@ export const navItems: NavItem[] = [
   {
     title: 'Presensi Guru',
     url: '',
-    icon: 'dashboard',
+    icon: 'clipboard',
     isActive: false,
     shortcut: ['d', 'd'],
     items: [
@@ -60,7 +60,7 @@ export const navItems: NavItem[] = [
   {
     title: 'Inventaris',
     url: '/dashboard/Inventaris',
-    icon: 'product',
+    icon: 'boxes',
     shortcut: ['p', 'p'],
     isActive: false,
     items: [
@@ -81,7 +81,7 @@ export const navItems: NavItem[] = [
   {
     title: 'Konten Management',
     url: '',
-    icon: 'product',
+    icon: 'filetext',
     shortcut: ['p', 'p'],
     isActive: false,
     allowedRoles: ['Kepala Sekolah'],
@@ -115,7 +115,7 @@ export const navItems: NavItem[] = [
   {
     title: 'Master Data',
     url: '',
-    icon: 'product',
+    icon: 'db',
     shortcut: ['p', 'p'],
     isActive: false,
     items: [
@@ -178,7 +178,7 @@ export const navItems: NavItem[] = [
   {
     title: 'E - Konseling',
     url: '',
-    icon: 'product',
+    icon: 'messagecircleheart',
     shortcut: ['p', 'p'],
     isActive: false,
     items: [
@@ -199,7 +199,7 @@ export const navItems: NavItem[] = [
   {
     title: 'E - Perpus',
     url: '',
-    icon: 'product',
+    icon: 'book',
     shortcut: ['p', 'p'],
     isActive: false,
     items: [
@@ -220,7 +220,7 @@ export const navItems: NavItem[] = [
   {
     title: 'E - Pembayaran',
     url: '',
-    icon: 'product',
+    icon: 'billing',
     shortcut: ['p', 'p'],
     isActive: false,
     items: [

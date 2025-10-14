@@ -13,11 +13,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Trash2, Plus } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
 type Jadwal = {
   id: string;
@@ -47,7 +54,7 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
       });
       return res.data.data;
     },
-    enabled: !!session?.user?.token // jangan fetch kalau belum ada token
+    enabled: !!session?.user?.token
   });
 
   // ✅ Tambah jadwal
@@ -92,7 +99,7 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
 
   // Modal tambah
   const [openModal, setOpenModal] = useState(false);
-  const { register, handleSubmit, reset } = useForm<Jadwal>();
+  const { register, handleSubmit, reset, control } = useForm<Jadwal>();
 
   const onSubmit = (data: Jadwal) => {
     addJadwalMutation.mutate({
@@ -102,7 +109,7 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
   };
 
   return (
-    <Card className='p-5'>
+    <Card className='p-5 dark:text-white'>
       {/* Header */}
       <div className='mb-4 flex items-center justify-between'>
         <h1 className='text-base font-bold'>Jadwal Pelajaran</h1>
@@ -121,8 +128,8 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
             className='flex items-center justify-between rounded-xl p-4 shadow-md'
           >
             <div>
-              <h2 className='font-semibold'>{jadwal.namaMapel}</h2>
-              <p className='text-sm text-gray-600'>
+              <h2 className='text-base font-semibold'>{jadwal.namaMapel}</h2>
+              <p className='text-sm'>
                 {jadwal.hari} • {jadwal.jamMulai} - {jadwal.jamSelesai}
               </p>
             </div>
@@ -146,11 +153,29 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
           <form onSubmit={handleSubmit(onSubmit)} className='space-y-3'>
             <div>
               <Label>Hari</Label>
-              <Input
-                {...register('hari', { required: true })}
-                placeholder='Senin'
+              <Controller
+                name='hari'
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder='Pilih hari' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='Senin'>Senin</SelectItem>
+                      <SelectItem value='Selasa'>Selasa</SelectItem>
+                      <SelectItem value='Rabu'>Rabu</SelectItem>
+                      <SelectItem value='Kamis'>Kamis</SelectItem>
+                      <SelectItem value='Jumat'>Jumat</SelectItem>
+                      <SelectItem value='Sabtu'>Sabtu</SelectItem>
+                      <SelectItem value='Minggu'>Minggu</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               />
             </div>
+
             <div>
               <Label>Nama Mapel</Label>
               <Input
@@ -158,6 +183,7 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
                 placeholder='Matematika'
               />
             </div>
+
             <div className='grid grid-cols-2 gap-2'>
               <div>
                 <Label>Jam Mulai</Label>
@@ -174,6 +200,7 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
                 />
               </div>
             </div>
+
             <DialogFooter>
               <Button type='submit' disabled={addJadwalMutation.isPending}>
                 {addJadwalMutation.isPending ? 'Menyimpan...' : 'Simpan'}

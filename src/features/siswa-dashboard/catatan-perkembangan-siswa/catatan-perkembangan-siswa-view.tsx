@@ -17,6 +17,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import api from '@/lib/api';
 import Link from 'next/link';
+import BottomNav from '../bottom-nav';
 
 export default function StudentProgressNotesPage() {
   const [search, setSearch] = useState('');
@@ -46,8 +47,6 @@ export default function StudentProgressNotesPage() {
     },
     enabled: !!token // hanya jalan kalau token sudah ada
   });
-
-  console.log(progressNotesData);
 
   const filtered = progressNotesData.filter((note: any) => {
     const matchSearch =
@@ -113,7 +112,7 @@ export default function StudentProgressNotesPage() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 pb-20'>
       {/* Header */}
-      <div className='bg-gradient-to-r from-indigo-600 to-purple-600 px-4 pb-8 pt-6'>
+      <div className='bg-blue-800 px-4 pb-8 pt-6'>
         <div className='mx-auto max-w-6xl'>
           <div className='mb-4 flex items-center gap-3'>
             <Link
@@ -127,10 +126,10 @@ export default function StudentProgressNotesPage() {
             </div>
             <div>
               <h1 className='text-base font-bold text-white lg:text-2xl'>
-                Catatan Perkembangan
+                Progress Notes
               </h1>
               <p className='text-sm text-indigo-100'>
-                Progress & feedback dari guru
+                Progress & feedback from teachers
               </p>
             </div>
           </div>
@@ -168,7 +167,7 @@ export default function StudentProgressNotesPage() {
               <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
               <input
                 type='text'
-                placeholder='Cari catatan...'
+                placeholder='Find notes...'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className='w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100'
@@ -207,7 +206,7 @@ export default function StudentProgressNotesPage() {
                   className='w-full appearance-none rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 focus:border-indigo-500 focus:outline-none'
                   defaultValue=''
                 >
-                  <option value=''>Semua Kategori</option>
+                  <option value=''>All</option>
                   <option value='Academic'>Academic</option>
                   <option value='Social Emotional'>Social Emotional</option>
                   <option value='Extracurricular'>Extracurricular</option>
@@ -235,15 +234,15 @@ export default function StudentProgressNotesPage() {
         {isLoading ? (
           <div className='py-12 text-center'>
             <div className='mx-auto h-12 w-12 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent'></div>
-            <p className='mt-4 text-gray-600'>Memuat catatan...</p>
+            <p className='mt-4 text-gray-600'>Loading data...</p>
           </div>
         ) : filtered.length === 0 ? (
           <div className='py-12 text-center'>
             <BookOpen className='mx-auto mb-4 h-16 w-16 text-gray-300' />
             <h3 className='mb-2 text-lg font-semibold text-gray-900'>
-              Tidak ada catatan
+              No data
             </h3>
-            <p className='text-gray-500'>Belum ada catatan perkembangan</p>
+            <p className='text-gray-500'>Notes will be here</p>
           </div>
         ) : (
           <div className='relative'>
@@ -375,6 +374,7 @@ export default function StudentProgressNotesPage() {
         .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         .prose p { margin-bottom: 1em; }
       `}</style>
+      <BottomNav />
     </div>
   );
 }

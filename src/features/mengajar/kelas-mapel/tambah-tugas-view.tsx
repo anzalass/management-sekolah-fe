@@ -67,8 +67,6 @@ export default function TambahTugasView({
     enabled: idTugas !== 'new' && !!session?.user?.token
   });
 
-  console.log(tugasData);
-
   // Prefill form ketika data tugas berhasil didapat
   useEffect(() => {
     if (tugasData && idTugas !== 'new') {
@@ -164,7 +162,7 @@ export default function TambahTugasView({
   }
 
   return (
-    <div className='min-h-screen w-full'>
+    <div className='min-h-screen w-full pb-10'>
       <p className='mb-3 text-lg font-semibold'>
         {idTugas !== 'new' ? 'Edit Tugas' : 'Tambah Tugas'}
       </p>

@@ -283,7 +283,7 @@ export default function CardListIzin() {
           </div>
           <div className='mx-auto w-[100%] overflow-x-auto'>
             <Table className='border border-gray-200'>
-              <TableHeader className='bg-gray-100'>
+              <TableHeader className=''>
                 <TableRow>
                   <TableHead>Tanggal</TableHead>
                   <TableHead>Nama</TableHead>
@@ -312,10 +312,7 @@ export default function CardListIzin() {
                   </TableRow>
                 ) : (
                   dataKehadiran.map((item) => (
-                    <TableRow
-                      key={item.id}
-                      className='odd:bg-white even:bg-gray-50 hover:bg-gray-100'
-                    >
+                    <TableRow key={item.id} className=''>
                       <TableCell>
                         {new Date(item.tanggal).toLocaleDateString('id-ID')}
                       </TableCell>

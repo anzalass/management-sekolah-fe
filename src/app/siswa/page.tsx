@@ -4,8 +4,6 @@ import React from 'react';
 
 export default async function page() {
   const authan = await auth();
-  console.log(authan?.expires);
-  console.log(authan?.user?.expires);
 
   return <SiswaHomeView />;
 }

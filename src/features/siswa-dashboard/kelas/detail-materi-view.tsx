@@ -28,31 +28,49 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-interface Summary {
+interface FotoSummary {
+  id: string;
+  fotoUrl: string;
+}
+
+interface SummarySiswa {
   id: string;
   nama: string;
   idSiswa: string;
   content: string;
   fotoSiswa?: string;
   waktu: string;
-  fotoSummary: any[];
+  FotoSummaryMateri?: FotoSummary[];
 }
 
-interface Materi {
+interface MateriItem {
   id: string;
   judul: string;
   konten: string;
   iframeGoogleSlide?: string;
+  idKelasMapel: string;
+  nama: string;
   iframeYoutube?: string;
   pdfUrl?: string;
-  past: any;
-  SummaryMateri: Summary[];
+  past?: boolean;
+}
+
+interface MateriResponse {
+  materi: MateriItem;
+  mama: string;
+  summarySiswa: SummarySiswa | null;
 }
 
 type IDMateri = {
   idMateri: string;
   idKelas: string;
 };
+
+interface ListMateriItem {
+  id: string;
+  judul: string;
+  past?: boolean;
+}
 
 export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
   const { data: session } = useSession();
@@ -68,10 +86,10 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
     data: materi,
     isLoading,
     error
-  } = useQuery<Materi>({
+  } = useQuery<MateriResponse>({
     queryKey: ['materi', idMateri],
     queryFn: async () => {
-      const res = await api.get(`materi-summary/${idMateri}`, {
+      const res = await api.get(`materi-summary-siswa/${idMateri}`, {
         headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
       return res.data.data;
@@ -79,7 +97,9 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
     enabled: !!session?.user?.token
   });
 
-  const { data: listMateri } = useQuery<Materi[]>({
+  console.log(materi);
+
+  const { data: listMateri } = useQuery<ListMateriItem[]>({
     queryKey: ['listMateri', idKelas],
     queryFn: async () => {
       const res = await api.get(`kelas-mapel/${idKelas}`, {
@@ -131,11 +151,8 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
       photos: selectedPhotos
     });
   };
-
-  const mySummary = materi?.SummaryMateri?.filter(
-    (s) => s.idSiswa === session?.user?.idGuru
-  );
-
+  const firstInitial = session?.user?.nama?.split(' ')[0]?.[0] || '';
+  const secondInitial = session?.user?.nama?.split(' ')[1]?.[0] || '';
   if (isLoading) return <p className='p-4 text-center'>Loading...</p>;
   if (error)
     return <p className='p-4 text-center text-red-500'>Error loading materi</p>;
@@ -143,35 +160,113 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20'>
       {/* Header */}
-      <div className='sticky top-0 z-40 bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-4 shadow-lg'>
-        <div className='mx-auto flex max-w-7xl items-center justify-between'>
-          <div className='flex items-center gap-3'>
-            <button
-              onClick={() => window.history.back()}
-              className='flex h-10 w-10 items-center justify-center rounded-full bg-white/20 transition-colors active:bg-white/30'
-            >
-              <ChevronLeft className='h-6 w-6 text-white' />
-            </button>
-            <div>
-              <h1 className='text-lg font-bold text-white'>{materi?.judul}</h1>
-              <p className='text-xs text-blue-100'>Matematika - Kelas X</p>
-            </div>
-          </div>
-          <div className='h-10 w-10 overflow-hidden rounded-full border-2 border-white'>
-            <img
-              src={session?.user?.foto}
-              alt={session?.user?.nama}
-              className='h-full w-full object-cover'
-            />
+      <div className='mx-auto flex w-full items-center justify-between bg-blue-800 p-5'>
+        <div className='flex items-center gap-3'>
+          <button
+            onClick={() => window.history.back()}
+            className='flex h-10 w-10 items-center justify-center rounded-full bg-white/20 transition-colors active:bg-white/30'
+          >
+            <ChevronLeft className='h-6 w-6 text-white' />
+          </button>
+          <div>
+            <h1 className='text-lg font-bold text-white'>
+              {materi?.mama} - {materi?.materi?.judul}
+            </h1>
           </div>
         </div>
+
+        {/* ✅ Tambah tombol menu khusus mobile */}
+        <Link
+          href={`/siswa/kelas/${materi?.materi?.idKelasMapel}`}
+          className='flex h-10 w-10 items-center justify-center rounded-full bg-white/20 transition-colors active:bg-white/30 lg:hidden'
+        >
+          <Menu className='h-6 w-6 text-white' />
+        </Link>
+
+        <div className='hidden h-10 w-10 overflow-hidden rounded-full border-2 border-white lg:block'>
+          <Image
+            src={
+              session?.user?.foto
+                ? session?.user?.foto
+                : `https://ui-avatars.com/api/?name=${firstInitial}+${secondInitial}&background=random&format=png`
+            }
+            alt='Foto User'
+            width={40}
+            height={40}
+          />
+        </div>
       </div>
+
+      {/* Sidebar Mobile */}
+      {showSidebar && (
+        <div className='fixed inset-0 z-50 flex'>
+          {/* Overlay */}
+          <div
+            onClick={() => setShowSidebar(false)}
+            className='absolute inset-0 bg-black/50 backdrop-blur-sm'
+          />
+
+          {/* Panel Sidebar */}
+          <div className='relative z-10 h-full w-3/4 max-w-xs bg-white p-4 shadow-xl'>
+            <div className='mb-4 flex items-center justify-between border-b border-gray-200 pb-3'>
+              <h2 className='flex items-center gap-2 font-bold text-gray-900'>
+                <BookOpen className='h-5 w-5 text-blue-600' /> Daftar Materi
+              </h2>
+              <button
+                onClick={() => setShowSidebar(false)}
+                className='rounded-full p-1 hover:bg-gray-100'
+              >
+                <X className='h-5 w-5 text-gray-600' />
+              </button>
+            </div>
+
+            <div className='space-y-2 overflow-y-auto'>
+              {listMateri?.map((m) => (
+                <Link
+                  key={m.id}
+                  href={`/siswa/kelas/${idKelas}/materi/${m.id}`}
+                  onClick={() => setShowSidebar(false)} // ✅ Tutup sidebar saat klik
+                >
+                  <button
+                    className={`w-full rounded-xl px-3 py-3 text-left transition-all ${
+                      m.id === idMateri
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <div className='flex items-center justify-between gap-2'>
+                      <span className='flex-1 text-sm font-medium'>
+                        {m.judul}
+                      </span>
+                      {m.past && (
+                        <div
+                          className={`flex h-5 w-5 items-center justify-center rounded-full ${
+                            m.id === idMateri ? 'bg-white/20' : 'bg-green-100'
+                          }`}
+                        >
+                          <Check
+                            className={`h-3 w-3 ${
+                              m.id === idMateri
+                                ? 'text-white'
+                                : 'text-green-600'
+                            }`}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className='mx-auto w-full px-4 py-6'>
         <div className='grid grid-cols-1 gap-6 lg:grid-cols-12'>
           {/* Sidebar kiri */}
           <div className='hidden lg:col-span-3 lg:block'>
-            <div className='sticky top-24 rounded-2xl bg-white p-4 shadow-lg'>
+            <div className='sticky top-0 rounded-2xl bg-white p-4 shadow-lg'>
               <div className='mb-4 flex items-center gap-2 border-b border-gray-200 pb-3'>
                 <BookOpen className='h-5 w-5 text-blue-600' />
                 <h2 className='font-bold text-gray-900'>Daftar Materi</h2>
@@ -222,19 +317,21 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
               <div className='border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4'>
                 <h2 className='flex items-center gap-2 text-xl font-bold text-gray-900'>
                   <FileText className='h-6 w-6 text-blue-600' />
-                  {materi?.judul}
+                  {materi?.materi?.judul}
                 </h2>
               </div>
               <div className='p-6'>
                 <div
                   className='prose prose-sm mb-6 max-w-none'
-                  dangerouslySetInnerHTML={{ __html: materi?.konten || '' }}
+                  dangerouslySetInnerHTML={{
+                    __html: materi?.materi?.konten || ''
+                  }}
                 />
-                {materi?.iframeYoutube && (
+                {materi?.materi?.iframeYoutube && (
                   <div className='aspect-video overflow-hidden rounded-xl shadow-lg'>
                     <div
                       dangerouslySetInnerHTML={{
-                        __html: materi?.iframeYoutube
+                        __html: materi?.materi?.iframeYoutube
                       }}
                       className='h-full w-full'
                     />
@@ -246,13 +343,13 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
 
           {/* Summary */}
           <div className='lg:col-span-3'>
-            <div className='sticky top-24 rounded-2xl bg-white p-4 shadow-lg'>
+            <div className='sticky top-0 rounded-2xl bg-white p-4 shadow-lg'>
               <div className='mb-4 flex items-center gap-2 border-b border-gray-200 pb-3'>
                 <Sparkles className='h-5 w-5 text-yellow-600' />
                 <h2 className='font-bold text-gray-900'>Ringkasan Saya</h2>
               </div>
 
-              {mySummary?.length === 0 && (
+              {materi?.summarySiswa === null && (
                 <form
                   onSubmit={handleSubmit(onSubmit)}
                   className='space-y-4'
@@ -326,56 +423,70 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
               )}
 
               <div className='mt-4 max-h-[400px] space-y-3 overflow-y-auto'>
-                {materi?.SummaryMateri.map((summary) => (
+                {!materi?.summarySiswa ? (
+                  <p className='text-sm text-gray-500'>Belum ada ringkasan.</p>
+                ) : (
                   <div
-                    key={summary.id}
+                    key={materi.summarySiswa.id}
                     className='rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-4'
                   >
                     <div className='mb-3 flex items-start gap-3'>
-                      <img
-                        src={summary?.fotoSiswa}
-                        alt={summary.nama}
-                        className='h-10 w-10 rounded-full border-2 border-white object-cover shadow-md'
+                      <Image
+                        src={
+                          session?.user?.foto
+                            ? session?.user?.foto
+                            : `https://ui-avatars.com/api/?name=${firstInitial}+${secondInitial}&background=random&format=png`
+                        }
+                        alt='Foto User'
+                        width={40}
+                        height={40}
+                        className='rounded-full'
                       />
                       <div>
                         <p className='text-sm font-semibold text-gray-900'>
-                          {summary.nama}
+                          {materi.summarySiswa.nama}
                         </p>
                         <div className='flex items-center gap-1 text-xs text-gray-500'>
                           <Clock className='h-3 w-3' />
                           <span>
-                            {new Date(summary.waktu).toLocaleDateString(
-                              'id-ID',
-                              {
-                                day: '2-digit',
-                                month: 'long',
-                                year: 'numeric'
-                              }
-                            )}
+                            {new Date(
+                              materi.summarySiswa.waktu
+                            ).toLocaleDateString('id-ID', {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric'
+                            })}
                           </span>
                         </div>
                       </div>
                     </div>
+
                     <div
                       className='prose prose-sm max-w-none text-gray-700'
-                      dangerouslySetInnerHTML={{ __html: summary.content }}
+                      dangerouslySetInnerHTML={{
+                        __html: materi.summarySiswa.content
+                      }}
                     />
-                    {summary.fotoSummary?.length > 0 && (
+
+                    {(materi?.summarySiswa?.FotoSummaryMateri?.length ?? 0) >
+                      0 && (
                       <div className='mt-3 grid grid-cols-2 gap-3'>
-                        {summary.fotoSummary.map((foto, i) => (
-                          <Image
-                            key={i}
-                            src={foto.fotoUrl}
-                            alt='summary-foto'
-                            width={300}
-                            height={300}
-                            className='h-32 w-full rounded-lg object-cover'
-                          />
-                        ))}
+                        {(materi?.summarySiswa?.FotoSummaryMateri ?? []).map(
+                          (foto, i) => (
+                            <Image
+                              key={i}
+                              src={foto.fotoUrl}
+                              alt='summary-foto'
+                              width={300}
+                              height={300}
+                              className='h-32 w-full rounded-lg object-cover'
+                            />
+                          )
+                        )}
                       </div>
                     )}
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>

@@ -65,6 +65,8 @@ type Riwayat = {
 
 export default function PembayaranSiswaView() {
   const queryClient = useQueryClient();
+  const [isUploading, setIsUploading] = useState(false);
+  const [activeTagihan, setActiveTagihan] = useState<Tagihan | null>(null);
 
   const { data: session } = useSession();
   const router = useRouter();
@@ -101,6 +103,7 @@ export default function PembayaranSiswaView() {
     try {
       if (!file) return;
 
+      setIsUploading(true);
       const fd = new FormData();
       fd.append('bukti', file);
 
@@ -114,9 +117,16 @@ export default function PembayaranSiswaView() {
       toast.success('Berhasil Upload Bukti');
       setOpen(false);
       setFile(null);
+      setPreview(null);
       queryClient.invalidateQueries({ queryKey: ['pembayaranSiswa'] });
     } catch (error) {
       console.error('Gagal upload bukti:', error);
+    } finally {
+      setIsUploading(false);
+      setFile(null);
+      setPreview(null);
+
+      // selesai loading
     }
   };
 
@@ -124,7 +134,7 @@ export default function PembayaranSiswaView() {
   const { data: pembayaranData, isLoading } = useQuery({
     queryKey: ['pembayaranSiswa'],
     queryFn: async () => {
-      const res = await api.get('/pembayaran-siswa', {
+      const res = await api.get('pembayaran-siswa', {
         headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
       const data = res?.data?.data;
@@ -163,9 +173,11 @@ export default function PembayaranSiswaView() {
   // Hitung summary
   const totalBelumBayar = tagihanData
     .filter(
-      (t: any) => t.status === 'BELUM_BAYAR' && t.status === 'BUKTI_TIDAK_VALID'
+      (t: any) => t.status === 'BELUM_BAYAR' || t.status === 'BUKTI_TIDAK_VALID'
     )
     .reduce((acc: any, t: any) => acc + t.nominal, 0);
+
+  console.log(totalBelumBayar);
 
   // Filter data
   // Filter data
@@ -246,6 +258,27 @@ export default function PembayaranSiswaView() {
           textColor: 'text-gray-600',
           borderColor: 'border-gray-500'
         };
+    }
+  };
+
+  const BayarMidtrans = async (tagihan: any) => {
+    try {
+      const data = await api.post(
+        `bayar-midtrans/${tagihan}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        }
+      );
+
+      if (data.status === 200) {
+        router.push(data.data.snap.redirect_url);
+      }
+      console.log(data);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -466,15 +499,18 @@ export default function PembayaranSiswaView() {
                         tagihan.status === 'BUKTI_TIDAK_VALID') && (
                         <div className='flex space-x-4'>
                           <button
-                            onClick={() => alert('Memproses pembayaran...')}
+                            onClick={() => BayarMidtrans(tagihan.id)}
                             className='flex w-[66%] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3 font-semibold text-white shadow-lg transition-all hover:shadow-xl active:scale-95'
                           >
-                            <span>Pay Now</span>
+                            <span>Pay Now </span>
                             <ArrowRight className='h-5 w-5' />
                           </button>
 
                           <Button
-                            onClick={() => setOpen(true)}
+                            onClick={() => {
+                              setActiveTagihan(tagihan); // set tagihan yang sedang dipilih
+                              setOpen(true); // buka modal
+                            }}
                             className='h-[45px] w-[34%] space-x-4 p-4 text-sm'
                           >
                             {tagihan.status === 'BUKTI_TIDAK_VALID'
@@ -489,7 +525,9 @@ export default function PembayaranSiswaView() {
                       <Dialog open={open} onOpenChange={setOpen}>
                         <DialogContent className='sm:max-w-md'>
                           <DialogHeader>
-                            <DialogTitle>Upload Evidence</DialogTitle>
+                            <DialogTitle>
+                              Upload Evidence {activeTagihan?.nama}
+                            </DialogTitle>
                           </DialogHeader>
 
                           <div className='space-y-4'>
@@ -514,14 +552,19 @@ export default function PembayaranSiswaView() {
                               <Button
                                 variant='outline'
                                 onClick={() => setOpen(false)}
+                                disabled={isUploading}
                               >
                                 Batal
                               </Button>
+
                               <Button
-                                onClick={() => uploadBukti(tagihan.id)}
-                                className='bg-blue-600 text-white'
+                                onClick={() =>
+                                  activeTagihan && uploadBukti(activeTagihan.id)
+                                }
+                                className='flex items-center justify-center bg-blue-600 text-white'
+                                disabled={isUploading}
                               >
-                                <Upload className='mr-2 h-4 w-4' /> Upload
+                                {isUploading ? 'Uploading...' : 'Upload'}
                               </Button>
                             </div>
                           </div>

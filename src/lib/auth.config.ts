@@ -55,7 +55,6 @@ const authConfig = {
           const user = response.data.data;
 
           // console.log supaya keliatan
-          console.log('API Login Response:', user);
 
           if (!user || !user.token) {
             throw new Error('Token tidak ditemukan di response API');

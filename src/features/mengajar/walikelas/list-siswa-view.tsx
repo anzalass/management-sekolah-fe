@@ -76,12 +76,13 @@ export default function ListSiswaView({ idKelas }: Props) {
 
   // 🔹 Filtering
   const filteredData =
-    siswa?.filter((item: any) =>
+    siswa?.siswaList?.filter((item: any) =>
       item.namaSiswa.toLowerCase().includes(search.toLowerCase())
     ) || [];
 
   return (
     <div className='overflow-x-auto p-5'>
+      <p className='mb-10 text-lg font-bold'>List Siswa - {siswa?.namaKelas}</p>
       {/* Search Input */}
       <div className='mb-4'>
         <input

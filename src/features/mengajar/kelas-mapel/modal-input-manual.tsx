@@ -54,6 +54,8 @@ export default function ModalInputNilaiManual({
   const { data: session } = useSession();
   const queryClient = useQueryClient();
 
+  console.log(siswaList);
+
   const {
     register,
     handleSubmit,
@@ -156,9 +158,9 @@ export default function ModalInputNilaiManual({
                 <SelectValue placeholder='Pilih siswa' />
               </SelectTrigger>
               <SelectContent>
-                {siswaList.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>
-                    {s.nis} - {s.nama}
+                {siswaList.map((s: any) => (
+                  <SelectItem key={s.Siswa.id} value={s.Siswa.id}>
+                    {s.Siswa.nis} - {s.Siswa.nama}
                   </SelectItem>
                 ))}
               </SelectContent>

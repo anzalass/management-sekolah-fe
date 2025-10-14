@@ -63,6 +63,7 @@ export default function JanjiTemuView() {
   const [filterTanggal, setFilterTanggal] = useState('');
   const [open, setOpen] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit, control, reset } = useForm<FormData>({
     defaultValues: { deskripsi: '', guruId: '', waktu: '' }
@@ -77,7 +78,7 @@ export default function JanjiTemuView() {
   } = useQuery({
     queryKey: ['guruList'],
     queryFn: async () => {
-      const res = await api.get('user/get-all-guru', {
+      const res = await api.get('user/get-all-guru-master', {
         headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
       return res.data.result.data;
@@ -104,6 +105,7 @@ export default function JanjiTemuView() {
   // Mutation create janji temu
   const createJanjiTemuMutation = useMutation({
     mutationFn: async (data: FormData) => {
+      setLoading(true);
       await api.post(
         'janji-temu',
         {
@@ -120,9 +122,11 @@ export default function JanjiTemuView() {
       toast.success('Berhasil membuat janji temu');
       reset();
       setOpen(false);
+      setLoading(false);
       queryClient.invalidateQueries({ queryKey: ['janjiTemuSiswa'] });
     },
     onError: (error: any) => {
+      setLoading(false);
       toast.error(error?.response?.data?.message || 'Gagal membuat janji temu');
     }
   });
@@ -130,18 +134,22 @@ export default function JanjiTemuView() {
   // Mutation delete janji temu
   const deleteJanjiTemuMutation = useMutation({
     mutationFn: async (id: string) => {
+      setLoading(true);
       await api.delete(`janji-temu/${id}`, {
         headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
     },
     onSuccess: () => {
       toast.success('Berhasil menghapus janji temu');
+      setLoading(false);
+
       queryClient.invalidateQueries({ queryKey: ['janjiTemuSiswa'] });
     },
     onError: (error: any) => {
       toast.error(
         error?.response?.data?.message || 'Gagal menghapus janji temu'
       );
+      setLoading(false);
     }
   });
 
@@ -166,24 +174,24 @@ export default function JanjiTemuView() {
   return (
     <div className='mx-auto space-y-2 pb-16'>
       <HeaderSiswa
-        title='Janji Temu'
-        titleContent='Total Janji Temu'
+        title='Appointment'
+        titleContent='Total Appointment'
         mainContent={filteredData.length}
         icon={<FileLockIcon className='h-7 w-7 text-white' />}
         data={[
           {
-            label: 'Menunggu',
+            label: 'Pending',
             value: filteredData.filter((t: any) => t.status === 'menunggu')
               .length,
             color: 'text-white'
           },
           {
-            label: 'Ditolaak',
+            label: 'Reject',
             value: filteredData.filter((t: any) => t.status === 'tolak').length,
             color: 'text-white'
           },
           {
-            label: 'Disetujui',
+            label: 'Approve',
             value: filteredData.filter((r: any) => r.status === 'setujui')
               .length,
             color: 'text-white'
@@ -193,24 +201,24 @@ export default function JanjiTemuView() {
       <BottomNav />
       <div className='mx-auto max-w-6xl px-5' onClick={() => setOpen(true)}>
         <Button className='flex w-full gap-1 rounded-md bg-blue-600 px-5 py-3 text-white shadow hover:bg-blue-700'>
-          <Plus size={16} /> Tambah Janji Temu
+          <Plus size={16} /> Apply Appointment
         </Button>
       </div>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <VisuallyHidden>
-            <DialogTitle>Tambah Janji Temu</DialogTitle>
+            <DialogTitle>Apply Appointment</DialogTitle>
           </VisuallyHidden>
 
           <DialogHeader>
-            <Label>Form Janji Temu</Label>
+            <Label>Form Apply Appointment</Label>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
             <div>
-              <Label>Deskripsi</Label>
+              <Label>Description</Label>
               <Textarea
                 {...register('deskripsi', { required: true })}
-                placeholder='Deskripsi janji temu'
+                placeholder='Description Appointment'
               />
             </div>
             <div>
@@ -224,7 +232,7 @@ export default function JanjiTemuView() {
                     {...field}
                     className='w-full rounded border px-2 py-1'
                   >
-                    <option value=''>-- Pilih Guru --</option>
+                    <option value=''>-- Select Teacher --</option>
                     {guruList?.map((guru: any) => (
                       <option key={guru.id} value={guru.id}>
                         {guru.nama}
@@ -235,14 +243,16 @@ export default function JanjiTemuView() {
               />
             </div>
             <div>
-              <Label>Waktu</Label>
+              <Label>Time</Label>
               <Input
                 type='datetime-local'
                 {...register('waktu', { required: true })}
               />
             </div>
             <div className='flex justify-end'>
-              <Button type='submit'>Tambahkan</Button>
+              <Button disabled={loading} type='submit'>
+                {loading ? 'Submiting' : 'Submit'}
+              </Button>
             </div>
           </form>
         </DialogContent>
@@ -257,7 +267,7 @@ export default function JanjiTemuView() {
                   <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
                   <input
                     type='text'
-                    placeholder='Cari...'
+                    placeholder='Find...'
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className='w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100'
@@ -282,7 +292,7 @@ export default function JanjiTemuView() {
                   <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
                     <div className='flex flex-col'>
                       <label className='mb-1 text-sm font-medium text-gray-600'>
-                        Pilih Tanggal
+                        Select Date
                       </label>
                       <input
                         type='date'
@@ -319,7 +329,7 @@ export default function JanjiTemuView() {
                     borderColor: 'border-green-500',
                     bgColor: 'bg-green-100',
                     textColor: 'text-green-700',
-                    label: 'Disetujui',
+                    label: 'Approved',
                     icon: <CheckCircle2 className='h-4 w-4 text-green-600' />
                   }
                 : item.status === 'tolak'
@@ -327,14 +337,14 @@ export default function JanjiTemuView() {
                       borderColor: 'border-red-500',
                       bgColor: 'bg-red-100',
                       textColor: 'text-red-700',
-                      label: 'Ditolak',
+                      label: 'Reject',
                       icon: <XCircle className='h-4 w-4 text-red-600' />
                     }
                   : {
                       borderColor: 'border-yellow-500',
                       bgColor: 'bg-yellow-100',
                       textColor: 'text-yellow-700',
-                      label: 'Menunggu',
+                      label: 'Pending',
                       icon: <Clock className='h-4 w-4 text-yellow-600' />
                     };
 
@@ -371,7 +381,7 @@ export default function JanjiTemuView() {
                 <div className='mb-4 flex w-full items-center justify-between gap-2 text-sm text-gray-700'>
                   {/* Nama siswa */}
                   <div className='flex-shrink-0 font-medium'>
-                    {item.siswaNama} ({item.siswaNis})
+                    {item.siswaNama}
                   </div>
 
                   {/* Garis penghubung + ikon panah */}
@@ -392,7 +402,7 @@ export default function JanjiTemuView() {
                   <div className='rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700'>
                     <div className='flex items-center gap-2'>
                       <CheckCircle2 className='h-4 w-4' />
-                      <span>Izin telah disetujui oleh guru.</span>
+                      <span>Appointment approved.</span>
                     </div>
                   </div>
                 )}
@@ -401,7 +411,7 @@ export default function JanjiTemuView() {
                   <div className='rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700'>
                     <div className='flex items-center gap-2'>
                       <XCircle className='h-4 w-4' />
-                      <span>Izin ditolak oleh guru.</span>
+                      <span>Appointment rejected.</span>
                     </div>
                   </div>
                 )}
@@ -412,10 +422,11 @@ export default function JanjiTemuView() {
                     <Button
                       variant='destructive'
                       size='sm'
+                      disabled={loading}
                       onClick={() => handleDelete(item.id)}
                       className='flex items-center gap-1 rounded-lg bg-red-500 px-3 py-1.5 text-xs text-white shadow hover:bg-red-600'
                     >
-                      <Trash2 size={14} /> Hapus
+                      <Trash2 size={14} /> {loading ? 'Removing' : 'Remove'}
                     </Button>
                   </div>
                 )}

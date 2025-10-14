@@ -56,7 +56,7 @@ type Siswa = {
   nama: string;
 };
 
-export default function PelanggaranPrestasiForm({
+export default function PelanggaranPrestasiFormMengajar({
   initialData,
   id,
   pageTitle
@@ -137,7 +137,7 @@ export default function PelanggaranPrestasiForm({
           toast.success('Data berhasil disimpan');
         }
 
-        router.push('/dashboard/e-konseling/pelanggaran-prestasi');
+        router.push('/mengajar/e-konseling/pelanggaran-prestasi');
       } catch (error: any) {
         toast.error(error?.response?.data?.message || 'Terjadi kesalahan');
       }

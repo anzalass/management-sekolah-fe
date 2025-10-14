@@ -73,8 +73,6 @@ export default function ModalTambahKelasMapel({
     }
   });
 
-  console.log(mapelList?.result);
-
   const { data: kelasList } = useQuery({
     queryKey: ['list-kelas-input'],
     queryFn: async () => {
@@ -82,8 +80,6 @@ export default function ModalTambahKelasMapel({
       return res.data;
     }
   });
-
-  console.log(mapelList);
 
   const { data: ruangList } = useQuery({
     queryKey: ['ruang2'],

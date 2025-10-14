@@ -45,8 +45,6 @@ type KelasMapelID = {
 };
 
 export default function KelasMapelView({ id }: KelasMapelID) {
-  console.log('idk', id);
-
   const { data: session } = useSession();
   const queryClient = useQueryClient();
 
@@ -182,7 +180,9 @@ export default function KelasMapelView({ id }: KelasMapelID) {
   // ================== RENDER ==================
   return (
     <div className='space-y-6'>
-      <h1 className='text-2xl font-bold'>Dashboard Kelas Mapel</h1>
+      <h1 className='text-2xl font-bold'>
+        Dashboard Kelas Mapel - {kelasData?.namaKelas} - {kelasData?.kelas}
+      </h1>
 
       {/* Tambah siswa */}
       <Card className='block justify-between gap-4 p-4 lg:flex'>
@@ -294,7 +294,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
                   {/* Tombol detail */}
                   <Link
                     href={`/mengajar/kelas-mapel/${id}/materi/${materi.id}`}
-                    className='rounded-md p-1.5 text-gray-500 transition-colors hover:bg-blue-100 hover:text-blue-600'
+                    className='rounded-md p-1.5 transition-colors hover:bg-blue-100 hover:text-blue-600'
                     title='Lihat Detail'
                   >
                     <Eye size={16} />
@@ -303,7 +303,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
                   {/* Tombol edit */}
                   <Link
                     href={`/mengajar/kelas-mapel/${id}/materi/add/${materi.id}`}
-                    className='rounded-md p-1.5 text-gray-500 transition-colors hover:bg-yellow-100 hover:text-yellow-600'
+                    className='rounded-md p-1.5 transition-colors hover:bg-yellow-100 hover:text-yellow-600'
                     title='Edit Materi'
                   >
                     <Edit size={16} />
@@ -312,7 +312,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
                   {/* Tombol hapus */}
                   <button
                     onClick={() => hapusMateriMutation.mutate(materi.id)}
-                    className='rounded-md p-1.5 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600'
+                    className='rounded-md p-1.5 transition-colors hover:bg-red-100 hover:text-red-600'
                     title='Hapus Materi'
                   >
                     <Trash2 size={16} />
@@ -358,7 +358,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
                   {/* Tombol detail */}
                   <Link
                     href={`/mengajar/kelas-mapel/${id}/tugas/${tugas.id}`}
-                    className='rounded-md p-1.5 text-gray-500 transition-colors hover:bg-blue-100 hover:text-blue-600'
+                    className='rounded-md p-1.5 transition-colors hover:bg-blue-100 hover:text-blue-600'
                     title='Lihat Detail'
                   >
                     <Eye size={16} />
@@ -367,7 +367,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
                   {/* Tombol edit */}
                   <Link
                     href={`/mengajar/kelas-mapel/${id}/tugas/add/${tugas.id}`}
-                    className='rounded-md p-1.5 text-gray-500 transition-colors hover:bg-yellow-100 hover:text-yellow-600'
+                    className='rounded-md p-1.5 transition-colors hover:bg-yellow-100 hover:text-yellow-600'
                     title='Edit Tugas'
                   >
                     <Edit size={16} />
@@ -376,7 +376,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
                   {/* Tombol hapus */}
                   <button
                     onClick={() => hapusTugasMutation.mutate(tugas.id)}
-                    className='rounded-md p-1.5 text-gray-500 transition-colors hover:bg-red-100 hover:text-red-600'
+                    className='rounded-md p-1.5 transition-colors hover:bg-red-100 hover:text-red-600'
                     title='Hapus Tugas'
                   >
                     <Trash2 size={16} />
@@ -385,12 +385,12 @@ export default function KelasMapelView({ id }: KelasMapelID) {
 
                 {/* Konten card */}
                 <div className='flex flex-col gap-1'>
-                  <p className='line-clamp-1 text-base font-semibold text-gray-800'>
+                  <p className='line-clamp-1 text-base font-semibold'>
                     {tugas.judul}
                   </p>
                   <p className='text-sm text-muted-foreground'>
                     Deadline:{' '}
-                    <span className='font-medium text-gray-700'>
+                    <span className='font-medium'>
                       {dayjs(tugas.deadline)
                         .locale('id')
                         .format('DD MMMM YYYY')}
@@ -421,7 +421,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
               <Card key={ujian.id} className='relative cursor-pointer p-4'>
                 <button
                   onClick={() => hapusUjianMutation.mutate(ujian.id)}
-                  className='absolute right-2 top-2 text-gray-500 hover:text-red-500'
+                  className='absolute right-2 top-2 hover:text-red-500'
                 >
                   <Trash2 size={16} />
                 </button>

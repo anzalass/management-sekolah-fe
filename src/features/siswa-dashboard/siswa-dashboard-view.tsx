@@ -127,8 +127,6 @@ export default function SiswaHomeView() {
     staleTime: 1000 * 60 * 20
   });
 
-  console.log(totalNotif);
-
   useEffect(() => {
     if (siswaError || notifError) {
       toast.error('Terjadi kesalahan saat memuat data');

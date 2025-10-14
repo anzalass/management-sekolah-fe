@@ -124,7 +124,7 @@ export const columns: ColumnDef<Tagihan>[] = [
     }
   },
 
-  // ✅ Kolom status dengan warna
+  // Kolom status
   {
     accessorKey: 'status',
     header: 'Status',
@@ -142,7 +142,7 @@ export const columns: ColumnDef<Tagihan>[] = [
     }
   },
 
-  // ✅ Kolom bukti pembayaran pakai modal
+  // Kolom bukti pembayaran
   {
     accessorKey: 'buktiPembayaran',
     header: 'Bukti Pembayaran',
@@ -151,11 +151,13 @@ export const columns: ColumnDef<Tagihan>[] = [
       const { id } = row.original;
 
       const [open, setOpen] = useState(false);
+      const [isLoading, setIsLoading] = useState(false);
       const { data: session } = useSession();
       const { toggleTrigger } = useRenderTrigger();
 
       const handleKonfirmasi = async () => {
         try {
+          setIsLoading(true);
           await api.post(
             `bayar-tagihan/${id}`,
             { metodeBayar: 'Transfer' },
@@ -166,27 +168,36 @@ export const columns: ColumnDef<Tagihan>[] = [
               }
             }
           );
-          toast.success(`Pembayaran trasnsfer berhasil!`);
+          toast.success(`Pembayaran transfer berhasil!`);
           setOpen(false);
           toggleTrigger();
         } catch (error: any) {
           toast.error(error.response?.data?.message || 'Terjadi kesalahan');
+        } finally {
+          setIsLoading(false);
         }
       };
 
       const handleKonfirmasiTidakValid = async () => {
         try {
-          await api.patch(`pembayaran-bukti-tidak-valid/${id}`, {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${session?.user?.token}`
+          setIsLoading(true);
+          await api.patch(
+            `pembayaran-bukti-tidak-valid/${id}`,
+            {},
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session?.user?.token}`
+              }
             }
-          });
+          );
           toast.success(`Bukti tidak valid!`);
           setOpen(false);
           toggleTrigger();
         } catch (error: any) {
           toast.error(error.response?.data?.message || 'Terjadi kesalahan');
+        } finally {
+          setIsLoading(false);
         }
       };
 
@@ -218,14 +229,23 @@ export const columns: ColumnDef<Tagihan>[] = [
                 <div className='flex w-full justify-between gap-4'>
                   <Button
                     onClick={handleKonfirmasi}
-                    className='w-1/2 bg-green-600 text-white hover:bg-green-700'
+                    className='flex w-1/2 items-center justify-center bg-green-600 text-white hover:bg-green-700'
+                    disabled={isLoading}
                   >
+                    {isLoading ? (
+                      <span className='mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent'></span>
+                    ) : null}
                     Transfer Berhasil
                   </Button>
+
                   <Button
                     onClick={handleKonfirmasiTidakValid}
-                    className='w-1/2 bg-red-600 text-white hover:bg-red-700'
+                    className='flex w-1/2 items-center justify-center bg-red-600 text-white hover:bg-red-700'
+                    disabled={isLoading}
                   >
+                    {isLoading ? (
+                      <span className='mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent'></span>
+                    ) : null}
                     Bukti Tidak Valid
                   </Button>
                 </div>
@@ -243,6 +263,7 @@ export const columns: ColumnDef<Tagihan>[] = [
     cell: ({ row }) => row.original.keterangan || '-'
   },
 
+  // Kolom bayar langsung
   {
     accessorKey: 'bayar',
     header: 'Bayar',
@@ -250,9 +271,11 @@ export const columns: ColumnDef<Tagihan>[] = [
       const { status, id } = row.original;
       const { toggleTrigger } = useRenderTrigger();
       const { data: session } = useSession();
+      const [isLoading, setIsLoading] = useState(false);
 
       const handleBayar = async (tipe: 'Cash' | 'Transfer') => {
         try {
+          setIsLoading(true);
           await api.post(
             `bayar-tagihan/${id}`,
             { metodeBayar: tipe },
@@ -267,6 +290,8 @@ export const columns: ColumnDef<Tagihan>[] = [
           toggleTrigger();
         } catch (error: any) {
           toast.error(error.response?.data?.message || 'Terjadi kesalahan');
+        } finally {
+          setIsLoading(false);
         }
       };
 
@@ -276,16 +301,24 @@ export const columns: ColumnDef<Tagihan>[] = [
             <>
               <Button
                 size='sm'
-                className='bg-green-500 hover:bg-green-600'
+                className='flex items-center justify-center bg-green-500 hover:bg-green-600'
                 onClick={() => handleBayar('Cash')}
+                disabled={isLoading}
               >
+                {isLoading ? (
+                  <span className='mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent'></span>
+                ) : null}
                 Cash
               </Button>
               <Button
                 size='sm'
-                className='bg-blue-500 hover:bg-blue-600'
+                className='flex items-center justify-center bg-blue-500 hover:bg-blue-600'
                 onClick={() => handleBayar('Transfer')}
+                disabled={isLoading}
               >
+                {isLoading ? (
+                  <span className='mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent'></span>
+                ) : null}
                 Transfer
               </Button>
             </>

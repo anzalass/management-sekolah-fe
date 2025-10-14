@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/dialog';
 import api from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 
 type SelesaiUjian = {
   id: string;
@@ -45,6 +46,7 @@ type UjianIframe = {
 export default function DetailUjianView({ id }: { id: string }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [openConfirm, setOpenConfirm] = useState(false);
+  const { data: session } = useSession();
 
   const queryClient = useQueryClient();
 
@@ -52,7 +54,11 @@ export default function DetailUjianView({ id }: { id: string }) {
   const { data, isLoading, isError } = useQuery<UjianIframe>({
     queryKey: ['ujian-iframe', id],
     queryFn: async () => {
-      const res = await api.get(`/ujian-iframe-guru/${id}`);
+      const res = await api.get(`ujian-iframe-guru/${id}`, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       return res.data;
     }
   });
@@ -60,7 +66,11 @@ export default function DetailUjianView({ id }: { id: string }) {
   // ✅ Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await api.delete(`/selesai-ujian/delete/${id}`);
+      await api.delete(`selesai-ujian/delete/${id}`, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
     },
     onSuccess: () => {
       toast.success('Data berhasil dihapus');
@@ -85,18 +95,21 @@ export default function DetailUjianView({ id }: { id: string }) {
   return (
     <div className='space-y-6'>
       {/* Card info ujian */}
+
       <Card>
         <CardHeader>
           <CardTitle className='text-lg'>{data.nama}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className='aspect-video w-full overflow-hidden rounded-lg border'>
-            <iframe
-              src={data.iframe}
-              title='Ujian'
-              className='h-full w-full'
-              allowFullScreen
-            />
+            {data.iframe ? (
+              <iframe
+                src={data.iframe}
+                title='Ujian'
+                className='h-full w-full'
+                allowFullScreen
+              />
+            ) : null}
           </div>
         </CardContent>
       </Card>

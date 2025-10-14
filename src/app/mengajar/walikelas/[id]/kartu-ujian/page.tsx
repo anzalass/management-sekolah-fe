@@ -29,7 +29,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       try {
         // ganti endpoint sesuai punyamu, mis. /api/v1/kelas/:idKelas/siswa
         const response2 = await api.get(`kelas-walikelas/siswa/${id}`);
-        setSiswa(response2.data || []);
+        setSiswa(response2.data.siswaList || []);
       } catch (e: any) {
         toast.error(e?.response.data.message || 'Terjadi Kesalahan');
       } finally {

@@ -24,7 +24,6 @@ export default function RapotView({ idSiswa, idKelas }: Props) {
   const getTahunAjaran = async () => {
     try {
       const res = await api.get(`kelas-walikelas/get/${idKelas}`);
-      console.log(res.data.tahunAjaran);
       setTahunAjaran(res.data.tahunAjaran);
     } catch (error) {
       console.log(error);
