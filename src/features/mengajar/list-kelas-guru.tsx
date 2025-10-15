@@ -97,7 +97,7 @@ export default function ListKelasGuru({
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2'>
                 <GraduationCap className='h-5 w-5 text-primary' />
-                <CardTitle className='text-lg font-semibold'>
+                <CardTitle className='lg:ext-lg text-sm font-semibold'>
                   Wali Kelas
                 </CardTitle>
               </div>
@@ -132,7 +132,7 @@ export default function ListKelasGuru({
                   {/* Konten kanan */}
                   <div className='flex-1'>
                     <div className='mb-1 flex items-center justify-between'>
-                      <div className='text-base font-semibold'>
+                      <div className='text-xs font-semibold lg:text-base'>
                         {kelas.nama}
                       </div>
                       <div className='flex items-center gap-1'>
@@ -163,7 +163,6 @@ export default function ListKelasGuru({
                       </div>
                     </div>
                     <div className='text-sm text-muted-foreground'>
-                      Tahun Ajaran:{' '}
                       <span className='font-medium'>{kelas.tahunAjaran}</span>
                     </div>
                     <div className='mt-2 flex items-center text-sm text-muted-foreground'>
@@ -183,7 +182,7 @@ export default function ListKelasGuru({
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2'>
                 <BookOpen className='h-5 w-5 text-primary' />
-                <CardTitle className='text-lg font-semibold'>
+                <CardTitle className='lg:ext-lg text-sm font-semibold'>
                   Mengajar di Kelas
                 </CardTitle>
               </div>
@@ -218,7 +217,7 @@ export default function ListKelasGuru({
                   {/* Konten kanan */}
                   <div className='flex-1'>
                     <div className='mb-1 flex items-center justify-between'>
-                      <div className='text-base font-semibold'>
+                      <div className='text-xs font-semibold lg:text-base'>
                         {item.namaMapel}
                       </div>
                       <div className='flex items-center gap-1'>
@@ -250,8 +249,11 @@ export default function ListKelasGuru({
                       </div>
                     </div>
 
-                    <div className='text-sm text-muted-foreground'>
-                      Kelas: <span className='font-medium'>{item.kelas}</span>
+                    <div className='mb-2 text-xs text-muted-foreground'>
+                      <span className='font-medium'>{item.kelas}</span>
+                    </div>
+                    <div className='text-xs text-muted-foreground'>
+                      <span className='font-medium'>{item.tahunAjaran}</span>
                     </div>
                     <div className='mt-2 flex items-center text-sm text-muted-foreground'>
                       <Users className='mr-1 h-4 w-4 text-muted-foreground' />

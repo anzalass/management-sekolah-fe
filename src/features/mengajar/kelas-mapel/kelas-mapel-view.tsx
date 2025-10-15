@@ -180,7 +180,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
   // ================== RENDER ==================
   return (
     <div className='space-y-6'>
-      <h1 className='text-2xl font-bold'>
+      <h1 className='text-base font-bold lg:text-2xl'>
         Dashboard Kelas Mapel - {kelasData?.namaKelas} - {kelasData?.kelas}
       </h1>
 
