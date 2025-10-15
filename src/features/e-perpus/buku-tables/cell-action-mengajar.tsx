@@ -15,15 +15,15 @@ import { useState } from 'react';
 import { API } from '@/lib/server';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { Konseling } from './columns';
+import { Buku } from './columns';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 
 interface CellActionProps {
-  data: Konseling;
+  data: Buku;
 }
 
-export const KonselingCellAction: React.FC<CellActionProps> = ({ data }) => {
+export const BukuCellActionMengajar: React.FC<CellActionProps> = ({ data }) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -32,7 +32,7 @@ export const KonselingCellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirmDelete = async () => {
     setLoading(true);
     try {
-      await api.delete(`konseling/${data.id}`, {
+      await api.delete(`buku/${data.id}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.user?.token}`
@@ -66,7 +66,7 @@ export const KonselingCellAction: React.FC<CellActionProps> = ({ data }) => {
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() =>
-              router.push(`/dashboard/e-konseling/konseling-siswa/${data.id}`)
+              router.push(`/mengajar/e-perpus/data-buku/${data.id}`)
             }
           >
             <Edit className='mr-2 h-4 w-4' /> Edit

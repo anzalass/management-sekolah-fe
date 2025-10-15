@@ -23,7 +23,9 @@ interface CellActionProps {
   data: Konseling;
 }
 
-export const KonselingCellAction: React.FC<CellActionProps> = ({ data }) => {
+export const KonselingCellActionMengajar: React.FC<CellActionProps> = ({
+  data
+}) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -66,7 +68,7 @@ export const KonselingCellAction: React.FC<CellActionProps> = ({ data }) => {
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() =>
-              router.push(`/dashboard/e-konseling/konseling-siswa/${data.id}`)
+              router.push(`/mengajar/e-konseling/konseling-siswa/${data.id}`)
             }
           >
             <Edit className='mr-2 h-4 w-4' /> Edit

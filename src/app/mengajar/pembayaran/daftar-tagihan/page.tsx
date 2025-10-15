@@ -4,6 +4,7 @@ import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
 import TagihanListingPage from '@/features/pembayaran/daftar-tagihan/daftar-tagihan-listing';
+import TagihanListingPageMengajar from '@/features/pembayaran/daftar-tagihan/daftar-tagihan-listing-mengajar';
 import TagihanTableAction from '@/features/pembayaran/daftar-tagihan/daftar-tagihan-tables/daftar-tagihan-table-action';
 import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
@@ -48,7 +49,7 @@ export default async function Page(props: pageProps) {
             key={key}
             fallback={<DataTableSkeleton columnCount={5} rowCount={10} />}
           >
-            <TagihanListingPage />
+            <TagihanListingPageMengajar />
           </Suspense>
         </div>
       </PageContainer>

@@ -317,7 +317,12 @@ export default function StudentProgressNotesPage() {
             className='absolute inset-0 bg-black/50 backdrop-blur-sm'
             onClick={() => setIsModalOpen(false)}
           />
-          <div className='absolute inset-x-0 bottom-0 animate-[slideUp_0.3s_ease-out] p-4 md:inset-0 md:flex md:items-center md:justify-center'>
+          <div
+            style={{
+              transform: 'translateY(-70px)' // 🔹 Naik sedikit (sekitar 20px)
+            }}
+            className='absolute inset-x-0 bottom-0 animate-[slideUp_0.3s_ease-out] p-4 md:inset-0 md:flex md:items-center md:justify-center'
+          >
             <div className='relative max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-t-3xl bg-white shadow-2xl md:rounded-3xl'>
               <div
                 className={`bg-gradient-to-r ${getCategoryConfig(selectedNote.kategori).color} px-6 py-5`}

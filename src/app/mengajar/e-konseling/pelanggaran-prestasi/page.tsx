@@ -4,7 +4,7 @@ import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
 import PelanggaranPrestasiTableAction from '@/features/pelanggaran-prestasi/pelanggaran-predtasi-tables/pelanggaran-prestasi-action';
-import PelanggaranPrestasiListingPage from '@/features/pelanggaran-prestasi/pelanggaran-prestasi-listing';
+import PelanggaranPrestasiListingPageMengajar from '@/features/pelanggaran-prestasi/pelanggaran-prestasi-listing-mengajar';
 import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
 import { cn } from '@/lib/utils';
@@ -48,7 +48,7 @@ export default async function Page(props: pageProps) {
             key={key}
             fallback={<DataTableSkeleton columnCount={5} rowCount={10} />}
           >
-            <PelanggaranPrestasiListingPage />
+            <PelanggaranPrestasiListingPageMengajar />
           </Suspense>
         </div>
       </PageContainer>

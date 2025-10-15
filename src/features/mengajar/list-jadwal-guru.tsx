@@ -89,9 +89,9 @@ export default function ListJadwalGuru({ jadwalGuru }: Props) {
           Jadwal Hari Ini ({dateStr})
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className='w-full'>
         {jadwalHariIni.length > 0 ? (
-          <Table>
+          <Table className='w-[200vw] lg:w-full'>
             <TableHeader>
               <TableRow>
                 <TableHead>Jam</TableHead>

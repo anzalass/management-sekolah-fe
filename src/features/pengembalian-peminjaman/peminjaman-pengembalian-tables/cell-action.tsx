@@ -65,7 +65,11 @@ export const PeminjamanCellAction: React.FC<CellActionProps> = ({ data }) => {
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem
-            onClick={() => router.push(`/dashboard/e-perpus/${data.id}`)}
+            onClick={() =>
+              router.push(
+                `/dashboard/e-perpus/peminjaman-pengembalian/${data.id}`
+              )
+            }
           >
             <Edit className='mr-2 h-4 w-4' /> Edit
           </DropdownMenuItem>

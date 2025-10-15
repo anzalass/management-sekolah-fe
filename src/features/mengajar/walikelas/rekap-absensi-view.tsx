@@ -80,14 +80,14 @@ export default function RekapAbsensiByKelasView({
   return (
     <div className='space-y-4 p-4'>
       {/* Search */}
-      <div className='flex w-full items-center justify-between gap-2'>
-        <h2 className='text-xl font-semibold'>
+      <div className='block w-full items-center justify-between gap-2 lg:flex'>
+        <h2 className='text-base font-semibold md:text-xl'>
           Rekap Absensi Kelas - {rekap?.namaKelas}
         </h2>
         <Input
           placeholder='Cari nama siswa...'
           value={search}
-          className='w-[30%]'
+          className='mt-4 w-full md:mt-0 md:w-[30%]'
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
