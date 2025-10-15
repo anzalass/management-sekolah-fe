@@ -357,7 +357,12 @@ export default function NilaiSiswaView() {
             onClick={() => setSelectedMapel(null)}
           ></div>
 
-          <div className='absolute inset-x-0 bottom-0 animate-[slideUp_0.3s_ease-out] p-4 md:inset-0 md:flex md:items-center md:justify-center'>
+          <div
+            style={{
+              transform: 'translateY(-70px)' // 🔹 Naik sedikit (sekitar 20px)
+            }}
+            className='absolute inset-x-0 bottom-0 animate-[slideUp_0.3s_ease-out] p-4 md:inset-0 md:flex md:items-center md:justify-center'
+          >
             <div className='relative w-full max-w-2xl rounded-t-3xl bg-white shadow-2xl md:rounded-3xl'>
               <div className='rounded-t-3xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5 md:rounded-t-3xl'>
                 <div className='flex items-start justify-between'>

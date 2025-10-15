@@ -3,10 +3,8 @@ import { buttonVariants } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
-import KonselingListingPage from '@/features/e-konseling/konseling-listing';
+import KonselingListingPageMengajar from '@/features/e-konseling/konseling-listing-mengajar';
 import KonselingTableAction from '@/features/e-konseling/konseling-tables/konseling-table-action';
-import BukuListingPage from '@/features/e-perpus/buku-listing';
-import BukuTableAction from '@/features/e-perpus/buku-tables/buku-table-action';
 import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
 import { cn } from '@/lib/utils';
@@ -50,7 +48,7 @@ export default async function Page(props: pageProps) {
             key={key}
             fallback={<DataTableSkeleton columnCount={5} rowCount={10} />}
           >
-            <KonselingListingPage />
+            <KonselingListingPageMengajar />
           </Suspense>
         </div>
       </PageContainer>

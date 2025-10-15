@@ -71,7 +71,9 @@ export const PelanggaranPrestasiCellAction: React.FC<CellActionProps> = ({
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() =>
-              router.push(`/dashboard/pelanggaran-prestasi/${data.id}`)
+              router.push(
+                `/dashboard/e-konseling/pelanggaran-prestasi/${data.id}`
+              )
             }
           >
             <Edit className='mr-2 h-4 w-4' /> Edit

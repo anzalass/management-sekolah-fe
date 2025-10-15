@@ -26,7 +26,7 @@ export default async function DashboardLayout({
     <ProvidersMengajar session={session}>
       <KBarMengajar>
         <SidebarProvider defaultOpen={defaultOpen}>
-          <div className='flex min-h-screen w-full'>
+          <div className='flex min-h-screen w-full dark:bg-[#08060f]'>
             {/* Sidebar kiri */}
             <AppSidebarMengajar />
 

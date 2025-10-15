@@ -161,7 +161,7 @@ export default function Perizinan() {
             },
             {
               label: 'Reject',
-              value: filteredData.filter((i) => i.status === 'menunggu').length,
+              value: filteredData.filter((i) => i.status === 'ditolak').length,
               color: 'text-white'
             }
           ]}

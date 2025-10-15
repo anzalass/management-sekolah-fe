@@ -5,6 +5,7 @@ import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
 import KonselingTableAction from '@/features/e-konseling/konseling-tables/konseling-table-action';
 import BukuListingPage from '@/features/e-perpus/buku-listing';
+import BukuListingPageMengajar from '@/features/e-perpus/buku-listing-mengajar';
 import BukuTableAction from '@/features/e-perpus/buku-tables/buku-table-action';
 import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
@@ -49,7 +50,7 @@ export default async function Page(props: pageProps) {
             key={key}
             fallback={<DataTableSkeleton columnCount={5} rowCount={10} />}
           >
-            <BukuListingPage />
+            <BukuListingPageMengajar />
           </Suspense>
         </div>
       </PageContainer>

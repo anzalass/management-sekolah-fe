@@ -68,9 +68,11 @@ export default function RekapNilaiTable({ idKelas }: RekapNilaiByKelasProps) {
     );
 
   return (
-    <div className='w-full overflow-x-auto rounded-lg p-4 shadow-sm'>
-      <p className='mb-7 text-lg font-bold'>Rekap Nilai - {data?.namaKelas}</p>
-      <Table className='w-full'>
+    <div className='w-full rounded-lg p-4 shadow-sm'>
+      <p className='mb-7 text-base font-bold md:text-lg'>
+        Rekap Nilai - {data?.namaKelas}
+      </p>
+      <Table className='w-full overflow-x-auto'>
         <TableHeader>
           <TableRow>
             <TableHead className='w-[100px]'>NIS</TableHead>

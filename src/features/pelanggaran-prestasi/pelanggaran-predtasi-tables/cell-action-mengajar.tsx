@@ -15,16 +15,20 @@ import { useState } from 'react';
 import { API } from '@/lib/server';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { Konseling } from './columns';
+import { PelanggaranPrestasi } from './columns';
 import { toast } from 'sonner';
 import api from '@/lib/api';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 
 interface CellActionProps {
-  data: Konseling;
+  data: PelanggaranPrestasi;
 }
 
-export const KonselingCellAction: React.FC<CellActionProps> = ({ data }) => {
+export const PelanggaranPrestasiCellActionMengajar: React.FC<
+  CellActionProps
+> = ({ data }) => {
   const [loading, setLoading] = useState(false);
+  const { trigger, toggleTrigger } = useRenderTrigger();
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const { data: session } = useSession();
@@ -32,13 +36,14 @@ export const KonselingCellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirmDelete = async () => {
     setLoading(true);
     try {
-      await api.delete(`konseling/${data.id}`, {
+      await api.delete(`pelanggaran-prestasi/${data.id}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
       setOpen(false);
+      toggleTrigger();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       setOpen(false);
@@ -66,7 +71,9 @@ export const KonselingCellAction: React.FC<CellActionProps> = ({ data }) => {
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() =>
-              router.push(`/dashboard/e-konseling/konseling-siswa/${data.id}`)
+              router.push(
+                `/mengajar/e-konseling/pelanggaran-prestasi/${data.id}`
+              )
             }
           >
             <Edit className='mr-2 h-4 w-4' /> Edit

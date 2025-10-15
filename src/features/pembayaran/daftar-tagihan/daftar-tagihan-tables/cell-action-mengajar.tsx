@@ -1,5 +1,4 @@
 'use client';
-
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,41 +8,40 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { Product } from '@/constants/data';
 import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { API } from '@/lib/server';
 import axios from 'axios';
-import { useSession } from 'next-auth/react';
-import { Konseling } from './columns';
+import { API } from '@/lib/server';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import { Tagihan } from './columns';
 import { toast } from 'sonner';
 import api from '@/lib/api';
+import { useSession } from 'next-auth/react';
 
 interface CellActionProps {
-  data: Konseling;
+  data: Tagihan;
 }
 
-export const KonselingCellAction: React.FC<CellActionProps> = ({ data }) => {
+export const CellActionMengajar: React.FC<CellActionProps> = ({ data }) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const { trigger, toggleTrigger } = useRenderTrigger();
   const { data: session } = useSession();
-  const token = session?.user?.token;
-  const onConfirmDelete = async () => {
-    setLoading(true);
+  const onConfirm = async () => {
     try {
-      await api.delete(`konseling/${data.id}`, {
+      await api.delete(`pembayaran/${data.id}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
       setOpen(false);
+      toggleTrigger();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-      setOpen(false);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -52,7 +50,7 @@ export const KonselingCellAction: React.FC<CellActionProps> = ({ data }) => {
       <AlertModal
         isOpen={open}
         onClose={() => setOpen(false)}
-        onConfirm={onConfirmDelete}
+        onConfirm={onConfirm}
         loading={loading}
       />
       <DropdownMenu modal={false}>
@@ -64,12 +62,13 @@ export const KonselingCellAction: React.FC<CellActionProps> = ({ data }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
           <DropdownMenuItem
             onClick={() =>
-              router.push(`/dashboard/e-konseling/konseling-siswa/${data.id}`)
+              router.push(`/mengajar/pembayaran/daftar-tagihan/${data.id}`)
             }
           >
-            <Edit className='mr-2 h-4 w-4' /> Edit
+            <Edit className='mr-2 h-4 w-4' /> Update
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setOpen(true)}>
             <Trash className='mr-2 h-4 w-4' /> Delete

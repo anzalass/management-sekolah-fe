@@ -30,7 +30,7 @@ export default function MenuFiturSiswa() {
     {
       href: '/siswa/pembayaran',
       icon: <CreditCardIcon />,
-      label: 'Payemnt',
+      label: 'Payments',
       color: 'text-indigo-500'
     },
     {
