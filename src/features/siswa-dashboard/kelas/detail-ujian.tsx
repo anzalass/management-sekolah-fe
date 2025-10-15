@@ -5,6 +5,7 @@ import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 type Props = {
   idUjian: string;
@@ -184,7 +185,15 @@ export default function DetailUjianView({ idUjian, idKelasMapel }: Props) {
     getData();
   }, [idUjian, session, idKelasMapel, status === 'Belum Selesai']);
 
-  if (status === 'Selesai') return null;
+  if (status === 'Selesai')
+    return (
+      <p>
+        ga ada
+        <Link href={'/siswa'}>kembali</Link>
+      </p>
+    );
+
+  console.log(status);
 
   return (
     <div className='relative w-full'>

@@ -114,6 +114,26 @@ export default function DetailKelasView({ id }: DetailKelasId) {
     u.nama.toLowerCase().includes(search.toLowerCase())
   );
 
+  const SedangBerlangsung = async (ujian: any) => {
+    try {
+      await api.post(
+        `ujian-iframe-berlangsung`,
+        {
+          idSiswa: session?.user?.idGuru,
+          idUjianIframe: ujian.id,
+          idKelasMapel: id
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className='mx-auto mb-14 min-h-screen w-full bg-gradient-to-br from-gray-50 via-blue-50/20 to-gray-50'>
       <NavbarSiswa title='Detail Class' />
@@ -517,6 +537,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
             {filteredUjian?.map((ujian) => {
               const content = (
                 <Card
+                  onClick={() => SedangBerlangsung(ujian)}
                   className={`group h-full overflow-hidden border-0 shadow-md transition-all duration-300 ${
                     ujian.past
                       ? 'cursor-not-allowed opacity-60'
