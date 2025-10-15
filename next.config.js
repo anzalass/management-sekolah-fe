@@ -152,20 +152,20 @@ module.exports = withPWA({
           {
             key: 'Content-Security-Policy',
             value: `
-            default-src 'self';
-            script-src 'self' 'unsafe-eval' 'unsafe-inline'
-              https://snap-assets.al-pc-id-b.cdn.gtflabs.io
-              https://api.sandbox.midtrans.com
-              https://app.sandbox.midtrans.com
-              https://pay.google.com
-              https://js-agent.newrelic.com
-              https://bam.nr-data.net;
-            frame-src ${frameSrc};
-            connect-src ${connectSrc} data: blob:;
-            img-src * data: blob:;
-            style-src 'self' 'unsafe-inline';
-            frame-ancestors 'self' https://*.yayasantunasanakmulia.sch.id https://ytam-be.zeabur.app https://app.sandbox.midtrans.com;
-          `.replace(/\s{2,}/g, ' ')
+              default-src 'self';
+              script-src 'self' 'unsafe-eval' 'unsafe-inline'
+                https://snap-assets.al-pc-id-b.cdn.gtflabs.io
+                https://api.sandbox.midtrans.com
+                https://app.sandbox.midtrans.com
+                https://pay.google.com
+                https://js-agent.newrelic.com
+                https://bam.nr-data.net;
+              connect-src ${connectSrc} data: blob:;
+              img-src * data: blob:;
+              style-src 'self' 'unsafe-inline';
+              frame-src ${frameSrc};
+              frame-ancestors 'self' https://yayasantunasanakmulia.sch.id https://*.yayasantunasanakmulia.sch.id https://ytam-be.zeabur.app https://app.sandbox.midtrans.com https://docs.google.com https://forms.gle;
+            `.replace(/\s{2,}/g, ' ')
           }
         ]
       }
