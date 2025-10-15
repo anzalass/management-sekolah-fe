@@ -196,66 +196,42 @@ export default function DetailUjianView({ idUjian, idKelasMapel }: Props) {
   console.log(status);
 
   return (
-    <div className='relative w-full'>
+    <div className='relative min-h-screen w-full'>
+      {/* Peringatan */}
       <p className='sticky top-0 z-50 bg-red-300 p-2 text-center text-red-800'>
-        ⚠️ Siswa Harap Klik Tombol <strong>Selesaikan Ujian</strong> Setelah
-        Mengirim Semua Jawaban.
+        ⚠️ Siswa harap klik tombol <strong>Selesaikan Ujian</strong> setelah
+        mengirim semua jawaban.
       </p>
 
-      <iframe
-        src='https://docs.google.com/forms/d/e/1FAIpQLSdyU1ByUt4EjH5X_qmZe36CMnEwnPUdaNTlOhmhcSBlJCCPAA/viewform?embedded=true'
-        width='700'
-        height='520'
-        frameborder='0'
-        marginheight='0'
-        marginwidth='0'
-      >
-        Memuat…
-      </iframe>
-
-      <p>===========</p>
-
-      <div className='h-screen w-full'>
+      {/* === iframe ujian === */}
+      {ujian?.iframe && (
         <iframe
-          src='https://docs.google.com/forms/d/e/1FAIpQLSdyU1ByUt4EjH5X_qmZe36CMnEwnPUdaNTlOhmhcSBlJCCPAA/viewform?embedded=true'
-          width='700'
-          height='520'
-          frameborder='0'
-          marginheight='0'
-          marginwidth='0'
+          src={
+            ujian.iframe.includes('embedded=true')
+              ? ujian.iframe
+              : ujian.iframe.replace(/\?.*/, '?embedded=true')
+          }
+          className='h-screen w-full select-none border-0'
+          sandbox='allow-forms allow-scripts allow-same-origin allow-popups allow-presentation'
+          allow='fullscreen; clipboard-read; clipboard-write; autoplay; encrypted-media'
+          referrerPolicy='no-referrer'
+          loading='lazy'
+          title='Ujian Siswa'
         >
           Memuat…
         </iframe>
+      )}
+
+      {/* Tombol selesaikan ujian */}
+      <div className='fixed bottom-0 left-0 right-0 z-50 flex justify-center bg-white/90 p-4 shadow-md'>
+        <Button
+          variant='destructive'
+          size='lg'
+          onClick={() => handleFinishExam('manual')}
+        >
+          Selesaikan Ujian
+        </Button>
       </div>
-
-      {ujian ? (
-        <div className='relative mx-auto w-full'>
-          {/* iframe ujian */}
-          <iframe
-            src={
-              ujian?.iframe?.includes('embedded=true')
-                ? ujian.iframe
-                : ujian?.iframe?.replace('?usp=sf_link', '?embedded=true')
-            }
-            className='h-screen w-full select-none border-0'
-            sandbox='allow-forms allow-scripts allow-same-origin allow-popups'
-            allow='fullscreen; clipboard-read; clipboard-write; autoplay'
-          >
-            Memuat…
-          </iframe>
-
-          {/* Tombol selesaikan ujian */}
-          <div className='fixed bottom-0 left-0 right-0 z-50 flex justify-center bg-white/90 p-4 shadow-md'>
-            <Button
-              variant='destructive'
-              size='lg'
-              onClick={() => handleFinishExam('manual')}
-            >
-              Selesaikan Ujian
-            </Button>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }

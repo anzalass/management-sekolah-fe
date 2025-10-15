@@ -132,6 +132,7 @@ module.exports = withPWA({
       'https://generativelanguage.googleapis.com',
       'https://*.googleapis.com',
       'https://www.google-analytics.com',
+
       ...(isDev ? ['http://localhost:5000'] : [])
     ].join(' ');
 
@@ -142,6 +143,9 @@ module.exports = withPWA({
       'https://docs.google.com',
       'https://forms.gle',
       'https://ytam-be.zeabur.app',
+      'https://*.google.com',
+      'https://*.gstatic.com',
+      'https://*.googleusercontent.com',
       ...(isDev ? ['http://localhost:5000'] : [])
     ].join(' ');
 
@@ -164,7 +168,7 @@ module.exports = withPWA({
               img-src * data: blob:;
               style-src 'self' 'unsafe-inline';
               frame-src ${frameSrc};
-              frame-ancestors 'self' https://yayasantunasanakmulia.sch.id https://*.yayasantunasanakmulia.sch.id https://ytam-be.zeabur.app https://app.sandbox.midtrans.com https://docs.google.com https://forms.gle;
+              frame-ancestors 'self' self' https://*;
             `.replace(/\s{2,}/g, ' ')
           }
         ]
