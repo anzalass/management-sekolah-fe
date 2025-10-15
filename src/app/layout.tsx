@@ -36,6 +36,12 @@ export default function RootLayout({
     >
       {/* Manifest untuk PWA */}
       <link rel='manifest' href='/manifest.json' />
+      <head>
+        <meta
+          httpEquiv='Content-Security-Policy'
+          content="frame-ancestors 'self' https://*; frame-src https://docs.google.com https://forms.gle https://*.google.com https://*.gstatic.com 'self';"
+        />
+      </head>
 
       <body className='bg-white text-black'>
         {/* Top loader saat navigasi */}
