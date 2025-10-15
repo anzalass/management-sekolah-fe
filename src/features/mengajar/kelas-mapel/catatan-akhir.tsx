@@ -133,7 +133,7 @@ export default function CatatanAkhirSiswa({
     <Card className='space-y-6 p-5'>
       {/* List Catatan */}
       <div className=' '>
-        <div className='mb-4 flex items-center justify-between'>
+        <div className='mb-4 items-center justify-between lg:flex'>
           <h3 className='text-base font-semibold'>
             Daftar Catatan Akhir Siswa
           </h3>
@@ -141,7 +141,7 @@ export default function CatatanAkhirSiswa({
             placeholder='Cari catatan...'
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className='max-w-xs'
+            className='mt-4 max-w-xs lg:mt-0'
           />
         </div>
         {filteredCatatan.length === 0 ? (

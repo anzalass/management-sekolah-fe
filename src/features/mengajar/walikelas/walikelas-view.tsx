@@ -142,38 +142,34 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
 
   return (
     <div className='space-y-8 overflow-x-auto p-4 pb-16'>
-      <p className='text-2xl font-bold'>
+      <p className='text-base font-bold lg:text-2xl'>
         Dashboard Kelas - {dashboardData?.data.namaKelas}
       </p>
-      <div className='flex flex-wrap items-center justify-between gap-4'>
-        <div className='flex gap-2'>
-          <Button asChild>
-            <Link href={`/mengajar/walikelas/${id}/rekap-absensi`}>
-              Rekap Absensi
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href={`/mengajar/walikelas/${id}/rekap-nilai`}>
-              Rekap Nilai
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href={`/mengajar/walikelas/${id}/list-siswa`}>
-              List Siswa
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href={`/mengajar/walikelas/${id}/kartu-ujian`}>
-              Cetak Kartu Ujian
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href={`/mengajar/walikelas/${id}/perizinan-siswa`}>
-              Perizinan Siswa
-            </Link>
-          </Button>
-          <TambahWeeklyActivity idKelas={id} />
-        </div>
+      <div className='grid grid-cols-2 items-center justify-between gap-4 text-sm lg:grid-cols-6 lg:text-base'>
+        <Button asChild className='text-xs lg:text-base'>
+          <Link href={`/mengajar/walikelas/${id}/rekap-absensi`}>
+            Rekap Absensi
+          </Link>
+        </Button>
+        <Button asChild className='text-xs lg:text-base'>
+          <Link href={`/mengajar/walikelas/${id}/rekap-nilai`}>
+            Rekap Nilai
+          </Link>
+        </Button>
+        <Button asChild className='text-xs lg:text-base'>
+          <Link href={`/mengajar/walikelas/${id}/list-siswa`}>List Siswa</Link>
+        </Button>
+        <Button asChild className='text-xs lg:text-base'>
+          <Link href={`/mengajar/walikelas/${id}/kartu-ujian`}>
+            Cetak Kartu Ujian
+          </Link>
+        </Button>
+        <Button asChild className='text-xs lg:text-base'>
+          <Link href={`/mengajar/walikelas/${id}/perizinan-siswa`}>
+            Perizinan Siswa
+          </Link>
+        </Button>
+        <TambahWeeklyActivity idKelas={id} />
       </div>
 
       <div className='w-[100%] overflow-x-scroll'>

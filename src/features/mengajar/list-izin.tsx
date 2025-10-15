@@ -30,7 +30,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 type Izin = {
   id: string;
-  time: string;
+  tanggal: string;
   keterangan: string;
   buktiUrl?: string;
   status: 'disetujui' | 'menunggu' | 'ditolak';
@@ -206,7 +206,7 @@ export default function CardListIzin() {
                       <div className='flex items-center gap-2 text-sm text-muted-foreground'>
                         <Calendar className='h-4 w-4' />
                         <span>
-                          {new Date(izin.time).toLocaleDateString('id-ID')}
+                          {new Date(izin.tanggal).toLocaleDateString('id-ID')}
                         </span>
                       </div>
                       <Badge className={statusColor[izin.status]}>
@@ -216,8 +216,10 @@ export default function CardListIzin() {
                     </div>
 
                     <div>
-                      <p className='text-sm font-medium'>Keterangan:</p>
-                      <p className='text-sm'>{izin.keterangan}</p>
+                      <p className='text-sm font-medium text-gray-800'>
+                        Keterangan:
+                      </p>
+                      <p className='text-sm text-gray-600'>{izin.keterangan}</p>
                     </div>
 
                     {izin.status === 'menunggu' && (
@@ -280,8 +282,8 @@ export default function CardListIzin() {
             />
           </div>
           <div className='mx-auto w-[100%] overflow-x-auto'>
-            <Table className='border border-gray-200'>
-              <TableHeader className=''>
+            <Table className='w-[200vw] overflow-auto border border-gray-200'>
+              <TableHeader className='bg-gray-100'>
                 <TableRow>
                   <TableHead>Tanggal</TableHead>
                   <TableHead>Nama</TableHead>
@@ -310,7 +312,10 @@ export default function CardListIzin() {
                   </TableRow>
                 ) : (
                   dataKehadiran.map((item) => (
-                    <TableRow key={item.id} className=''>
+                    <TableRow
+                      key={item.id}
+                      className='odd:bg-white even:bg-gray-50 hover:bg-gray-100'
+                    >
                       <TableCell>
                         {new Date(item.tanggal).toLocaleDateString('id-ID')}
                       </TableCell>

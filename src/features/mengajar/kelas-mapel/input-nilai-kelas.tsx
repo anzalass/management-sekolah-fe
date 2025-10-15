@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Save, SaveAll, Trash2 } from 'lucide-react';
 import ModalInputNilaiManual from './modal-input-manual';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
@@ -280,7 +280,7 @@ export default function InputNilaiKelas({
       </Card>
 
       {/* Tabel Nilai */}
-      <Card>
+      <Card className='w-full'>
         <CardHeader>
           <div className='flex justify-between'>
             <CardTitle className='text-base'>
@@ -298,19 +298,19 @@ export default function InputNilaiKelas({
             />
           </div>
         </CardHeader>
-        <CardContent>
-          <table className='w-full border-collapse'>
+        <CardContent className='w-[90vw] overflow-auto'>
+          <table className='w-[100vw] border-collapse overflow-x-auto'>
             <thead>
               <tr>
                 <th className='border p-2'>No</th>
                 <th className='border p-2'>Nama</th>
-                <th className='w-[25%] border p-2'>Nilai</th>
+                <th className='w-[50%] border p-2'>Nilai</th>
                 <th className='border p-2'>Aksi</th>
               </tr>
             </thead>
             <tbody>
               {listNilai.map((nilai: NilaiItem, index: number) => (
-                <tr key={nilai.id}>
+                <tr key={nilai.id} className='w-[300px]'>
                   <td className='border p-2'>{index + 1}</td>
                   <td className='border p-2'>{nilai.nama}</td>
                   <td className='border p-2'>
@@ -339,13 +339,13 @@ export default function InputNilaiKelas({
                   </td>
                   <td className='flex space-x-2 border p-2'>
                     <Button onClick={() => updateNilaiMutation.mutate(nilai)}>
-                      Simpan
+                      <SaveAll size={20} />
                     </Button>
                     <Button
                       className='bg-red-600 text-white hover:bg-red-700'
                       onClick={() => deleteNilaiMutation.mutate(nilai.id)}
                     >
-                      Hapus
+                      <Trash2 size={20} />
                     </Button>
                   </td>
                 </tr>

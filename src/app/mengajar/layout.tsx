@@ -1,13 +1,12 @@
 import { auth } from '@/lib/auth';
+import { cookies } from 'next/headers';
+import type { Metadata } from 'next';
 
 import Header from '@/components/layout/header';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import type { Metadata } from 'next';
-import { cookies } from 'next/headers';
 import AppSidebarMengajar from '@/components/layout/sidebar-mengajar';
-import KBarMengajar from '@/components/kbar-mengajar';
 import ProvidersMengajar from '@/components/layout/provider-mengajar';
-// import { setApiToken } from '@/lib/api';
+import KBarMengajar from '@/components/kbar-mengajar';
+import { SidebarProvider } from '@/components/ui/sidebar';
 
 export const metadata: Metadata = {
   title: 'Little Alley',
@@ -21,21 +20,22 @@ export default async function DashboardLayout({
 }) {
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get('sidebar:state')?.value === 'true';
-
   const session = await auth();
-
-  // **SET TOKEN SEKALI DI SINI**
-  // setApiToken(session?.user?.token || null);
 
   return (
     <ProvidersMengajar session={session}>
       <KBarMengajar>
         <SidebarProvider defaultOpen={defaultOpen}>
-          <AppSidebarMengajar />
-          <SidebarInset>
-            <Header />
-            {children}
-          </SidebarInset>
+          <div className='flex min-h-screen w-full'>
+            {/* Sidebar kiri */}
+            <AppSidebarMengajar />
+
+            {/* Konten kanan */}
+            <div className='flex w-full flex-col overflow-hidden'>
+              <Header />
+              <main className='w-full overflow-x-auto'>{children}</main>
+            </div>
+          </div>
         </SidebarProvider>
       </KBarMengajar>
     </ProvidersMengajar>

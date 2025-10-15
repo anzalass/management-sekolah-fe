@@ -110,7 +110,9 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant='default'>Tambah Weekly Activity</Button>
+        <Button variant='default' className='text-xs lg:text-base'>
+          Tambah Weekly Activity
+        </Button>
       </DialogTrigger>
       <DialogContent className='max-h-[80vh] max-w-lg overflow-y-auto dark:text-white'>
         <DialogHeader>

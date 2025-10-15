@@ -85,7 +85,9 @@ export default function ListJadwalGuru({ jadwalGuru }: Props) {
     <Card className='shadow-md'>
       <CardHeader className='flex flex-row items-center gap-2'>
         <Clock className='h-5 w-5 text-primary' />
-        <CardTitle>Jadwal Hari Ini ({dateStr})</CardTitle>
+        <CardTitle className='text-base lg:text-lg'>
+          Jadwal Hari Ini ({dateStr})
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {jadwalHariIni.length > 0 ? (
