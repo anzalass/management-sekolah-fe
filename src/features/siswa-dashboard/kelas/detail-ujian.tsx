@@ -202,6 +202,32 @@ export default function DetailUjianView({ idUjian, idKelasMapel }: Props) {
         Mengirim Semua Jawaban.
       </p>
 
+      <iframe
+        src='https://docs.google.com/forms/d/e/1FAIpQLSdyU1ByUt4EjH5X_qmZe36CMnEwnPUdaNTlOhmhcSBlJCCPAA/viewform?embedded=true'
+        width='700'
+        height='520'
+        frameborder='0'
+        marginheight='0'
+        marginwidth='0'
+      >
+        Memuat…
+      </iframe>
+
+      <p>===========</p>
+
+      <div className='h-screen w-full'>
+        <iframe
+          src='https://docs.google.com/forms/d/e/1FAIpQLSdyU1ByUt4EjH5X_qmZe36CMnEwnPUdaNTlOhmhcSBlJCCPAA/viewform?embedded=true'
+          width='700'
+          height='520'
+          frameborder='0'
+          marginheight='0'
+          marginwidth='0'
+        >
+          Memuat…
+        </iframe>
+      </div>
+
       {ujian ? (
         <div className='relative mx-auto w-full'>
           {/* iframe ujian */}
@@ -212,6 +238,8 @@ export default function DetailUjianView({ idUjian, idKelasMapel }: Props) {
                 : ujian?.iframe?.replace('?usp=sf_link', '?embedded=true')
             }
             className='h-screen w-full select-none border-0'
+            sandbox='allow-forms allow-scripts allow-same-origin allow-popups'
+            allow='fullscreen; clipboard-read; clipboard-write; autoplay'
           >
             Memuat…
           </iframe>
