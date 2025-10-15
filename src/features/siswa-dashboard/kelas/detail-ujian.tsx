@@ -206,9 +206,12 @@ export default function DetailUjianView({ idUjian, idKelasMapel }: Props) {
         <div className='relative mx-auto w-full'>
           {/* iframe ujian */}
           <iframe
-            src={ujian?.iframe}
-            className='h-screen w-full select-none'
-            sandbox='allow-scripts allow-forms allow-same-origin'
+            src={
+              ujian?.iframe?.includes('embedded=true')
+                ? ujian.iframe
+                : ujian?.iframe?.replace('?usp=sf_link', '?embedded=true')
+            }
+            className='h-screen w-full select-none border-0'
           >
             Memuat…
           </iframe>
