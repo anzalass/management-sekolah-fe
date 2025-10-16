@@ -93,10 +93,10 @@ export default function ListKelasGuru({
       <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
         {/* Wali Kelas */}
         <Card className='shadow-md'>
-          <CardHeader>
+          <CardHeader className='p-2 md:p-5'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2'>
-                <GraduationCap className='h-5 w-5 text-primary' />
+                <GraduationCap className='hidden h-5 w-5 text-primary md:block' />
                 <CardTitle className='lg:ext-lg text-sm font-semibold'>
                   Wali Kelas
                 </CardTitle>
@@ -106,15 +106,15 @@ export default function ListKelasGuru({
                 variant='default'
                 onClick={() => setOpenModal('kelas')}
               >
-                Tambah Kelas
+                Kelas +
               </Button>
             </div>
           </CardHeader>
-          <CardContent className='space-y-4'>
+          <CardContent className='space-y-4 p-2 md:p-5'>
             {kelasWaliKelas.map((kelas, idx) => (
               <div
                 key={idx}
-                className='cursor-pointer rounded-xl border border-muted p-5 shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md'
+                className='cursor-pointer rounded-xl border border-muted p-2 shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md md:p-5'
                 onClick={() => router.push(`/mengajar/walikelas/${kelas.id}`)}
               >
                 <div className='flex items-start gap-4'>
@@ -132,7 +132,7 @@ export default function ListKelasGuru({
                   {/* Konten kanan */}
                   <div className='flex-1'>
                     <div className='mb-1 flex items-center justify-between'>
-                      <div className='text-xs font-semibold lg:text-base'>
+                      <div className='text-sm font-semibold lg:text-base'>
                         {kelas.nama}
                       </div>
                       <div className='flex items-center gap-1'>
@@ -162,7 +162,7 @@ export default function ListKelasGuru({
                         </Button>
                       </div>
                     </div>
-                    <div className='text-sm text-muted-foreground'>
+                    <div className='text-xs text-muted-foreground'>
                       <span className='font-medium'>{kelas.tahunAjaran}</span>
                     </div>
                     <div className='mt-2 flex items-center text-sm text-muted-foreground'>
@@ -178,10 +178,10 @@ export default function ListKelasGuru({
 
         {/* Kelas Mapel */}
         <Card className='shadow-md'>
-          <CardHeader>
+          <CardHeader className='p-2 md:p-5'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2'>
-                <BookOpen className='h-5 w-5 text-primary' />
+                <BookOpen className='hidden h-5 w-5 text-primary md:block' />
                 <CardTitle className='lg:ext-lg text-sm font-semibold'>
                   Mengajar di Kelas
                 </CardTitle>
@@ -191,16 +191,16 @@ export default function ListKelasGuru({
                 variant='default'
                 onClick={() => setOpenModal('mapel')}
               >
-                Tambah Kelas Mapel
+                Kelas Mapel +
               </Button>
             </div>
           </CardHeader>
-          <CardContent className='space-y-4'>
+          <CardContent className='space-y-4 p-2 md:p-5'>
             {kelasMapel.map((item, idx) => (
               <div
                 key={idx}
                 onClick={() => router.push(`/mengajar/kelas-mapel/${item.id}`)}
-                className='cursor-pointer rounded-xl border border-muted p-5 shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md'
+                className='cursor-pointer rounded-xl border border-muted p-2 shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md md:p-5'
               >
                 <div className='flex items-start gap-4'>
                   {/* Image di kiri */}
@@ -217,7 +217,7 @@ export default function ListKelasGuru({
                   {/* Konten kanan */}
                   <div className='flex-1'>
                     <div className='mb-1 flex items-center justify-between'>
-                      <div className='text-xs font-semibold lg:text-base'>
+                      <div className='text-sm font-semibold lg:text-base'>
                         {item.namaMapel}
                       </div>
                       <div className='flex items-center gap-1'>
