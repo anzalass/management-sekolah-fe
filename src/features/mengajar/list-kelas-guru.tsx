@@ -97,7 +97,7 @@ export default function ListKelasGuru({
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2'>
                 <GraduationCap className='hidden h-5 w-5 text-primary md:block' />
-                <CardTitle className='lg:ext-lg text-sm font-semibold'>
+                <CardTitle className='text-sm font-semibold lg:text-lg'>
                   Wali Kelas
                 </CardTitle>
               </div>
@@ -182,7 +182,7 @@ export default function ListKelasGuru({
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2'>
                 <BookOpen className='hidden h-5 w-5 text-primary md:block' />
-                <CardTitle className='lg:ext-lg text-sm font-semibold'>
+                <CardTitle className='text-sm font-semibold lg:text-lg'>
                   Mengajar di Kelas
                 </CardTitle>
               </div>
