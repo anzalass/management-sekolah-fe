@@ -182,7 +182,7 @@ export default function CatatanAkhirSiswa({
       </div>
 
       {/* Form Tambah/Edit Catatan */}
-      <div className='rounded-lg p-4 shadow'>
+      <div className='p-0'>
         <h3 className='mb-4 text-base font-semibold'>
           {editingId ? 'Edit Catatan' : 'Tambah Catatan'}
         </h3>

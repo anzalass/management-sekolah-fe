@@ -298,8 +298,8 @@ export default function InputNilaiKelas({
             />
           </div>
         </CardHeader>
-        <CardContent className='w-[80vw] overflow-auto lg:w-full'>
-          <table className='w-[90vw] border-collapse overflow-x-auto lg:w-full'>
+        <CardContent className='w-[87vw] overflow-auto lg:w-full'>
+          <table className='w-[95vw] border-collapse overflow-x-auto lg:w-full'>
             <thead>
               <tr>
                 <th className='border p-2'>No</th>
