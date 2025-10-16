@@ -61,6 +61,26 @@ export default function DetailUjianView({ idUjian, idKelasMapel }: Props) {
     }
   };
 
+  useEffect(() => {
+    let resizeTimer: number | null = null;
+    const originalHeight = window.innerHeight;
+
+    const detectResize = () => {
+      if (resizeTimer) clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        const diff = Math.abs(window.innerHeight - originalHeight);
+        // kalau tinggi layar turun drastis > 150px, kemungkinan split screen
+        if (diff > 150 && !submittedRef.current) {
+          toast.warning('Terdeteksi mode split screen!');
+          handleFinishExam('split-screen');
+        }
+      }, 800);
+    };
+
+    window.addEventListener('resize', detectResize);
+    return () => window.removeEventListener('resize', detectResize);
+  }, []);
+
   // === Kirim ujian selesai ===
   const handleFinishExam = async (reason?: string) => {
     if (submittedRef.current) return;

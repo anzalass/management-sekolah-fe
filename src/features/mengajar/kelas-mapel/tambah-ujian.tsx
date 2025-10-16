@@ -78,7 +78,9 @@ export default function TambahUjian({ idKelasMapel }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant='default'>Tambah Ujian</Button>
+        <Button className='w-full' variant='default'>
+          Ujian +
+        </Button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-md'>
         <DialogHeader>

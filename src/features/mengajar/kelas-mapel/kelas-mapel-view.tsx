@@ -185,8 +185,8 @@ export default function KelasMapelView({ id }: KelasMapelID) {
       </h1>
 
       {/* Tambah siswa */}
-      <Card className='block justify-between gap-4 p-4 lg:flex'>
-        <Card className='w-full lg:w-1/2'>
+      <Card className='block justify-between gap-4 p-0 lg:flex'>
+        <Card className='w-full p-0 lg:w-1/2'>
           <CardHeader>
             <CardTitle className='text-base'>Tambah Siswa ke Kelas</CardTitle>
           </CardHeader>
@@ -197,7 +197,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             {searchTerm.trim() !== '' && filteredMasterSiswa.length > 0 && (
-              <div className='rounded border p-2'>
+              <div className='rounded border p-0'>
                 <ul className='space-y-1'>
                   {filteredMasterSiswa?.map((siswa) => (
                     <li
@@ -229,17 +229,18 @@ export default function KelasMapelView({ id }: KelasMapelID) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className='ml-5 w-fit list-disc'>
+            <ul className='w-full list-disc'>
               {kelasSiswa.map((s: any, index: number) => (
                 <li
                   key={s.id ?? index}
-                  className='mt-3 flex items-center justify-between'
+                  className='mt-2 flex w-full items-center justify-between gap-2'
                 >
-                  <span>
-                    {s.Siswa.nama} - {s.Siswa.nis}
+                  <span className='max-w-[80%] truncate text-sm sm:text-base'>
+                    {s.Siswa.nama}
                   </span>
+
                   <Trash2
-                    className='ml-5 cursor-pointer'
+                    className='shrink-0 cursor-pointer text-red-600 hover:text-red-800'
                     size={16}
                     onClick={() => hapusSiswaMutation.mutate(s.id)}
                   />
@@ -251,12 +252,18 @@ export default function KelasMapelView({ id }: KelasMapelID) {
         </Card>
       </Card>
 
-      <div className='flex space-x-2'>
-        <Link href={`/mengajar/kelas-mapel/${id}/materi/add/new`}>
-          <Button>Tambah Materi</Button>
+      <div className='flex w-full items-center justify-center space-x-1 sm:w-[60%] md:w-[60%] lg:w-[40%]'>
+        <Link
+          className='w-full'
+          href={`/mengajar/kelas-mapel/${id}/materi/add/new`}
+        >
+          <Button className='w-full'>Materi +</Button>
         </Link>
-        <Link href={`/mengajar/kelas-mapel/${id}/tugas/add/new`}>
-          <Button>Tambah Tugas</Button>
+        <Link
+          className='w-full'
+          href={`/mengajar/kelas-mapel/${id}/tugas/add/new`}
+        >
+          <Button className='w-full'>Tugas +</Button>
         </Link>
         <TambahUjian idKelasMapel={id} />
       </div>
