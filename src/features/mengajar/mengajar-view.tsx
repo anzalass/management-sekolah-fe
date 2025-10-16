@@ -93,7 +93,7 @@ export default function MengajarViewPage() {
   }
 
   return (
-    <div className='relative min-h-screen space-y-6 p-6'>
+    <div className='relative min-h-screen space-y-6 p-2'>
       {/* Camera Modal */}
       {isCameraOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
@@ -111,14 +111,14 @@ export default function MengajarViewPage() {
 
       {/* Greeting */}
       <div>
-        <h1 className='text-xl font-bold'>
+        <h1 className='text-base font-bold lg:text-xl'>
           Selamat datang, {session?.user?.nama} 👋
         </h1>
         <p className='text-sm text-muted-foreground'>{today}</p>
       </div>
 
       {/* Absen Buttons */}
-      <div className='flex flex-wrap gap-4'>
+      <div className='grid w-full grid-cols-2 gap-2 text-xs md:w-[60%] md:grid-cols-4 lg:w-[45%]'>
         <Button
           onClick={() => setIsCameraOpen(true)}
           disabled={dashboard?.statusMasuk || dashboard?.statusIzin}
@@ -136,7 +136,6 @@ export default function MengajarViewPage() {
             : '🏁 Absen Pulang'}
         </Button>
         <Button
-          variant='outline'
           onClick={() => setShowIzinModal(true)}
           disabled={dashboard?.statusMasuk}
         >
@@ -144,7 +143,7 @@ export default function MengajarViewPage() {
             ? '📋 Telah Izin Tidak Hadir'
             : '📋 Izin Tidak Hadir'}
         </Button>
-        <Button variant='outline' onClick={() => setShowJadwalModal(true)}>
+        <Button onClick={() => setShowJadwalModal(true)}>
           Tambah Jadwal +
         </Button>
       </div>
@@ -167,41 +166,47 @@ export default function MengajarViewPage() {
       />
 
       {/* Status Summary */}
-      <div className='mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3'>
+      <div className='mt-6 grid w-full grid-cols-3 gap-2 lg:w-[50%]'>
         <Card className='flex flex-col items-center justify-center p-4 text-center'>
-          <p className='mb-1 text-xs text-muted-foreground'>Status Masuk</p>
+          <p className='mb-1 text-xs text-muted-foreground md:text-sm'>
+            Status Masuk
+          </p>
           <p
-            className={`text-sm font-semibold ${
+            className={`text-xs font-semibold md:text-sm ${
               dashboard?.statusMasuk ? 'text-green-600' : 'text-red-500'
             }`}
           >
             {dashboard?.statusMasuk
-              ? `✅ (${dashboard.statusMasuk})`
-              : '❌ Belum Absen'}
+              ? ` (${dashboard.statusMasuk})`
+              : ' Belum Absen'}
           </p>
         </Card>
 
         <Card className='flex flex-col items-center justify-center p-4 text-center'>
-          <p className='mb-1 text-xs text-muted-foreground'>Status Pulang</p>
+          <p className='mb-1 text-xs text-muted-foreground md:text-sm'>
+            Status Pulang
+          </p>
           <p
-            className={`text-sm font-semibold ${
+            className={`text-xs font-semibold md:text-sm ${
               dashboard?.statusKeluar ? 'text-green-600' : 'text-red-500'
             }`}
           >
             {dashboard?.statusKeluar
-              ? `✅ (${dashboard.statusKeluar})`
-              : '❌ Belum Absen'}
+              ? ` (${dashboard.statusKeluar})`
+              : ' Belum Absen'}
           </p>
         </Card>
 
         <Card className='flex flex-col items-center justify-center p-4 text-center'>
-          <p className='mb-1 text-sm text-muted-foreground'>Status Izin</p>
+          <p className='mb-1 text-xs text-muted-foreground md:text-sm'>
+            Status Izin
+          </p>
           <p
-            className={`text-sm font-semibold ${
+            className={`text-xs font-semibold md:text-sm ${
               dashboard?.statusIzin ? 'text-yellow-600' : ''
             }`}
           >
-            {dashboard?.statusIzin ? '📋 Izin Tidak Hadir' : '❌ Tidak Izin'}
+            {dashboard?.statusIzin ? '📋 Izin Tidak Hadir' : ' Tidak Izin'}
           </p>
         </Card>
       </div>
