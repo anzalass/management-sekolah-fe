@@ -157,11 +157,7 @@ export default function CatatanAkhirSiswa({
                   <span className='font-semibold'>
                     {c.Siswa?.nama || 'Siswa'}
                   </span>
-                  : {c.content} Lorem ipsum dolor sit amet consectetur
-                  adipisicing elit. In dolor quo enim voluptatibus error
-                  corrupti consequuntur fugiat doloremque molestiae minus
-                  facilis quam deserunt veritatis nobis, natus repellat animi
-                  velit? Saepe.
+                  : {c.content}
                 </span>
                 <div className='mt-3 flex gap-2'>
                   <Button

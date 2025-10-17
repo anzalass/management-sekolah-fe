@@ -57,7 +57,7 @@ interface MateriItem {
 
 interface MateriResponse {
   materi: MateriItem;
-  mama: string;
+  nama: string;
   summarySiswa: SummarySiswa | null;
 }
 
@@ -96,6 +96,8 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
     },
     enabled: !!session?.user?.token
   });
+
+  console.log(materi?.nama);
 
   const { data: listMateri } = useQuery<ListMateriItem[]>({
     queryKey: ['listMateri', idKelas],
@@ -168,18 +170,18 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
           </button>
           <div>
             <h1 className='text-lg font-bold text-white'>
-              {materi?.mama} - {materi?.materi?.judul}
+              {materi?.nama} - {materi?.materi?.judul}
             </h1>
           </div>
         </div>
 
         {/* ✅ Tambah tombol menu khusus mobile */}
-        <Link
-          href={`/siswa/kelas/${materi?.materi?.idKelasMapel}`}
+        <button
+          onClick={() => setShowSidebar(true)}
           className='flex h-10 w-10 items-center justify-center rounded-full bg-white/20 transition-colors active:bg-white/30 lg:hidden'
         >
           <Menu className='h-6 w-6 text-white' />
-        </Link>
+        </button>
 
         <div className='hidden h-10 w-10 overflow-hidden rounded-full border-2 border-white lg:block'>
           <Image

@@ -244,7 +244,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
                 key={materi.id}
                 href={`/siswa/kelas/${id}/materi/${materi.id}`}
               >
-                <Card className='group h-full overflow-hidden border-0 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl'>
+                <Card className='group h-full overflow-hidden border-0 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl'>
                   <div
                     className={`h-1.5 w-full ${
                       materi.past
@@ -401,7 +401,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
                 key={tugas.id}
                 href={`/siswa/kelas/${id}/tugas/${tugas.id}`}
               >
-                <Card className='group h-full overflow-hidden border-0 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl'>
+                <Card className='group h-full overflow-hidden border-0 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl'>
                   <div
                     className={`h-1.5 w-full ${
                       tugas.past
@@ -538,7 +538,7 @@ export default function DetailKelasView({ id }: DetailKelasId) {
               const content = (
                 <Card
                   onClick={() => SedangBerlangsung(ujian)}
-                  className={`group h-full overflow-hidden border-0 shadow-md transition-all duration-300 ${
+                  className={`group h-full overflow-hidden border-0 bg-white shadow-md transition-all duration-300 ${
                     ujian.past
                       ? 'cursor-not-allowed opacity-60'
                       : 'hover:-translate-y-1 hover:shadow-xl'
