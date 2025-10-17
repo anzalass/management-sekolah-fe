@@ -361,7 +361,7 @@ export default function Perizinan() {
             {filteredData.map((izin) => (
               <Card
                 key={izin.id}
-                className='group overflow-hidden border-0 shadow-md hover:shadow-xl'
+                className='group overflow-hidden border-0 bg-white shadow-md hover:shadow-xl'
               >
                 <div
                   className={`h-1.5 w-full ${

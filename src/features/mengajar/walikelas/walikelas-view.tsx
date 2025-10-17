@@ -141,7 +141,7 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
   }, [searchTerm, masterSiswa, kelasSiswa]);
 
   return (
-    <div className='space-y-8 overflow-x-auto p-4 pb-16'>
+    <div className='space-y-8 overflow-x-auto p-2 pb-16'>
       <p className='text-base font-bold lg:text-2xl'>
         {dashboardData?.data.namaKelas}
       </p>
@@ -219,7 +219,7 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
         </CardContent>
       </Card>
 
-      <PengumumanKelas pengumuman={pengumumanKelas} id={id} />
+      {/* <PengumumanKelas pengumuman={pengumumanKelas} id={id} /> */}
       <CatatanPerkembanganSiswa
         catatanList={catatanPerkembangan}
         idKelas={id}

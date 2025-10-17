@@ -157,10 +157,10 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className='p-3 md:p-6'>
         <CardTitle className='text-base'>Catatan Perkembangan Siswa</CardTitle>
       </CardHeader>
-      <CardContent className='space-y-4'>
+      <CardContent className='space-y-4 p-3 md:p-6'>
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-3'>
           {/* === PILIH SISWA === */}
@@ -266,11 +266,11 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
                   <span className='text-xs text-gray-500'>{c.kategori}</span>
                   <p className='text-sm'>{c.catatan}</p>
                 </CardHeader>
-                <CardFooter className='absolute -right-2 top-4 flex gap-2'>
+                <CardFooter className='flex w-full gap-2'>
                   <Button
                     size='icon'
                     variant='outline'
-                    className='h-8 w-8 rounded-full'
+                    className=''
                     onClick={() => handleEdit(c.id)}
                   >
                     <Pencil className='h-4 w-4' />
@@ -278,7 +278,7 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
                   <Button
                     size='icon'
                     variant='destructive'
-                    className='h-8 w-8 rounded-full'
+                    className=''
                     onClick={() => deleteMutation.mutate(c.id)}
                   >
                     <Trash2 className='h-4 w-4' />

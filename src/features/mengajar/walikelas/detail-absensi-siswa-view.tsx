@@ -125,7 +125,7 @@ export default function DetailAbsensiSiswaView({ idKelas, idSiswa }: Props) {
   return (
     <div className='space-y-6 p-4'>
       {/* filter */}
-      <div className='flex items-center justify-between'>
+      <div className='flex items-center justify-between space-x-3'>
         <Input
           type='date'
           value={filterDate}
@@ -134,7 +134,7 @@ export default function DetailAbsensiSiswaView({ idKelas, idSiswa }: Props) {
         />
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button>Tambah Absen Manual</Button>
+            <Button className='text-xs md:text-sm'>Absen Manual +</Button>
           </DialogTrigger>
           <DialogContent className='dark:text-white sm:max-w-lg'>
             <DialogHeader>
@@ -206,7 +206,7 @@ export default function DetailAbsensiSiswaView({ idKelas, idSiswa }: Props) {
       </div>
 
       {/* Tabel absensi */}
-      <Table>
+      <Table className='w-[200vw] md:w-full'>
         <TableHeader>
           <TableRow>
             <TableHead>Tanggal & Jam</TableHead>

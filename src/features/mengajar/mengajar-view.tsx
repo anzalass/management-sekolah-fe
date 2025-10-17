@@ -15,6 +15,7 @@ import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import PengumumanKelasGuru from './pengumuman-guru';
 
 // 🔹 fetcher untuk dashboard
 const fetchDashboard = async (token: string) => {
@@ -120,6 +121,7 @@ export default function MengajarViewPage() {
       {/* Absen Buttons */}
       <div className='grid w-full grid-cols-2 gap-2 text-xs md:w-[60%] md:grid-cols-4 lg:w-[45%]'>
         <Button
+          className='rounded-lg'
           onClick={() => setIsCameraOpen(true)}
           disabled={dashboard?.statusMasuk || dashboard?.statusIzin}
         >
@@ -128,6 +130,7 @@ export default function MengajarViewPage() {
             : '🕘 Absen Masuk'}
         </Button>
         <Button
+          className='rounded-lg'
           onClick={() => absenPulangMutation.mutate()}
           disabled={dashboard?.statusKeluar || dashboard?.statusIzin}
         >
@@ -136,6 +139,7 @@ export default function MengajarViewPage() {
             : '🏁 Absen Pulang'}
         </Button>
         <Button
+          className='rounded-lg'
           onClick={() => setShowIzinModal(true)}
           disabled={dashboard?.statusMasuk}
         >
@@ -143,7 +147,7 @@ export default function MengajarViewPage() {
             ? '📋 Telah Izin Tidak Hadir'
             : '📋 Izin Tidak Hadir'}
         </Button>
-        <Button onClick={() => setShowJadwalModal(true)}>
+        <Button className='rounded-lg' onClick={() => setShowJadwalModal(true)}>
           Tambah Jadwal +
         </Button>
       </div>
@@ -232,6 +236,7 @@ export default function MengajarViewPage() {
         openModal={openModal}
         setOpenModal={setOpenModal}
       />
+      <PengumumanKelasGuru />
 
       <CardListIzin />
     </div>

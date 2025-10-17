@@ -179,7 +179,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
 
   // ================== RENDER ==================
   return (
-    <div className='space-y-6'>
+    <div className='space-y-6 p-2 md:p-5'>
       <h1 className='text-base font-bold lg:text-2xl'>
         {kelasData?.namaKelas} - {kelasData?.kelas}
       </h1>
@@ -275,7 +275,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
         onOpenChange={setShowTugasModal}
       />
 
-      <Card className='p-5'>
+      <Card className='px-2 py-5 md:p-5'>
         {/* Materi */}
         <div>
           <h4 className='text-md mb-2 font-semibold'>Daftar Materi</h4>
@@ -329,7 +329,9 @@ export default function KelasMapelView({ id }: KelasMapelID) {
                   href={`/mengajar/kelas-mapel/${id}/materi/${materi.id}`}
                   className='mt-2'
                 >
-                  <p className='font-semibold'>{materi.judul}</p>
+                  <p className='line-clamp-1 text-base font-semibold md:text-base'>
+                    {materi.judul}
+                  </p>
                 </Link>
                 <p className='text-sm text-muted-foreground'>
                   Dibuat:{' '}
@@ -392,7 +394,7 @@ export default function KelasMapelView({ id }: KelasMapelID) {
 
                 {/* Konten card */}
                 <div className='flex flex-col gap-1'>
-                  <p className='line-clamp-1 text-base font-semibold'>
+                  <p className='line-clamp-1 text-base font-semibold md:text-base'>
                     {tugas.judul}
                   </p>
                   <p className='text-sm text-muted-foreground'>
@@ -436,7 +438,9 @@ export default function KelasMapelView({ id }: KelasMapelID) {
                   href={`/mengajar/kelas-mapel/${id}/ujian/${ujian.id}`}
                   className='mt-2'
                 >
-                  <p className='font-semibold'>{ujian.nama}</p>
+                  <p className='line-clamp-1 text-sm font-semibold md:text-base'>
+                    {ujian.nama}
+                  </p>
                 </Link>
                 <p className='text-sm text-muted-foreground'>
                   Deadline:{' '}

@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
-import { Download, Eye, Trash2Icon } from 'lucide-react';
+import { Download, Eye, Loader2, Trash2Icon } from 'lucide-react';
 import { format } from 'date-fns';
 import { useState, useMemo } from 'react';
 import api from '@/lib/api';
@@ -38,6 +38,7 @@ export default function WeeklyActivityList({ idKelas }: { idKelas: string }) {
   const [searchDate, setSearchDate] = useState('');
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // FETCH DATA
   const { data, isLoading, isError } = useQuery<WeeklyActivity[]>({
@@ -53,6 +54,7 @@ export default function WeeklyActivityList({ idKelas }: { idKelas: string }) {
   // DELETE
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
+      setLoading(true);
       const res = await api.delete(`weekly-activity/${id}`, {
         headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
@@ -61,9 +63,11 @@ export default function WeeklyActivityList({ idKelas }: { idKelas: string }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['weekly-activity', idKelas] });
       toast.success('Berhasil Menghapus Weekly Activity');
+      setLoading(false);
     },
     onError: (err: any) => {
       toast.error(err?.response?.data?.message || 'Gagal menghapus activity');
+      setLoading(false);
     }
   });
 
@@ -98,7 +102,7 @@ export default function WeeklyActivityList({ idKelas }: { idKelas: string }) {
   };
 
   return (
-    <Card className='space-y-4 p-5'>
+    <Card className='space-y-4 p-3'>
       <p className='text-base font-bold'>Weekly Activity</p>
 
       {/* Filter */}
@@ -144,18 +148,19 @@ export default function WeeklyActivityList({ idKelas }: { idKelas: string }) {
           )}
           {filteredData.map((item) => (
             <Card key={item.id} className='overflow-hidden shadow-lg'>
-              <CardHeader className='relative'>
-                <CardTitle className='text-lg'>{item.judul}</CardTitle>
-                <div dangerouslySetInnerHTML={{ __html: item.content }}></div>
+              <CardHeader className='relative p-3 md:p-5'>
+                <CardTitle className='text-base md:text-lg'>
+                  {item.judul}
+                </CardTitle>
+                <div
+                  className='text-sm'
+                  dangerouslySetInnerHTML={{ __html: item.content }}
+                ></div>
                 <p className='text-sm text-gray-500'>
                   {format(new Date(item.waktu), 'dd MMM yyyy HH:mm')}
                 </p>
-                <Trash2Icon
-                  onClick={() => deleteMutation.mutate(item.id)}
-                  className='absolute right-3 top-3 cursor-pointer hover:text-red-600'
-                />
               </CardHeader>
-              <CardContent>
+              <CardContent className='p-3 md:p-5'>
                 <div className='grid grid-cols-2 gap-2'>
                   {item.FotoWeeklyActivity.map((foto) => (
                     <div key={foto.id} className='group relative'>
@@ -186,6 +191,17 @@ export default function WeeklyActivityList({ idKelas }: { idKelas: string }) {
                     </div>
                   ))}
                 </div>
+                <Button className='mt-3' disabled={loading}>
+                  {loading ? (
+                    <Loader2 />
+                  ) : (
+                    <Trash2Icon
+                      size={16}
+                      onClick={() => deleteMutation.mutate(item.id)}
+                      className='cursor-pointer hover:text-red-600'
+                    />
+                  )}
+                </Button>
               </CardContent>
             </Card>
           ))}

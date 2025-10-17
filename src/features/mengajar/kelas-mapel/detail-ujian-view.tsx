@@ -93,7 +93,7 @@ export default function DetailUjianView({ id }: { id: string }) {
     return <p className='py-6 text-center'>Data tidak ditemukan</p>;
 
   return (
-    <div className='space-y-6'>
+    <div className='w-full space-y-6 overflow-x-auto'>
       {/* Card info ujian */}
 
       <Card>
@@ -115,9 +115,11 @@ export default function DetailUjianView({ id }: { id: string }) {
       </Card>
 
       {/* Tabel selesai ujian */}
-      <Card>
+      <Card className='w-[84vw] overflow-x-auto'>
         <CardHeader>
-          <CardTitle className='text-lg'>Daftar Selesai Ujian</CardTitle>
+          <CardTitle className='text-base md:text-lg'>
+            Daftar Selesai Ujian
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {data.SelesaiUjian.length === 0 ? (
@@ -125,7 +127,7 @@ export default function DetailUjianView({ id }: { id: string }) {
               Belum ada siswa yang menyelesaikan ujian.
             </p>
           ) : (
-            <Table>
+            <Table className='w-[120vw] md:w-full'>
               <TableHeader>
                 <TableRow>
                   <TableHead>No</TableHead>

@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import FormCardSkeleton from '@/components/form-card-skeleton';
-import PageContainer from '@/components/layout/page-container';
+import { Suspense } from 'react';
 
 const KelasMapelView = dynamic(
   () => import('@/features/mengajar/kelas-mapel/kelas-mapel-view'),
@@ -15,10 +15,10 @@ type PageProps = { params: { idkelas: string } };
 
 export default async function Page({ params }: PageProps) {
   return (
-    <PageContainer scrollable>
-      <div className='flex-1 space-y-4'>
+    <div className='space-y-4 overflow-y-auto'>
+      <Suspense fallback={<FormCardSkeleton />}>
         <KelasMapelView id={params.idkelas} />
-      </div>
-    </PageContainer>
+      </Suspense>
+    </div>
   );
 }

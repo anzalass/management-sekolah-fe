@@ -168,10 +168,10 @@ export default function InputNilaiKelas({
     <div className='space-y-6'>
       {/* Jenis Penilaian */}
       <Card>
-        <CardHeader>
+        <CardHeader className='p-2 md:p-5'>
           <CardTitle className='text-base'>Jenis Penilaian</CardTitle>
         </CardHeader>
-        <CardContent className='space-y-2'>
+        <CardContent className='space-y-2 p-2 md:p-5'>
           <div className='flex flex-wrap gap-2'>
             {jenisNilai.map((d: any) => (
               <div
