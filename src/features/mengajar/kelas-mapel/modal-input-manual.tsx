@@ -106,7 +106,7 @@ export default function ModalInputNilaiManual({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Tambah Nilai Manual</Button>
+        <Button className='text-xs md:text-sm'>Nilai Manual +</Button>
       </DialogTrigger>
       <DialogContent className='max-w-md dark:text-white'>
         <DialogHeader>

@@ -387,13 +387,13 @@ export default function LogPresensiView() {
             />
           </div>
         ) : (
-          <div className='grid gap-4 md:grid-cols-2'>
+          <div className='grid gap-4 bg-white md:grid-cols-2'>
             {filtered.map((item) => {
               const style = getStyleFor(item.keterangan);
               return (
                 <Card
                   key={item.id}
-                  className='group overflow-hidden border-0 shadow-md'
+                  className='group overflow-hidden border-0 bg-white shadow-md'
                 >
                   <div
                     className={`h-1.5 w-full bg-gradient-to-r ${style.gradient}`}

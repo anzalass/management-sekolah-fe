@@ -105,7 +105,7 @@ export default function PerizinanSiswaViewPage({ idKelas }: Props) {
 
   return (
     <div>
-      <h1 className='mb-4 text-xl font-semibold'>
+      <h1 className='mb-4 text-sm font-semibold md:text-xl'>
         Daftar Perizinan Siswa - {data?.[0]?.namaKelas ?? ''}
       </h1>
 

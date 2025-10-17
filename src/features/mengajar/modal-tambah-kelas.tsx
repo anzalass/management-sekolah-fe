@@ -125,9 +125,15 @@ export default function ModalTambahKelas({
   const { data: ruangList } = useQuery({
     queryKey: ['ruang2'],
     queryFn: async () => {
-      const res = await api.get('ruang2');
+      const res = await api.get('ruang2', {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
+
       return res.data.data;
-    }
+    },
+    enabled: !!session?.user?.token // hanya jalan kalau ada token
   });
 
   return (

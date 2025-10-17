@@ -128,11 +128,11 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className='p-0'>
+      <CardHeader className='p-3 md:p-5'>
         <CardTitle className='text-base'>Pengumuman Kelas</CardTitle>
       </CardHeader>
-      <CardContent className='space-y-8'>
+      <CardContent className='space-y-8 p-3'>
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
           <Input
@@ -159,9 +159,9 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
             {pengumuman.map((p) => (
               <Card
                 key={p.id}
-                className='relative flex rounded-xl shadow-sm transition-shadow hover:shadow-md'
+                className='flex flex-col justify-between rounded-xl shadow-sm transition-shadow hover:shadow-md'
               >
-                <CardHeader>
+                <CardHeader className='p-3 md:p-5'>
                   <CardTitle className='text-base font-semibold'>
                     {p.title}
                   </CardTitle>
@@ -170,11 +170,11 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
                   </span>
                 </CardHeader>
 
-                <CardFooter className='absolute -right-2 top-4 flex gap-2'>
+                <CardFooter className='mt-auto flex gap-2 p-4'>
                   <Button
                     size='icon'
                     variant='outline'
-                    className='h-8 w-8 rounded-full'
+                    className='w-full rounded-lg'
                     onClick={() => handleEdit(p.id)}
                   >
                     <Pencil className='h-4 w-4' />
@@ -182,7 +182,7 @@ const PengumumanKelas = ({ id, pengumuman }: IDKelas) => {
                   <Button
                     size='icon'
                     variant='destructive'
-                    className='h-8 w-8 rounded-full'
+                    className='w-full rounded-lg'
                     onClick={() => deleteMutation.mutate(p.id)}
                   >
                     <Trash2 className='h-4 w-4' />

@@ -109,13 +109,13 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
   };
 
   return (
-    <Card className='p-5 dark:text-white'>
+    <Card className='p-3 dark:text-white md:p-5'>
       {/* Header */}
       <div className='mb-4 flex items-center justify-between'>
         <h1 className='text-base font-bold'>Jadwal Pelajaran</h1>
         <Button onClick={() => setOpenModal(true)}>
           <Plus className='mr-2 h-4 w-4' />
-          Tambah Jadwal
+          Jadwal
         </Button>
       </div>
 

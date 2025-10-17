@@ -101,11 +101,11 @@ export default function PerizinanSiswaView({ idKelas }: Props) {
     <Card className='p-5'>
       <h1 className='mb-4 text-base font-semibold'>Daftar Perizinan Siswa</h1>
       <div className='rounded-xl border'>
-        <Table>
+        <Table className='w-[200vw] md:w-full'>
           <TableHeader>
             <TableRow>
               <TableHead>No</TableHead>
-              <TableHead>Nama Siswa</TableHead>
+              <TableHead className='w-[200px]'>Nama Siswa</TableHead>
               <TableHead>NIS</TableHead>
               <TableHead>Kelas</TableHead>
               <TableHead>Keterangan</TableHead>
@@ -133,7 +133,7 @@ export default function PerizinanSiswaView({ idKelas }: Props) {
             {perizinan.map((izin, idx) => (
               <TableRow key={izin.id}>
                 <TableCell>{idx + 1}</TableCell>
-                <TableCell>{izin.namaSiswa}</TableCell>
+                <TableCell className='w-[200px]'>{izin.namaSiswa}</TableCell>
                 <TableCell>{izin.nisSiswa}</TableCell>
                 <TableCell>{izin.namaKelas}</TableCell>
                 <TableCell>{izin.keterangan}</TableCell>

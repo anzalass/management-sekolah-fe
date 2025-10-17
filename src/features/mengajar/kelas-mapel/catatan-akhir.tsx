@@ -130,7 +130,7 @@ export default function CatatanAkhirSiswa({
   );
 
   return (
-    <Card className='space-y-6 p-5'>
+    <Card className='space-y-6 p-3 pt-5 md:p-5'>
       {/* List Catatan */}
       <div className=' '>
         <div className='mb-4 items-center justify-between lg:flex'>
@@ -151,15 +151,19 @@ export default function CatatanAkhirSiswa({
             {filteredCatatan.map((c) => (
               <li
                 key={c.id}
-                className='flex items-center justify-between rounded-md border p-3'
+                className='items-center justify-between rounded-md border p-3'
               >
                 <span>
                   <span className='font-semibold'>
                     {c.Siswa?.nama || 'Siswa'}
                   </span>
-                  : {c.content}
+                  : {c.content} Lorem ipsum dolor sit amet consectetur
+                  adipisicing elit. In dolor quo enim voluptatibus error
+                  corrupti consequuntur fugiat doloremque molestiae minus
+                  facilis quam deserunt veritatis nobis, natus repellat animi
+                  velit? Saepe.
                 </span>
-                <div className='flex gap-2'>
+                <div className='mt-3 flex gap-2'>
                   <Button
                     size='sm'
                     variant='outline'
