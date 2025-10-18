@@ -1,9 +1,9 @@
 'use client';
 import { format } from 'date-fns';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { GoogleGenAI } from '@google/genai';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import api from '@/lib/api';
@@ -17,7 +17,7 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog';
 import { AlertDialogHeader } from '@/components/ui/alert-dialog';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import Image from 'next/image';
 
@@ -32,11 +32,22 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import MarkdownPreview from './md-preview';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import { useForm } from 'react-hook-form';
 
 interface Summary {
   id: number;
   nama: string;
   nisSiswa: string;
+  idSiswa: string;
   content: any;
   fotoSiswa?: string;
   waktu: string;
@@ -53,6 +64,12 @@ interface Materi {
 
 type IDMateri = {
   id: string;
+  idKelas: string;
+};
+
+type JenisNilaiForm = {
+  jenis: string;
+  bobot: number;
 };
 
 function stripHtml(html = '') {
@@ -69,13 +86,74 @@ function excerptFromHtml(html = '', maxLen = 120) {
   return text.slice(0, maxLen).trim() + '...';
 }
 
-export default function TugasView({ id }: IDMateri) {
-  const { data: session } = useSession();
-  const [openItem, setOpenItem] = useState<Summary | null>(null);
-  const [searchTerm, setSearchTerm] = useState(''); // 🔍 state pencarian
+interface FormValues {
+  idJenisNilai: string;
+  idSiswa: string;
+  nilai: number;
+}
 
-  // 🔹 Pakai React Query
-  const { data, isLoading, isError, error } = useQuery({
+export default function TugasView({ id, idKelas }: IDMateri) {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+
+  const [openItem, setOpenItem] = useState<Summary | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [jawaban, setJawaban] = useState<any>('');
+  const [loadingKoreksi, setLoadingKoreksi] = useState(false);
+  const [defaultJenisNilai, setDefaultJenisNilai] = useState<string>('');
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    reset
+  } = useForm<FormValues>({
+    defaultValues: {
+      idJenisNilai: '',
+      idSiswa: '',
+      nilai: 0
+    }
+  });
+
+  useEffect(() => {
+    if (openItem?.idSiswa) {
+      setValue('idSiswa', openItem.idSiswa, { shouldValidate: true });
+    }
+  }, [openItem, setValue]);
+
+  /** ==============================
+   * 🔹 QUERY 1 — Data Penilaian Kelas
+   * ============================== */
+  const { data: penilaianData, isLoading: isLoadingPenilaian } = useQuery({
+    queryKey: ['penilaianKelas', idKelas],
+    queryFn: async () => {
+      const res = await api.get(`penilaian/kelas/${idKelas}`, {
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
+      });
+      return res.data;
+    },
+    enabled: !!session?.user?.token
+  });
+
+  const jenisNilai = penilaianData?.jenisNilai ?? [];
+  const nilaiSiswa = penilaianData?.nilaiSiswa ?? [];
+
+  useEffect(() => {
+    if (jenisNilai.length > 0) {
+      setDefaultJenisNilai(jenisNilai[0]?.jenis);
+    }
+  }, [jenisNilai]);
+
+  /** ==============================
+   * 🔹 QUERY 2 — Data Tugas Summary
+   * ============================== */
+  const {
+    data: tugasData,
+    isLoading: isLoadingTugas,
+    isError: isErrorTugas,
+    error: errorTugas
+  } = useQuery({
     queryKey: ['tugasSummary', id],
     queryFn: async () => {
       const response = await api.get(`tugas-summary/${id}`, {
@@ -87,21 +165,105 @@ export default function TugasView({ id }: IDMateri) {
       return response.data.data as Materi;
     },
     enabled: !!session?.user?.token,
-    staleTime: 1000 * 60 // 1 menit cache
+    staleTime: 1000 * 60
   });
 
-  if (isLoading) {
+  /** ==============================
+   * 🔹 MUTATION — Koreksi AI
+   * ============================== */
+  const ai = new GoogleGenAI({
+    apiKey: process.env.NEXT_PUBLIC_GEMINI_KEY
+  });
+
+  const generateAIMutation = useMutation({
+    mutationFn: async (prompt: string) => {
+      setLoadingKoreksi(true);
+      const response = await ai.models.generateContent({
+        model: 'gemma-3-27b-it',
+        contents: `
+Hallo, tolong bantu saya mengoreksi jawaban dari soal berikut:
+${tugasData?.konten}
+
+Jika dalam soal terdapat link gambar, mohon telusuri dan pahami terlebih dahulu isi gambarnya sebelum menilai.
+
+Jawaban siswa:
+${prompt}
+
+Berikan penilaian otomatis dengan skor maksimal 100, serta tampilkan hasil dalam format markdown yang rapi tanpa tambahan teks lain.
+
+        `
+      });
+      return response.text;
+    },
+    onSuccess: (text) => {
+      setJawaban(text);
+      setLoadingKoreksi(false);
+    },
+    onError: () => {
+      toast.error('Gagal koreksi dengan bantuan AI');
+      setLoadingKoreksi(false);
+    }
+  });
+
+  const KoreksiJawaban = (jawaban: string) => {
+    generateAIMutation.mutate(jawaban);
+  };
+
+  /** ==============================
+   * 🔹 MUTATION — Simpan Nilai
+   * ============================== */
+  const mutation = useMutation({
+    mutationFn: async (form: FormValues) => {
+      return api.post(
+        `nilai-siswa`,
+        {
+          idSiswa: form.idSiswa,
+          idKelasDanMapel: idKelas,
+          idJenisNilai: form.idJenisNilai,
+          nilai: form.nilai
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        }
+      );
+    },
+    onSuccess: () => {
+      toast.success('Nilai berhasil disimpan');
+      queryClient.invalidateQueries({ queryKey: ['rekap-nilai', idKelas] });
+      reset();
+      setOpenItem(null);
+    },
+    onError: () => {
+      toast.error('Gagal menyimpan nilai');
+    }
+  });
+
+  const onSubmit = (form: FormValues) => {
+    mutation.mutate(form);
+  };
+
+  /** ==============================
+   * 🔹 Kondisi Loading & Error
+   * ============================== */
+  if (isLoadingPenilaian || isLoadingTugas) {
     return <p className='text-sm text-muted-foreground'>Loading...</p>;
   }
 
-  if (isError) {
-    toast.error((error as any)?.response?.data?.message || 'Gagal ambil data');
-    return <p className='text-sm text-red-500'>Gagal memuat data.</p>;
+  if (isErrorTugas) {
+    toast.error(
+      (errorTugas as any)?.response?.data?.message || 'Gagal memuat tugas'
+    );
+    return <p className='text-sm text-red-500'>Gagal memuat data tugas.</p>;
   }
 
-  const materi = data;
-
-  const filteredSummaries = materi?.SummaryTugas.filter((s: any) =>
+  /** ==============================
+   * 🔹 Render Data
+   * ============================== */
+  const materi = tugasData;
+  const filteredSummaries = materi?.SummaryTugas?.filter((s: any) =>
     s.nama.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -233,10 +395,110 @@ export default function TugasView({ id }: IDMateri) {
                             </DialogDescription>
                           </DialogHeader>
 
-                          <div className='prose mt-4 max-h-[70vh] overflow-auto'>
+                          <div className='mt-4 max-h-[70vh] w-full overflow-auto'>
                             <div
                               dangerouslySetInnerHTML={{ __html: s?.content }}
                             />
+
+                            {s?.fotoSummary?.length === 0 ? (
+                              <Button
+                                className='mt-3'
+                                disabled={loadingKoreksi}
+                                onClick={() => KoreksiJawaban(s?.content)}
+                              >
+                                {loadingKoreksi
+                                  ? 'Sedang Mengkoreksi...'
+                                  : 'Koreksi jawaban dengan bantuan AI ?'}
+                              </Button>
+                            ) : null}
+
+                            {jawaban !== '' ? (
+                              <div className='w-full'>
+                                <MarkdownPreview content={jawaban} />
+                              </div>
+                            ) : null}
+
+                            <form
+                              onSubmit={handleSubmit(onSubmit)}
+                              className='space-y-4'
+                            >
+                              {/* Pilih Jenis Nilai */}
+                              <div className='mt-5'>
+                                <Label>Siswa</Label>
+
+                                {/* Tampilkan nama siswa */}
+                                <Input value={s.nama} disabled />
+
+                                <Label>Jenis Nilai</Label>
+                                <Select
+                                  onValueChange={(value) =>
+                                    setValue('idJenisNilai', value, {
+                                      shouldValidate: true
+                                    })
+                                  }
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder='Pilih jenis nilai' />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {jenisNilai.map((jn: any) => (
+                                      <SelectItem key={jn.id} value={jn.id}>
+                                        {jn.jenis} - {jn.bobot}%
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                {errors.idJenisNilai && (
+                                  <p className='mt-1 text-sm text-red-500'>
+                                    Jenis nilai wajib dipilih
+                                  </p>
+                                )}
+                                <input
+                                  type='hidden'
+                                  {...register('idJenisNilai', {
+                                    required: true
+                                  })}
+                                />
+                              </div>
+
+                              {/* Pilih Siswa */}
+
+                              {/* Input Nilai */}
+                              <div>
+                                <Label>Nilai</Label>
+                                <Input
+                                  type='number'
+                                  min={0}
+                                  max={100}
+                                  {...register('nilai', {
+                                    required: 'Nilai wajib diisi',
+                                    valueAsNumber: true,
+                                    min: { value: 0, message: 'Minimal 0' },
+                                    max: { value: 100, message: 'Maksimal 100' }
+                                  })}
+                                />
+                                {errors.nilai && (
+                                  <p className='mt-1 text-sm text-red-500'>
+                                    {errors.nilai.message}
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Tombol Simpan */}
+                              <div className='flex justify-end gap-2 pt-2'>
+                                <Button variant='outline' type='button'>
+                                  Batal
+                                </Button>
+                                <Button
+                                  type='submit'
+                                  disabled={mutation.isPending}
+                                >
+                                  {mutation.isPending
+                                    ? 'Menyimpan...'
+                                    : 'Simpan'}
+                                </Button>
+                              </div>
+                            </form>
                           </div>
 
                           {s?.fotoSummary?.length > 0 && (

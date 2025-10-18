@@ -12,7 +12,7 @@ export default function Page({ params }: PageProps) {
   return (
     <PageContainer scrollable>
       <div className='flex-1 space-y-4'>
-        <TugasView id={params.idtugas} />
+        <TugasView id={params.idtugas} idKelas={params.idkelas} />
       </div>
     </PageContainer>
   );

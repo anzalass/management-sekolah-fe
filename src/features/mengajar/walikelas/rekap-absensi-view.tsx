@@ -96,19 +96,17 @@ export default function RekapAbsensiByKelasView({
         <p>Loading...</p>
       ) : (
         <div>
-          <Table className='overflow-hidden rounded-xl border border-gray-200 shadow-sm'>
+          <Table className='w-[130vw] overflow-hidden rounded-xl border border-gray-200 shadow-sm md:w-full'>
             <TableHeader>
               <TableRow className=''>
-                <TableHead className='font-bold text-gray-700'>
-                  Nama Siswa
-                </TableHead>
-                <TableHead className='font-bold text-gray-700'>NIS</TableHead>
-                <TableHead className='font-bold text-gray-700'>Hadir</TableHead>
-                <TableHead className='font-bold text-gray-700'>Izin</TableHead>
-                <TableHead className='font-bold text-gray-700'>Sakit</TableHead>
-                <TableHead className='font-bold text-gray-700'>Alpa</TableHead>
-                <TableHead className='font-bold text-gray-700'>Total</TableHead>
-                <TableHead className='font-bold text-gray-700'>Aksi</TableHead>
+                <TableHead className='font-bold'>Nama Siswa</TableHead>
+                <TableHead className='font-bold'>NIS</TableHead>
+                <TableHead className='font-bold'>Hadir</TableHead>
+                <TableHead className='font-bold'>Izin</TableHead>
+                <TableHead className='font-bold'>Sakit</TableHead>
+                <TableHead className='font-bold'>Alpa</TableHead>
+                <TableHead className='font-bold'>Total</TableHead>
+                <TableHead className='font-bold'>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -130,7 +128,7 @@ export default function RekapAbsensiByKelasView({
                     <TableCell>{item.izin}</TableCell>
                     <TableCell>{item.sakit}</TableCell>
                     <TableCell>{item.alpa}</TableCell>
-                    <TableCell className='font-semibold text-gray-800'>
+                    <TableCell className='font-semibold'>
                       {item.total}
                     </TableCell>
                     <TableCell>
