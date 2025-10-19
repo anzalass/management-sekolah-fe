@@ -381,7 +381,7 @@ Berikan penilaian otomatis dengan skor maksimal 100, serta tampilkan hasil dalam
                           </Button>
                         </DialogTrigger>
 
-                        <DialogContent className='max-w-3xl'>
+                        <DialogContent className='max-w-3xl dark:text-white'>
                           <DialogHeader>
                             <DialogTitle>{s.nama}</DialogTitle>
                             <DialogDescription>
