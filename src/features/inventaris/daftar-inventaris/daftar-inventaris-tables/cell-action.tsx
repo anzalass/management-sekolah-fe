@@ -83,6 +83,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       {openMaintenance && inventaris && (
         <ModalFormMaintenance
           open={openMaintenance}
+          isEdit={false}
           setOpen={setOpenMaintenance}
           inventaris={inventaris}
         />
@@ -111,7 +112,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           </DropdownMenuItem>
 
           <DropdownMenuItem onClick={() => setOpenMaintenance(true)}>
-            <Wrench className='mr-2 h-4 w-4' /> Maintenance
+            <Wrench className='mr-2 h-4 w-4' /> Lainya
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

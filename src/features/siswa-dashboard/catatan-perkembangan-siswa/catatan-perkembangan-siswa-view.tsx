@@ -112,7 +112,7 @@ export default function StudentProgressNotesPage() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 pb-20'>
       {/* Header */}
-      <div className='bg-blue-800 px-4 pb-8 pt-6'>
+      <div className={`${process.env.NEXT_PUBLIC_THEME_COLOR} px-4 pb-8 pt-6`}>
         <div className='mx-auto max-w-6xl'>
           <div className='mb-4 flex items-center gap-3'>
             <Link

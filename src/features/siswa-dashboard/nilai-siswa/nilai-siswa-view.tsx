@@ -145,7 +145,7 @@ export default function NilaiSiswaView() {
     <div className='min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20'>
       {/* Header */}
       <NavbarSiswa title='Student Score' />
-      <div className='bg-blue-800 px-4 pb-24 pt-6'>
+      <div className={`${process.env.NEXT_PUBLIC_THEME_COLOR} px-4 pb-24 pt-6`}>
         {/* <div className='bg-gradient-to-r from-blue-600 to-indigo-600 px-4 pb-24 pt-6'> */}
         <div className='mx-auto max-w-6xl'>
           {/* Stats Cards */}

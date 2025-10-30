@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   Dialog,
@@ -20,10 +20,8 @@ import {
   FormControl,
   FormMessage
 } from '@/components/ui/form';
-import axios from 'axios';
-import { API } from '@/lib/server';
-import { Inventaris } from './daftar-inventaris-form';
-import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+
 import {
   Select,
   SelectContent,
@@ -34,64 +32,109 @@ import {
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { useSession } from 'next-auth/react';
+import { useRenderTrigger } from '@/hooks/use-rendertrigger';
+import { Inventaris } from './daftar-inventaris-form';
+import { id } from 'date-fns/locale';
 
 export default function ModalFormMaintenance({
   inventaris,
   open,
-  setOpen
+  setOpen,
+  isEdit
 }: {
-  inventaris: Inventaris;
+  inventaris?: Inventaris | null; // ⬅️ tambahkan `?` atau `| null`
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isEdit?: boolean;
 }) {
   const [loading, setLoading] = useState(false);
   const { toggleTrigger } = useRenderTrigger();
   const { data: session } = useSession();
 
+  const [inv, setInv] = useState<any>(null);
+
+  const getInv = async () => {
+    try {
+      const res = await api.get(
+        `inventaris/get/${isEdit ? inventaris?.idinventaris : inventaris?.id} `
+      );
+      setInv(res.data.data.quantity);
+      console.log('invvvv', res.data.data.quantity);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getInv();
+  }, [inventaris]);
+
   const form = useForm({
     defaultValues: {
-      idinventaris: inventaris.id,
-      nama: inventaris.nama,
+      id: inventaris?.id,
+      idinventaris: isEdit
+        ? inventaris?.idinventaris || ''
+        : inventaris?.id || '',
+      nama: inventaris?.nama || '',
       quantity: '',
       hargaMaintenance: '',
       keterangan: '',
-      status: ''
+      status: inventaris?.status || ''
     }
   });
 
   const onSubmit = async (data: any) => {
     try {
       setLoading(true);
-      await api.post(`pemeliharaan-inventaris/create`, data, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
+
+      console.log(data);
+
+      if (!isEdit) {
+        await api.post(`pemeliharaan-inventaris/create`, data, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        });
+      } else {
+        await api.put(
+          `pemeliharaan-inventaris/update/${inventaris?.id}`,
+          data,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session?.user?.token}`
+            }
+          }
+        );
+      }
+      toast.success('Data berhasil disimpan');
       setLoading(false);
       setOpen(false);
       toggleTrigger();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Terjadi kesalahan');
+      setLoading(false);
     }
   };
 
+  const selectedStatus = form.watch('status');
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTitle>
-        Form Maintenance {inventaris.nama} in {inventaris.ruang}
-      </DialogTitle>
-      <DialogTrigger asChild>
-        <Button variant='ghost' className='w-full text-left'>
-          Maintenance
-        </Button>
-      </DialogTrigger>
+      <VisuallyHidden>
+        <DialogTitle className='dark:text-white'>
+          Form Aksi Inventaris
+        </DialogTitle>
+        <DialogTrigger asChild></DialogTrigger>
+      </VisuallyHidden>
 
-      <DialogContent>
-        <DialogHeader></DialogHeader>
+      <DialogContent className='dark:text-white'>
+        <DialogHeader>Aksi Inventaris - {inventaris?.nama}</DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+            {/* Quantity */}
             <FormField
               control={form.control}
               name='quantity'
@@ -99,8 +142,8 @@ export default function ModalFormMaintenance({
                 required: 'Quantity wajib diisi',
                 min: { value: 1, message: 'Quantity minimal 1' },
                 max: {
-                  value: inventaris.quantity,
-                  message: `Quantity tidak boleh lebih dari ${inventaris.quantity}`
+                  value: inv + inventaris?.quantity || 0,
+                  message: `Quantity tidak boleh lebih dari ${inv + inventaris?.quantity} `
                 }
               }}
               render={({ field }) => (
@@ -118,62 +161,62 @@ export default function ModalFormMaintenance({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name='hargaMaintenance'
-              rules={{
-                validate: (value) => {
-                  if (form.watch('status') === 'Sedang Maintenence' && !value) {
-                    return 'Harga Maintenance wajib diisi';
-                  }
-                  return true;
-                }
-              }}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Harga Maintenance</FormLabel>
-                  <FormControl>
-                    <Input
-                      type='number'
-                      placeholder='Masukkan harga...'
-                      {...field}
-                      disabled={form.watch('status') === 'Non Aktif'} // Disable input jika Non Aktif
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
+            {/* Status Aksi */}
             <FormField
               control={form.control}
               name='status'
-              rules={{ required: 'Status wajib dipilih' }} // ⬅️ Tambahkan ini
+              rules={{ required: 'Status wajib dipilih' }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Status</FormLabel>
+                  <FormLabel>Status Aksi</FormLabel>
                   <Select
                     onValueChange={(value) => field.onChange(value)}
                     value={field.value || ''}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='Pilih Status' />
+                        <SelectValue placeholder='Pilih aksi inventaris' />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value='Non Aktif'>Non Aktifkan</SelectItem>
-                      <SelectItem value='Sedang Maintenence'>
-                        Maintenence
+                      <SelectItem value='Sedang Maintenance'>
+                        Maintenance
                       </SelectItem>
+                      <SelectItem value='Digunakan'>Digunakan</SelectItem>
+                      <SelectItem value='Diberikan'>Diberikan</SelectItem>
+                      <SelectItem value='Rusak'>Rusak</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormMessage />{' '}
-                  {/* ⬅️ Tampilkan pesan error jika status belum dipilih */}
+                  <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* Harga Maintenance (hanya tampil jika status = Maintenance) */}
+            {selectedStatus === 'Sedang Maintenance' && (
+              <FormField
+                control={form.control}
+                name='hargaMaintenance'
+                rules={{
+                  required: 'Harga Maintenance wajib diisi'
+                }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Harga Maintenance</FormLabel>
+                    <FormControl>
+                      <Input
+                        type='number'
+                        placeholder='Masukkan harga maintenance...'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {/* Keterangan */}
             <FormField
               control={form.control}
               name='keterangan'
@@ -188,8 +231,9 @@ export default function ModalFormMaintenance({
               )}
             />
 
+            {/* Tombol Submit */}
             <Button type='submit' disabled={loading} className='w-full'>
-              {loading ? 'Processing...' : 'Simpan'}
+              {loading ? 'Processing...' : isEdit ? 'Edit' : 'Simpan'}
             </Button>
           </form>
         </Form>

@@ -137,7 +137,7 @@ export default function WeeklyActivityList() {
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 pb-20'>
-      <div className='bg-blue-800 px-4 pb-8 pt-6'>
+      <div className={`${process.env.NEXT_PUBLIC_THEME_COLOR} px-4 pb-8 pt-6`}>
         <div className='mx-auto max-w-7xl'>
           <div className='mb-4 flex items-center gap-3'>
             <Link
@@ -315,7 +315,7 @@ export default function WeeklyActivityList() {
                 <a
                   href={selectedPhoto?.fotoUrl}
                   download
-                  className='flex items-center justify-center gap-2 rounded-full bg-blue-800 px-6 py-3 font-semibold text-white'
+                  className={`flex items-center justify-center gap-2 rounded-full ${process.env.NEXT_PUBLIC_THEME_COLOR} px-6 py-3 font-semibold text-white`}
                 >
                   <Download className='h-5 w-5' />
                   Download

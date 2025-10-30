@@ -160,7 +160,9 @@ export default function DetailMateriView({ idMateri, idKelas }: IDMateri) {
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20'>
       {/* Header */}
-      <div className='mx-auto flex w-full items-center justify-between bg-blue-800 p-5'>
+      <div
+        className={`mx-auto flex w-full items-center justify-between ${process.env.NEXT_PUBLIC_THEME_COLOR} p-5`}
+      >
         <div className='flex items-center gap-3'>
           <button
             onClick={() => window.history.back()}

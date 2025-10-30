@@ -75,6 +75,12 @@ export const navItems: NavItem[] = [
         url: '/dashboard/inventaris/jenis-inventaris',
         icon: 'userPen',
         shortcut: ['n', 'n']
+      },
+      {
+        title: 'Management Inventaris',
+        url: '/dashboard/inventaris/management-inventaris',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
       }
     ]
   },

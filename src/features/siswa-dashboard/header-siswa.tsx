@@ -23,7 +23,9 @@ export default function HeaderSiswa({
   data
 }: Props) {
   return (
-    <div className={`bg-blue-800 pb-${title !== 'Payment' ? '14' : '24'}`}>
+    <div
+      className={`${process.env.NEXT_PUBLIC_THEME_COLOR} pb-${title !== 'Payment' ? '14' : '24'}`}
+    >
       <div className='mx-auto max-w-6xl'>
         <NavbarSiswa title={title} />
         {/* Summary Card */}

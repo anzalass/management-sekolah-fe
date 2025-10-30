@@ -37,12 +37,14 @@ import { useSession } from 'next-auth/react';
 
 export type Inventaris = {
   id: string;
+  idinventaris?: string;
   nama: string;
   quantity: number;
   ruang: string;
   hargaBeli: number;
   waktuPengadaan: Date;
   keterangan: string;
+  status?: string;
 };
 
 export default function DaftarInventarisForm({

@@ -13,7 +13,9 @@ export default function NavbarSiswa({ title }: { title: string }) {
   return (
     <div className='sticky top-0 z-50 flex items-center justify-between'>
       {' '}
-      <div className='relative flex w-full items-center justify-between bg-blue-800 px-2 py-6 pb-4 text-white'>
+      <div
+        className={`${process.env.NEXT_PUBLIC_THEME_COLOR} relative flex w-full items-center justify-between px-2 py-6 pb-4 text-white`}
+      >
         {/* Tombol Back */}
         <Link
           href={'/siswa'}

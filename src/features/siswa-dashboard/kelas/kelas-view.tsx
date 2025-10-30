@@ -89,7 +89,7 @@ export default function KelasView() {
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-50 to-gray-100'>
-      <div className='bg-blue-800 px-4 pb-8'>
+      <div className={`${process.env.NEXT_PUBLIC_THEME_COLOR} px-4 pb-8`}>
         <div className='mx-auto max-w-6xl'>
           <NavbarSiswa title='Classroom List' />
           <div className='flex items-center justify-center gap-3'>
