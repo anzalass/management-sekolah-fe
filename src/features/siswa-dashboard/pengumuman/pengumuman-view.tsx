@@ -108,12 +108,12 @@ export default function PengumumanView() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20'>
       {/* Header */}
-      <div className='w-full bg-blue-800'>
+      <div className={`w-full ${process.env.NEXT_PUBLIC_THEME_COLOR}`}>
         <div className='mx-auto max-w-6xl'>
           <NavbarSiswa title='Announcment' />
         </div>
       </div>
-      <div className='bg-blue-800 px-4 pb-8'>
+      <div className={`${process.env.NEXT_PUBLIC_THEME_COLOR} px-4 pb-8`}>
         <div className='mx-auto max-w-6xl'>
           <div className='flex items-center justify-center gap-3'>
             <div>

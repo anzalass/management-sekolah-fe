@@ -125,7 +125,9 @@ export default function MenuFiturSiswa() {
   ];
 
   return (
-    <div className='grid grid-cols-4 gap-2 rounded-b-2xl bg-blue-800 px-4 sm:grid-cols-4 md:gap-3 lg:grid-cols-8'>
+    <div
+      className={`${process.env.NEXT_PUBLIC_THEME_COLOR} grid grid-cols-4 gap-2 rounded-b-2xl px-4 sm:grid-cols-4 md:gap-3 lg:grid-cols-8`}
+    >
       {fiturUtama.map((fitur, i) => (
         <Link
           key={i}

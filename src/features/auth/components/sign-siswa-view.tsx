@@ -56,7 +56,7 @@ export default function SignSiswaView() {
           <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
             {/* NIS */}
             <div className='space-y-2'>
-              <Label className='font-bold' htmlFor='nis'>
+              <Label className='font-bold text-black' htmlFor='nis'>
                 NIS
               </Label>
               <Input
@@ -73,7 +73,7 @@ export default function SignSiswaView() {
 
             {/* Password */}
             <div className='relative space-y-2'>
-              <Label className='font-bold' htmlFor='password'>
+              <Label className='font-bold text-black' htmlFor='password'>
                 Password
               </Label>
               <Input

@@ -96,7 +96,7 @@ export default function RapotView() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pb-20'>
       {/* Header */}
-      <div className='bg-blue-800 px-4 pb-24 pt-6'>
+      <div className={`${process.env.NEXT_PUBLIC_THEME_COLOR} px-4 pb-24 pt-6`}>
         <div className='mx-auto max-w-6xl'>
           <div className='mb-6 flex items-center gap-3'>
             <Link

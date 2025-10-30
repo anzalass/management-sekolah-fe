@@ -9,6 +9,103 @@ module.exports = {
     './src/**/*.{ts,tsx}',
     './sections/**/*.{ts,tsx}'
   ],
+  safelist: [
+    // 🔴 Reds
+    'bg-red-500',
+    'bg-red-600',
+    'bg-red-700',
+    'bg-red-800',
+    'bg-red-900',
+    // 🔵 Blues
+    'bg-blue-500',
+    'bg-blue-600',
+    'bg-blue-700',
+    'bg-blue-800',
+    'bg-blue-900',
+    // 🟢 Greens
+    'bg-green-500',
+    'bg-green-600',
+    'bg-green-700',
+    'bg-green-800',
+    'bg-green-900',
+    // 🟡 Yellows
+    'bg-yellow-400',
+    'bg-yellow-500',
+    'bg-yellow-600',
+    'bg-yellow-700',
+    'bg-yellow-800',
+    // 🟣 Purples
+    'bg-purple-500',
+    'bg-purple-600',
+    'bg-purple-700',
+    'bg-purple-800',
+    'bg-purple-900',
+    // 🩷 Pinks / Roses / Fuchsias
+    'bg-pink-500',
+    'bg-pink-600',
+    'bg-pink-700',
+    'bg-pink-800',
+    'bg-pink-900',
+    'bg-rose-500',
+    'bg-rose-600',
+    'bg-rose-700',
+    'bg-rose-800',
+    'bg-rose-900',
+    'bg-fuchsia-500',
+    'bg-fuchsia-600',
+    'bg-fuchsia-700',
+    'bg-fuchsia-800',
+    'bg-fuchsia-900',
+    // 🧡 Oranges / Ambers
+    'bg-orange-500',
+    'bg-orange-600',
+    'bg-orange-700',
+    'bg-orange-800',
+    'bg-orange-900',
+    'bg-amber-500',
+    'bg-amber-600',
+    'bg-amber-700',
+    'bg-amber-800',
+    'bg-amber-900',
+    // 🩵 Cyans / Teals
+    'bg-cyan-500',
+    'bg-cyan-600',
+    'bg-cyan-700',
+    'bg-cyan-800',
+    'bg-cyan-900',
+    'bg-teal-500',
+    'bg-teal-600',
+    'bg-teal-700',
+    'bg-teal-800',
+    'bg-teal-900',
+    // ⚫ Grays / Zinc / Slate / Neutral
+    'bg-gray-500',
+    'bg-gray-600',
+    'bg-gray-700',
+    'bg-gray-800',
+    'bg-gray-900',
+    'bg-slate-500',
+    'bg-slate-600',
+    'bg-slate-700',
+    'bg-slate-800',
+    'bg-slate-900',
+    'bg-zinc-500',
+    'bg-zinc-600',
+    'bg-zinc-700',
+    'bg-zinc-800',
+    'bg-zinc-900',
+    'bg-neutral-500',
+    'bg-neutral-600',
+    'bg-neutral-700',
+    'bg-neutral-800',
+    'bg-neutral-900',
+    // ⚪ Others
+    'bg-lime-600',
+    'bg-emerald-700',
+    'bg-indigo-700',
+    'bg-violet-700',
+    'bg-sky-700'
+  ],
   theme: {
     container: {
       center: 'true',
@@ -17,6 +114,7 @@ module.exports = {
         '2xl': '1400px'
       }
     },
+
     extend: {
       colors: {
         border: 'hsl(var(--border))',

@@ -192,7 +192,9 @@ export default function SiswaHomeView() {
   return (
     <div className='mx-auto mb-14 min-h-screen'>
       {/* Profil Siswa */}
-      <div className='relative overflow-hidden bg-blue-800 p-6 text-white'>
+      <div
+        className={`relative overflow-hidden ${process.env.NEXT_PUBLIC_THEME_COLOR} p-6 text-white`}
+      >
         {/* Decorative circles */}
 
         <div className='relative flex items-center justify-between'>
@@ -258,7 +260,9 @@ export default function SiswaHomeView() {
         </div>
       </div>
 
-      <div className='absolute -z-10 h-[50vh] w-full rounded-b-[3rem] bg-blue-800'></div>
+      <div
+        className={`${process.env.NEXT_PUBLIC_THEME_COLOR} absolute -z-10 h-[50vh] w-full rounded-b-[3rem]`}
+      ></div>
 
       <MenuFiturSiswa />
 
@@ -266,7 +270,9 @@ export default function SiswaHomeView() {
       <div className='mt-8 space-y-8 px-4 md:px-8'>
         <Card className='hover: border-2 border-purple-200/50 bg-white/95 p-6 backdrop-blur-sm transition-all duration-300'>
           <div className='pb-4 pt-2'>
-            <CardTitle className='bg-blue-800 bg-clip-text text-base font-bold text-transparent md:text-xl'>
+            <CardTitle
+              className={`${process.env.NEXT_PUBLIC_THEME_COLOR} bg-clip-text text-base font-bold text-transparent md:text-xl`}
+            >
               ✨ Active Classroom
             </CardTitle>
           </div>
@@ -317,10 +323,14 @@ export default function SiswaHomeView() {
         <Card className='hover: overflow-hidden border-2 border-purple-200/50 bg-white/95 backdrop-blur-sm transition-all duration-300'>
           <CardHeader className=''>
             <div className='flex items-center gap-3'>
-              <div className='rounded-lg bg-blue-800 p-2.5'>
+              <div
+                className={`${process.env.NEXT_PUBLIC_THEME_COLOR} rounded-lg p-2.5`}
+              >
                 <CalendarClock className='h-5 w-5 text-white' />
               </div>
-              <CardTitle className='bg-blue-800 bg-clip-text text-base font-bold text-transparent'>
+              <CardTitle
+                className={`${process.env.NEXT_PUBLIC_THEME_COLOR} bg-clip-text text-base font-bold text-transparent`}
+              >
                 📅 Lesson Timetable
               </CardTitle>
             </div>
@@ -377,10 +387,14 @@ export default function SiswaHomeView() {
         <Card className='hover: overflow-hidden border-2 border-purple-200/50 bg-white/95 backdrop-blur-sm transition-all duration-300'>
           <CardHeader className=''>
             <div className='flex items-center gap-3'>
-              <div className='rounded-lg bg-blue-800 p-2.5'>
+              <div
+                className={`rounded-lg ${process.env.NEXT_PUBLIC_THEME_COLOR} p-2.5`}
+              >
                 <Info className='h-5 w-5 text-white' />
               </div>
-              <CardTitle className='bg-blue-800 bg-clip-text text-lg font-bold text-transparent'>
+              <CardTitle
+                className={`${process.env.NEXT_PUBLIC_THEME_COLOR} bg-clip-text text-lg font-bold text-transparent`}
+              >
                 📢 Information
               </CardTitle>
             </div>

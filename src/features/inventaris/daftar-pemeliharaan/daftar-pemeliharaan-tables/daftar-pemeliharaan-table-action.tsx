@@ -86,13 +86,20 @@ export default function DaftarPemeliharaanInventarisTableAction() {
           <SelectValue placeholder='Status' />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={'Sedang Maintenence'}>
+          <SelectItem value={'Sedang Maintenance'}>
             Sedang Maintenence
           </SelectItem>
-          <SelectItem value={'Selesai Di Maintenence'}>
-            Selesai Di Maintenence
+          <SelectItem value={'Selesai Maintenance'}>
+            Selesai Maintenance
           </SelectItem>
-          <SelectItem value={'Non Aktif'}>Non Aktif</SelectItem>
+          <SelectItem value={'Rusak'}>Rusak</SelectItem>
+          <SelectItem value={'Diberikan'}>Diberikan</SelectItem>
+
+          <SelectItem value={'Digunakan'}>Digunakan</SelectItem>
+
+          <SelectItem value={'Sudah Dikembalikan'}>
+            Sudah Dikembalikan
+          </SelectItem>
         </SelectContent>
       </Select>
 
