@@ -31,10 +31,8 @@ export default function OurFacilities({ fasilitasImages, fasilities }: Props) {
               <Image
                 src={item.src}
                 alt={item.alt}
-                fill
+                priority
                 className='object-cover transition-transform duration-500 hover:scale-110'
-                sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
-                priority={index === 0} // ✅ hanya gambar pertama diprioritaskan
                 quality={70} // ✅ kurangi kualitas untuk percepat loading, tetap tajam
                 placeholder='blur' // ✅ blur placeholder
                 blurDataURL='/blur-placeholder.png' // optional: placeholder kecil 5–10KB
