@@ -32,7 +32,7 @@ export function VisionAndMission({ refVision, showVision }: Props) {
 
             {/* Mobile Title */}
             <div className='text-center lg:hidden'>
-              <h2 className='text-4xl font-bold text-blue-600'>
+              <h2 className='text-xl font-bold text-blue-600 sm:text-2xl md:text-4xl'>
                 VISION & MISSION
               </h2>
             </div>

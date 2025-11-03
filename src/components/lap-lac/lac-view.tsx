@@ -172,7 +172,7 @@ export default function CyberschoolLanding() {
       <section className='bg-white py-20'>
         <div className='mx-auto max-w-6xl px-4'>
           <div className='mb-16 text-center'>
-            <h2 className='mb-4 text-5xl font-bold text-blue-900'>
+            <h2 className='mb-4 text-xl font-bold text-blue-900 md:text-5xl'>
               OUR CLASSES
             </h2>
             <p className='text-xl text-gray-600'>
@@ -199,7 +199,7 @@ export default function CyberschoolLanding() {
                   >
                     <div className='text-center'>
                       <GraduationCap className='mx-auto mb-4 h-16 w-16 text-white' />
-                      <h3 className='text-2xl font-bold text-white'>
+                      <h3 className='text-base font-bold text-white md:text-2xl'>
                         {cls.name}
                       </h3>
                     </div>

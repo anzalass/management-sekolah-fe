@@ -15,7 +15,7 @@ export default function OurFacilities({ fasilitasImages, fasilities }: Props) {
       <div className='mx-auto max-w-6xl px-4'>
         {/* ✅ Heading */}
         <h2
-          className='mb-16 text-center text-5xl font-bold text-blue-900'
+          className='mb-16 text-center text-2xl font-bold text-blue-900 md:text-5xl'
           style={{ fontFamily: "'Poetsen One', sans-serif" }}
         >
           OUR FACILITIES
