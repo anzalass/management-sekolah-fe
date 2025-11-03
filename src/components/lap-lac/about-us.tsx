@@ -55,6 +55,7 @@ export function AboutUs({
                     <Image
                       alt={`foto-${index}`}
                       width={400}
+                      priority
                       height={400}
                       className='h-auto w-full rounded-2xl object-cover'
                       src={img}
