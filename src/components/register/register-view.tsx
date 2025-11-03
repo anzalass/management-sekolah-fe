@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { X } from 'lucide-react';
 import { API } from '@/lib/server';
+import api from '@/lib/api';
 
 export default function RegisterView() {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -39,23 +40,13 @@ export default function RegisterView() {
     data.kategori = selectedProgram; // Tambahkan ke data yang dikirim
 
     try {
-      const response = await fetch(`pendaftaran`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      if (response.ok) {
-        setIsSubmitted(true);
-        toast.success('Berhasil melakukan pendaftaran');
-        reset();
-        setSelectedProgram(null);
-      } else {
-        toast.error('Gagal melakukan pendaftaran');
-      }
+      const response = await api.post(`pendaftaran`, data);
+      setIsSubmitted(true);
+      toast.success('Berhasil melakukan pendaftaran');
+      reset();
+      setSelectedProgram(null);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-      toast.error(error);
     }
   };
 

@@ -25,7 +25,8 @@ import { useQuery } from '@tanstack/react-query';
 import child1 from '../../../public/childs1.jpg';
 import child2 from '../../../public/childs2.jpg';
 import child3 from '../../../public/childs3.jpg';
-
+import lapanak1 from '../../../public/lap-anak1.png';
+import lapanak2 from '../../../public/lap-anak2.png';
 import Fasilitas1 from '../../../public/fasilitas1.jpg';
 import Fasilitas2 from '../../../public/fasilitas2.jpg';
 import Fasilitas3 from '../../../public/fasilitas3.jpg';
@@ -63,6 +64,25 @@ export default function Lap() {
     { src: Fasilitas5, alt: 'Facility 5' },
     { src: Fasilitas6, alt: 'Facility 6' },
     { src: Fasilitas8, alt: 'Facility 8' }
+  ];
+
+  const whyItems = [
+    {
+      src: lapanak1,
+      alt: 'Inclusive Teaching Approach',
+      title: 'Inclusive Teaching Approach',
+      desc: `We use a variety of teaching methods and become facilitators for
+             students with diverse characters — providing equal opportunities
+             and strong foundations for lifelong learning.`
+    },
+    {
+      src: lapanak2,
+      alt: 'Holistic Curriculum',
+      title: 'Holistic Curriculum',
+      desc: `Our preschool program blends play-based and thematic learning
+             with hands-on activities. We nurture literacy, numeracy, social
+             skills, and creativity through an integrated curriculum.`
+    }
   ];
 
   const facilities = [
@@ -156,7 +176,7 @@ export default function Lap() {
 
       <VisionAndMission refVision={refVision} showVision={showVision} />
       <OurClass />
-      <WhyLittleAlley refWhy={refWhy} showWhy={showWhy} />
+      <WhyLittleAlley items={whyItems} refWhy={refWhy} showWhy={showWhy} />
 
       <div className='w-full bg-[#bde0fe]'>
         <CurriculumSection

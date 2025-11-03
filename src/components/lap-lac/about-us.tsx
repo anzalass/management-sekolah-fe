@@ -81,9 +81,9 @@ export function AboutUs({
                 {content2}
               </p>
               <div className='flex items-center gap-4'>
-                <div className='flex h-12 w-12 items-center justify-center rounded-full bg-blue-600'>
+                {/* <div className='flex h-12 w-12 items-center justify-center rounded-full bg-blue-600'>
                   <Check className='h-6 w-6 text-white' />
-                </div>
+                </div> */}
                 <p className='font-semibold text-blue-900'>{content3}</p>
               </div>
             </div>
