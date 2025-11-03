@@ -13,7 +13,8 @@ import banner3 from '../../../public/event2.jpg';
 import child1 from '../../../public/childs1.jpg';
 import child2 from '../../../public/childs2.jpg';
 import child3 from '../../../public/childs3.jpg';
-
+import lacanak1 from '../../../public/lac-anak1.png';
+import lacanak2 from '../../../public/lac-anak2.png';
 import Fasilitas1 from '../../../public/fasilitaslac7.jpg';
 import Fasilitas2 from '../../../public/fasilitaslac8.jpg';
 import Fasilitas3 from '../../../public/fasilitaslac9.jpg';
@@ -68,6 +69,28 @@ export default function CyberschoolLanding() {
     { name: 'Primary 4', color: 'from-green-400 to-emerald-500', src: '' },
     { name: 'Primary 5', color: 'from-blue-400 to-cyan-500', src: '' },
     { name: 'Primary 6', color: 'from-purple-400 to-pink-500', src: '' }
+  ];
+
+  const whyItems = [
+    {
+      src: lacanak1,
+      alt: 'Inclusive Teaching Approach',
+      title: 'Inclusive Teaching Approach',
+      desc: `Little Alley Cyberschool As a fully internet-based school, all
+            classes, exams, and announcements are conducted through email and
+            our official website. This makes it easy for both students and
+            parents to stay informed and involved—anytime, anywhere.`
+    },
+    {
+      src: lacanak2,
+      alt: 'Holistic Curriculum',
+      title: 'Holistic Curriculum',
+      desc: `Little Alley Cyberschool offers a modern and flexible learning
+            experience designed for today’s students. We use the IB-based
+            curriculum from Swiss, carefully tailored to help each child grow
+            through their unique interests and talents. Our approach encourages
+            curiosity, independence, and lifelong learning.`
+    }
   ];
 
   const fasilitasImages = [
@@ -134,9 +157,9 @@ export default function CyberschoolLanding() {
       <div className='w-full bg-[#bde0fe]'>
         <AboutUs
           title='Little Alley Cyberschool'
-          content1='Little Alley is a refresh kindergarten curriculum framework that highlights teaching and learning principles that are relevant for developing competencies of young children'
-          content2='We believe that every child is a unique learner with unlimited potential waiting to be unlocked.'
-          content3='Kidsroom is designed to provide a nurturing and inspiring environment where children can grow academically and personally.'
+          content1='Little Alley Cyberschool is an online school built for active, curious, and creative children. We move beyond textbook learning, offering a full day of hands-on activities that let students explore, create, and grow. Here, students lead their own learning journey, while teachers serve as facilitators—guiding, supporting, and helping each child discover their unique strengths.'
+          content2='We use technology as a tool to connect learners with real-world experiences and meaningful projects, encouraging independence, critical thinking, and personal growth. Little Alley is a flexible, engaging space where children are free to be themselves and learn in ways that matter to them.'
+          content3=''
           images={images}
           refAbout={refAbout}
           showAbout={showAbout}
@@ -193,7 +216,7 @@ export default function CyberschoolLanding() {
         </div>
       </section>
 
-      <WhyLittleAlley refWhy={refWhy} showWhy={showWhy} />
+      <WhyLittleAlley items={whyItems} refWhy={refWhy} showWhy={showWhy} />
 
       {/* Facilities */}
       <div className='w-full bg-[#bde0fe]'>

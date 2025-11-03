@@ -1,17 +1,24 @@
 'use client';
+
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
-import Image from 'next/image';
+import Image, { StaticImageData } from 'next/image';
 import React from 'react';
-import lapanak1 from '../../../public/lap-anak1.png';
-import lapanak2 from '../../../public/lap-anak2.png';
 
-type Props = {
-  refWhy: any;
-  showWhy: boolean;
+type WhyItem = {
+  src: StaticImageData | string; // Bisa gambar import statis atau URL string
+  alt: string;
+  title: string;
+  desc: string;
 };
 
-export function WhyLittleAlley({ refWhy, showWhy }: Props) {
+type Props = {
+  refWhy: React.Ref<HTMLDivElement>;
+  showWhy: boolean;
+  items: WhyItem[];
+};
+
+export function WhyLittleAlley({ refWhy, showWhy, items }: Props) {
   return (
     <motion.section
       ref={refWhy}
@@ -29,24 +36,7 @@ export function WhyLittleAlley({ refWhy, showWhy }: Props) {
       </h2>
 
       <div className='grid grid-cols-1 gap-10 lg:grid-cols-2'>
-        {[
-          {
-            src: lapanak1,
-            alt: 'Inclusive Teaching Approach',
-            title: 'Inclusive Teaching Approach',
-            desc: `We use a variety of teaching methods and become facilitators for
-                students with diverse characters — providing equal opportunities
-                and strong foundations for lifelong learning.`
-          },
-          {
-            src: lapanak2,
-            alt: 'Holistic Curriculum',
-            title: 'Holistic Curriculum',
-            desc: `Our preschool program blends play-based and thematic learning
-                with hands-on activities. We nurture literacy, numeracy, social
-                skills, and creativity through an integrated curriculum.`
-          }
-        ].map((item, i) => (
+        {items.map((item, i) => (
           <Card
             key={i}
             className='shadow-md transition-transform duration-300 hover:scale-[1.02]'
@@ -58,7 +48,7 @@ export function WhyLittleAlley({ refWhy, showWhy }: Props) {
                   alt={item.alt}
                   fill
                   className='rounded-xl object-contain'
-                  priority // ✅ Prioritize loading (faster render)
+                  priority
                   sizes='(max-width: 768px) 120px, 160px'
                 />
               </div>
