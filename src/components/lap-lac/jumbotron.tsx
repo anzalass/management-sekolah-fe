@@ -52,10 +52,10 @@ export default function Jumbotron({
                 Join Us
               </button>
             </Link>
-
+            {/* 
             <button className='rounded-full border-2 border-white bg-white/20 px-10 py-4 text-lg font-bold text-white backdrop-blur-sm transition-all hover:bg-white/30'>
               Learn More
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

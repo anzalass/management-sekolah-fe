@@ -54,11 +54,11 @@ export function CurriculumSection({ refCurriculum, inViewCurriculum }: Props) {
     >
       <section className='py-20'>
         <div className='mx-auto max-w-7xl px-4'>
-          <h2 className='mb-16 text-center text-5xl font-bold text-blue-900'>
+          <h2 className='mb-16 text-center text-2xl font-bold text-blue-900 md:text-5xl'>
             OUR CURRICULUM
           </h2>
 
-          <div className='grid items-start gap-12 lg:grid-cols-2'>
+          <div className='mx-auto grid gap-12 lg:grid-cols-2'>
             {/* Image */}
             <div className='relative'>
               <div className='overflow-hidden'>
@@ -67,18 +67,18 @@ export function CurriculumSection({ refCurriculum, inViewCurriculum }: Props) {
                   height={1000}
                   width={1000}
                   alt='Curriculum'
-                  className='w-full'
+                  className='ml-4 w-full'
                 />
               </div>
-              <div className='absolute -bottom-6 -right-6 rounded-2xl bg-white p-6 shadow-2xl'>
+              {/* <div className='absolute -bottom-6 -right-6 rounded-2xl bg-white p-6 shadow-2xl'>
                 <Sparkles className='h-12 w-12 text-yellow-500' />
-              </div>
+              </div> */}
             </div>
 
             {/* Content */}
             <div className='space-y-6'>
               <div className='rounded-2xl bg-white p-6 shadow-lg'>
-                <h3 className='mb-4 text-2xl font-bold text-blue-900'>
+                <h3 className='mb-4 text-base font-bold text-blue-900 md:text-2xl'>
                   NURTURING EARLY LEARNERS CURRICULUM
                 </h3>
                 <div className='space-y-3'>

@@ -14,7 +14,7 @@ export default function OurClass() {
         {/* OUR CLASS Title */}
         <div className='mb-16 flex justify-center'>
           <div
-            className='rounded-[30px] p-4 text-center text-4xl font-extrabold text-[#017BBD] shadow-md'
+            className='rounded-[30px] p-4 text-center text-xl font-extrabold text-[#017BBD] shadow-md md:text-4xl'
             style={{ fontFamily: "'Poetsen One', sans-serif" }}
           >
             OUR CLASS
