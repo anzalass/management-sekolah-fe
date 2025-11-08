@@ -173,23 +173,29 @@ export default function Lap() {
           showAbout={showAbout}
         />
       </div>
-
-      <VisionAndMission refVision={refVision} showVision={showVision} />
+      <VisionAndMission
+        vision='To be a Pioneer in providing quality space and time for future generations, preparing them to become the best for the nation, with character and moral values as the foundation of life.'
+        missions={[
+          'To design holistic child development programs using an integrated approach',
+          'To facilitate the learning process in order to broaden childrens thinking and understanding',
+          'To observe and assess childrens learning and development',
+          'To collaborate with families and communities to support childrens learning'
+        ]}
+        refVision={refVision}
+        showVision={showVision}
+      />
       <OurClass />
       <WhyLittleAlley items={whyItems} refWhy={refWhy} showWhy={showWhy} />
-
       <div className='w-full bg-[#bde0fe]'>
         <CurriculumSection
           inViewCurriculum={inViewCurriculum}
           refCurriculum={refCurriculum}
         />
       </div>
-
       <OurFacilities
         fasilitasImages={fasilitasImages}
         fasilities={facilities}
       />
-
       <Image
         width={1000}
         height={1000}
@@ -197,14 +203,12 @@ export default function Lap() {
         className='mt-10 w-full'
         alt='Garis horizontal'
       />
-
       {/* ✅ Loading skeleton or fallback */}
       {isLoadingGallery ? (
         <p className='py-8 text-center'>Memuat galeri...</p>
       ) : (
         <Gallery gallery={gallery || []} />
       )}
-
       {isLoadingTestimonials ? (
         <p className='py-8 text-center'>Memuat testimonial...</p>
       ) : (
@@ -214,7 +218,6 @@ export default function Lap() {
           testimonials={testimonials || []}
         />
       )}
-
       <Footer />
     </div>
   );

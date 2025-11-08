@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { useSession } from 'next-auth/react';
 
 interface Siswa {
   id: string;
@@ -53,6 +54,7 @@ export default function CatatanAkhirSiswa({
   const [catatanList, setCatatanList] = useState<Catatan[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
+  const { data: session } = useSession();
 
   const form = useForm<FormValues>({
     defaultValues: { idSiswa: '', content: '' }
@@ -61,7 +63,11 @@ export default function CatatanAkhirSiswa({
   // Fetch catatan
   const fetchCatatan = async () => {
     try {
-      const res = await api.get(`catatan-akhir-siswa/kelas/${idKelasMapel}`);
+      const res = await api.get(`catatan-akhir-siswa/kelas/${idKelasMapel}`, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       setCatatanList(res.data.data);
     } catch (error) {
       console.error(error);
