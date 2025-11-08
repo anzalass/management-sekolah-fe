@@ -1,16 +1,21 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Image from 'next/image';
-import Ellipse from '../../../public/Ellipse.png';
 import { Target } from 'lucide-react';
 
 type Props = {
   refVision: any;
   showVision: boolean;
+  vision: string;
+  missions: string[];
 };
 
-export function VisionAndMission({ refVision, showVision }: Props) {
+export function VisionAndMission({
+  refVision,
+  showVision,
+  vision,
+  missions
+}: Props) {
   return (
     <motion.section
       ref={refVision}
@@ -22,7 +27,7 @@ export function VisionAndMission({ refVision, showVision }: Props) {
       <section className='bg-white py-20'>
         <div className='mx-auto max-w-7xl px-4'>
           <div className='grid gap-12 lg:grid-cols-12'>
-            {/* Left - Titles */}
+            {/* Left Titles */}
             <div className='hidden flex-col gap-12 lg:col-span-4 lg:flex'>
               <h2 className='text-7xl font-bold text-blue-600'>VISION</h2>
               <h2 className='mt-32 text-7xl font-bold text-blue-600'>
@@ -37,7 +42,7 @@ export function VisionAndMission({ refVision, showVision }: Props) {
               </h2>
             </div>
 
-            {/* Right - Content */}
+            {/* Right Content */}
             <div className='space-y-8 lg:col-span-8'>
               {/* Vision Card */}
               <div className='rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-8 shadow-xl'>
@@ -50,10 +55,7 @@ export function VisionAndMission({ refVision, showVision }: Props) {
                       Our Vision
                     </h3>
                     <p className='text-lg leading-relaxed text-blue-800'>
-                      To be a Pioneer in providing quality space and time for
-                      future generations, preparing them to become the best for
-                      the nation, with character and moral values as the
-                      foundation of life.
+                      {vision}
                     </p>
                   </div>
                 </div>
@@ -61,12 +63,7 @@ export function VisionAndMission({ refVision, showVision }: Props) {
 
               {/* Mission Cards */}
               <div className='space-y-4'>
-                {[
-                  'To design holistic child development programs using an integrated approach',
-                  "To facilitate the learning process in order to broaden children's thinking and understanding",
-                  "To observe and assess children's learning and development",
-                  "To collaborate with families and communities to support children's learning"
-                ].map((mission, idx) => (
+                {missions.map((mission, idx) => (
                   <div
                     key={idx}
                     className='rounded-2xl border border-gray-200 bg-white p-6 shadow-lg transition-all hover:-translate-x-2 hover:shadow-xl'

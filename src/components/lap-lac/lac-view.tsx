@@ -10,9 +10,11 @@ import banner from '../../../public/background.png';
 import banner1 from '../../../public/background.png';
 import banner2 from '../../../public/event1.jpg';
 import banner3 from '../../../public/event2.jpg';
-import child1 from '../../../public/childs1.jpg';
-import child2 from '../../../public/childs2.jpg';
-import child3 from '../../../public/childs3.jpg';
+import child1 from '../../../public/child1lac.jpg';
+import child2 from '../../../public/child2lac.jpg';
+import child3 from '../../../public/child3lac.jpg';
+import child4 from '../../../public/child4lac.jpg';
+
 import lacanak1 from '../../../public/lac-anak1.png';
 import lacanak2 from '../../../public/lac-anak2.png';
 import Fasilitas1 from '../../../public/fasilitaslac7.jpg';
@@ -31,7 +33,7 @@ import { VisionAndMission } from './visimisi';
 import { CurriculumSection } from './curriculum';
 import OurFacilities from './ourfacilities';
 import { WhyLittleAlley } from './whylittlealley';
-const images = [child1, child2, child3];
+const images = [child1, child2, child3, child4];
 
 export default function CyberschoolLanding() {
   const [activeClass, setActiveClass] = useState(0);
@@ -146,7 +148,6 @@ export default function CyberschoolLanding() {
   return (
     <div className='min-h-screen bg-white'>
       <Navbar />
-
       <Jumbotron
         banner={banner1}
         content='Active, Curious & Creative Learning for Future Leaders'
@@ -165,9 +166,14 @@ export default function CyberschoolLanding() {
           showAbout={showAbout}
         />
       </div>
-
-      <VisionAndMission refVision={refVision} showVision={showVision} />
-
+      <VisionAndMission
+        vision='Learn without limit, be virtuous throughout life'
+        missions={[
+          'To be a pioneer in digital education that integrates technological advances with moral values to produce future leaders'
+        ]}
+        refVision={refVision}
+        showVision={showVision}
+      />{' '}
       {/* Our Classes */}
       <section className='bg-white py-20'>
         <div className='mx-auto max-w-6xl px-4'>
@@ -215,9 +221,7 @@ export default function CyberschoolLanding() {
           </div>
         </div>
       </section>
-
       <WhyLittleAlley items={whyItems} refWhy={refWhy} showWhy={showWhy} />
-
       {/* Facilities */}
       <div className='w-full bg-[#bde0fe]'>
         <CurriculumSection
@@ -225,12 +229,10 @@ export default function CyberschoolLanding() {
           refCurriculum={refCurriculum}
         />
       </div>
-
       <OurFacilities
         fasilitasImages={fasilitasImages}
         fasilities={facilities}
       />
-
       <style>{`
         @keyframes fadeInUp {
           from {
