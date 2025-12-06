@@ -5,6 +5,13 @@ import { DataTableSearch } from '@/components/ui/table/data-table-search';
 import { useTagihanTableFilters } from './use-daftar-tagihan-table-filters';
 import { Input } from '@/components/ui/input';
 import { useTransition } from 'react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
 export default function TagihanTableAction() {
   const [isLoading, startTransition] = useTransition();
@@ -20,11 +27,18 @@ export default function TagihanTableAction() {
     nisSiswaFilter,
     setNisSiswaFilter,
     waktuFilter,
+    jenisFilter,
+    setJenisFilter,
     setWaktuFilter
   } = useTagihanTableFilters();
 
   const handleChangeWaktu = (value: string) => {
     setWaktuFilter(value, { startTransition });
+    setPage(1);
+  };
+
+  const handleChangeJenis = (value: string) => {
+    setJenisFilter(value, { startTransition });
     setPage(1);
   };
 
@@ -48,6 +62,21 @@ export default function TagihanTableAction() {
         setSearchQuery={setNisSiswaFilter}
         setPage={setPage}
       />
+
+      <Select value={jenisFilter} onValueChange={handleChangeJenis}>
+        <SelectTrigger>
+          <SelectValue placeholder='Pilih Status Tagihan' />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value='Menunggu Konfirmasi'>
+            Menunggu Konfirmasi
+          </SelectItem>
+          <SelectItem value='Lunas'>Lunas</SelectItem>
+          <SelectItem value='GAGAL'>Gagal</SelectItem>
+          <SelectItem value='Bukti Tidak Valid'>Bukti Tidak Valid</SelectItem>
+          <SelectItem value='Belum Bayar'>Belum Bayar</SelectItem>
+        </SelectContent>
+      </Select>
 
       <DataTableResetFilter
         isFilterActive={isAnyFilterActive}

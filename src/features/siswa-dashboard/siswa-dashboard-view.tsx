@@ -319,7 +319,58 @@ export default function SiswaHomeView() {
           </div>
         </Card>
 
-        {/* Jadwal */}
+        {/* Pengumuman */}
+        <Card className='hover: overflow-hidden border-2 border-purple-200/50 bg-white/95 backdrop-blur-sm transition-all duration-300'>
+          <CardHeader className=''>
+            <div className='flex items-center gap-3'>
+              <div
+                className={`rounded-lg ${process.env.NEXT_PUBLIC_THEME_COLOR} p-2.5`}
+              >
+                <Info className='h-5 w-5 text-white' />
+              </div>
+              <CardTitle
+                className={`${process.env.NEXT_PUBLIC_THEME_COLOR} bg-clip-text text-lg font-bold text-transparent`}
+              >
+                📢 Information
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className='space-y-3 p-4 md:p-6'>
+            {pengumuman.length > 0 ? (
+              pengumuman.map((info, i) => (
+                <div
+                  key={i}
+                  onClick={() => openModal(info)}
+                  className={`cursor-pointer rounded-2xl border-2 p-4 transition-all duration-300 hover:scale-[1.02] ${
+                    i === 0
+                      ? 'border-purple-500 bg-purple-50 shadow-md'
+                      : 'border-slate-200 hover:border-purple-300'
+                  }`}
+                >
+                  <div
+                    className={`mb-2 font-bold ${
+                      i === 0
+                        ? 'text-lg text-purple-800'
+                        : 'text-purple-900 group-hover:text-fuchsia-700'
+                    }`}
+                  >
+                    {info.title}
+                  </div>
+                  <div
+                    className='text-xs leading-relaxed text-slate-600'
+                    dangerouslySetInnerHTML={{ __html: info?.content }}
+                  />
+                </div>
+              ))
+            ) : (
+              <div className='rounded-xl border-2 border-dashed border-purple-200 bg-purple-50/50 p-8 text-center'>
+                <p className='text-sm font-medium text-purple-600'>
+                  No Information Yet
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
         <Card className='hover: overflow-hidden border-2 border-purple-200/50 bg-white/95 backdrop-blur-sm transition-all duration-300'>
           <CardHeader className=''>
             <div className='flex items-center gap-3'>
@@ -378,49 +429,6 @@ export default function SiswaHomeView() {
                     ))}
                   </tbody>
                 </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Pengumuman */}
-        <Card className='hover: overflow-hidden border-2 border-purple-200/50 bg-white/95 backdrop-blur-sm transition-all duration-300'>
-          <CardHeader className=''>
-            <div className='flex items-center gap-3'>
-              <div
-                className={`rounded-lg ${process.env.NEXT_PUBLIC_THEME_COLOR} p-2.5`}
-              >
-                <Info className='h-5 w-5 text-white' />
-              </div>
-              <CardTitle
-                className={`${process.env.NEXT_PUBLIC_THEME_COLOR} bg-clip-text text-lg font-bold text-transparent`}
-              >
-                📢 Information
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className='space-y-3 p-4 md:p-6'>
-            {pengumuman.length > 0 ? (
-              pengumuman.map((info, i) => (
-                <div
-                  key={i}
-                  onClick={() => openModal(info)}
-                  className='hover: group cursor-pointer rounded-2xl border-2 p-4 transition-all duration-300 hover:scale-[1.02] hover:border-purple-300'
-                >
-                  <div className='mb-2 font-bold text-purple-900 group-hover:text-fuchsia-700'>
-                    {info.title}
-                  </div>
-                  <div
-                    className='text-xs leading-relaxed text-slate-600'
-                    dangerouslySetInnerHTML={{ __html: info?.content }}
-                  />
-                </div>
-              ))
-            ) : (
-              <div className='rounded-xl border-2 border-dashed border-purple-200 bg-purple-50/50 p-8 text-center'>
-                <p className='text-sm font-medium text-purple-600'>
-                  No Information Yet
-                </p>
               </div>
             )}
           </CardContent>

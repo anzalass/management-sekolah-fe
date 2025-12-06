@@ -25,6 +25,11 @@ export function useTagihanTableFilters() {
     searchParams.q.withOptions({ shallow: false }).withDefault('')
   );
 
+  const [jenisFilter, setJenisFilter] = useQueryState(
+    'jenis',
+    searchParams.q.withOptions({ shallow: false }).withDefault('')
+  );
+
   const [page, setPage] = useQueryState(
     'page',
     searchParams.page.withDefault(1)
@@ -40,6 +45,7 @@ export function useTagihanTableFilters() {
     setNamaSiswaFilter(null);
     setNisSiswaFilter(null);
     setWaktuFilter(null);
+    setJenisFilter(null);
     setPage(1);
     setLimit(10);
   }, [
@@ -48,7 +54,8 @@ export function useTagihanTableFilters() {
     setNisSiswaFilter,
     setWaktuFilter,
     setPage,
-    setLimit
+    setLimit,
+    setJenisFilter
   ]);
 
   const isAnyFilterActive = useMemo(() => {
@@ -70,6 +77,8 @@ export function useTagihanTableFilters() {
     setNamaSiswaFilter,
     nisSiswaFilter,
     setNisSiswaFilter,
+    jenisFilter,
+    setJenisFilter,
     waktuFilter,
     setWaktuFilter
   };
