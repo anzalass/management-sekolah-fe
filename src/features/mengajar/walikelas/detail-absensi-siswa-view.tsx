@@ -181,6 +181,7 @@ export default function DetailAbsensiSiswaView({ idKelas, idSiswa }: Props) {
                       <SelectContent>
                         <SelectItem value='Hadir'>Hadir</SelectItem>
                         <SelectItem value='Izin'>Izin</SelectItem>
+                        <SelectItem value='Sakit'>Sakit</SelectItem>
                         <SelectItem value='Tanpa Keterangan'>
                           Tanpa Keterangan
                         </SelectItem>

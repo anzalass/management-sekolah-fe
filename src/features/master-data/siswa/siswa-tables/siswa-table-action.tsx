@@ -1,12 +1,8 @@
 'use client';
 
-import { DataTableFilterBox } from '@/components/ui/table/data-table-filter-box';
 import { DataTableResetFilter } from '@/components/ui/table/data-table-reset-filter';
 import { DataTableSearch } from '@/components/ui/table/data-table-search';
-import {
-  CATEGORY_OPTIONS,
-  useSiswaTableFilters
-} from './use-siswa-table-filters';
+import { useSiswaTableFilters } from './use-siswa-table-filters';
 
 export default function SiswaTableAction() {
   const {

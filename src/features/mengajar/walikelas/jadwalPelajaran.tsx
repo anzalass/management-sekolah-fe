@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { Mapel } from '@/features/master-data/mapel/mapel-listing';
 
 type Jadwal = {
   id: string;
@@ -97,7 +98,27 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
     }
   });
 
+  const getAllMapel = async () => {
+    try {
+      const response = await api.get(`mapel`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
+      setMapel(response.data.result.data);
+      console.log('wkwk : ', mapel);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
+    }
+  };
+
+  useEffect(() => {
+    getAllMapel();
+  }, []);
+
   // Modal tambah
+  const [mapel, setMapel] = useState<Mapel[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const { register, handleSubmit, reset, control } = useForm<Jadwal>();
 
@@ -175,14 +196,42 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
                 )}
               />
             </div>
-
             <div>
+              <Label>Nama Mapel</Label>
+              <Controller
+                name='namaMapel'
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder='Pilih mata pelajaran' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mapel.length > 0 ? (
+                        mapel.map((item, i) => (
+                          <SelectItem
+                            key={item.id ? item.id : `mapel-${i}`}
+                            value={item.nama}
+                          >
+                            {item.nama}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <p>Loading...</p>
+                      )}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+            {/* <div>
               <Label>Nama Mapel</Label>
               <Input
                 {...register('namaMapel', { required: true })}
                 placeholder='Matematika'
               />
-            </div>
+            </div> */}
 
             <div className='grid grid-cols-2 gap-2'>
               <div>
