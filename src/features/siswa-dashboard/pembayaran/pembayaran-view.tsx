@@ -493,7 +493,8 @@ export default function PembayaranSiswaView() {
 
                     <>
                       {(tagihan.status === 'BELUM_BAYAR' ||
-                        tagihan.status === 'BUKTI_TIDAK_VALID') && (
+                        tagihan.status === 'BUKTI_TIDAK_VALID' ||
+                        tagihan.status === 'PENDING') && (
                         <div className='flex space-x-4'>
                           <button
                             onClick={() => BayarMidtrans(tagihan.id)}
@@ -505,8 +506,8 @@ export default function PembayaranSiswaView() {
 
                           <Button
                             onClick={() => {
-                              setActiveTagihan(tagihan); // set tagihan yang sedang dipilih
-                              setOpen(true); // buka modal
+                              setActiveTagihan(tagihan);
+                              setOpen(true);
                             }}
                             className='h-[45px] w-[34%] space-x-4 p-4 text-sm'
                           >

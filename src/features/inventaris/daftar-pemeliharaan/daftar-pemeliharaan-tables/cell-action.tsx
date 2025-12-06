@@ -101,7 +101,12 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
   const deleteHistory = async () => {
     try {
-      await api.delete(`pemeliharaan-inventaris/delete/${data.id}`);
+      await api.delete(`pemeliharaan-inventaris/delete/${data.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       toggleTrigger();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Terjadi kesalahan');

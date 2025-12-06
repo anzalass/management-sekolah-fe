@@ -2,6 +2,8 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { Inventaris } from '../daftar-inventaris-form';
+import ModalFormMaintenance2 from '../modal-form-maintenence-2';
+import { useState } from 'react';
 
 export const columns: ColumnDef<Inventaris>[] = [
   {
@@ -53,6 +55,88 @@ export const columns: ColumnDef<Inventaris>[] = [
       // Ambil data 'tanggal' dari baris
       const tanggal = row.getValue('waktuPengadaan');
       return formatTanggal(tanggal);
+    }
+  },
+
+  {
+    id: 'kelolaInventaris',
+    header: 'Kelola Inventaris',
+    cell: ({ row }) => {
+      const [openModal, setOpenModal] = useState(false);
+      const [modalStatus, setModalStatus] = useState<
+        'Sedang Maintenance' | 'Diberikan' | 'Digunakan'
+      >('Sedang Maintenance');
+
+      const inventaris = row.original;
+
+      const openMaintenance = () => {
+        setModalStatus('Sedang Maintenance');
+        setOpenModal(true);
+      };
+
+      const openBerikan = () => {
+        setModalStatus('Diberikan');
+        setOpenModal(true);
+      };
+
+      const openGunakan = () => {
+        setModalStatus('Digunakan');
+        setOpenModal(true);
+      };
+
+      const openRusak = () => {
+        setModalStatus('Digunakan');
+        setOpenModal(true);
+      };
+
+      // Opsional: hapus (bisa pakai CellAction atau fungsi terpisah)
+
+      return (
+        <>
+          <div className='flex flex-wrap gap-2'>
+            {/* Maintenance */}
+            <button
+              onClick={openMaintenance}
+              className='rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-blue-700'
+            >
+              Maintenance
+            </button>
+
+            {/* Berikan */}
+            <button
+              onClick={openBerikan}
+              className='rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-green-700'
+            >
+              Berikan
+            </button>
+
+            {/* Gunakan */}
+            <button
+              onClick={openGunakan}
+              className='rounded-md bg-amber-500 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-amber-600'
+            >
+              Gunakan
+            </button>
+
+            {/* Hapus */}
+            <button
+              onClick={handleHapus}
+              className='rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-red-700'
+            >
+              Hapus
+            </button>
+          </div>
+
+          {/* Modal: hanya 1 instance per cell (efisien) */}
+          <ModalFormMaintenance2
+            inventaris={inventaris}
+            open={openModal}
+            setOpen={setOpenModal}
+            status={modalStatus} // ✅ "Maintenance", "Berikan", atau "Gunakan"
+            isEdit={false}
+          />
+        </>
+      );
     }
   },
   {
