@@ -35,7 +35,7 @@ export default function SiswaListingPage() {
   const searchParams = useSearchParams();
   const page = searchParams.get('page') || '1';
   const search = searchParams.get('nama') || '';
-  const nis = searchParams.get('nis') || '';
+  const nis = searchParams.get('nip') || '';
   const pageLimit = searchParams.get('limit') || '10';
   const kelas = searchParams.get('kelas') || '';
 

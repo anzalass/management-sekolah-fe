@@ -9,8 +9,6 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
-import GuruStaffTableAction from '@/features/master-data/guru-staff/guru-staff-tables/gurustaff-table-action';
-import GuruStaffListingPage from '@/features/master-data/guru-staff/guru-staff-listing';
 import SiswaListingPage from '@/features/master-data/siswa/siswa-listing';
 import SiswaTableAction from '@/features/master-data/siswa/siswa-tables/siswa-table-action';
 import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';

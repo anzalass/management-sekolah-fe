@@ -97,13 +97,13 @@ export default function MenuFiturSiswa() {
       label: 'Student Score',
       color: 'text-indigo-500'
     },
-    {
-      href: '/siswa/perpustakaan',
-      icon: <BookCopy />,
-      label: 'Library',
-      color: 'text-indigo-500'
-    },
-
+    //E-Perpus di hilangkan dari modal ~ Unggul Prayuda
+    // {
+    //   href: '/siswa/perpustakaan',
+    //   icon: <BookCopy />,
+    //   label: 'Library',
+    //   color: 'text-indigo-500'
+    // },
     {
       href: '/siswa/weekly-activity',
       icon: <CalendarCheck />,
@@ -153,12 +153,12 @@ export default function MenuFiturSiswa() {
               <MoreHorizontal className='text-indigo-500' />
             </div>
             <span className='text-center text-xs font-medium text-white sm:text-sm'>
-              More Fitur
+              More Feature
             </span>
           </button>
         </DialogTrigger>
         <DialogContent className='max-w-lg rounded-lg bg-white'>
-          <DialogTitle> More Fitur</DialogTitle>
+          <DialogTitle> More Feature</DialogTitle>
           <div className='grid grid-cols-3 gap-4'>
             {fiturTambahan.map((fitur, i) => (
               <Link

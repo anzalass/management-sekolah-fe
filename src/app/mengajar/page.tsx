@@ -1,11 +1,8 @@
-import { Separator } from '@/components/ui/separator';
-import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
 import MengajarViewPage from '@/features/mengajar/mengajar-view';
 import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
 
 import { SearchParams } from 'nuqs/server';
-import { Suspense } from 'react';
 
 export const metadata = {
   title: 'Dashboard: Kegiatan Sekolah'

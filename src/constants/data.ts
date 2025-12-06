@@ -187,6 +187,7 @@ export const navItems: NavItem[] = [
     icon: 'messagecircleheart',
     shortcut: ['p', 'p'],
     isActive: false,
+    allowedRoles: ['Guru'],
     items: [
       {
         title: 'Data Konseling Siswa',
@@ -202,27 +203,27 @@ export const navItems: NavItem[] = [
       }
     ]
   },
-  {
-    title: 'E - Perpus',
-    url: '',
-    icon: 'book',
-    shortcut: ['p', 'p'],
-    isActive: false,
-    items: [
-      {
-        title: 'Data Buku',
-        url: '/dashboard/e-perpus/data-buku',
-        icon: 'userPen',
-        shortcut: ['n', 'n']
-      },
-      {
-        title: 'Peminjaman dan Pengembalian Buku',
-        url: '/dashboard/e-perpus/peminjaman-pengembalian',
-        icon: 'userPen',
-        shortcut: ['n', 'n']
-      }
-    ]
-  },
+  // {
+  //   title: 'E - Perpus',
+  //   url: '',
+  //   icon: 'book',
+  //   shortcut: ['p', 'p'],
+  //   isActive: false,
+  //   items: [
+  //     {
+  //       title: 'Data Buku',
+  //       url: '/dashboard/e-perpus/data-buku',
+  //       icon: 'userPen',
+  //       shortcut: ['n', 'n']
+  //     },
+  //     {
+  //       title: 'Peminjaman dan Pengembalian Buku',
+  //       url: '/dashboard/e-perpus/peminjaman-pengembalian',
+  //       icon: 'userPen',
+  //       shortcut: ['n', 'n']
+  //     }
+  //   ]
+  // },
   {
     title: 'E - Pembayaran',
     url: '',

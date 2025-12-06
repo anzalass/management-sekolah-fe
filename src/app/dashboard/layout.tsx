@@ -20,8 +20,8 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const cookieStore = await cookies();
-  const defaultOpen = cookieStore.get('sidebar:state')?.value === 'true';
-
+  //const defaultOpen = cookieStore.get('sidebar:state')?.value === 'true';
+  const defaultOpen = true;
   const session = await auth();
 
   // **SET TOKEN SEKALI DI SINI**

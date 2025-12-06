@@ -134,7 +134,7 @@ module.exports = withPWA({
       'https://*.googleapis.com',
       'https://www.google-analytics.com',
 
-      ...(isDev ? ['http://localhost:5000'] : [])
+      ...(isDev ? ['http://localhost:4000'] : ['http://localhost:4000'])
     ].join(' ');
 
     const frameSrc = [
@@ -148,7 +148,7 @@ module.exports = withPWA({
       'https://*.google.com',
       'https://*.gstatic.com',
       'https://*.googleusercontent.com',
-      ...(isDev ? ['http://localhost:5000'] : [])
+      ...(isDev ? ['http://localhost:4000'] : ['http://localhost:4000'])
     ].join(' ');
 
     return [

@@ -20,13 +20,11 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
-import axios from 'axios';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { API } from '@/lib/server';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
 
@@ -110,6 +108,32 @@ export default function SiswaForm({
 
   const form = useForm({
     defaultValues: defaultValue
+  });
+
+  const {
+    onChange: onChangeTelepon,
+    onBlur: onBlurTelepon,
+    name: nameTelepon,
+    ref: refTelepon
+  } = form.register('noTelepon', {
+    required: 'No telepon wajib diisi',
+    pattern: {
+      value: /^[0-9]{10,13}$/,
+      message: 'No telepon harus 10-13 digit angka'
+    }
+  });
+
+  const {
+    onChange: onChangeTeleponOrtu,
+    onBlur: onBlurTeleponOrtu,
+    name: nameTeleponOrtu,
+    ref: refTeleponOrtu
+  } = form.register('noTeleponOrtu', {
+    required: 'No telepon wajib diisi',
+    pattern: {
+      value: /^[0-9]{10,13}$/,
+      message: 'No telepon harus 10-13 digit angka'
+    }
   });
 
   useEffect(() => {
@@ -510,15 +534,20 @@ export default function SiswaForm({
                   <FormLabel>No Telepon</FormLabel>
                   <FormControl>
                     <Input
-                      type='number'
+                      type='text'
                       placeholder='Masukkan No Telepon...'
-                      {...form.register('noTelepon', {
-                        required: 'No telepon wajib diisi',
-                        pattern: {
-                          value: /^[0-9]{10,13}$/,
-                          message: 'No telepon harus 10-13 digit angka'
-                        }
-                      })}
+                      name={nameTelepon}
+                      ref={refTelepon}
+                      onBlur={onBlurTelepon}
+                      onChange={(e) => {
+                        // your custom logic
+                        e.target.value = e.target.value
+                          .replace(/\D/g, '')
+                          .slice(0, 13); // allow only digits
+
+                        // call React Hook Form's onChange
+                        onChangeTelepon(e);
+                      }}
                     />
                   </FormControl>
                   <FormMessage>
@@ -530,22 +559,21 @@ export default function SiswaForm({
                   <FormLabel>No Telepon Orang Tua</FormLabel>
                   <FormControl>
                     <Input
-                      type='number'
+                      type='text'
                       placeholder='Masukkan No Telepon Orang Tua...'
-                      {...form.register('noTeleponOrtu', {
-                        required: 'No telepon ortu wajib diisi',
-                        pattern: {
-                          value: /^[0-9]{10,13}$/,
-                          message: 'No telepon harus 10-13 digit angka'
-                        }
-                      })}
+                      name={nameTeleponOrtu}
+                      ref={refTeleponOrtu}
+                      onBlur={onBlurTeleponOrtu}
+                      onChange={(e) => {
+                        e.target.value = e.target.value.replace(/\D/g, '');
+                        onChangeTeleponOrtu(e);
+                      }}
                     />
                   </FormControl>
                   <FormMessage>
                     {form.formState.errors.noTelepon?.message}
                   </FormMessage>
                 </FormItem>
-
                 {/* Email */}
                 <FormItem>
                   <FormLabel>Email</FormLabel>
@@ -567,8 +595,8 @@ export default function SiswaForm({
                     {form.formState.errors.email?.message}
                   </FormMessage>
                 </FormItem>
-
-                <FormItem>
+                {/*Di comment atas permintaan Krisna*/}
+                {/* <FormItem>
                   <FormLabel>Ekstrakulikuler Peminatan</FormLabel>
                   <FormControl>
                     <Input
@@ -599,7 +627,7 @@ export default function SiswaForm({
                   <FormMessage>
                     {form.formState.errors.noTelepon?.message}
                   </FormMessage>
-                </FormItem>
+                </FormItem> */}
               </div>
             </div>
             {/* Tombol Submit */}
