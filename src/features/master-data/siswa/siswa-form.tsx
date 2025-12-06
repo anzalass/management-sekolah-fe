@@ -565,8 +565,13 @@ export default function SiswaForm({
                       ref={refTeleponOrtu}
                       onBlur={onBlurTeleponOrtu}
                       onChange={(e) => {
-                        e.target.value = e.target.value.replace(/\D/g, '');
-                        onChangeTeleponOrtu(e);
+                        // your custom logic
+                        e.target.value = e.target.value
+                          .replace(/\D/g, '')
+                          .slice(0, 13); // allow only digits
+
+                        // call React Hook Form's onChange
+                        onChangeTelepon(e);
                       }}
                     />
                   </FormControl>
