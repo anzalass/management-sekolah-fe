@@ -235,13 +235,15 @@ function DashboardCard({
   icon: LucideIcon;
 }) {
   return (
-    <div className='rounded-lg border-2 bg-[#fdf9f7] p-2.5'>
+    <div className='rounded-lg border-2 bg-[#fdf9f7] p-2.5 dark:bg-[#06040b]'>
       <div className='flex flex-row items-center justify-between space-y-0 pb-2'>
         <CardTitle className='text-sm font-medium'>{title}</CardTitle>
         <Icon className='h-5 w-5 text-muted-foreground' />
       </div>
       <div>
-        <div className='text-[18px] font-bold'>{value}</div>
+        <div className='text-sm font-bold sm:text-[16px] md:text-[18px]'>
+          {value}
+        </div>
       </div>
     </div>
   );
