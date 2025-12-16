@@ -1,7 +1,7 @@
 import FormCardSkeleton from '@/components/form-card-skeleton';
 import PageContainer from '@/components/layout/page-container';
 import { Suspense } from 'react';
-import DaftarInventarisViewPage from '@/features/inventaris/daftar-inventaris/daftar-inventaris-view';
+import DaftarInventarisViewPage from '@/features/inventaris/inventaris-masuk/daftar-inventaris-view';
 
 export const metadata = {
   title: 'Dashboard : Jenis Inventaris'

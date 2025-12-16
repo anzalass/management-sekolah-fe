@@ -1,16 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { DataTable as DaftarInventaris } from '@/components/ui/table/data-table';
-import { columns } from './daftar-inventaris-tables/columns';
+import { columns } from './inventaris-masuk-tables/columns';
 import { useSearchParams } from 'next/navigation';
+import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { Inventaris } from './daftar-inventaris-form';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
 
-export default function DaftarInventarisListingPage() {
+export default function InventarisMasukListingPage() {
   const searchParams = useSearchParams();
   const page = searchParams.get('page') || '1';
   const search = searchParams.get('nama') || '';
@@ -30,7 +32,7 @@ export default function DaftarInventarisListingPage() {
       try {
         setLoading(true);
         const response = await api.get(
-          `daftar-inventaris?page=${page}&pageSize=${pageLimit}&nama=${search}&ruang=${ruang}&hargaBeli=${hargaBeli}`,
+          `inventaris?page=${page}&pageSize=${pageLimit}&nama=${search}&waktuPengadaan=${waktuPengadaan}&ruang=${ruang}&hargaBeli=${hargaBeli}`,
           {
             headers: {
               'Content-Type': 'application/json',

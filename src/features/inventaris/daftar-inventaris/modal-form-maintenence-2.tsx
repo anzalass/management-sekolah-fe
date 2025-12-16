@@ -21,7 +21,6 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-
 import {
   Select,
   SelectContent,
@@ -34,7 +33,6 @@ import { toast } from 'sonner';
 import { useSession } from 'next-auth/react';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { Inventaris } from './daftar-inventaris-form';
-import { id } from 'date-fns/locale';
 
 export default function ModalFormMaintenance2({
   inventaris,
@@ -43,7 +41,7 @@ export default function ModalFormMaintenance2({
   status,
   isEdit
 }: {
-  inventaris?: Inventaris | null; // ⬅️ tambahkan `?` atau `| null`
+  inventaris?: Inventaris | null;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isEdit?: boolean;
@@ -52,44 +50,59 @@ export default function ModalFormMaintenance2({
   const [loading, setLoading] = useState(false);
   const { toggleTrigger } = useRenderTrigger();
   const { data: session } = useSession();
-
-  const [inv, setInv] = useState<any>(null);
+  const [inv, setInv] = useState<number | null>(null);
 
   const getInv = async () => {
+    if (!inventaris?.id && !inventaris?.idinventaris) return;
     try {
       const res = await api.get(
-        `inventaris/get/${isEdit ? inventaris?.idinventaris : inventaris?.id} `
+        `inventaris/get/${isEdit ? inventaris?.idinventaris : inventaris?.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        }
       );
       setInv(res.data.data.quantity);
-      console.log('invvvv', res.data.data.quantity);
     } catch (error) {
-      console.log(error);
+      console.error('Gagal mengambil data inventaris:', error);
     }
   };
 
   useEffect(() => {
     getInv();
-  }, [inventaris]);
+  }, [inventaris, isEdit, session?.user?.token]);
 
   const form = useForm({
     defaultValues: {
-      id: inventaris?.id,
-      idinventaris: isEdit
-        ? inventaris?.idinventaris || ''
-        : inventaris?.id || '',
-      nama: inventaris?.nama || '',
+      id: inventaris?.id ?? '',
+      idinventaris: (isEdit ? inventaris?.idinventaris : inventaris?.id) ?? '',
+      nama: inventaris?.nama ?? '',
       quantity: '',
       hargaMaintenance: '',
       keterangan: '',
-      status: status || ''
+      status: status
     }
   });
+
+  // 🔁 Sinkronkan props `status` dan `inventaris` ke form
+  useEffect(() => {
+    form.reset({
+      id: inventaris?.id ?? '',
+      idinventaris: (isEdit ? inventaris?.idinventaris : inventaris?.id) ?? '',
+      nama: inventaris?.nama ?? '',
+      quantity: '',
+      hargaMaintenance: '',
+      keterangan: '',
+      status: status
+    });
+  }, [inventaris, status, isEdit, form]);
+
+  const currentStatus = form.watch('status');
 
   const onSubmit = async (data: any) => {
     try {
       setLoading(true);
-
-      console.log(data);
 
       if (!isEdit) {
         await api.post(`pemeliharaan-inventaris/create`, data, {
@@ -110,6 +123,7 @@ export default function ModalFormMaintenance2({
           }
         );
       }
+
       toast.success('Data berhasil disimpan');
       setLoading(false);
       setOpen(false);
@@ -119,8 +133,6 @@ export default function ModalFormMaintenance2({
       setLoading(false);
     }
   };
-
-  const selectedStatus = form.watch('status');
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -146,8 +158,10 @@ export default function ModalFormMaintenance2({
                 required: 'Quantity wajib diisi',
                 min: { value: 1, message: 'Quantity minimal 1' },
                 max: {
-                  value: inv + inventaris?.quantity || 0,
-                  message: `Quantity tidak boleh lebih dari ${inv + inventaris?.quantity} `
+                  value: (inv || 0) + (inventaris?.quantity || 0),
+                  message: `Quantity tidak boleh lebih dari ${
+                    (inv || 0) + (inventaris?.quantity || 0)
+                  }`
                 }
               }}
               render={({ field }) => (
@@ -158,6 +172,9 @@ export default function ModalFormMaintenance2({
                       type='number'
                       placeholder='Masukkan quantity...'
                       {...field}
+                      onChange={(e) =>
+                        field.onChange(e.target.valueAsNumber || '')
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -165,39 +182,8 @@ export default function ModalFormMaintenance2({
               )}
             />
 
-            {/* Status Aksi */}
-            {/* <FormField
-              control={form.control}
-              name='status'
-              rules={{ required: 'Status wajib dipilih' }}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status Aksi</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(value)}
-                    value={field.value || ''}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Pilih aksi inventaris' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value='Sedang Maintenance'>
-                        Maintenance
-                      </SelectItem>
-                      <SelectItem value='Digunakan'>Digunakan</SelectItem>
-                      <SelectItem value='Diberikan'>Diberikan</SelectItem>
-                      <SelectItem value='Rusak'>Rusak</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
-
             {/* Harga Maintenance (hanya tampil jika status = Maintenance) */}
-            {status === 'Sedang Maintenance' && (
+            {currentStatus === 'Sedang Maintenance' && (
               <FormField
                 control={form.control}
                 name='hargaMaintenance'
@@ -212,6 +198,9 @@ export default function ModalFormMaintenance2({
                         type='number'
                         placeholder='Masukkan harga maintenance...'
                         {...field}
+                        onChange={(e) =>
+                          field.onChange(e.target.valueAsNumber || '')
+                        }
                       />
                     </FormControl>
                     <FormMessage />

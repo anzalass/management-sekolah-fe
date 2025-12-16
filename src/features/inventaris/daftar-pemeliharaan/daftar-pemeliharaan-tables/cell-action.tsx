@@ -26,7 +26,8 @@ import { PemeliharaanInventaris } from './columns';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
-import ModalFormMaintenance from '../../daftar-inventaris/modal-form-maintenence';
+import ModalFormMaintenance from '../../inventaris-masuk/modal-form-maintenence';
+import ModalFormMaintenance2 from '../../daftar-inventaris/modal-form-maintenence-2';
 
 interface CellActionProps {
   data: PemeliharaanInventaris;
@@ -123,10 +124,11 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         loading={loading}
       />
       {openMaintenance && inventaris && (
-        <ModalFormMaintenance
+        <ModalFormMaintenance2
           open={openMaintenance}
           setOpen={setOpenMaintenance}
           inventaris={inventaris}
+          status={inventaris.status}
           isEdit={true}
         />
       )}
