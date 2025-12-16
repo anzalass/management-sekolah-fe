@@ -63,9 +63,7 @@ export const columns: ColumnDef<Inventaris>[] = [
     header: 'Kelola Inventaris',
     cell: ({ row }) => {
       const [openModal, setOpenModal] = useState(false);
-      const [modalStatus, setModalStatus] = useState<
-        'Sedang Maintenance' | 'Diberikan' | 'Digunakan'
-      >('Sedang Maintenance');
+      const [modalStatus, setModalStatus] = useState('');
 
       const inventaris = row.original;
 
@@ -85,7 +83,7 @@ export const columns: ColumnDef<Inventaris>[] = [
       };
 
       const openRusak = () => {
-        setModalStatus('Digunakan');
+        setModalStatus('Rusak');
         setOpenModal(true);
       };
 
@@ -120,10 +118,10 @@ export const columns: ColumnDef<Inventaris>[] = [
 
             {/* Hapus */}
             <button
-              onClick={handleHapus}
+              onClick={openRusak}
               className='rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-red-700'
             >
-              Hapus
+              Rusak
             </button>
           </div>
 

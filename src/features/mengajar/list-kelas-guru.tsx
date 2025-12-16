@@ -88,12 +88,23 @@ export default function ListKelasGuru({
     });
   };
 
+  const getInitials = (name: string): string => {
+    if (!name) return '?';
+
+    return name
+      .split(' ') // pecah jadi array kata
+      .map((word) => word[0]) // ambil huruf pertama tiap kata
+      .join('') // gabung jadi string
+      .substring(0, 4) // batasi maks 4 huruf biar tidak kepanjangan
+      .toUpperCase();
+  };
+
   return (
     <>
       <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
         {/* Wali Kelas */}
-        <Card className='shadow-md'>
-          <CardHeader className='p-2 md:p-5'>
+        <Card className='border-2 p-3 shadow-md md:p-6'>
+          <CardHeader className='p-2'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2'>
                 <GraduationCap className='hidden h-5 w-5 text-primary md:block' />
@@ -110,7 +121,7 @@ export default function ListKelasGuru({
               </Button>
             </div>
           </CardHeader>
-          <CardContent className='space-y-4 p-2 md:p-5'>
+          <CardContent className='space-y-4 p-2'>
             {kelasWaliKelas.map((kelas, idx) => (
               <div
                 key={idx}
@@ -120,13 +131,23 @@ export default function ListKelasGuru({
                 <div className='flex items-start gap-4'>
                   {/* Image di kiri */}
                   <div className='h-[100px] w-[100px] flex-shrink-0 overflow-hidden rounded-lg bg-muted'>
-                    <Image
-                      src={kelas.banner || '/default-banner.jpg'} // ganti sesuai field di DB / fallback
-                      alt={kelas.nama[0]}
-                      width={1000}
-                      height={1000}
-                      className='h-full w-full object-cover'
-                    />
+                    {kelas.banner ? (
+                      <Image
+                        src={kelas.banner}
+                        alt={kelas.nama}
+                        width={1000}
+                        height={1000}
+                        className='h-full w-full object-cover'
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className='flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-2xl font-bold text-white'>
+                        {getInitials(kelas.nama || 'Kelas')}
+                      </div>
+                    )}
                   </div>
 
                   {/* Konten kanan */}
@@ -177,8 +198,8 @@ export default function ListKelasGuru({
         </Card>
 
         {/* Kelas Mapel */}
-        <Card className='shadow-md'>
-          <CardHeader className='p-2 md:p-5'>
+        <Card className='border-2 p-3 shadow-md md:p-6'>
+          <CardHeader className='p-2 md:p-4'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2'>
                 <BookOpen className='hidden h-5 w-5 text-primary md:block' />
@@ -195,7 +216,7 @@ export default function ListKelasGuru({
               </Button>
             </div>
           </CardHeader>
-          <CardContent className='space-y-4 p-2 md:p-5'>
+          <CardContent className='space-y-4 p-2 md:p-2'>
             {kelasMapel.map((item, idx) => (
               <div
                 key={idx}
@@ -205,15 +226,24 @@ export default function ListKelasGuru({
                 <div className='flex items-start gap-4'>
                   {/* Image di kiri */}
                   <div className='h-[100px] w-[100px] flex-shrink-0 overflow-hidden rounded-lg bg-muted'>
-                    <Image
-                      src={item.banner || '/default-banner.jpg'} // fallback jika belum ada
-                      alt={item.namaMapel}
-                      width={1000}
-                      height={1000}
-                      className='h-full w-full object-cover'
-                    />
+                    {item.banner ? (
+                      <Image
+                        src={item.banner}
+                        alt={item.namaMapel}
+                        width={1000}
+                        height={1000}
+                        className='h-full w-full object-cover'
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className='flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-600 text-2xl font-bold text-white'>
+                        {getInitials(item.namaMapel || 'Mapel')}
+                      </div>
+                    )}
                   </div>
-
                   {/* Konten kanan */}
                   <div className='flex-1'>
                     <div className='mb-1 flex items-center justify-between'>

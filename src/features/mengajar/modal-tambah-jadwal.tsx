@@ -22,6 +22,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import api from '@/lib/api';
+import { useQuery } from '@tanstack/react-query';
 
 type Props = {
   openModal: boolean;
@@ -109,6 +110,38 @@ export default function ModalTambahJadwal({
     }
   };
 
+  const { data: mapelList } = useQuery({
+    queryKey: ['mapel-input'],
+    queryFn: async () => {
+      const res = await api.get('mapel-input');
+      return res.data.result;
+    }
+  });
+
+  const { data: kelasList } = useQuery({
+    queryKey: ['list-kelas-input'],
+    queryFn: async () => {
+      const res = await api.get('list-kelas-input', {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
+      return res.data;
+    }
+  });
+
+  const { data: ruangList } = useQuery({
+    queryKey: ['ruang2'],
+    queryFn: async () => {
+      const res = await api.get('ruang2', {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
+      return res.data.data;
+    }
+  });
+
   return (
     <Dialog open={openModal} onOpenChange={setOpenModal}>
       <VisuallyHidden>
@@ -151,26 +184,66 @@ export default function ModalTambahJadwal({
           </div>
 
           <div>
-            <label htmlFor='namaMapel'>Nama Mapel</label>
-            <Input
-              id='namaMapel'
-              placeholder='Contoh: Matematika'
-              {...register('namaMapel', { required: 'Nama mapel wajib diisi' })}
-            />
+            <Select
+              onValueChange={(val) => setValue('namaMapel', val)}
+              defaultValue={dataEdit?.namaMapel || ''}
+            >
+              <SelectTrigger className='w-full'>
+                <SelectValue placeholder='Pilih Mata Pelajaran' />
+              </SelectTrigger>
+              <SelectContent>
+                {mapelList?.map((m: any) => (
+                  <SelectItem key={m.id} value={m.nama}>
+                    {m.nama}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {errors.namaMapel && (
               <p className='text-sm text-red-500'>{errors.namaMapel.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor='kelas'>Kelas</label>
-            <Input
-              id='kelas'
-              placeholder='Contoh: Matematika'
-              {...register('kelas', { required: 'Nama kelas wajib diisi' })}
-            />
-            {errors.namaMapel && (
-              <p className='text-sm text-red-500'>{errors.namaMapel.message}</p>
+            <Select
+              onValueChange={(val) => setValue('ruang', val)}
+              defaultValue={dataEdit?.ruang || ''}
+            >
+              <SelectTrigger className='w-full'>
+                <SelectValue placeholder='Pilih Ruangan' />
+              </SelectTrigger>
+              <SelectContent>
+                {ruangList?.map((r: any) => (
+                  <SelectItem key={r.id} value={r.nama}>
+                    {r.nama}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.ruang && (
+              <p className='text-sm text-red-500'>{errors.ruang.message}</p>
+            )}
+          </div>
+
+          {/* Select Kelas */}
+          <div>
+            <Select
+              onValueChange={(val) => setValue('kelas', val)}
+              defaultValue={dataEdit?.kelas || ''}
+            >
+              <SelectTrigger className='w-full'>
+                <SelectValue placeholder='Pilih Kelas' />
+              </SelectTrigger>
+              <SelectContent>
+                {kelasList?.map((k: any) => (
+                  <SelectItem key={k.id} value={k.namaKelas}>
+                    {k.namaKelas}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.kelas && (
+              <p className='text-sm text-red-500'>{errors.kelas.message}</p>
             )}
           </div>
 
@@ -200,18 +273,6 @@ export default function ModalTambahJadwal({
             </Select>
             {errors.hari && (
               <p className='text-sm text-red-500'>{errors.hari.message}</p>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor='ruang'>Ruang</label>
-            <Input
-              id='ruang'
-              placeholder='Contoh: Ruang 01'
-              {...register('ruang', { required: 'Ruang wajib diisi' })}
-            />
-            {errors.ruang && (
-              <p className='text-sm text-red-500'>{errors.ruang.message}</p>
             )}
           </div>
 

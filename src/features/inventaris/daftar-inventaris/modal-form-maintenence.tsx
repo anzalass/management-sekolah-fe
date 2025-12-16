@@ -86,7 +86,6 @@ export default function ModalFormMaintenance({
   const onSubmit = async (data: any) => {
     try {
       setLoading(true);
-
       console.log(data);
 
       if (!isEdit) {
