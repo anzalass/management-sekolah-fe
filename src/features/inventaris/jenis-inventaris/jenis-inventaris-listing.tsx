@@ -1,11 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { DataTable as JenisInventarisTable } from '@/components/ui/table/data-table';
 import { columns } from './jenis-inventaris-tables/columns';
 import { useSearchParams } from 'next/navigation';
-import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { JenisInventaris } from './jenis-inventaris-form';
 import { toast } from 'sonner';

@@ -32,28 +32,29 @@ export const columns: ColumnDef<Inventaris>[] = [
       }).format(value);
     }
   },
-  // {
-  //   accessorKey: 'waktuPengadaan', // NIP
-  //   header: 'Waktu Pengadaan',
-  //   cell: ({ row }) => {
-  //     const formatTanggal = (date?: any) => {
-  //       const tanggal = date ? new Date(date) : null;
-  //       if (!tanggal || isNaN(tanggal.getTime())) {
-  //         return 'Tanggal tidak valid';
-  //       }
 
-  //       return new Intl.DateTimeFormat('id-ID', {
-  //         day: '2-digit',
-  //         month: 'long',
-  //         year: 'numeric'
-  //       }).format(tanggal);
-  //     };
+  {
+    accessorKey: 'waktuPengadaan', // NIP
+    header: 'Waktu Pengadaan',
+    cell: ({ row }) => {
+      const formatTanggal = (date?: any) => {
+        const tanggal = date ? new Date(date) : null;
+        if (!tanggal || isNaN(tanggal.getTime())) {
+          return 'Tanggal tidak valid';
+        }
 
-  //     // Ambil data 'tanggal' dari baris
-  //     const tanggal = row.getValue('waktuPengadaan');
-  //     return formatTanggal(tanggal);
-  //   }
-  // },
+        return new Intl.DateTimeFormat('id-ID', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric'
+        }).format(tanggal);
+      };
+
+      // Ambil data 'tanggal' dari baris
+      const tanggal = row.getValue('waktuPengadaan');
+      return formatTanggal(tanggal);
+    }
+  },
   {
     id: 'actions', // Actions (untuk tombol aksi seperti edit, delete)
     header: 'Actions',

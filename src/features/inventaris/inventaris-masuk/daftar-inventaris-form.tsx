@@ -13,10 +13,16 @@ import {
 import { Input } from '@/components/ui/input';
 
 import { Textarea } from '@/components/ui/textarea';
+import { Product } from '@/constants/mock-api';
+import { zodResolver } from '@hookform/resolvers/zod';
+import axios from 'axios';
+import { Trash } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { API } from '@/lib/server';
 import {
   Select,
   SelectContent,
@@ -136,7 +142,7 @@ export default function DaftarInventarisForm({
           toast.success('Data jenis inventaris berhasil disimpan');
         }
 
-        router.push('/dashboard/inventaris/daftar-inventaris');
+        router.push('/dashboard/inventaris/inventaris-masuk');
       } catch (error: any) {
         toast.error(error?.response?.data?.message || 'Terjadi Kesalahan');
       }

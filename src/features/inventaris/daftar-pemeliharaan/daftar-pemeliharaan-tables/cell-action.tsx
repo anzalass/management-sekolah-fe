@@ -26,7 +26,7 @@ import { PemeliharaanInventaris } from './columns';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
-import ModalFormMaintenance from '../../daftar-inventaris/modal-form-maintenence';
+import ModalFormMaintenance from '../../inventaris-masuk/modal-form-maintenence';
 
 interface CellActionProps {
   data: PemeliharaanInventaris;

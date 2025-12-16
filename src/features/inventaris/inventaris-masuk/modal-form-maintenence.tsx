@@ -34,6 +34,7 @@ import { toast } from 'sonner';
 import { useSession } from 'next-auth/react';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { Inventaris } from './daftar-inventaris-form';
+import { id } from 'date-fns/locale';
 
 export default function ModalFormMaintenance({
   inventaris,

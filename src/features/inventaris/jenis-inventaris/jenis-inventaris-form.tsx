@@ -12,24 +12,10 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
-import { Textarea } from '@/components/ui/textarea';
-import { Product } from '@/constants/mock-api';
-import { zodResolver } from '@hookform/resolvers/zod';
-import axios from 'axios';
-import { Trash } from 'lucide-react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { API } from '@/lib/server';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
 
