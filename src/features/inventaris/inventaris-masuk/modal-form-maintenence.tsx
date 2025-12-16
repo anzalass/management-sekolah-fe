@@ -34,6 +34,8 @@ import { toast } from 'sonner';
 import { useSession } from 'next-auth/react';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { Inventaris } from './daftar-inventaris-form';
+import { id } from 'date-fns/locale';
+import { Ruangan } from '@/features/master-data/ruang/ruang-listing';
 
 export default function ModalFormMaintenance({
   inventaris,
@@ -49,6 +51,7 @@ export default function ModalFormMaintenance({
   const [loading, setLoading] = useState(false);
   const { toggleTrigger } = useRenderTrigger();
   const { data: session } = useSession();
+  const [ruang, setRuang] = useState<Ruangan[]>([]);
 
   const [inv, setInv] = useState<any>(null);
 
@@ -77,14 +80,35 @@ export default function ModalFormMaintenance({
       nama: inventaris?.nama || '',
       quantity: '',
       hargaMaintenance: '',
+      ruang: '',
       keterangan: '',
       status: inventaris?.status || ''
     }
   });
 
+  const getAllRuang = async () => {
+    try {
+      const response = await api.get(`ruang2`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
+
+      setRuang(response.data.data);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
+    }
+  };
+
+  useEffect(() => {
+    getAllRuang();
+  }, []);
+
   const onSubmit = async (data: any) => {
     try {
       setLoading(true);
+
       console.log(data);
 
       if (!isEdit) {
@@ -207,6 +231,44 @@ export default function ModalFormMaintenance({
                         placeholder='Masukkan harga maintenance...'
                         {...field}
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {selectedStatus === 'Digunakan' && (
+              <FormField
+                control={form.control}
+                name='ruang'
+                rules={{ required: 'Ruangan wajib dipilih' }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Pilih Ruangan</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select an option' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ruang.length > 0 ? (
+                            ruang.map((item, i) => (
+                              <SelectItem
+                                key={item.id ? item.id : `ruang-${i}`}
+                                value={item.nama}
+                              >
+                                {item.nama}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <p>Loading...</p>
+                          )}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

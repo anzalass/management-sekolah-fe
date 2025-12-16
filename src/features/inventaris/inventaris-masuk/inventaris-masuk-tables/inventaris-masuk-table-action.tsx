@@ -2,7 +2,7 @@
 
 import { DataTableResetFilter } from '@/components/ui/table/data-table-reset-filter';
 import { DataTableSearch } from '@/components/ui/table/data-table-search';
-import { useDaftarInventarisTableFilters } from './daftar-inventaris-table-filters';
+import { useDaftarInventarisTableFilters } from './daftar-jenis-inventaris-table-filters';
 import { useEffect, useState, useTransition } from 'react';
 import { Input } from '@/components/ui/input';
 import {
@@ -13,6 +13,8 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { Ruangan } from '@/features/master-data/ruang/ruang-listing';
+import axios from 'axios';
+import { API } from '@/lib/server';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
@@ -74,14 +76,14 @@ export default function DaftarInventarisTableAction() {
         setPage={setPage}
       />
 
-      {/* <DataTableSearch
+      <DataTableSearch
         searchKey='Harga Beli'
         searchQuery={hargaBeliFilter}
         setSearchQuery={setHargaBeliFilter}
         setPage={setPage}
-      /> */}
+      />
 
-      {/* <Select value={ruangFilter} onValueChange={handleChangeRuangan}>
+      <Select value={ruangFilter} onValueChange={handleChangeRuangan}>
         <SelectTrigger>
           <SelectValue placeholder='Pilih Ruangan' />
         </SelectTrigger>
@@ -99,14 +101,14 @@ export default function DaftarInventarisTableAction() {
             <p>Loading...</p>
           )}
         </SelectContent>
-      </Select> */}
+      </Select>
 
-      {/* <Input
+      <Input
         type='date'
         placeholder='Masukan Tanggal'
         value={waktuPengadaanFilter}
         onChange={(e) => handleChangeTanggal(e.target.value)}
-      /> */}
+      />
 
       <DataTableResetFilter
         isFilterActive={isAnyFilterActive}

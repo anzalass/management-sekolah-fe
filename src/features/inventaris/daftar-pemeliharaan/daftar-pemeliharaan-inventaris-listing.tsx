@@ -8,7 +8,6 @@ import {
   PemeliharaanInventaris
 } from './daftar-pemeliharaan-tables/columns';
 import { useSearchParams } from 'next/navigation';
-import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import { toast } from 'sonner';
 import api from '@/lib/api';
