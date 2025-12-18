@@ -82,23 +82,27 @@ export default function ListJadwalGuru({ jadwalGuru }: Props) {
   );
 
   return (
-    <Card className='border-2 shadow-md'>
-      <CardHeader className='flex flex-row items-center gap-2'>
+    <Card className='flex h-[425px] flex-col border-2 shadow-md'>
+      <CardHeader className='flex flex-row items-center gap-2 py-3'>
         <Clock className='hidden h-5 w-5 text-primary md:block' />
         <CardTitle className='text-sm md:text-base lg:text-lg'>
           Jadwal Hari Ini
         </CardTitle>
       </CardHeader>
-      <CardContent className='w-full'>
+
+      {/* ✅ Ini yang diubah: flex-1 + max-h + overflow */}
+      <CardContent className='flex-1 overflow-y-auto'>
         {jadwalHariIni.length > 0 ? (
-          <Table className='w-[200vw] lg:w-full'>
+          <Table className='w-full min-w-[500px]'>
+            {' '}
+            {/* Hindari w-[200vw] */}
             <TableHeader>
               <TableRow>
-                <TableHead>Jam</TableHead>
+                <TableHead className='w-[100px]'>Jam</TableHead>
                 <TableHead>Mata Pelajaran</TableHead>
                 <TableHead>Kelas</TableHead>
                 <TableHead>Ruang Kelas</TableHead>
-                <TableHead>Aksi</TableHead>
+                <TableHead className='w-[80px]'>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -129,7 +133,7 @@ export default function ListJadwalGuru({ jadwalGuru }: Props) {
             </TableBody>
           </Table>
         ) : (
-          <p className='text-sm italic text-muted-foreground'>
+          <p className='flex h-full items-center justify-center text-sm italic text-muted-foreground'>
             Tidak ada jadwal hari ini.
           </p>
         )}

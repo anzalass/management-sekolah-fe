@@ -19,12 +19,16 @@ import {
   FileText,
   CalendarPlus,
   CheckCircle,
-  ClipboardList
+  ClipboardList,
+  XCircle
 } from 'lucide-react';
 
 import api from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import PengumumanKelasGuru from './pengumuman-guru';
+import ListKelas2 from './list-kelas-2';
+import ListMapel3 from './list-kelas-mapel';
+import ListKelasMapel from './list-kelas-mapel';
 
 const fetchDashboard = async (token: string) => {
   const response = await api.get('dashboard-mengajar', {
@@ -106,7 +110,7 @@ export default function MengajarViewPage() {
   }
 
   return (
-    <div className='relative min-h-screen'>
+    <div className='relative min-h-screen w-full px-0 md:px-5'>
       {/* <div className='absolute -z-50 h-[30%] w-full bg-blue-800'></div> */}
 
       <div className='mx-auto space-y-6 p-4 pb-20'>
@@ -125,97 +129,167 @@ export default function MengajarViewPage() {
           </div>
         )}
         {/* Greeting */}
-        <div className='text-center'>
+        {/* <div className='text-center'>
           <h1 className='text-xl font-bold text-gray-800 dark:text-white'>
             Selamat datang, {session?.user?.nama} 👋
           </h1>
           <p className='text-sm text-gray-500 dark:text-gray-400'>{today}</p>
-        </div>
+        </div> */}
         {/* Action Buttons - Clean & Modern */}
-        <div className=''>
-          <ListJadwalGuru jadwalGuru={dashboard?.jadwalGuru || []} />
-        </div>
-        {/* Status Summary - Simple Cards */}
 
-        <div className='w-full'>
-          {/* Flex container utama: status + ikon aksi */}
-          <div className='mx-auto flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center sm:gap-6 md:flex-row'>
-            {/* === Bagian Status (Teks Ringkas) === */}
-            <div className='flex w-full items-center gap-4 rounded-md md:w-1/2'>
-              <div className='flex items-center gap-1.5 border-2 p-2 text-sm'>
-                <span className='font-medium text-gray-700 dark:text-gray-300'>
-                  Masuk:
+        <div className='flex w-full flex-col-reverse 2xl:flex-row 2xl:space-x-8'>
+          <div className='flex w-full flex-col 2xl:w-[33%]'>
+            {/* ✅ Hapus h-full di sini */}
+            <div className='flex flex-col rounded-lg border-2 bg-white p-5 shadow-lg'>
+              <p className='mb-2 text-sm font-semibold text-muted-foreground md:text-base lg:text-lg'>
+                Summary Singkat
+              </p>
+              <div className='grid grid-cols-2 gap-5'>
+                {/* Kelas Diajar */}
+                <div className='flex min-h-[105px] flex-col items-center justify-center rounded-md border bg-blue-50 p-3'>
+                  <span className='text-2xl font-bold text-blue-700'>
+                    {dashboard?.SummarySingkat?.kelasDiajar || 0}
+                  </span>
+                  <span className='mt-1 text-center text-xs text-blue-600'>
+                    Kelas Diajar
+                  </span>
+                </div>
+
+                {/* Kelas Diwali */}
+                <div className='flex min-h-[105px] flex-col items-center justify-center rounded-md border bg-purple-50 p-3'>
+                  <span className='text-2xl font-bold text-purple-700'>
+                    {dashboard?.SummarySingkat?.kelasDiwali || 0}
+                  </span>
+                  <span className='mt-1 text-center text-xs text-purple-600'>
+                    Kelas Diwali
+                  </span>
+                </div>
+
+                {/* Total Izin Bulan Ini */}
+                <div className='flex min-h-[90px] flex-col items-center justify-center rounded-md border bg-amber-50 p-3'>
+                  <span className='text-2xl font-bold text-amber-700'>
+                    {dashboard?.SummarySingkat?.izinBulanIni || 0}
+                  </span>
+                  <span className='mt-1 text-center text-xs text-amber-600'>
+                    Total Izin Bulan Ini
+                  </span>
+                </div>
+
+                {/* Total Jadwal */}
+                <div className='flex min-h-[105px] flex-col items-center justify-center rounded-md border bg-green-50 p-3'>
+                  <span className='text-2xl font-bold text-green-700'>
+                    {dashboard?.SummarySingkat?.totalJadwal || 0}
+                  </span>
+                  <span className='mt-1 text-center text-xs text-green-600'>
+                    Total Jadwal
+                  </span>
+                </div>
+
+                {/* Total Murid */}
+                <div className='flex min-h-[105px] flex-col items-center justify-center rounded-md border bg-cyan-50 p-3'>
+                  <span className='text-2xl font-bold text-cyan-700'>
+                    {dashboard?.SummarySingkat?.totalMurid || 0}
+                  </span>
+                  <span className='mt-1 text-center text-xs text-cyan-600'>
+                    Total Murid
+                  </span>
+                </div>
+
+                {/* Janji Temu */}
+                <div className='flex min-h-[105px] flex-col items-center justify-center rounded-md border bg-pink-50 p-3'>
+                  <span className='text-2xl font-bold text-pink-700'>
+                    {dashboard?.SummarySingkat?.janjiTemu || 0}
+                  </span>
+                  <span className='mt-1 text-center text-xs text-pink-600'>
+                    Janji Temu
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className='mt-5 w-full 2xl:mt-0 2xl:w-[33%]'>
+            <ListJadwalGuru jadwalGuru={dashboard?.jadwalGuru || []} />
+          </div>
+          <div className='mt-5 h-full w-full space-y-5 rounded-lg border-2 p-5 text-sm shadow-lg md:text-base 2xl:mt-0 2xl:w-[33%]'>
+            {/* Status Absen */}
+            <div className='space-y-6'>
+              <div className='flex w-full items-center rounded-lg border bg-green-50 p-3'>
+                <span className='mr-3 font-bold text-gray-700'>
+                  Absen Masuk :
                 </span>
-                <span
-                  className={
-                    dashboard?.statusMasuk
-                      ? 'font-semibold text-emerald-600 dark:text-emerald-400'
-                      : 'text-gray-500 dark:text-gray-400'
-                  }
-                >
-                  {dashboard?.statusMasuk ? '✅' : 'belum'}
-                </span>
+                {dashboard?.statusMasuk ? (
+                  <div className='flex items-center gap-2'>
+                    <CheckCircle className='h-5 w-5 text-green-600' />
+                    <p className='font-bold text-green-800'>Sudah Absen</p>
+                  </div>
+                ) : (
+                  <div className='flex items-center gap-2'>
+                    <XCircle className='h-5 w-5 text-red-500' />
+                    <p className='font-bold text-red-800'>Belum Absen</p>
+                  </div>
+                )}
               </div>
 
-              <div className='flex items-center gap-1.5 border-2 p-2 text-sm'>
-                <span className='font-medium text-gray-700 dark:text-gray-300'>
-                  Pulang:
+              <div className='flex w-full items-center rounded-lg border bg-blue-50 p-3'>
+                <span className='mr-3 font-bold text-gray-700'>
+                  Absen Pulang :
                 </span>
-                <span
-                  className={
-                    dashboard?.statusKeluar
-                      ? 'font-semibold text-emerald-600 dark:text-emerald-400'
-                      : 'text-gray-500 dark:text-gray-400'
-                  }
-                >
-                  {dashboard?.statusKeluar ? '✅' : 'belum'}
-                </span>
+                {dashboard?.statusKeluar ? (
+                  <div className='flex items-center gap-2'>
+                    <CheckCircle className='h-5 w-5 text-green-600' />
+                    <p className='font-bold text-green-800'>Sudah Absen</p>
+                  </div>
+                ) : (
+                  <div className='flex items-center gap-2'>
+                    <XCircle className='h-5 w-5 text-red-500' />
+                    <p className='font-bold text-red-800'>Belum Absen</p>
+                  </div>
+                )}
               </div>
 
-              <div className='flex items-center gap-1.5 border-2 p-2 text-sm'>
-                <span className='font-medium text-gray-700 dark:text-gray-300'>
-                  Izin:
+              <div className='flex w-full items-center rounded-lg border bg-yellow-50 p-3'>
+                <span className='mr-3 font-bold text-gray-700'>
+                  Status Izin :
                 </span>
-                <span
-                  className={
-                    dashboard?.statusIzin
-                      ? 'font-semibold text-amber-600 dark:text-amber-400'
-                      : 'text-gray-500 dark:text-gray-400'
-                  }
-                >
-                  {dashboard?.statusIzin ? 'Aktif' : '–'}
-                </span>
+                {dashboard?.statusIzin ? (
+                  <div className='flex items-center gap-2'>
+                    <CheckCircle className='h-5 w-5 text-green-600' />
+                    <p className='font-bold text-green-800'>Sedang Izin</p>
+                  </div>
+                ) : (
+                  <div className='flex items-center gap-2'>
+                    <XCircle className='h-5 w-5 text-red-500' />
+                    <p className='font-bold text-red-800'>Tidak Izin</p>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* === Bagian Aksi (Hanya Ikon) === */}
-            <div className='flex w-full items-center justify-start gap-3 md:w-1/2 md:justify-end'>
+            {/* Tombol Aksi — tanpa mt-6 */}
+            <div className='grid w-full grid-cols-2 gap-6'>
               {/* Absen Masuk */}
               <Button
-                size='icon'
-                variant='outline'
                 onClick={() => setIsCameraOpen(true)}
                 disabled={dashboard?.statusMasuk || dashboard?.statusIzin}
                 aria-label={
                   dashboard?.statusMasuk ? 'Sudah absen masuk' : 'Absen masuk'
                 }
-                className={`rounded-lg border-2 bg-blue-300 p-2.5 transition-all ${
+                className={`flex min-h-[70px] flex-col items-center justify-center rounded-xl border transition-all ${
                   dashboard?.statusMasuk
-                    ? 'text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/30'
-                    : 'text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/30'
-                }`}
+                    ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                    : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                } disabled:opacity-70`}
               >
                 {dashboard?.statusMasuk ? (
                   <CheckCircle size={20} />
                 ) : (
                   <Clock size={20} />
                 )}
+                <span className='mt-1 text-base font-medium'>Masuk</span>
               </Button>
 
               {/* Absen Pulang */}
               <Button
-                size='icon'
-                variant='outline'
                 onClick={() => absenPulangMutation.mutate()}
                 disabled={dashboard?.statusKeluar || dashboard?.statusIzin}
                 aria-label={
@@ -223,55 +297,47 @@ export default function MengajarViewPage() {
                     ? 'Sudah absen pulang'
                     : 'Absen pulang'
                 }
-                className={`rounded-lg border-2 bg-green-300 p-2.5 transition-all ${
-                  dashboard?.statusKeluar
-                    ? 'text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/30'
-                    : 'text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/30'
-                }`}
+                className='flex min-h-[70px] flex-col items-center justify-center rounded-xl border bg-green-100 text-green-700 transition-all hover:bg-green-200 disabled:opacity-70'
               >
                 {dashboard?.statusKeluar ? (
                   <CheckCircle size={20} />
                 ) : (
                   <LogOut size={20} />
                 )}
+                <span className='mt-1 text-base font-medium'>Pulang</span>
               </Button>
 
-              {/* Izin Tidak Hadir */}
+              {/* Izin */}
               <Button
-                size='icon'
-                variant='outline'
                 onClick={() => setShowIzinModal(true)}
                 disabled={!!dashboard?.statusMasuk}
                 aria-label={
                   dashboard?.statusIzin ? 'Izin aktif' : 'Ajukan izin'
                 }
-                className={`rounded-lg border-2 bg-amber-300 p-2.5 transition-all ${
-                  dashboard?.statusIzin
-                    ? 'text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/30'
-                    : 'text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/30'
-                }`}
+                className='flex min-h-[70px] flex-col items-center justify-center rounded-xl border bg-amber-100 text-amber-700 transition-all hover:bg-amber-200 disabled:opacity-70'
               >
                 {dashboard?.statusIzin ? (
                   <CheckCircle size={20} />
                 ) : (
                   <FileText size={20} />
                 )}
+                <span className='mt-1 text-base font-medium'>Izin</span>
               </Button>
 
-              {/* Tambah Jadwal */}
+              {/* Jadwal */}
               <Button
-                size='icon'
-                variant='outline'
                 onClick={() => setShowJadwalModal(true)}
                 aria-label='Tambah jadwal mengajar'
-                className='rounded-lg border-2 bg-purple-300 p-2.5 text-purple-600 hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-900/30'
+                className='flex min-h-[70px] flex-col items-center justify-center rounded-xl border bg-purple-100 text-purple-700 transition-all hover:bg-purple-200'
               >
                 <CalendarPlus size={20} />
+                <span className='mt-1 text-base font-medium'>Jadwal</span>
               </Button>
             </div>
           </div>
         </div>
-        <div className=''>
+
+        {/* <div className=''>
           <ListKelasGuru
             kelasMapel={dashboard?.kelasMapel || []}
             kelasWaliKelas={dashboard?.kelasWaliKelas || []}
@@ -282,10 +348,36 @@ export default function MengajarViewPage() {
               })
             }
           />
+        </div> */}
+
+        <div className='flex w-full flex-col gap-4 xl:flex-row'>
+          <div className='w-full xl:w-1/2'>
+            <ListKelas2
+              setOpenModal={setOpenModal}
+              fetchData={() =>
+                queryClient.invalidateQueries({
+                  queryKey: ['dashboard-mengajar']
+                })
+              }
+              kelasList={dashboard?.kelasWaliKelasKehadiran || []}
+            />
+          </div>
+          <div className='w-full xl:w-1/2'>
+            <ListKelasMapel
+              setOpenModal={setOpenModal}
+              fetchData={() =>
+                queryClient.invalidateQueries({
+                  queryKey: ['dashboard-mengajar']
+                })
+              }
+              kelasMapel={dashboard?.kelasMapel || []}
+            />
+          </div>
         </div>
         <div className=''>
           <PengumumanKelasGuru />
         </div>
+
         <div className=''>
           <CardListIzin />
         </div>

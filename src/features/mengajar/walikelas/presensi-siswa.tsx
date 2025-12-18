@@ -95,6 +95,22 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
     }
   });
 
+  // Helper: konversi enum ke label tampilan
+  const formatKeterangan = (keterangan: string) => {
+    switch (keterangan) {
+      case 'Hadir':
+        return 'Hadir';
+      case 'Izin':
+        return 'Izin';
+      case 'Sakit':
+        return 'Sakit';
+      case 'TanpaKeterangan':
+        return 'Tanpa Keterangan';
+      default:
+        return keterangan || 'Belum Absen';
+    }
+  };
+
   if (isLoading) {
     return <p>Loading...</p>;
   }
@@ -120,7 +136,7 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
                 <td className='p-2'>{student.nama}</td>
                 <td className='p-2'>
                   {student.kehadiranSiswa?.length > 0
-                    ? student.kehadiranSiswa[0]?.keterangan
+                    ? formatKeterangan(student.kehadiranSiswa[0]?.keterangan)
                     : 'Belum Absen'}
                 </td>
                 <td className='p-2'>
@@ -175,7 +191,7 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
                       onClick={() =>
                         mutation.mutate({
                           dataAbsen: student,
-                          keterangan: 'Tanpa Keterangan'
+                          keterangan: 'TanpaKeterangan'
                         })
                       }
                       variant='outline'

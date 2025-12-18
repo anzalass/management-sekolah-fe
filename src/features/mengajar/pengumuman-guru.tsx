@@ -172,7 +172,9 @@ const PengumumanKelasGuru = () => {
   return (
     <Card className='p-0'>
       <CardHeader className='flex flex-col items-start justify-between gap-3 p-3 md:flex-row md:items-center md:p-5'>
-        <CardTitle className='text-base'>Pengumuman Kelas</CardTitle>
+        <CardTitle className='text-sm md:text-base lg:text-lg'>
+          Pengumuman Kelas
+        </CardTitle>
 
         {/* 🔍 Input Search */}
         <div className='relative w-full md:w-1/3'>
