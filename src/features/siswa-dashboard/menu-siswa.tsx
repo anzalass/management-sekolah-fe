@@ -39,10 +39,11 @@ export default function MenuFiturSiswa() {
       label: 'Classroom',
       color: 'text-indigo-500'
     },
+
     {
-      href: '/siswa/perizinan',
-      icon: <ScrollTextIcon />,
-      label: 'Permission',
+      href: '/siswa/catatan-perkembangan-siswa',
+      icon: <NotebookText />,
+      label: 'Student Development Notes',
       color: 'text-indigo-500'
     },
     {
@@ -52,11 +53,12 @@ export default function MenuFiturSiswa() {
       color: 'text-indigo-500'
     },
     {
-      href: '/siswa/pelanggaran',
-      icon: <AlertTriangleIcon />,
-      label: 'Violation',
+      href: '/siswa/perizinan',
+      icon: <ScrollTextIcon />,
+      label: 'Permission',
       color: 'text-indigo-500'
     },
+
     {
       href: '/siswa/prestasi',
       icon: <Award />,
@@ -84,6 +86,12 @@ export default function MenuFiturSiswa() {
       label: 'Apointment',
       color: 'text-indigo-500'
     },
+    {
+      href: '/siswa/pelanggaran',
+      icon: <AlertTriangleIcon />,
+      label: 'Violation',
+      color: 'text-indigo-500'
+    },
 
     {
       href: '/siswa/kalender-akademik',
@@ -97,6 +105,7 @@ export default function MenuFiturSiswa() {
       label: 'Student Score',
       color: 'text-indigo-500'
     },
+
     //E-Perpus di hilangkan dari modal ~ Unggul Prayuda
     // {
     //   href: '/siswa/perpustakaan',

@@ -12,6 +12,13 @@ import { Textarea } from '@/components/ui/textarea';
 import axios from 'axios';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
 // Schema validation with zod
 const schema = z.object({
@@ -162,7 +169,18 @@ export default function SekolahForm() {
 
             <div>
               <Label className='mb-1'>Tahun Ajaran</Label>
-              <Input placeholder='2025/2026' {...register('tahunAjaran')} />
+              <Select {...register('tahunAjaran')}>
+                <SelectTrigger>
+                  <SelectValue placeholder='Pilih tahun ajaran' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='2023-2024'>2023-2024</SelectItem>
+                  <SelectItem value='2024-2025'>2024-2025</SelectItem>
+                  <SelectItem value='2025-2026'>2025-2026</SelectItem>
+                  <SelectItem value='2026-2027'>2026-2027</SelectItem>
+                  <SelectItem value='2027-2028'>2027-2028</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
