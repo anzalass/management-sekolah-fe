@@ -122,6 +122,21 @@ export default function DetailAbsensiSiswaView({ idKelas, idSiswa }: Props) {
     return itemDate === filterDate;
   });
 
+  const formatKeterangan = (keterangan: string) => {
+    switch (keterangan) {
+      case 'Hadir':
+        return 'Hadir';
+      case 'Izin':
+        return 'Izin';
+      case 'Sakit':
+        return 'Sakit';
+      case 'TanpaKeterangan':
+        return 'Tanpa Keterangan';
+      default:
+        return keterangan || 'Belum Absen';
+    }
+  };
+
   return (
     <div className='space-y-6 p-4'>
       {/* filter */}
@@ -242,7 +257,7 @@ export default function DetailAbsensiSiswaView({ idKelas, idSiswa }: Props) {
                 </TableCell>
                 <TableCell>{item.namaSiswa}</TableCell>
                 <TableCell>{item.nisSiswa}</TableCell>
-                <TableCell>{item.keterangan}</TableCell>
+                <TableCell>{formatKeterangan(item.keterangan)}</TableCell>
                 <TableCell className='text-center'>
                   <Button
                     size='icon'
