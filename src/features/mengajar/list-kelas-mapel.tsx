@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import Link from 'next/link';
 
 // ✅ Helper: generate opsi tahun ajaran
 const generateTahunAjaranOptions = () => {
@@ -310,6 +311,11 @@ export default function ListKelasMapel({
                       </div>
                     );
                   })}
+                </div>
+                <div className='mt-3 w-full'>
+                  <Link href={`/mengajar/kelas-mapel/${mapel.id}`}>
+                    <Button className='w-full'>Masuk Kelas</Button>
+                  </Link>
                 </div>
               </div>
             </div>

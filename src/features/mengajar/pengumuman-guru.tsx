@@ -267,11 +267,15 @@ const PengumumanKelasGuru = () => {
                     <TableCell>
                       {format(new Date(p.time), 'dd MMMM yyyy')}
                     </TableCell>
-                    <TableCell className='max-w-xs text-gray-600'>
-                      <div
-                        className='overflow-hidden truncate text-ellipsis whitespace-nowrap'
-                        dangerouslySetInnerHTML={{ __html: p?.content }}
-                      ></div>
+                    <TableCell className='max-w-[200px]'>
+                      {p?.content ? (
+                        <div
+                          className='line-clamp-2 text-gray-600'
+                          dangerouslySetInnerHTML={{ __html: p.content }}
+                        />
+                      ) : (
+                        '-'
+                      )}
                     </TableCell>
                     <TableCell className='text-center'>
                       <div className='flex items-center justify-center gap-2'>

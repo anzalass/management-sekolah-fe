@@ -121,7 +121,7 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
         <CardTitle className='text-base'>Absensi Hari Ini</CardTitle>
       </CardHeader>
       <div className='w-full overflow-x-auto rounded-lg p-5 shadow'>
-        <table className='w-full border text-left text-sm'>
+        <table className='w-[200%] border text-left text-sm lg:w-full'>
           <thead>
             <tr>
               <th className='border p-2'>Nama</th>

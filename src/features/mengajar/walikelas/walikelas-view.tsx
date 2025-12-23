@@ -17,6 +17,14 @@ import PerizinanSiswaView from './perizinan-siswa-view';
 import TambahWeeklyActivity from './tambah-weekly-activity';
 import WeeklyActivityList from './weekly-activity-view';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  ClipboardList,
+  Calendar,
+  Users,
+  Ticket,
+  FileText,
+  Plus
+} from 'lucide-react';
 
 type IDKelas = {
   id: string;
@@ -141,44 +149,96 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
   }, [searchTerm, masterSiswa, kelasSiswa]);
 
   return (
+    // ... komponen lain ...
+
     <div className='space-y-8 overflow-x-auto p-2 pb-16'>
       <p className='text-base font-bold lg:text-2xl'>
         {dashboardData?.data.namaKelas}
       </p>
-      <div className='grid grid-cols-2 items-center justify-between gap-4 text-sm lg:grid-cols-6 lg:text-base'>
-        <Button asChild className='text-xs lg:text-base'>
-          <Link href={`/mengajar/walikelas/${id}/rekap-absensi`}>
-            Rekap Absensi
-          </Link>
-        </Button>
-        <Button asChild className='text-xs lg:text-base'>
-          <Link href={`/mengajar/walikelas/${id}/rekap-nilai`}>
-            Rekap Nilai
-          </Link>
-        </Button>
-        <Button asChild className='text-xs lg:text-base'>
-          <Link href={`/mengajar/walikelas/${id}/list-siswa`}>List Siswa</Link>
-        </Button>
-        <Button asChild className='text-xs lg:text-base'>
-          <Link href={`/mengajar/walikelas/${id}/kartu-ujian`}>
-            Cetak Kartu Ujian
-          </Link>
-        </Button>
-        <Button asChild className='text-xs lg:text-base'>
-          <Link href={`/mengajar/walikelas/${id}/perizinan-siswa`}>
-            Perizinan Siswa
-          </Link>
-        </Button>
-        <TambahWeeklyActivity idKelas={id} />
+
+      {/* === GABUNGAN: Tombol + Perizinan Siswa === */}
+      <div className='flex w-full flex-col gap-6 xl:flex-row xl:items-start xl:gap-6'>
+        {/* Tombol Aksi */}
+        <div className='grid w-full grid-cols-2 gap-4 xl:w-[25%]'>
+          <Button
+            asChild
+            className='flex min-h-[50px] items-center gap-2 bg-blue-500 text-white hover:bg-blue-600 xl:min-h-[120px]'
+          >
+            <Link
+              className='flex flex-col'
+              href={`/mengajar/walikelas/${id}/rekap-absensi`}
+            >
+              <ClipboardList size={16} />
+              <span className='text-xs lg:text-base'>Rekap Absensi</span>
+            </Link>
+          </Button>
+
+          <Button
+            asChild
+            className='flex min-h-[50px] items-center gap-2 bg-purple-500 text-white hover:bg-purple-600 xl:min-h-[120px]'
+          >
+            <Link
+              className='flex flex-col'
+              href={`/mengajar/walikelas/${id}/rekap-nilai`}
+            >
+              <FileText size={16} />
+              <span className='text-xs lg:text-base'>Rekap Nilai</span>
+            </Link>
+          </Button>
+
+          <Button
+            asChild
+            className='flex min-h-[50px] items-center gap-2 bg-emerald-500 text-white hover:bg-emerald-600 xl:min-h-[120px]'
+          >
+            <Link
+              className='flex flex-col'
+              href={`/mengajar/walikelas/${id}/list-siswa`}
+            >
+              <Users size={16} />
+              <span className='text-xs lg:text-base'>List Siswa</span>
+            </Link>
+          </Button>
+
+          <Button
+            asChild
+            className='flex min-h-[50px] items-center gap-2 bg-amber-500 text-white hover:bg-amber-600 xl:min-h-[120px]'
+          >
+            <Link
+              className='flex flex-col'
+              href={`/mengajar/walikelas/${id}/kartu-ujian`}
+            >
+              <Ticket size={16} />
+              <span className='text-xs lg:text-base'>Cetak Kartu Ujian</span>
+            </Link>
+          </Button>
+
+          <Button
+            asChild
+            className='flex min-h-[50px] items-center gap-2 bg-rose-500 text-white hover:bg-rose-600 xl:min-h-[120px]'
+          >
+            <Link
+              className='flex flex-col'
+              href={`/mengajar/walikelas/${id}/perizinan-siswa`}
+            >
+              <FileText size={16} />
+              <span className='text-xs lg:text-base'>Perizinan Siswa</span>
+            </Link>
+          </Button>
+
+          <TambahWeeklyActivity idKelas={id} />
+        </div>
+
+        {/* Tabel Perizinan */}
+        <div className='h-[400px] w-full flex-1 overflow-x-auto rounded-lg border bg-white p-4 shadow-sm xl:w-[65%]'>
+          <PerizinanSiswaView idKelas={id} />
+        </div>
       </div>
 
-      <div className='w-[100%] overflow-x-scroll'>
-        <PerizinanSiswaView idKelas={id} />
-      </div>
-      <div className='w-[100%] overflow-x-scroll'>
+      {/* === Sisa konten === */}
+      <div className='w-full overflow-x-auto'>
         <PresensiSiswa idKelas={id} />
       </div>
-      <div className='w-[100%] overflow-x-scroll'>
+      <div className='w-full overflow-x-auto'>
         <JadwalPelajaran idKelas={id} />
       </div>
 
@@ -219,7 +279,6 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
         </CardContent>
       </Card>
 
-      {/* <PengumumanKelas pengumuman={pengumumanKelas} id={id} /> */}
       <CatatanPerkembanganSiswa
         catatanList={catatanPerkembangan}
         idKelas={id}

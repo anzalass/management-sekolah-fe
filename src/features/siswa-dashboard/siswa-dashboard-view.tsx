@@ -186,11 +186,19 @@ export default function SiswaHomeView() {
   };
 
   // ... return JSX (UI) kamu seperti biasa
-
+  // const getInitials = (str: string): string => {
+  //   return (
+  //     str
+  //       .split(' ')
+  //       .map((word) => word[0]?.toUpperCase() || '')
+  //       .join('')
+  //       .substring(0, 2) || 'XX'
+  //   );
+  // };
   if (siswaLoading || notifLoading) return <Loading />;
 
   return (
-    <div className='mx-auto mb-14 min-h-screen'>
+    <div className='mx-auto mb-32 min-h-screen'>
       {/* Profil Siswa */}
       <div
         className={`relative overflow-hidden ${process.env.NEXT_PUBLIC_THEME_COLOR} p-6 text-white`}
@@ -279,33 +287,78 @@ export default function SiswaHomeView() {
           <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4'>
             {kelas.length > 0 ? (
               kelas.map((kelasItem) => (
-                <Link href={`/siswa/kelas/${kelasItem.id}`} key={kelasItem.id}>
-                  <Card className='hover: group cursor-pointer overflow-hidden rounded-2xl border-2 border-purple-100 bg-white transition-all duration-300 hover:scale-[1.03] hover:border-purple-300'>
-                    <div className='relative overflow-hidden'>
-                      <img
-                        src={kelasItem.banner || '/banner-default.jpg'}
-                        alt={kelasItem.nama}
-                        className='h-36 w-full object-cover transition-transform duration-500 group-hover:scale-110'
-                      />
-                      <div className='absolute bottom-2 right-2 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-purple-600 backdrop-blur-sm'>
-                        <Users className='mr-1 inline h-3 w-3' />
-                        {kelasItem.totalSiswa}
+                <Link
+                  href={`/siswa/kelas/${kelasItem.id}`}
+                  key={kelasItem.id}
+                  className='group'
+                >
+                  <Card className='h-full overflow-hidden border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl'>
+                    {/* Banner */}
+                    <div className='relative h-40 overflow-hidden'>
+                      {kelasItem.banner ? (
+                        // Jika ada gambar
+                        <>
+                          <img
+                            src={kelasItem.banner}
+                            alt={kelasItem.namaMapel}
+                            className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-110'
+                          />
+                          <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent' />
+                        </>
+                      ) : (
+                        // Jika tidak ada gambar → tampilkan inisial
+                        <div className='flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600'>
+                          <span className='text-3xl font-bold text-white drop-shadow-md'>
+                            {getInitials(kelasItem.namaMapel)}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Floating Badge (tetap muncul di semua kasus) */}
+                      <div className='absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 backdrop-blur-sm'>
+                        <span className='text-xs font-semibold text-gray-900'>
+                          {kelasItem.tahunAjaran}
+                        </span>
                       </div>
                     </div>
-                    <CardHeader className='pb-3'>
-                      <CardTitle className='text-base font-bold text-purple-900 md:text-lg'>
+
+                    {/* Content (sama seperti sebelumnya) */}
+                    <div className='p-5'>
+                      <CardTitle className='mb-3 line-clamp-2 text-lg font-bold text-gray-900 transition-colors group-hover:text-blue-600'>
                         {kelasItem.namaMapel}
                       </CardTitle>
-                    </CardHeader>
-                    <CardContent className='space-y-2 text-xs md:text-sm'>
-                      <p className='font-semibold text-slate-700'>
-                        👨‍🏫 {kelasItem.namaGuru}
-                      </p>
-                      <p className='flex items-center gap-1.5 text-slate-600'>
-                        <CalendarIcon className='h-4 w-4 text-violet-500' />
-                        {kelasItem.tahunAjaran}
-                      </p>
-                    </CardContent>
+
+                      <div className='space-y-2.5 text-sm text-muted-foreground'>
+                        <div className='flex items-center gap-2'>
+                          <div className='flex h-8 w-8 items-center justify-center rounded-full bg-gray-100'>
+                            <span className='text-xs font-semibold text-gray-600'>
+                              {kelasItem.namaGuru.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <span className='line-clamp-1 font-medium text-gray-700'>
+                            {kelasItem.namaGuru}
+                          </span>
+                        </div>
+
+                        <div className='flex items-center justify-between pt-2'>
+                          <div className='flex items-center gap-1.5'>
+                            <CalendarIcon className='h-4 w-4 text-gray-400' />
+                            <span className='text-xs'>
+                              {kelasItem.tahunAjaran}
+                            </span>
+                          </div>
+                          <div className='flex items-center gap-1.5'>
+                            <UsersIcon className='h-4 w-4 text-gray-400' />
+                            <span className='text-xs font-medium'>
+                              {kelasItem.totalSiswa} Student
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom Accent */}
+                    <div className='h-1 w-full bg-gradient-to-r from-blue-500 to-purple-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100' />
                   </Card>
                 </Link>
               ))
@@ -371,7 +424,7 @@ export default function SiswaHomeView() {
             )}
           </CardContent>
         </Card>
-        <Card className='hover: overflow-hidden border-2 border-purple-200/50 bg-white/95 backdrop-blur-sm transition-all duration-300'>
+        <Card className='hover: mb-40 overflow-hidden border-2 border-purple-200/50 bg-white/95 backdrop-blur-sm transition-all duration-300'>
           <CardHeader className=''>
             <div className='flex items-center gap-3'>
               <div

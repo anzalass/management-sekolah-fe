@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import Link from 'next/link';
 
 // Helper: generate tahun ajaran dari 5 tahun lalu sampai 5 tahun depan
 const generateTahunAjaranOptions = () => {
@@ -306,6 +307,12 @@ export default function ListKelas2({
                         })}
                       </div>
                     )}
+
+                    <div className='mt-3 w-full'>
+                      <Link href={`/mengajar/walikelas/${kelas.id}`}>
+                        <Button className='w-full'>Masuk Kelas</Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
