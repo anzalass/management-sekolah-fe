@@ -19,6 +19,7 @@ import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import RichTextEditor from '@/features/texteditor/textEditor';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Activity } from 'lucide-react';
 
 interface FormValues {
   judul: string;
@@ -110,9 +111,15 @@ export default function TambahWeeklyActivity({ idKelas }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant='default' className='text-xs lg:text-base'>
-          Tambah Weekly Activity
-        </Button>
+        <div className=''>
+          <Button
+            variant='default'
+            className='flex min-h-[50px] w-full flex-col text-xs lg:text-base xl:min-h-[120px]'
+          >
+            <Activity size={16} className='mb-2' />
+            Weekly Activity
+          </Button>
+        </div>
       </DialogTrigger>
       <DialogContent className='max-h-[80vh] max-w-lg overflow-y-auto dark:text-white'>
         <DialogHeader>

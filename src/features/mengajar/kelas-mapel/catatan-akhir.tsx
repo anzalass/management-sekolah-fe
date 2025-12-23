@@ -23,6 +23,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { useSession } from 'next-auth/react';
+import { Search } from 'lucide-react';
 
 interface Siswa {
   id: string;
@@ -53,6 +54,7 @@ export default function CatatanAkhirSiswa({
 }: CatatanAkhirSiswaProps) {
   const [catatanList, setCatatanList] = useState<Catatan[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterNamaSiswa, setFilterNamaSiswa] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const { data: session } = useSession();
 
@@ -83,14 +85,12 @@ export default function CatatanAkhirSiswa({
   const onSubmit = async (values: FormValues) => {
     try {
       if (editingId) {
-        // update
         await api.put(`catatan-akhir-siswa/${editingId}`, {
           ...values,
           idKelasMapel
         });
         toast.success('Catatan berhasil diperbarui');
       } else {
-        // create
         await api.post('catatan-akhir-siswa', {
           ...values,
           idKelasMapel
@@ -128,28 +128,33 @@ export default function CatatanAkhirSiswa({
     }
   };
 
-  // Filter by search term
+  // Filter hanya berdasarkan nama siswa
   const filteredCatatan = catatanList.filter((c) =>
-    (c.Siswa?.nama + ' ' + c.content)
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
+    (c.Siswa?.nama || '').toLowerCase().includes(filterNamaSiswa.toLowerCase())
   );
 
   return (
     <Card className='space-y-6 p-3 pt-5 md:p-5'>
-      {/* List Catatan */}
-      <div className=' '>
-        <div className='mb-4 items-center justify-between lg:flex'>
+      {/* === FILTER NAMA SISWA === */}
+      <div>
+        <div className='mb-4 flex items-center justify-between'>
           <h3 className='text-base font-semibold'>
             Daftar Catatan Akhir Siswa
           </h3>
+        </div>
+        <div className='relative max-w-xs'>
+          <Search className='absolute left-3 top-2.5 h-4 w-4 text-muted-foreground' />
           <Input
-            placeholder='Cari catatan...'
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className='mt-4 max-w-xs lg:mt-0'
+            placeholder='Cari nama siswa...'
+            className='pl-10'
+            value={filterNamaSiswa}
+            onChange={(e) => setFilterNamaSiswa(e.target.value)}
           />
         </div>
+      </div>
+
+      {/* === LIST CATATAN === */}
+      <div>
         {filteredCatatan.length === 0 ? (
           <p className='text-gray-500'>Belum ada catatan.</p>
         ) : (
@@ -157,15 +162,18 @@ export default function CatatanAkhirSiswa({
             {filteredCatatan.map((c) => (
               <li
                 key={c.id}
-                className='items-center justify-between rounded-md border p-3'
+                className='flex items-start justify-between rounded-md border p-3'
               >
-                <span>
+                <div>
                   <span className='font-semibold'>
                     {c.Siswa?.nama || 'Siswa'}
                   </span>
-                  : {c.content}
-                </span>
-                <div className='mt-3 flex gap-2'>
+                  <span className='ml-2 text-sm text-muted-foreground'>
+                    {c.Siswa?.nis && `(${c.Siswa.nis})`}
+                  </span>
+                  <p className='mt-1 text-sm'>{c.content}</p>
+                </div>
+                <div className='ml-4 flex flex-col gap-2'>
                   <Button
                     size='sm'
                     variant='outline'
@@ -187,14 +195,13 @@ export default function CatatanAkhirSiswa({
         )}
       </div>
 
-      {/* Form Tambah/Edit Catatan */}
+      {/* === FORM TAMBAH/EDIT === */}
       <div className='p-0'>
         <h3 className='mb-4 text-base font-semibold'>
           {editingId ? 'Edit Catatan' : 'Tambah Catatan'}
         </h3>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-            {/* Dropdown Siswa */}
             <FormField
               control={form.control}
               name='idSiswa'
@@ -221,7 +228,6 @@ export default function CatatanAkhirSiswa({
               )}
             />
 
-            {/* Content */}
             <FormField
               control={form.control}
               name='content'

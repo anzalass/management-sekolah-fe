@@ -119,8 +119,8 @@ export default function ListSiswaView({ idKelas }: Props) {
           ) : (
             filteredData.map((item: any) => (
               <TableRow key={item.idSiswa} className='hover:bg-gray-50'>
-                <TableCell>{item.namaSiswa}</TableCell>
-                <TableCell>{item.nisSiswa}</TableCell>
+                <TableCell>{item.Siswa.nama}</TableCell>
+                <TableCell>{item.Siswa.nis}</TableCell>
 
                 {/* Toggle rapot */}
                 <TableCell>

@@ -67,6 +67,16 @@ export default function KelasView() {
     k.namaMapel.toLowerCase().includes(search.toLowerCase())
   );
 
+  const getInitials = (str: string): string => {
+    return (
+      str
+        .split(' ')
+        .map((word) => word[0]?.toUpperCase() || '')
+        .join('')
+        .substring(0, 2) || 'XX'
+    );
+  };
+
   if (isLoading) return <Loading />;
 
   if (error) {
@@ -131,16 +141,28 @@ export default function KelasView() {
                 className='group'
               >
                 <Card className='h-full overflow-hidden border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl'>
-                  {/* Banner Image */}
-                  <div className='relative h-40 overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600'>
-                    <img
-                      src={kelasItem.banner}
-                      alt={kelasItem.namaMapel}
-                      className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-110'
-                    />
-                    <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent' />
+                  {/* Banner */}
+                  <div className='relative h-40 overflow-hidden'>
+                    {kelasItem.banner ? (
+                      // Jika ada gambar
+                      <>
+                        <img
+                          src={kelasItem.banner}
+                          alt={kelasItem.namaMapel}
+                          className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-110'
+                        />
+                        <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent' />
+                      </>
+                    ) : (
+                      // Jika tidak ada gambar → tampilkan inisial
+                      <div className='flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600'>
+                        <span className='text-3xl font-bold text-white drop-shadow-md'>
+                          {getInitials(kelasItem.namaMapel)}
+                        </span>
+                      </div>
+                    )}
 
-                    {/* Floating Badge */}
+                    {/* Floating Badge (tetap muncul di semua kasus) */}
                     <div className='absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 backdrop-blur-sm'>
                       <span className='text-xs font-semibold text-gray-900'>
                         {kelasItem.tahunAjaran}
@@ -148,7 +170,7 @@ export default function KelasView() {
                     </div>
                   </div>
 
-                  {/* Content */}
+                  {/* Content (sama seperti sebelumnya) */}
                   <div className='p-5'>
                     <CardTitle className='mb-3 line-clamp-2 text-lg font-bold text-gray-900 transition-colors group-hover:text-blue-600'>
                       {kelasItem.namaMapel}

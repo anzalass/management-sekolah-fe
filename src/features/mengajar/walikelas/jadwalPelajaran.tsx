@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -25,7 +25,14 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Mapel } from '@/features/master-data/mapel/mapel-listing';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
 
 type Jadwal = {
   id: string;
@@ -44,21 +51,17 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
 
-  // ✅ Fetch jadwal
-  const { data: jadwals, isLoading } = useQuery<Jadwal[]>({
+  const { data: jadwals = [], isLoading } = useQuery<Jadwal[]>({
     queryKey: ['jadwal', idKelas],
     queryFn: async () => {
       const res = await api.get(`jadwal/${idKelas}`, {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
       return res.data.data;
     },
     enabled: !!session?.user?.token
   });
 
-  // ✅ Tambah jadwal
   const addJadwalMutation = useMutation({
     mutationFn: async (newJadwal: Omit<Jadwal, 'id'>) => {
       const res = await api.post('jadwal', newJadwal, {
@@ -80,13 +83,10 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
     }
   });
 
-  // ✅ Hapus jadwal
   const deleteJadwalMutation = useMutation({
     mutationFn: async (id: string) => {
       return api.delete(`jadwal/${id}`, {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
     },
     onSuccess: () => {
@@ -98,41 +98,63 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
     }
   });
 
-  const getAllMapel = async () => {
-    try {
-      const response = await api.get(`mapel`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-      setMapel(response.data.result.data);
-      console.log('wkwk : ', mapel);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Terjadi kesalahan');
-    }
-  };
-
-  useEffect(() => {
-    getAllMapel();
-  }, []);
-
-  // Modal tambah
-  const [mapel, setMapel] = useState<Mapel[]>([]);
+  // Fetch semua mapel
+  const [mapel, setMapel] = useState<{ id: string; nama: string }[]>([]);
   const [openModal, setOpenModal] = useState(false);
   const { register, handleSubmit, reset, control } = useForm<Jadwal>();
 
+  useEffect(() => {
+    const fetchMapel = async () => {
+      try {
+        const response = await api.get(`mapel`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        });
+        setMapel(response.data.result.data || []);
+      } catch (error: any) {
+        toast.error(
+          error.response?.data?.message || 'Gagal memuat mata pelajaran'
+        );
+      }
+    };
+    if (session?.user?.token) {
+      fetchMapel();
+    }
+  }, [session?.user?.token]);
+
   const onSubmit = (data: Jadwal) => {
-    addJadwalMutation.mutate({
-      ...data,
-      idKelas
-    });
+    addJadwalMutation.mutate({ ...data, idKelas });
   };
+
+  // === FILTERING DI FRONTEND ===
+  const [filterHari, setFilterHari] = useState('Semua');
+  const [filterMapel, setFilterMapel] = useState('Semua');
+
+  const filteredJadwals = useMemo(() => {
+    return jadwals.filter((jadwal) => {
+      const cocokHari = filterHari === 'Semua' || jadwal.hari === filterHari;
+      const cocokMapel =
+        filterMapel === 'Semua' || jadwal.namaMapel === filterMapel;
+      return cocokHari && cocokMapel;
+    });
+  }, [jadwals, filterHari, filterMapel]);
+
+  // Ambil daftar unik untuk filter
+  const hariOptions = useMemo(() => {
+    const hariSet = new Set(jadwals.map((j) => j.hari));
+    return ['Semua', ...Array.from(hariSet).sort()];
+  }, [jadwals]);
+
+  const mapelOptions = useMemo(() => {
+    const mapelSet = new Set(jadwals.map((j) => j.namaMapel));
+    return ['Semua', ...Array.from(mapelSet).sort()];
+  }, [jadwals]);
 
   return (
     <Card className='p-3 dark:text-white md:p-5'>
-      {/* Header */}
-      <div className='mb-4 flex items-center justify-between'>
+      <div className='mb-4 flex flex-col items-start justify-between gap-3 md:flex-row md:items-center'>
         <h1 className='text-base font-bold'>Jadwal Pelajaran</h1>
         <Button onClick={() => setOpenModal(true)}>
           <Plus className='mr-2 h-4 w-4' />
@@ -140,29 +162,91 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
         </Button>
       </div>
 
-      {/* List Jadwal */}
-      <div className='space-y-3'>
-        {isLoading && <p>Loading...</p>}
-        {jadwals?.map((jadwal) => (
-          <Card
-            key={jadwal.id}
-            className='flex items-center justify-between rounded-xl p-4 shadow-md'
-          >
-            <div>
-              <h2 className='text-base font-semibold'>{jadwal.namaMapel}</h2>
-              <p className='text-sm'>
-                {jadwal.hari} • {jadwal.jamMulai} - {jadwal.jamSelesai}
-              </p>
-            </div>
-            <Button
-              variant='destructive'
-              size='icon'
-              onClick={() => deleteJadwalMutation.mutate(jadwal.id)}
-            >
-              <Trash2 className='h-4 w-4' />
-            </Button>
-          </Card>
-        ))}
+      {/* Filter */}
+      <div className='mb-4 flex flex-col gap-3 md:flex-row md:items-end md:gap-4'>
+        <div className='w-full md:w-48'>
+          <Label className='mb-1 text-xs'>Filter Hari</Label>
+          <Select value={filterHari} onValueChange={setFilterHari}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {hariOptions.map((hari) => (
+                <SelectItem key={hari} value={hari}>
+                  {hari}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className='w-full md:w-48'>
+          <Label className='mb-1 text-xs'>Filter Mapel</Label>
+          <Select value={filterMapel} onValueChange={setFilterMapel}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {mapelOptions.map((mapel) => (
+                <SelectItem key={mapel} value={mapel}>
+                  {mapel}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Tabel Jadwal */}
+      <div className='overflow-x-auto rounded-md border'>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Mata Pelajaran</TableHead>
+              <TableHead>Hari</TableHead>
+              <TableHead>Jam</TableHead>
+              <TableHead className='text-right'>Aksi</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={4} className='py-6 text-center'>
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : filteredJadwals.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={4}
+                  className='py-6 text-center text-muted-foreground'
+                >
+                  Tidak ada jadwal ditemukan.
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredJadwals.map((jadwal) => (
+                <TableRow key={jadwal.id}>
+                  <TableCell className='font-medium'>
+                    {jadwal.namaMapel}
+                  </TableCell>
+                  <TableCell>{jadwal.hari}</TableCell>
+                  <TableCell>
+                    {jadwal.jamMulai} - {jadwal.jamSelesai}
+                  </TableCell>
+                  <TableCell className='text-right'>
+                    <Button
+                      variant='destructive'
+                      size='icon'
+                      onClick={() => deleteJadwalMutation.mutate(jadwal.id)}
+                    >
+                      <Trash2 className='h-4 w-4' />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
 
       {/* Modal Tambah Jadwal */}
@@ -171,7 +255,7 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
           <DialogHeader>
             <DialogTitle>Tambah Jadwal</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)} className='space-y-3'>
+          <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
             <div>
               <Label>Hari</Label>
               <Controller
@@ -208,32 +292,17 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
                       <SelectValue placeholder='Pilih mata pelajaran' />
                     </SelectTrigger>
                     <SelectContent>
-                      {mapel.length > 0 ? (
-                        mapel.map((item, i) => (
-                          <SelectItem
-                            key={item.id ? item.id : `mapel-${i}`}
-                            value={item.nama}
-                          >
-                            {item.nama}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <p>Loading...</p>
-                      )}
+                      {mapel.map((item) => (
+                        <SelectItem key={item.id} value={item.nama}>
+                          {item.nama}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 )}
               />
             </div>
-            {/* <div>
-              <Label>Nama Mapel</Label>
-              <Input
-                {...register('namaMapel', { required: true })}
-                placeholder='Matematika'
-              />
-            </div> */}
-
-            <div className='grid grid-cols-2 gap-2'>
+            <div className='grid grid-cols-2 gap-3'>
               <div>
                 <Label>Jam Mulai</Label>
                 <Input
@@ -249,7 +318,6 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
                 />
               </div>
             </div>
-
             <DialogFooter>
               <Button type='submit' disabled={addJadwalMutation.isPending}>
                 {addJadwalMutation.isPending ? 'Menyimpan...' : 'Simpan'}
