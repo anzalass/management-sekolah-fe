@@ -91,11 +91,19 @@ export default function Overview2() {
         <div className='grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6'>
           <DashboardCard
             title='Anggaran Sekolah'
+            // value={
+            //   dashboard?.kasSekolah?.toLocaleString('id-ID', {
+            //     style: 'currency',
+            //     currency: 'IDR'
+            //   }) || 'Rp 0'
+            // }
             value={
-              dashboard?.kasSekolah?.toLocaleString('id-ID', {
-                style: 'currency',
-                currency: 'IDR'
-              }) || 'Rp 0'
+              dashboard?.kasSekolah == 0
+                ? 'Rp. 0'
+                : dashboard?.kasSekolah?.toLocaleString('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR'
+                  }) || 'Rp 0'
             }
             icon={School}
           />
@@ -147,14 +155,15 @@ export default function Overview2() {
           <DashboardCard
             icon={Boxes}
             title='Nominal Tagihan Belum Terbayar'
-            value={
-              dashboard?.totalNominalBelumBayar.toLocaleString('id-ID', {
-                style: 'currency',
-                currency: 'IDR'
-              }) ||
-              'Rp 0' ||
-              0
-            }
+            // value={
+            //   dashboard?.totalNominalBelumBayar.toLocaleString('id-ID', {
+            //     style: 'currency',
+            //     currency: 'IDR'
+            //   }) ||
+            //   'Rp 0' ||
+            //   0
+            // }
+            value={dashboard?.totalNominalBelumBayar}
           />
           <DashboardCard
             icon={Boxes}

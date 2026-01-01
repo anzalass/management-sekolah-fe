@@ -6,15 +6,13 @@ import { useSiswaTableFilters } from './use-siswa-table-filters';
 
 export default function SiswaTableAction() {
   const {
-    kelas,
-    setKelasFilter,
     isAnyFilterActive,
     resetFilters,
     setPage,
     namaFilter,
     setNamaFilter,
-    nipFilter,
-    setNipFilter
+    nisFilter,
+    setNisFilter
   } = useSiswaTableFilters();
 
   return (
@@ -27,8 +25,8 @@ export default function SiswaTableAction() {
       />
       <DataTableSearch
         searchKey='NIS'
-        searchQuery={nipFilter}
-        setSearchQuery={setNipFilter}
+        searchQuery={nisFilter}
+        setSearchQuery={setNisFilter}
         setPage={setPage}
       />
       {/* <DataTableFilterBox

@@ -8,7 +8,6 @@ import ModalTambahKelas from './modal-tambah-kelas';
 import ModalTambahKelasMapel from './modal-tambah-kelas-mapel';
 import ModalTambahJadwal from './modal-tambah-jadwal';
 import ModalTambahIzin from './modal-tambah-izin';
-import ListKelasGuru from './list-kelas-guru';
 import ListJadwalGuru from './list-jadwal-guru';
 import CardListIzin from './list-izin';
 import { useSession } from 'next-auth/react';
@@ -19,7 +18,6 @@ import {
   FileText,
   CalendarPlus,
   CheckCircle,
-  ClipboardList,
   XCircle
 } from 'lucide-react';
 
@@ -27,7 +25,6 @@ import api from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import PengumumanKelasGuru from './pengumuman-guru';
 import ListKelas2 from './list-kelas-2';
-import ListMapel3 from './list-kelas-mapel';
 import ListKelasMapel from './list-kelas-mapel';
 
 const fetchDashboard = async (token: string) => {
@@ -374,9 +371,9 @@ export default function MengajarViewPage() {
             />
           </div>
         </div>
-        <div className=''>
+        {/* <div className=''>
           <PengumumanKelasGuru />
-        </div>
+        </div> */}
 
         <div className=''>
           <CardListIzin />
