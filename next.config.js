@@ -126,6 +126,7 @@ module.exports = withPWA({
     const connectSrc = [
       "'self'",
       'https://management-sekolah.zeabur.app',
+      'https://little-alley.zeabur.app',
       'https://ytam-be.zeabur.app',
       'https://ytam-be2.zeabur.app',
       'https://api.sandbox.midtrans.com',
@@ -144,6 +145,7 @@ module.exports = withPWA({
       'https://docs.google.com',
       'https://forms.gle',
       'https://ytam-be.zeabur.app',
+      'https://little-alley.zeabur.app',
       'https://ytam-be2.zeabur.app',
       'https://*.google.com',
       'https://*.gstatic.com',
