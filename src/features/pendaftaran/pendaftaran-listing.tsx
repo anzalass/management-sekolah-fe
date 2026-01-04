@@ -17,6 +17,7 @@ export type Pendaftaran = {
   parentName: string;
   email: string;
   phoneNumber: string;
+  birthDay: string;
   kategori: string;
   yourLocation: string;
   createdAt: string;

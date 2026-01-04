@@ -32,6 +32,7 @@ import api from '@/lib/api';
 export type Pendaftaran = {
   studentName: string;
   parentName: string;
+  birthDay: string;
   kategori: string;
   email: string;
   phoneNumber: string;
@@ -56,6 +57,7 @@ export default function PendaftaranForm({
     studentName: initialData?.studentName || '',
     kategori: initialData?.kategori || '',
     parentName: initialData?.parentName || '',
+    birthDay: initialData?.birthDay || '',
     email: initialData?.email || '',
     phoneNumber: initialData?.phoneNumber || '',
     yourLocation: initialData?.yourLocation || ''
@@ -75,6 +77,7 @@ export default function PendaftaranForm({
           email: values.email,
           phoneNumber: values.phoneNumber,
           yourLocation: values.yourLocation,
+          birthDay: values.birthDay,
           kategori: values.kategori
         };
 
@@ -123,6 +126,23 @@ export default function PendaftaranForm({
                       type='text'
                       placeholder='Masukkan Nama Peserta Didik...'
                       {...form.register('studentName', {
+                        required: 'Nama Peserta Didik wajib diisi',
+                        minLength: 6
+                      })}
+                    />
+                  </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.studentName?.message}
+                  </FormMessage>
+                </FormItem>
+
+                <FormItem>
+                  <FormLabel>Tanggal Lahir</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='date'
+                      placeholder='Masukkan Nama Peserta Didik...'
+                      {...form.register('birthDay', {
                         required: 'Nama Peserta Didik wajib diisi',
                         minLength: 6
                       })}

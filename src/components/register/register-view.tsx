@@ -94,6 +94,16 @@ export default function RegisterView() {
           )}
 
           <input
+            type='date'
+            placeholder='Birth Day'
+            {...register('birthDay', { required: true })}
+            className='w-full rounded-md border p-3'
+          />
+          {errors.birthDay && (
+            <p className='text-sm text-red-500'>Birth Day is required</p>
+          )}
+
+          <input
             type='text'
             placeholder='Parent Name'
             {...register('parentName', { required: true })}
