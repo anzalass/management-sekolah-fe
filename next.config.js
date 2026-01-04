@@ -137,7 +137,7 @@ module.exports = withPWA({
       'data:',
       'blob:',
       ...(process.env.NODE_ENV === 'development'
-        ? ['http://localhost:4000']
+        ? ['http://localhost:5000']
         : [])
     ].join(' ');
 

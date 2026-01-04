@@ -157,7 +157,7 @@ export default function Lap() {
       <Navbar />
       <Jumbotron
         banner={banner1}
-        content='Active, Curious & Creative Learning for Future Leaders'
+        content='"Active, Curious & Creative Learning for Future Leaders"'
         title1='🎓  Learning Excellence'
         title2='Little Alley'
         title3='Preschool'

@@ -6,7 +6,7 @@ import { useInView } from 'react-intersection-observer';
 import { EffectCards } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/effect-cards';
-import banner from '../../../public/background.png';
+import banner from '../../../public/bglac2.jpeg';
 import banner1 from '../../../public/background.png';
 import banner2 from '../../../public/event1.jpg';
 import banner3 from '../../../public/event2.jpg';
@@ -33,6 +33,7 @@ import { VisionAndMission } from './visimisi';
 import { CurriculumSection } from './curriculum';
 import OurFacilities from './ourfacilities';
 import { WhyLittleAlley } from './whylittlealley';
+import { CurriculumLacSection } from './curriculumlac';
 const images = [child1, child2, child3, child4];
 
 export default function CyberschoolLanding() {
@@ -149,8 +150,8 @@ export default function CyberschoolLanding() {
     <div className='min-h-screen bg-white'>
       <Navbar />
       <Jumbotron
-        banner={banner1}
-        content='Active, Curious & Creative Learning for Future Leaders'
+        banner={banner}
+        content='"Inquiry-Based Learning for Global Thinkers"'
         title1='🎓  Learning Excellence'
         title2='Little Alley'
         title3='Cyberschool'
@@ -224,7 +225,7 @@ export default function CyberschoolLanding() {
       <WhyLittleAlley items={whyItems} refWhy={refWhy} showWhy={showWhy} />
       {/* Facilities */}
       <div className='w-full bg-[#bde0fe]'>
-        <CurriculumSection
+        <CurriculumLacSection
           inViewCurriculum={inViewCurriculum}
           refCurriculum={refCurriculum}
         />
