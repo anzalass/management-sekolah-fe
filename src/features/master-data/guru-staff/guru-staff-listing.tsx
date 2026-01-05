@@ -59,7 +59,7 @@ export default function GuruStaffListingPage() {
         setData(response.data.result.data);
         setTotalUser(response.data.result.total);
       } catch (error: any) {
-        toast.error(error.response?.data?.message || 'Terjadi kesalahan');
+        // toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       } finally {
         setLoading(false);
       }
