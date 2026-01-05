@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react';
 import React from 'react';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react'; // ✅ Spinner dari Lucide
 
 type IDKelas = {
   idKelas: string;
@@ -31,7 +32,6 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
 
-  // ✅ Fetch data dengan react-query
   const { data: dataKehadiran, isLoading } = useQuery<Kehadiran[]>({
     queryKey: ['kehadiran', idKelas],
     queryFn: async () => {
@@ -42,10 +42,10 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
       });
       return res.data.data;
     },
-    enabled: !!session?.user?.token // jangan fetch sebelum token ready
+    enabled: !!session?.user?.token
   });
 
-  // ✅ Mutation untuk absen (create/update)
+  // ✅ Ambil isPending untuk loading
   const mutation = useMutation({
     mutationFn: async ({
       dataAbsen,
@@ -55,19 +55,16 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
       keterangan: string;
     }) => {
       if (dataAbsen.kehadiranSiswa.length > 0) {
-        // update
         return api.put(
           `kehadiran/${dataAbsen.kehadiranSiswa[0].id}`,
           { keterangan },
           {
             headers: {
-              'Content-Type': 'application/json',
               Authorization: `Bearer ${session?.user?.token}`
             }
           }
         );
       } else {
-        // create
         return api.post(
           `kehadiran`,
           {
@@ -79,7 +76,6 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
           },
           {
             headers: {
-              'Content-Type': 'application/json',
               Authorization: `Bearer ${session?.user?.token}`
             }
           }
@@ -95,7 +91,8 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
     }
   });
 
-  // Helper: konversi enum ke label tampilan
+  const { mutate, isPending } = mutation; // ✅ gunakan isPending
+
   const formatKeterangan = (keterangan: string) => {
     switch (keterangan) {
       case 'Hadir':
@@ -107,12 +104,22 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
       case 'TanpaKeterangan':
         return 'Tanpa Keterangan';
       default:
-        return keterangan || 'Belum Absen';
+        return 'Belum Absen';
     }
   };
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return (
+      <Card className='w-full'>
+        <CardHeader>
+          <CardTitle className='text-base'>Absensi Hari Ini</CardTitle>
+        </CardHeader>
+        <div className='p-5 text-center'>
+          <Loader2 className='mx-auto h-6 w-6 animate-spin text-muted-foreground' />
+          <p className='mt-2 text-sm text-muted-foreground'>Memuat data...</p>
+        </div>
+      </Card>
+    );
   }
 
   return (
@@ -121,7 +128,7 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
         <CardTitle className='text-base'>Absensi Hari Ini</CardTitle>
       </CardHeader>
       <div className='w-full overflow-x-auto rounded-lg p-5 shadow'>
-        <table className='w-[200%] border text-left text-sm lg:w-full'>
+        <table className='w-full min-w-[500px] border text-left text-sm'>
           <thead>
             <tr>
               <th className='border p-2'>Nama</th>
@@ -131,77 +138,99 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
             </tr>
           </thead>
           <tbody>
-            {dataKehadiran?.map((student) => (
-              <tr key={student.nis} className='border-b align-top'>
-                <td className='p-2'>{student.nama}</td>
-                <td className='p-2'>
-                  {student.kehadiranSiswa?.length > 0
-                    ? formatKeterangan(student.kehadiranSiswa[0]?.keterangan)
-                    : 'Belum Absen'}
-                </td>
-                <td className='p-2'>
-                  {student.kehadiranSiswa?.length > 0
-                    ? new Date(
-                        student.kehadiranSiswa[0]?.waktu
-                      ).toLocaleTimeString('id-ID', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })
-                    : '-'}
-                </td>
-                <td className='p-2'>
-                  <div className='flex gap-2 overflow-x-auto whitespace-nowrap pb-2'>
-                    <Button
-                      className='shrink-0 bg-green-500'
-                      onClick={() =>
-                        mutation.mutate({
-                          dataAbsen: student,
-                          keterangan: 'Hadir'
+            {dataKehadiran?.map((student) => {
+              const sudahAbsen = student.kehadiranSiswa.length > 0;
+              return (
+                <tr key={student.nis} className='border-b align-top'>
+                  <td className='p-2'>{student.nama}</td>
+                  <td className='p-2'>
+                    {sudahAbsen
+                      ? formatKeterangan(student.kehadiranSiswa[0]?.keterangan)
+                      : 'Belum Absen'}
+                  </td>
+                  <td className='p-2'>
+                    {sudahAbsen
+                      ? new Date(
+                          student.kehadiranSiswa[0]?.waktu
+                        ).toLocaleTimeString('id-ID', {
+                          hour: '2-digit',
+                          minute: '2-digit'
                         })
-                      }
-                    >
-                      Hadir
-                    </Button>
-                    <Button
-                      className='shrink-0 bg-yellow-500'
-                      onClick={() =>
-                        mutation.mutate({
-                          dataAbsen: student,
-                          keterangan: 'Izin'
-                        })
-                      }
-                      variant='outline'
-                    >
-                      Izin
-                    </Button>
-                    <Button
-                      className='shrink-0 bg-blue-500'
-                      onClick={() =>
-                        mutation.mutate({
-                          dataAbsen: student,
-                          keterangan: 'Sakit'
-                        })
-                      }
-                      variant='outline'
-                    >
-                      Sakit
-                    </Button>
-                    <Button
-                      className='shrink-0 bg-red-500'
-                      onClick={() =>
-                        mutation.mutate({
-                          dataAbsen: student,
-                          keterangan: 'TanpaKeterangan'
-                        })
-                      }
-                      variant='outline'
-                    >
-                      Tanpa Keterangan
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      : '-'}
+                  </td>
+                  <td className='p-2'>
+                    <div className='flex flex-wrap gap-2'>
+                      <Button
+                        variant={sudahAbsen ? 'outline' : 'default'}
+                        className={`shrink-0 ${
+                          sudahAbsen
+                            ? 'bg-green-100 text-green-800 hover:bg-green-100'
+                            : 'bg-green-500'
+                        }`}
+                        onClick={() =>
+                          mutate({ dataAbsen: student, keterangan: 'Hadir' })
+                        }
+                        disabled={isPending} // ✅ disable saat loading atau sudah absen
+                      >
+                        {isPending ? (
+                          <Loader2 className='h-4 w-4 animate-spin' />
+                        ) : (
+                          'Hadir'
+                        )}
+                      </Button>
+
+                      <Button
+                        variant='outline'
+                        className='shrink-0 border-yellow-500 text-yellow-500 hover:bg-yellow-50'
+                        onClick={() =>
+                          mutate({ dataAbsen: student, keterangan: 'Izin' })
+                        }
+                        disabled={isPending} // ✅
+                      >
+                        {isPending ? (
+                          <Loader2 className='h-4 w-4 animate-spin' />
+                        ) : (
+                          'Izin'
+                        )}
+                      </Button>
+
+                      <Button
+                        variant='outline'
+                        className='shrink-0 border-blue-500 text-blue-500 hover:bg-blue-50'
+                        onClick={() =>
+                          mutate({ dataAbsen: student, keterangan: 'Sakit' })
+                        }
+                        disabled={isPending} // ✅
+                      >
+                        {isPending ? (
+                          <Loader2 className='h-4 w-4 animate-spin' />
+                        ) : (
+                          'Sakit'
+                        )}
+                      </Button>
+
+                      <Button
+                        variant='outline'
+                        className='shrink-0 border-red-500 text-red-500 hover:bg-red-50'
+                        onClick={() =>
+                          mutate({
+                            dataAbsen: student,
+                            keterangan: 'TanpaKeterangan'
+                          })
+                        }
+                        disabled={isPending} // ✅
+                      >
+                        {isPending ? (
+                          <Loader2 className='h-4 w-4 animate-spin' />
+                        ) : (
+                          'Tanpa Keterangan'
+                        )}
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
