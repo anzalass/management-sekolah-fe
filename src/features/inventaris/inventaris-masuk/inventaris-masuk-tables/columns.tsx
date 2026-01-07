@@ -9,6 +9,11 @@ export const columns: ColumnDef<Inventaris>[] = [
     header: 'Nama',
     cell: ({ row }) => row.original.nama
   },
+  {
+    accessorKey: 'keterangan', // NIP
+    header: 'Keterangan',
+    cell: ({ row }) => row.original.keterangan
+  },
 
   {
     accessorKey: 'quantity', // NIP
