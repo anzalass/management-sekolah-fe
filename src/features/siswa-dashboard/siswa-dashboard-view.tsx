@@ -490,14 +490,17 @@ export default function SiswaHomeView() {
 
       {/* Modal Detail Pengumuman */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className='max-w-lg border-2 border-purple-200 bg-gradient-to-br from-white to-purple-50'>
+        <DialogContent className='max-h-[90vh] max-w-lg overflow-hidden border-2 border-purple-200 bg-gradient-to-br from-white to-purple-50'>
           <DialogHeader>
             <DialogTitle className='bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-xl font-bold text-transparent'>
               {selectedPengumuman?.title}
             </DialogTitle>
           </DialogHeader>
-          <div className='mt-4 rounded-lg bg-white p-4 text-sm leading-relaxed text-slate-700 shadow-inner'>
+
+          {/* CONTENT SCROLL AREA */}
+          <div className='mt-4 flex-1 overflow-y-auto rounded-lg bg-white p-4 text-sm leading-relaxed text-slate-700 shadow-inner'>
             <div
+              className='prose max-w-none'
               dangerouslySetInnerHTML={{
                 __html: selectedPengumuman?.content || ''
               }}
