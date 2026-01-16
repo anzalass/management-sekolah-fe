@@ -185,16 +185,12 @@ export default function SiswaHomeView() {
     markAllNotifikasi();
   };
 
-  // ... return JSX (UI) kamu seperti biasa
-  // const getInitials = (str: string): string => {
-  //   return (
-  //     str
-  //       .split(' ')
-  //       .map((word) => word[0]?.toUpperCase() || '')
-  //       .join('')
-  //       .substring(0, 2) || 'XX'
-  //   );
-  // };
+  const stripHtml = (html: any) => {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  };
+
   if (siswaLoading || notifLoading) return <Loading />;
 
   return (
@@ -409,10 +405,9 @@ export default function SiswaHomeView() {
                   >
                     {info.title}
                   </div>
-                  <div
-                    className='text-xs leading-relaxed text-slate-600'
-                    dangerouslySetInnerHTML={{ __html: info?.content }}
-                  />
+                  <p className='mb-3 line-clamp-2 text-sm leading-relaxed text-gray-600'>
+                    {stripHtml(info.content)}
+                  </p>
                 </div>
               ))
             ) : (
@@ -490,7 +485,7 @@ export default function SiswaHomeView() {
 
       {/* Modal Detail Pengumuman */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className='max-h-[90vh] max-w-lg overflow-hidden border-2 border-purple-200 bg-gradient-to-br from-white to-purple-50'>
+        <DialogContent className='flex max-h-[90vh] max-w-lg flex-col overflow-hidden border-2 border-purple-200 bg-gradient-to-br from-white to-purple-50'>
           <DialogHeader>
             <DialogTitle className='bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-xl font-bold text-transparent'>
               {selectedPengumuman?.title}
