@@ -50,6 +50,7 @@ type Tagihan = {
   id: string;
   nama: string;
   nominal: number;
+  denda: number;
   jatuhTempo: string;
   status: string;
   tanggalBayar?: string;
@@ -145,6 +146,7 @@ export default function PembayaranSiswaView() {
             id: t.id,
             nama: t.nama,
             nominal: t.nominal,
+            denda: t.denda,
             jatuhTempo: new Date(t.jatuhTempo).toISOString().split('T')[0],
             status: t.status,
             tanggalBayar: t.RiwayatPembayaran?.[0]?.waktuBayar
@@ -158,6 +160,7 @@ export default function PembayaranSiswaView() {
             id: r.id,
             nama: r.namaTagihan || '-',
             nominal: r?.nominal || 0,
+            denda: r?.denda || 0,
             tanggalBayar: new Date(r.waktuBayar).toISOString().split('T')[0],
             metode: r.metodeBayar,
             status: r.status
@@ -175,7 +178,7 @@ export default function PembayaranSiswaView() {
     .filter(
       (t: any) => t.status === 'BELUM_BAYAR' || t.status === 'BUKTI_TIDAK_VALID'
     )
-    .reduce((acc: any, t: any) => acc + t.nominal, 0);
+    .reduce((acc: any, t: any) => acc + t.nominal + t.denda, 0);
 
   // Filter data
   // Filter data
@@ -464,7 +467,7 @@ export default function PembayaranSiswaView() {
                           {tagihan.nama}
                         </h3>
                         <p className='text-2xl font-bold text-blue-600'>
-                          {formatCurrency(tagihan.nominal)}
+                          {formatCurrency(tagihan.nominal + tagihan.denda)}
                         </p>
                       </div>
                       <span
@@ -603,7 +606,7 @@ export default function PembayaranSiswaView() {
             ) : (
               filteredRiwayat.map((riwayat: any) => {
                 const statusConfig = getStatusConfig(riwayat.status);
-
+                console.log(riwayat);
                 return (
                   <div
                     key={riwayat.id}
@@ -615,7 +618,7 @@ export default function PembayaranSiswaView() {
                           {riwayat.nama}
                         </h3>
                         <p className='text-xl font-bold text-gray-700'>
-                          {formatCurrency(riwayat.nominal)}
+                          {formatCurrency(riwayat.nominal + riwayat.denda)}
                         </p>
                       </div>
                       <span

@@ -24,6 +24,7 @@ export type Tagihan = {
   status: string;
   keterangan: string;
   nominal: number;
+  denda: number;
   buktiUrl?: string | null;
 };
 
@@ -97,7 +98,7 @@ export const columns: ColumnDef<Tagihan>[] = [
       new Intl.NumberFormat('id-ID', {
         style: 'currency',
         currency: 'IDR'
-      }).format(row.original.nominal)
+      }).format(row.original.nominal + row.original.denda)
   },
   {
     accessorKey: 'waktu',
