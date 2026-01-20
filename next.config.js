@@ -63,7 +63,10 @@ module.exports = withPWA({
       'https://www.google-analytics.com',
       'http://localhost:5000', // 🔥 FIX UTAMA
       'data:',
-      'blob:'
+      'blob:',
+      ...(process.env.NODE_ENV === 'development'
+        ? ['http://localhost:4000']
+        : [])
     ].join(' ');
 
     const frameSrc = [
