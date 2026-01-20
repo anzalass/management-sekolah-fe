@@ -19,7 +19,7 @@ interface Nilai {
   guru: string;
   kelas: string;
   tahunAjaran: string;
-  createdAt: string;
+  createdOn: string;
 }
 
 import {
@@ -85,10 +85,10 @@ export default function NilaiSiswaView() {
     if (filterLastWeek) {
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      matchesDate = new Date(n.createdAt) >= sevenDaysAgo;
+      matchesDate = new Date(n.createdOn) >= sevenDaysAgo;
     }
     if (startDate && endDate) {
-      const date = new Date(n.createdAt);
+      const date = new Date(n.createdOn);
       matchesDate = date >= new Date(startDate) && date <= new Date(endDate);
     }
     return matchesSearch && matchesDate;
@@ -338,7 +338,7 @@ export default function NilaiSiswaView() {
                     <div className='flex items-center gap-1'>
                       <Calendar className='h-4 w-4' />
                       <span>
-                        {new Date(nilai.createdAt).toLocaleDateString('id-ID')}
+                        {new Date(nilai.createdOn).toLocaleDateString('id-ID')}
                       </span>
                     </div>
                   </div>
@@ -428,7 +428,7 @@ export default function NilaiSiswaView() {
                 <div className='rounded-xl bg-gray-50 p-4'>
                   <p className='mb-1 text-sm text-gray-600'>Tanggal Input</p>
                   <p className='font-bold text-gray-900'>
-                    {new Date(selectedMapel.createdAt).toLocaleDateString(
+                    {new Date(selectedMapel.createdOn).toLocaleDateString(
                       'id-ID',
                       {
                         day: 'numeric',

@@ -103,13 +103,13 @@ export default function JadwalMengajarView() {
           Tambah Jadwal +
         </Button>
       </CardHeader>
-      <CardContent>
+      <CardContent className='w-full overflow-x-auto'>
         {isLoading ? (
           <p className='text-sm italic text-muted-foreground'>Memuat...</p>
         ) : isError ? (
           <p className='text-sm text-red-500'>Gagal memuat data.</p>
         ) : jadwal.length > 0 ? (
-          <Table>
+          <Table className='w-[150%] sm:w-full'>
             <TableHeader>
               <TableRow>
                 <TableHead>Hari</TableHead>

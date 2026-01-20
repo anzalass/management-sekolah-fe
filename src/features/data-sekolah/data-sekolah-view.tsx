@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -12,6 +12,13 @@ import { Textarea } from '@/components/ui/textarea';
 import axios from 'axios';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
 // Schema validation with zod
 const schema = z.object({
@@ -36,6 +43,7 @@ export default function SekolahForm() {
   const {
     register,
     handleSubmit,
+    control, // ⬅️ WAJIB
     formState: { errors, isSubmitting },
     reset
   } = useForm<FormValues>({
@@ -159,10 +167,28 @@ export default function SekolahForm() {
                 {...(register('kas') as any)}
               />
             </div>
-
             <div>
               <Label className='mb-1'>Tahun Ajaran</Label>
-              <Input placeholder='2025/2026' {...register('tahunAjaran')} />
+
+              <Controller
+                name='tahunAjaran'
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder='Pilih tahun ajaran' />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      <SelectItem value='2023-2024'>2023-2024</SelectItem>
+                      <SelectItem value='2024-2025'>2024-2025</SelectItem>
+                      <SelectItem value='2025-2026'>2025-2026</SelectItem>
+                      <SelectItem value='2026-2027'>2026-2027</SelectItem>
+                      <SelectItem value='2027-2028'>2027-2028</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
 
             <div>

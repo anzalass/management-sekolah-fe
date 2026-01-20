@@ -172,7 +172,9 @@ const PengumumanKelasGuru = () => {
   return (
     <Card className='p-0'>
       <CardHeader className='flex flex-col items-start justify-between gap-3 p-3 md:flex-row md:items-center md:p-5'>
-        <CardTitle className='text-base'>Pengumuman Kelas</CardTitle>
+        <CardTitle className='text-sm md:text-base lg:text-lg'>
+          Pengumuman Kelas
+        </CardTitle>
 
         {/* 🔍 Input Search */}
         <div className='relative w-full md:w-1/3'>
@@ -265,11 +267,15 @@ const PengumumanKelasGuru = () => {
                     <TableCell>
                       {format(new Date(p.time), 'dd MMMM yyyy')}
                     </TableCell>
-                    <TableCell className='max-w-xs text-gray-600'>
-                      <div
-                        className='overflow-hidden truncate text-ellipsis whitespace-nowrap'
-                        dangerouslySetInnerHTML={{ __html: p?.content }}
-                      ></div>
+                    <TableCell className='max-w-[200px]'>
+                      {p?.content ? (
+                        <div
+                          className='line-clamp-2 text-gray-600'
+                          dangerouslySetInnerHTML={{ __html: p.content }}
+                        />
+                      ) : (
+                        '-'
+                      )}
                     </TableCell>
                     <TableCell className='text-center'>
                       <div className='flex items-center justify-center gap-2'>

@@ -24,7 +24,7 @@ export function useKegiatanSekolahTableFilters() {
 
   const [tahunAjaran, setTahunAjaranFilter] = useQueryState(
     'ta',
-    searchParams.nip.withOptions({ shallow: false }).withDefault('')
+    searchParams.q.withOptions({ shallow: false }).withDefault('')
   );
 
   const [page, setPage] = useQueryState(

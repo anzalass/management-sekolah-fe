@@ -27,6 +27,7 @@ import { toast } from 'sonner';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
 import ModalFormMaintenance from '../../inventaris-masuk/modal-form-maintenence';
+import ModalFormMaintenance2 from '../../daftar-inventaris/modal-form-maintenence-2';
 
 interface CellActionProps {
   data: PemeliharaanInventaris;
@@ -101,7 +102,12 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
   const deleteHistory = async () => {
     try {
-      await api.delete(`pemeliharaan-inventaris/delete/${data.id}`);
+      await api.delete(`pemeliharaan-inventaris/delete/${data.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       toggleTrigger();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Terjadi kesalahan');
@@ -118,10 +124,11 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         loading={loading}
       />
       {openMaintenance && inventaris && (
-        <ModalFormMaintenance
+        <ModalFormMaintenance2
           open={openMaintenance}
           setOpen={setOpenMaintenance}
           inventaris={inventaris}
+          status={inventaris.status}
           isEdit={true}
         />
       )}

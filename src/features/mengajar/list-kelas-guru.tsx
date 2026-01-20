@@ -88,12 +88,23 @@ export default function ListKelasGuru({
     });
   };
 
+  const getInitials = (name: string): string => {
+    if (!name) return '?';
+
+    return name
+      .split(' ') // pecah jadi array kata
+      .map((word) => word[0]) // ambil huruf pertama tiap kata
+      .join('') // gabung jadi string
+      .substring(0, 4) // batasi maks 4 huruf biar tidak kepanjangan
+      .toUpperCase();
+  };
+
   return (
     <>
       <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
         {/* Wali Kelas */}
-        <Card className='shadow-md'>
-          <CardHeader className='p-2 md:p-5'>
+        <Card className='border-2 p-3 shadow-md md:p-6'>
+          <CardHeader className='p-2'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2'>
                 <GraduationCap className='hidden h-5 w-5 text-primary md:block' />
@@ -110,75 +121,129 @@ export default function ListKelasGuru({
               </Button>
             </div>
           </CardHeader>
-          <CardContent className='space-y-4 p-2 md:p-5'>
-            {kelasWaliKelas.map((kelas, idx) => (
-              <div
-                key={idx}
-                className='cursor-pointer rounded-xl border border-muted p-2 shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md md:p-5'
-                onClick={() => router.push(`/mengajar/walikelas/${kelas.id}`)}
-              >
-                <div className='flex items-start gap-4'>
-                  {/* Image di kiri */}
-                  <div className='h-[100px] w-[100px] flex-shrink-0 overflow-hidden rounded-lg bg-muted'>
-                    <Image
-                      src={kelas.banner || '/default-banner.jpg'} // ganti sesuai field di DB / fallback
-                      alt={kelas.nama[0]}
-                      width={1000}
-                      height={1000}
-                      className='h-full w-full object-cover'
-                    />
-                  </div>
+          <CardContent className='space-y-4 p-2'>
+            {kelasWaliKelas.map((kelas, idx) => {
+              // Hitung alpha jika belum ada (opsional)
+              const alpha =
+                kelas.jumlahSiswa -
+                (kelas.hadir + kelas.izin + (kelas.sakit || 0));
 
-                  {/* Konten kanan */}
-                  <div className='flex-1'>
-                    <div className='mb-1 flex items-center justify-between'>
-                      <div className='text-sm font-semibold lg:text-base'>
-                        {kelas.nama}
-                      </div>
-                      <div className='flex items-center gap-1'>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openEditModalKelas({
-                              id: kelas.id,
-                              nama: kelas.nama,
-                              ruangKelas: kelas.ruangKelas
-                            });
+              return (
+                <div
+                  key={idx}
+                  className='cursor-pointer rounded-xl border border-muted p-2 shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md md:p-5'
+                  onClick={() => router.push(`/mengajar/walikelas/${kelas.id}`)}
+                >
+                  <div className='flex items-start gap-4'>
+                    {/* Image di kiri */}
+                    <div className='h-[100px] w-[100px] flex-shrink-0 overflow-hidden rounded-lg bg-muted'>
+                      {kelas.banner ? (
+                        <Image
+                          src={kelas.banner}
+                          alt={kelas.nama}
+                          width={1000}
+                          height={1000}
+                          className='h-full w-full object-cover'
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
                           }}
-                        >
-                          <Pencil className='h-4 w-4 text-primary' />
-                        </Button>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openDeleteModal(kelas.id, 'wali');
-                          }}
-                        >
-                          <Trash2 className='h-4 w-4 text-destructive' />
-                        </Button>
+                        />
+                      ) : (
+                        <div className='flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-2xl font-bold text-white'>
+                          {getInitials(kelas.nama || 'Kelas')}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Konten kanan */}
+                    <div className='flex-1'>
+                      <div className='mb-1 flex items-center justify-between'>
+                        <div className='text-sm font-semibold lg:text-base'>
+                          {kelas.nama}
+                        </div>
+                        <div className='flex items-center gap-1'>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openEditModalKelas({
+                                id: kelas.id,
+                                nama: kelas.nama,
+                                ruangKelas: kelas.ruangKelas
+                              });
+                            }}
+                          >
+                            <Pencil className='h-4 w-4 text-primary' />
+                          </Button>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openDeleteModal(kelas.id, 'wali');
+                            }}
+                          >
+                            <Trash2 className='h-4 w-4 text-destructive' />
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                    <div className='text-xs text-muted-foreground'>
-                      <span className='font-medium'>{kelas.tahunAjaran}</span>
-                    </div>
-                    <div className='mt-2 flex items-center text-sm text-muted-foreground'>
-                      <Users className='mr-1 h-4 w-4 text-muted-foreground' />
-                      {kelas.jumlahSiswa} siswa
+
+                      <div className='text-xs text-muted-foreground'>
+                        <span className='font-medium'>{kelas.tahunAjaran}</span>
+                      </div>
+
+                      <div className='mt-2 flex items-center text-sm text-muted-foreground'>
+                        <Users className='mr-1 h-4 w-4' />
+                        {kelas.jumlahSiswa} siswa
+                      </div>
+
+                      {/* === STATISTIK KEHADIRAN === */}
+                      <div className='mt-3 grid grid-cols-4 gap-2'>
+                        {/* Hadir */}
+                        <div className='flex flex-col items-center rounded-md bg-green-50 p-2'>
+                          <span className='text-xs text-green-600'>Hadir</span>
+                          <span className='font-bold text-green-800'>
+                            {kelas.hadir || 0}
+                          </span>
+                        </div>
+
+                        {/* Alpha */}
+                        <div className='flex flex-col items-center rounded-md bg-red-50 p-2'>
+                          <span className='text-xs text-red-600'>Alpha</span>
+                          <span className='font-bold text-red-800'>
+                            {alpha}
+                          </span>
+                        </div>
+
+                        {/* Izin */}
+                        <div className='flex flex-col items-center rounded-md bg-amber-50 p-2'>
+                          <span className='text-xs text-amber-600'>Izin</span>
+                          <span className='font-bold text-amber-800'>
+                            {kelas.izin || 0}
+                          </span>
+                        </div>
+
+                        {/* Sakit */}
+                        <div className='flex flex-col items-center rounded-md bg-blue-50 p-2'>
+                          <span className='text-xs text-blue-600'>Sakit</span>
+                          <span className='font-bold text-blue-800'>
+                            {kelas.sakit || 0}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </CardContent>
         </Card>
 
         {/* Kelas Mapel */}
-        <Card className='shadow-md'>
-          <CardHeader className='p-2 md:p-5'>
+        <Card className='border-2 p-3 shadow-md md:p-6'>
+          <CardHeader className='p-2 md:p-4'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-2'>
                 <BookOpen className='hidden h-5 w-5 text-primary md:block' />
@@ -195,7 +260,7 @@ export default function ListKelasGuru({
               </Button>
             </div>
           </CardHeader>
-          <CardContent className='space-y-4 p-2 md:p-5'>
+          <CardContent className='space-y-4 p-2 md:p-2'>
             {kelasMapel.map((item, idx) => (
               <div
                 key={idx}
@@ -205,15 +270,24 @@ export default function ListKelasGuru({
                 <div className='flex items-start gap-4'>
                   {/* Image di kiri */}
                   <div className='h-[100px] w-[100px] flex-shrink-0 overflow-hidden rounded-lg bg-muted'>
-                    <Image
-                      src={item.banner || '/default-banner.jpg'} // fallback jika belum ada
-                      alt={item.namaMapel}
-                      width={1000}
-                      height={1000}
-                      className='h-full w-full object-cover'
-                    />
+                    {item.banner ? (
+                      <Image
+                        src={item.banner}
+                        alt={item.namaMapel}
+                        width={1000}
+                        height={1000}
+                        className='h-full w-full object-cover'
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className='flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-600 text-2xl font-bold text-white'>
+                        {getInitials(item.namaMapel || 'Mapel')}
+                      </div>
+                    )}
                   </div>
-
                   {/* Konten kanan */}
                   <div className='flex-1'>
                     <div className='mb-1 flex items-center justify-between'>

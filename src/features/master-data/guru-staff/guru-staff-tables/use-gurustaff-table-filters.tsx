@@ -29,7 +29,7 @@ export function useGuruStaffTableFilters() {
 
   const [nipFilter, setNipFilter] = useQueryState(
     'nip',
-    searchParams.nip.withOptions({ shallow: false }).withDefault('')
+    searchParams.q.withOptions({ shallow: false }).withDefault('')
   );
 
   const [page, setPage] = useQueryState(

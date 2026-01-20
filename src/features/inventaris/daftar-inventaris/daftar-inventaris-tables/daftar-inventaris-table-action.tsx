@@ -74,14 +74,14 @@ export default function DaftarInventarisTableAction() {
         setPage={setPage}
       />
 
-      <DataTableSearch
+      {/* <DataTableSearch
         searchKey='Harga Beli'
         searchQuery={hargaBeliFilter}
         setSearchQuery={setHargaBeliFilter}
         setPage={setPage}
-      />
+      /> */}
 
-      <Select value={ruangFilter} onValueChange={handleChangeRuangan}>
+      {/* <Select value={ruangFilter} onValueChange={handleChangeRuangan}>
         <SelectTrigger>
           <SelectValue placeholder='Pilih Ruangan' />
         </SelectTrigger>
@@ -99,7 +99,7 @@ export default function DaftarInventarisTableAction() {
             <p>Loading...</p>
           )}
         </SelectContent>
-      </Select>
+      </Select> */}
 
       {/* <Input
         type='date'

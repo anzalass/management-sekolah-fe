@@ -98,124 +98,132 @@ export default function PerizinanSiswaView({ idKelas }: Props) {
   });
 
   return (
-    <Card className='p-5'>
+    <Card className='flex flex-col p-5'>
       <h1 className='mb-4 text-base font-semibold'>Daftar Perizinan Siswa</h1>
-      <div className='rounded-xl border'>
-        <Table className='w-[200vw] md:w-full'>
-          <TableHeader>
-            <TableRow>
-              <TableHead>No</TableHead>
-              <TableHead className='w-[200px]'>Nama Siswa</TableHead>
-              <TableHead>NIS</TableHead>
-              <TableHead>Kelas</TableHead>
-              <TableHead>Keterangan</TableHead>
-              <TableHead>Waktu</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Bukti</TableHead>
-              <TableHead>Aksi</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading && (
+
+      {/* Wrapper tabel dengan scroll jika perlu */}
+      <div className='flex-1 overflow-hidden rounded-xl border'>
+        <div className='max-h-[500px] overflow-y-auto'>
+          {' '}
+          {/* Sesuaikan max-h sesuai kebutuhan */}
+          <Table className='w-[200vw] lg:w-full'>
+            {' '}
+            {/* Ganti w-[200vw] → min-w untuk responsif */}
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={10} className='text-center'>
-                  Loading...
-                </TableCell>
+                <TableHead>No</TableHead>
+                <TableHead className='w-[200px]'>Nama Siswa</TableHead>
+                <TableHead>NIS</TableHead>
+                <TableHead>Kelas</TableHead>
+                <TableHead>Keterangan</TableHead>
+                <TableHead>Waktu</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Bukti</TableHead>
+                <TableHead>Aksi</TableHead>
               </TableRow>
-            )}
-            {!isLoading && perizinan.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={10} className='text-center'>
-                  Tidak ada data
-                </TableCell>
-              </TableRow>
-            )}
-            {perizinan.map((izin, idx) => (
-              <TableRow key={izin.id}>
-                <TableCell>{idx + 1}</TableCell>
-                <TableCell className='w-[200px]'>{izin.namaSiswa}</TableCell>
-                <TableCell>{izin.nisSiswa}</TableCell>
-                <TableCell>{izin.namaKelas}</TableCell>
-                <TableCell>{izin.keterangan}</TableCell>
-                <TableCell>
-                  {new Date(izin.time).toLocaleDateString('id-ID', {
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric'
-                  })}
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={`rounded-full px-2 py-1 text-xs font-medium ${
-                      izin.status === 'disetujui'
-                        ? 'bg-green-100 text-green-700'
-                        : izin.status === 'ditolak'
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-yellow-100 text-yellow-700'
-                    }`}
-                  >
-                    {izin.status}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  {izin.bukti ? (
-                    <Dialog
-                      open={selectedBukti === izin.bukti}
-                      onOpenChange={(open) =>
-                        setSelectedBukti(open ? izin.bukti : null)
-                      }
+            </TableHeader>
+            <TableBody>
+              {isLoading && (
+                <TableRow>
+                  <TableCell colSpan={9} className='py-6 text-center'>
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              )}
+              {!isLoading && perizinan.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={9} className='py-6 text-center'>
+                    Tidak ada data
+                  </TableCell>
+                </TableRow>
+              )}
+              {perizinan.map((izin, idx) => (
+                <TableRow key={izin.id}>
+                  <TableCell>{idx + 1}</TableCell>
+                  <TableCell className='w-[200px]'>{izin.namaSiswa}</TableCell>
+                  <TableCell>{izin.nisSiswa}</TableCell>
+                  <TableCell>{izin.namaKelas}</TableCell>
+                  <TableCell>{izin.keterangan}</TableCell>
+                  <TableCell>
+                    {new Date(izin.time).toLocaleDateString('id-ID', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`rounded-full px-2 py-1 text-xs font-medium ${
+                        izin.status === 'disetujui'
+                          ? 'bg-green-100 text-green-700'
+                          : izin.status === 'ditolak'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-yellow-100 text-yellow-700'
+                      }`}
                     >
-                      <DialogTrigger asChild>
-                        <button className='text-blue-600 hover:underline'>
-                          Lihat
-                        </button>
-                      </DialogTrigger>
-                      <DialogContent className='max-w-2xl'>
-                        <DialogHeader>
-                          <DialogTitle>Bukti Perizinan</DialogTitle>
-                        </DialogHeader>
-                        <div className='mt-4'>
-                          {izin.bukti.endsWith('.pdf') ? (
-                            <iframe
-                              src={izin.bukti}
-                              className='h-[500px] w-full rounded-md'
-                            />
-                          ) : (
-                            <img
-                              src={izin.bukti}
-                              alt='Bukti'
-                              className='mx-auto max-h-[500px] w-auto rounded-md'
-                            />
-                          )}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  ) : (
-                    '-'
-                  )}
-                </TableCell>
-                <TableCell className='flex gap-2'>
-                  <Button
-                    size='sm'
-                    className='bg-green-600 text-white hover:bg-green-700'
-                    onClick={() => setujuiMutation.mutate(izin.id)}
-                    disabled={setujuiMutation.isPending}
-                  >
-                    {setujuiMutation.isPending ? '...' : 'Setujui'}
-                  </Button>
-                  <Button
-                    size='sm'
-                    variant='destructive'
-                    onClick={() => tolakMutation.mutate(izin.id)}
-                    disabled={tolakMutation.isPending}
-                  >
-                    {tolakMutation.isPending ? '...' : 'Tolak'}
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                      {izin.status}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    {izin.bukti ? (
+                      <Dialog
+                        open={selectedBukti === izin.bukti}
+                        onOpenChange={(open) =>
+                          setSelectedBukti(open ? izin.bukti : null)
+                        }
+                      >
+                        <DialogTrigger asChild>
+                          <button className='text-blue-600 hover:underline'>
+                            Lihat
+                          </button>
+                        </DialogTrigger>
+                        <DialogContent className='max-w-2xl'>
+                          <DialogHeader>
+                            <DialogTitle>Bukti Perizinan</DialogTitle>
+                          </DialogHeader>
+                          <div className='mt-4'>
+                            {izin.bukti.endsWith('.pdf') ? (
+                              <iframe
+                                src={izin.bukti}
+                                className='h-[500px] w-full rounded-md'
+                              />
+                            ) : (
+                              <img
+                                src={izin.bukti}
+                                alt='Bukti'
+                                className='mx-auto max-h-[500px] w-auto rounded-md'
+                              />
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    ) : (
+                      '-'
+                    )}
+                  </TableCell>
+                  <TableCell className='flex gap-2'>
+                    <Button
+                      size='sm'
+                      className='bg-green-600 text-white hover:bg-green-700'
+                      onClick={() => setujuiMutation.mutate(izin.id)}
+                      disabled={setujuiMutation.isPending}
+                    >
+                      {setujuiMutation.isPending ? '...' : 'Setujui'}
+                    </Button>
+                    <Button
+                      size='sm'
+                      variant='destructive'
+                      onClick={() => tolakMutation.mutate(izin.id)}
+                      disabled={tolakMutation.isPending}
+                    >
+                      {tolakMutation.isPending ? '...' : 'Tolak'}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </Card>
   );

@@ -15,6 +15,20 @@ export const columns: ColumnDef<Pendaftaran>[] = [
     cell: ({ row }) => row.original.studentName
   },
   {
+    accessorKey: 'birthDay',
+    header: 'Birth Day',
+    size: 500,
+    cell: ({ row }) => {
+      const date = row.original.birthDay;
+      if (!date) return '-';
+      return new Date(date).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    }
+  },
+  {
     accessorKey: 'parentName',
     header: 'Parent Name',
     cell: ({ row }) => row.original.parentName

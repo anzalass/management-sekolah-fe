@@ -56,10 +56,22 @@ export default function DaftarInventarisForm({
   id: string;
   pageTitle: string;
 }) {
+  const [showDropdown, setShowDropdown] = useState(false);
   const [loading, startTransition] = useTransition();
   const router = useRouter();
   const [JenisInventaris, setJenisInventaris] = useState<JenisInventaris[]>([]);
   const [ruang, setRuang] = useState<Ruangan[]>([]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: any) => {
+      if (!e.target.closest('.inventaris-autocomplete')) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   const getAllJenisInventaris = async () => {
     try {
@@ -103,7 +115,7 @@ export default function DaftarInventarisForm({
       ? new Date(initialData.waktuPengadaan).toISOString().split('T')[0] // Konversi ke Date dulu
       : '',
     keterangan: initialData?.keterangan,
-    ruang: initialData?.ruang
+    ruang: 'Belum Dipakai'
   };
 
   const form = useForm({
@@ -171,35 +183,63 @@ export default function DaftarInventarisForm({
                   name='nama'
                   rules={{ required: 'Nama Inventaris wajib dipilih' }}
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className='inventaris-autocomplete relative'>
                       <FormLabel>Pilih Jenis Inventaris</FormLabel>
                       <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder='Select an option' />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {JenisInventaris.length > 0 ? (
-                              JenisInventaris.map((item) => (
-                                <SelectItem key={item.id} value={item.nama}>
-                                  {item.nama}
-                                </SelectItem>
-                              ))
-                            ) : (
-                              <p>Loading...</p>
-                            )}
-                          </SelectContent>
-                        </Select>
+                        <div className='relative'>
+                          <Input
+                            {...field}
+                            value={field.value || ''}
+                            placeholder='Ketik nama inventaris...'
+                            className='w-full'
+                            onFocus={() => setShowDropdown(true)}
+                            onChange={(e) => {
+                              field.onChange(e.target.value);
+                              setShowDropdown(true);
+                            }}
+                          />
+                          {showDropdown && (
+                            <div className='absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-md border border-gray-200 bg-white shadow-lg'>
+                              {JenisInventaris.length === 0 ? (
+                                <div className='p-2 text-sm text-gray-500'>
+                                  Loading...
+                                </div>
+                              ) : JenisInventaris.filter((item) =>
+                                  item.nama
+                                    .toLowerCase()
+                                    .includes(field.value?.toLowerCase() || '')
+                                ).length === 0 ? (
+                                <div className='p-2 text-sm text-gray-500'>
+                                  Tidak ditemukan
+                                </div>
+                              ) : (
+                                JenisInventaris.filter((item) =>
+                                  item.nama
+                                    .toLowerCase()
+                                    .includes(field.value?.toLowerCase() || '')
+                                ).map((item) => (
+                                  <div
+                                    key={item.id}
+                                    className='cursor-pointer px-3 py-2 text-sm hover:bg-gray-100'
+                                    onClick={() => {
+                                      field.onChange(item.nama); // atau item.id jika perlu simpan ID
+                                      setShowDropdown(false);
+                                    }}
+                                  >
+                                    {item.nama}
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name='ruang'
                   rules={{ required: 'Ruangan wajib dipilih' }}
@@ -233,7 +273,7 @@ export default function DaftarInventarisForm({
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
 
                 <FormItem>
                   <FormLabel>Quantity</FormLabel>

@@ -29,12 +29,12 @@ export function useSiswaTableFilters() {
 
   const [kelas, setKelasFilter] = useQueryState(
     'kelas',
-    searchParams.nip.withOptions({ shallow: false }).withDefault('')
+    searchParams.nis.withOptions({ shallow: false }).withDefault('')
   );
 
-  const [nipFilter, setNipFilter] = useQueryState(
-    'nip',
-    searchParams.nip.withOptions({ shallow: false }).withDefault('')
+  const [nisFilter, setNisFilter] = useQueryState(
+    'nis',
+    searchParams.nis.withOptions({ shallow: false }).withDefault('')
   );
 
   const [page, setPage] = useQueryState(
@@ -45,13 +45,13 @@ export function useSiswaTableFilters() {
   const resetFilters = useCallback(() => {
     setSearchQuery(null);
     setNamaFilter(null);
-    setNipFilter(null);
+    setNisFilter(null);
     setPage(1);
-  }, [setSearchQuery, setNamaFilter, setNipFilter, setPage]);
+  }, [setSearchQuery, setNamaFilter, setNisFilter, setPage]);
 
   const isAnyFilterActive = useMemo(() => {
-    return !!searchQuery || !!namaFilter || !!nipFilter;
-  }, [searchQuery, namaFilter, nipFilter]);
+    return !!searchQuery || !!namaFilter || !!nisFilter;
+  }, [searchQuery, namaFilter, nisFilter]);
 
   return {
     kelas,
@@ -64,7 +64,7 @@ export function useSiswaTableFilters() {
     isAnyFilterActive,
     namaFilter,
     setNamaFilter,
-    nipFilter,
-    setNipFilter
+    nisFilter,
+    setNisFilter
   };
 }

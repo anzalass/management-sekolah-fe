@@ -112,7 +112,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           </DropdownMenuItem>
 
           <DropdownMenuItem onClick={() => setOpenMaintenance(true)}>
-            <Wrench className='mr-2 h-4 w-4' /> Lainya
+            <Wrench className='mr-2 h-4 w-4' /> Kelola Inventaris
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

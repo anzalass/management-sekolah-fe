@@ -300,7 +300,7 @@ export default function NotificationPage() {
                       </p>
 
                       <div className='flex items-center justify-between text-xs text-gray-500'>
-                        <span>{formatDate(notif.createdAt)}</span>
+                        <span>{formatDate(notif.createdOn)}</span>
                         {notif.status === 'read' && (
                           <div className='flex items-center gap-1 text-gray-400'>
                             <Check className='h-3 w-3' />

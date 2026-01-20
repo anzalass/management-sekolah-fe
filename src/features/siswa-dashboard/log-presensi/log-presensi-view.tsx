@@ -39,7 +39,7 @@ import EmptyState from '../empty-state';
 interface Presensi {
   id: number;
   waktu: string; // ISO string
-  keterangan: 'Hadir' | 'Sakit' | 'Izin' | 'Tanpa Keterangan';
+  keterangan: 'Hadir' | 'Sakit' | 'Izin' | 'TanpaKeterangan';
   lokasi?: string;
   catatan?: string;
 }
@@ -137,7 +137,7 @@ export default function LogPresensiView() {
       if (item.keterangan === 'Hadir') acc.hadir++;
       if (item.keterangan === 'Sakit') acc.sakit++;
       if (item.keterangan === 'Izin') acc.izin++;
-      if (item.keterangan === 'Tanpa Keterangan') acc.alpha++;
+      if (item.keterangan === 'TanpaKeterangan') acc.alpha++;
       return acc;
     },
     { hadir: 0, sakit: 0, izin: 0, alpha: 0 }
@@ -192,7 +192,7 @@ export default function LogPresensiView() {
           badgeText: 'text-yellow-700',
           iconColor: 'text-yellow-600'
         };
-      case 'Tanpa Keterangan':
+      case 'TanpaKeterangan':
       default:
         return {
           gradient: 'from-red-500 to-rose-500',

@@ -20,9 +20,42 @@ export const columns: ColumnDef<PemeliharaanInventaris>[] = [
     cell: ({ row }) => row.original.nama
   },
   {
-    accessorKey: 'status', // NIP
+    accessorKey: 'status',
     header: 'Status',
-    cell: ({ row }) => row.original.status
+    cell: ({ row }) => {
+      const status = row.original.status;
+
+      // Fungsi untuk menentukan warna background & teks
+      const getBadgeStyle = (status: any) => {
+        switch (status) {
+          case 'Sedang Maintenance':
+            return { backgroundColor: '#ffeaa7', color: '#2d3436' }; // Kuning lembut
+          case 'Selesai Maintenance':
+            return { backgroundColor: '#00b894', color: '#fff' }; // Hijau
+          case 'Diberikan':
+            return { backgroundColor: '#74b9ff', color: '#fff' }; // Biru
+          case 'Digunakan':
+            return { backgroundColor: '#0984e3', color: '#fff' }; // Biru tua
+          case 'Rusak':
+            return { backgroundColor: '#d63031', color: '#fff' }; // Merah
+          default:
+            return { backgroundColor: '#dfe6e9', color: '#2d3436' }; // Abu-abu default
+        }
+      };
+
+      return (
+        <span
+          style={{
+            padding: '4px 8px',
+            borderRadius: '4px',
+            fontWeight: '500',
+            ...getBadgeStyle(status)
+          }}
+        >
+          {status}
+        </span>
+      );
+    }
   },
 
   {

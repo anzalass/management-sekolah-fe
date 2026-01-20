@@ -8,6 +8,7 @@ import NavbarSiswa from '../navbar-siswa';
 import BottomNav from '../bottom-nav';
 import Loading from '../loading';
 import { toast } from 'sonner';
+import { useSession } from 'next-auth/react';
 
 const localizer = momentLocalizer(moment);
 
@@ -23,10 +24,15 @@ interface Kegiatan {
 
 export default function KegiatanKalender() {
   const [events, setEvents] = useState<any[]>([]);
+  const { data: session } = useSession();
 
   const getData = async () => {
     try {
-      const res = await api.get('kegiatan-sekolah-2');
+      const res = await api.get('kegiatan-sekolah-2', {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       const mapped = res.data.data.map((k: any) => ({
         id: k.id,
         title: k.nama,
@@ -45,7 +51,7 @@ export default function KegiatanKalender() {
   }, []);
 
   return (
-    <div className='h-[600px]'>
+    <div className=''>
       <NavbarSiswa title='Kalender Akademik' />
       {events ? (
         <div className='mx-auto mt-12 w-11/12'>

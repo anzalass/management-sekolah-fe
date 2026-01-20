@@ -2,6 +2,8 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { Inventaris } from '../daftar-inventaris-form';
+import ModalFormMaintenance2 from '../modal-form-maintenence-2';
+import { useState } from 'react';
 
 export const columns: ColumnDef<Inventaris>[] = [
   {
@@ -14,24 +16,24 @@ export const columns: ColumnDef<Inventaris>[] = [
     accessorKey: 'quantity', // NIP
     header: 'Quantity',
     cell: ({ row }) => row.original.quantity
-  },
-  {
-    accessorKey: 'ruang', // NIP
-    header: 'Ruang',
-    cell: ({ row }) => row.original.ruang
-  },
-  {
-    accessorKey: 'hargaBeli', // NIP
-    header: 'Harga Beli',
-    cell: ({ row }) => {
-      const value = row.original.hargaBeli;
-      return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0
-      }).format(value);
-    }
-  },
+  }
+  // {
+  //   accessorKey: 'ruang', // NIP
+  //   header: 'Ruang',
+  //   cell: ({ row }) => row.original.ruang
+  // },
+  // {
+  //   accessorKey: 'hargaBeli', // NIP
+  //   header: 'Harga Beli',
+  //   cell: ({ row }) => {
+  //     const value = row.original.hargaBeli;
+  //     return new Intl.NumberFormat('id-ID', {
+  //       style: 'currency',
+  //       currency: 'IDR',
+  //       minimumFractionDigits: 0
+  //     }).format(value);
+  //   }
+  // },
   // {
   //   accessorKey: 'waktuPengadaan', // NIP
   //   header: 'Waktu Pengadaan',
@@ -54,9 +56,9 @@ export const columns: ColumnDef<Inventaris>[] = [
   //     return formatTanggal(tanggal);
   //   }
   // },
-  {
-    id: 'actions', // Actions (untuk tombol aksi seperti edit, delete)
-    header: 'Actions',
-    cell: ({ row }) => <CellAction data={row.original} />
-  }
+  // {
+  //   id: 'actions', // Actions (untuk tombol aksi seperti edit, delete)
+  //   header: 'Actions',
+  //   cell: ({ row }) => <CellAction data={row.original} />
+  // }
 ];

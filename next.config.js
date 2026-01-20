@@ -126,17 +126,18 @@ module.exports = withPWA({
     const connectSrc = [
       "'self'",
       'https://management-sekolah.zeabur.app',
+      'https://little-alley.zeabur.app',
       'https://ytam-be.zeabur.app',
       'https://ytam-be2.zeabur.app',
       'https://api.sandbox.midtrans.com',
       'https://app.sandbox.midtrans.com',
       'https://generativelanguage.googleapis.com',
-      'https://*.googleapis.com',
+      'https://www.googleapis.com',
       'https://www.google-analytics.com',
       'data:',
       'blob:',
       ...(process.env.NODE_ENV === 'development'
-        ? ['http://localhost:4000']
+        ? ['http://localhost:5000']
         : [])
     ].join(' ');
 
@@ -146,12 +147,9 @@ module.exports = withPWA({
       'https://api.sandbox.midtrans.com',
       'https://docs.google.com',
       'https://forms.gle',
+      'https://little-alley.zeabur.app',
       'https://ytam-be.zeabur.app',
-      'https://ytam-be2.zeabur.app',
-      'https://*.google.com',
-      'https://*.gstatic.com',
-      'https://*.googleusercontent.com',
-      ...(isDev ? ['http://localhost:4000'] : ['http://localhost:4000'])
+      'https://ytam-be2.zeabur.app'
     ].join(' ');
 
     return [
@@ -161,20 +159,19 @@ module.exports = withPWA({
           {
             key: 'Content-Security-Policy',
             value: `
-              default-src 'self';
-              script-src 'self' 'unsafe-eval' 'unsafe-inline'
-                https://snap-assets.al-pc-id-b.cdn.gtflabs.io
-                https://api.sandbox.midtrans.com
-                https://app.sandbox.midtrans.com
-                https://pay.google.com
-                https://js-agent.newrelic.com
-                https://bam.nr-data.net;
-              connect-src ${connectSrc} data: blob:;
-              img-src * data: blob:;
-              style-src 'self' 'unsafe-inline';
-              frame-src ${frameSrc};
-              frame-ancestors 'self' self' https://*;
-            `.replace(/\s{2,}/g, ' ')
+            default-src 'self';
+            script-src 'self' 'unsafe-eval' 'unsafe-inline'
+              https://snap-assets.al-pc-id-b.cdn.gtflabs.io
+              https://api.sandbox.midtrans.com
+              https://app.sandbox.midtrans.com
+              https://pay.google.com
+              https://js-agent.newrelic.com
+              https://bam.nr-data.net;
+            connect-src ${connectSrc};
+            img-src * data: blob:;
+            style-src 'self' 'unsafe-inline';
+            frame-src ${frameSrc};
+          `.replace(/\s{2,}/g, ' ')
           }
         ]
       }

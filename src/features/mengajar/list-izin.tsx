@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Calendar, Search, Trash2, Loader2 } from 'lucide-react';
+import { Calendar, Search, Trash2, Loader2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useSession } from 'next-auth/react';
@@ -24,8 +24,6 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 type Izin = {
@@ -36,7 +34,7 @@ type Izin = {
   status: 'disetujui' | 'menunggu' | 'ditolak';
 };
 
-export type KehadiranGuru = {
+type KehadiranGuru = {
   id: string;
   tanggal: string;
   jamMasuk?: string;
@@ -46,10 +44,22 @@ export type KehadiranGuru = {
   nip: string;
 };
 
+// Tipe respons API baru
+type ApiResponse = {
+  resultPerizinan: {
+    data: Izin[];
+    meta: { total: number; page: number; pageSize: number; totalPages: number };
+  };
+  resultKehadiran: {
+    data: KehadiranGuru[];
+    meta: { total: number; page: number; pageSize: number; totalPages: number };
+  };
+};
+
 const statusColor = {
-  disetujui: 'bg-green-100 text-green-700',
-  menunggu: 'bg-yellow-100 text-yellow-700',
-  ditolak: 'bg-red-100 text-red-700'
+  disetujui: 'bg-green-100 text-green-800',
+  menunggu: 'bg-yellow-100 text-yellow-800',
+  ditolak: 'bg-red-100 text-red-800'
 };
 
 export default function CardListIzin() {
@@ -60,74 +70,91 @@ export default function CardListIzin() {
     'perizinan'
   );
 
-  // Filter izin
+  // === Filter Perizinan ===
   const [searchIzin, setSearchIzin] = useState('');
   const [statusFilter, setStatusFilter] = useState<
     'semua' | 'disetujui' | 'menunggu' | 'ditolak'
   >('semua');
+  const [izinPage, setIzinPage] = useState(1);
+  const [izinPageSize, setIzinPageSize] = useState(10);
+  const [izinStartDate, setIzinStartDate] = useState('');
+  const [izinEndDate, setIzinEndDate] = useState('');
 
-  // State untuk kehadiran
-  const [tanggalKehadiran, setTanggalKehadiran] = useState('');
-  const [pageLimit, setPageLimit] = useState(10);
-  const [page, setPage] = useState(1);
+  // === Filter Kehadiran ===
+  const [kehadiranPage, setKehadiranPage] = useState(1);
+  const [kehadiranPageSize, setKehadiranPageSize] = useState(10);
+  const [kehadiranStartDate, setKehadiranStartDate] = useState('');
+  const [kehadiranEndDate, setKehadiranEndDate] = useState('');
 
-  // --- Query Izin ---
-  const { data: izinList = [], isPending: izinLoading } = useQuery<Izin[]>({
-    queryKey: ['izin', session?.user?.token],
-    queryFn: async () => {
-      const res = await api.get(`perizinan-guru`, {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-      return res.data.data || [];
-    },
-    enabled: !!session?.user?.token
-  });
+  // Modal foto
+  const [modalImage, setModalImage] = useState<string | null>(null);
 
-  // --- Query Kehadiran ---
-  const { data: dataKehadiran = [], isPending: loadingKehadiran } = useQuery<
-    KehadiranGuru[]
-  >({
+  // --- Query Gabungan ---
+  const { data, isPending, isError } = useQuery<ApiResponse>({
     queryKey: [
-      'kehadiran',
-      session?.user?.token,
-      page,
-      pageLimit,
-      tanggalKehadiran
+      'perizinan-kehadiran-guru',
+      session?.user?.idGuru,
+      // Perizinan
+      izinPage,
+      izinPageSize,
+      izinStartDate,
+      izinEndDate,
+      searchIzin,
+      statusFilter,
+      // Kehadiran
+      kehadiranPage,
+      kehadiranPageSize,
+      kehadiranStartDate,
+      kehadiranEndDate
     ],
     queryFn: async () => {
+      const params = new URLSearchParams();
+
+      // Params Perizinan
+      params.append('idGuru', session?.user?.idGuru || '');
+      params.append('pagePerizinan', String(izinPage));
+      params.append('pageSizePerizinan', String(izinPageSize));
+      if (izinStartDate) params.append('startDatePerizinan', izinStartDate);
+      if (izinEndDate) params.append('endDatePerizinan', izinEndDate);
+
+      // Params Kehadiran
+      params.append('pageKehadiran', String(kehadiranPage));
+      params.append('pageSizeKehadiran', String(kehadiranPageSize));
+      if (kehadiranStartDate)
+        params.append('startDateKehadiran', kehadiranStartDate);
+      if (kehadiranEndDate) params.append('endDateKehadiran', kehadiranEndDate);
+
       const res = await api.get(
-        `kehadiran-guru?page=${page}&pageSize=${pageLimit}&nip=${session?.user?.nip}&tanggal=${tanggalKehadiran}`,
+        `/dashboard/perizinan-kehadiran?${params.toString()}`,
         {
-          headers: {
-            Authorization: `Bearer ${session?.user?.token}`
-          }
+          headers: { Authorization: `Bearer ${session?.user?.token}` }
         }
       );
-      return res.data.data.data || [];
+      return res.data;
     },
-    enabled: !!session?.user?.token
+    enabled: !!session?.user?.idGuru
   });
 
-  // --- Mutasi Delete Izin ---
+  const izinList = data?.resultPerizinan.data || [];
+  const kehadiranList = data?.resultKehadiran.data || [];
+
+  // --- Mutasi Delete ---
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       return await api.delete(`/perizinan-guru/delete/${id}`, {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
+        headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
     },
     onSuccess: () => {
       toast.success('Data izin berhasil dihapus');
-      queryClient.invalidateQueries({ queryKey: ['izin'] });
+      queryClient.invalidateQueries({ queryKey: ['perizinan-kehadiran-guru'] });
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     }
   });
 
+  // Filter izin di frontend (jika search/status tidak di-handle oleh API)
   const filteredIzin = useMemo(() => {
     return izinList.filter((izin) => {
       const cocokStatus =
@@ -160,11 +187,11 @@ export default function CardListIzin() {
       {toggleTab === 'perizinan' ? (
         <>
           {/* Filter Perizinan */}
-          <div className='mb-4 flex flex-col gap-4 md:flex-row md:items-center'>
-            <div className='relative w-full md:w-1/2'>
+          <div className='mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4'>
+            <div className='relative'>
               <Search className='absolute left-3 top-2.5 h-4 w-4 text-muted-foreground' />
               <Input
-                placeholder='Cari berdasarkan keterangan...'
+                placeholder='Cari keterangan...'
                 className='pl-10'
                 value={searchIzin}
                 onChange={(e) => setSearchIzin(e.target.value)}
@@ -176,7 +203,7 @@ export default function CardListIzin() {
               onValueChange={(val) => setStatusFilter(val as any)}
             >
               <SelectTrigger>
-                <SelectValue placeholder='Filter status' />
+                <SelectValue placeholder='Status' />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='semua'>Semua Status</SelectItem>
@@ -185,129 +212,211 @@ export default function CardListIzin() {
                 <SelectItem value='ditolak'>Ditolak</SelectItem>
               </SelectContent>
             </Select>
+
+            <Input
+              type='date'
+              placeholder='Dari Tanggal'
+              value={izinStartDate}
+              onChange={(e) => setIzinStartDate(e.target.value)}
+            />
+
+            <Input
+              type='date'
+              placeholder='Sampai Tanggal'
+              value={izinEndDate}
+              onChange={(e) => setIzinEndDate(e.target.value)}
+            />
           </div>
 
-          {/* List Perizinan */}
-          {izinLoading ? (
-            <p className='text-center text-muted-foreground'>Loading...</p>
+          {/* Pagination Perizinan */}
+          <div className='mb-4 block items-center justify-between gap-3 md:flex'>
+            <div className=''>
+              <Select
+                value={String(izinPageSize)}
+                onValueChange={(v) => setIzinPageSize(Number(v))}
+              >
+                <SelectTrigger className='w-full md:w-24'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='5'>5 / hal</SelectItem>
+                  <SelectItem value='10'>10 / hal</SelectItem>
+                  <SelectItem value='20'>20 / hal</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className='mt-5 md:mt-0'>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setIzinPage((p) => Math.max(1, p - 1))}
+                disabled={izinPage <= 1}
+              >
+                Sebelumnya
+              </Button>
+              <span className='text-sm'>Halaman {izinPage}</span>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setIzinPage((p) => p + 1)}
+                disabled={
+                  !data || izinPage >= data.resultPerizinan.meta.totalPages
+                }
+              >
+                Berikutnya
+              </Button>
+            </div>
+          </div>
+
+          {/* Tabel Perizinan */}
+          {isPending ? (
+            <p className='py-8 text-center text-muted-foreground'>Loading...</p>
           ) : filteredIzin.length === 0 ? (
-            <p className='text-center text-muted-foreground'>
-              Tidak ada data izin yang cocok.
+            <p className='py-8 text-center text-muted-foreground'>
+              Tidak ada data izin.
             </p>
           ) : (
-            <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
-              {filteredIzin.map((izin) => (
-                <Card
-                  key={izin.id}
-                  className='rounded-2xl border border-muted shadow-sm transition hover:shadow-md'
-                >
-                  <CardContent className='space-y-3 p-4'>
-                    <div className='flex items-center justify-between'>
-                      <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-                        <Calendar className='h-4 w-4' />
-                        <span>
-                          {new Date(izin.time).toLocaleDateString('id-ID')}
-                        </span>
-                      </div>
-                      <Badge className={statusColor[izin.status]}>
-                        {izin.status.charAt(0).toUpperCase() +
-                          izin.status.slice(1)}
-                      </Badge>
-                    </div>
-
-                    <div>
-                      <p className='text-sm font-medium'>Keterangan:</p>
-                      <p className='text-sm'>{izin.keterangan}</p>
-                    </div>
-
-                    {izin.status === 'menunggu' && (
-                      <div className='flex gap-2 pt-2'>
-                        <Button
-                          variant='destructive'
-                          size='sm'
-                          disabled={
-                            deleteMutation.isPending &&
-                            deleteMutation.variables === izin.id
-                          }
-                          onClick={() => deleteMutation.mutate(izin.id)}
-                        >
-                          {deleteMutation.isPending &&
-                          deleteMutation.variables === izin.id ? (
-                            <Loader2 className='h-4 w-4 animate-spin' />
-                          ) : (
-                            <Trash2 className='h-4 w-4' />
-                          )}
-                        </Button>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+            <div className='overflow-x-auto rounded-md border'>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Tanggal</TableHead>
+                    <TableHead>Keterangan</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className='text-center'>Bukti</TableHead>
+                    <TableHead className='text-center'>Aksi</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredIzin.map((izin) => (
+                    <TableRow key={izin.id}>
+                      <TableCell>
+                        {new Date(izin.time).toLocaleDateString('id-ID')}
+                      </TableCell>
+                      <TableCell className='max-w-xs truncate'>
+                        {izin.keterangan}
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={statusColor[izin.status]}>
+                          {izin.status.charAt(0).toUpperCase() +
+                            izin.status.slice(1)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className='text-center'>
+                        {izin.buktiUrl ? (
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            onClick={() => setModalImage(izin.buktiUrl!)}
+                          >
+                            <Eye className='h-4 w-4 text-primary' />
+                          </Button>
+                        ) : (
+                          <span className='text-muted-foreground'>–</span>
+                        )}
+                      </TableCell>
+                      <TableCell className='text-center'>
+                        {izin.status === 'menunggu' && (
+                          <Button
+                            variant='destructive'
+                            size='sm'
+                            disabled={
+                              deleteMutation.isPending &&
+                              deleteMutation.variables === izin.id
+                            }
+                            onClick={() => deleteMutation.mutate(izin.id)}
+                          >
+                            {deleteMutation.isPending &&
+                            deleteMutation.variables === izin.id ? (
+                              <Loader2 className='h-4 w-4 animate-spin' />
+                            ) : (
+                              <Trash2 className='h-4 w-4' />
+                            )}
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           )}
         </>
       ) : (
         <>
           {/* Filter Kehadiran */}
-          <div className='mb-4 flex gap-4'>
+          <div className='mb-4 grid grid-cols-1 gap-4 md:grid-cols-4'>
             <Input
               type='date'
-              placeholder='Tanggal'
-              value={tanggalKehadiran}
-              onChange={(e) => setTanggalKehadiran(e.target.value)}
-              className='max-w-[180px]'
+              placeholder='Dari Tanggal'
+              value={kehadiranStartDate}
+              onChange={(e) => setKehadiranStartDate(e.target.value)}
+            />
+            <Input
+              type='date'
+              placeholder='Sampai Tanggal'
+              value={kehadiranEndDate}
+              onChange={(e) => setKehadiranEndDate(e.target.value)}
             />
             <Select
-              value={String(pageLimit)}
-              onValueChange={(val) => setPageLimit(Number(val))}
+              value={String(kehadiranPageSize)}
+              onValueChange={(v) => setKehadiranPageSize(Number(v))}
             >
               <SelectTrigger>
-                <SelectValue placeholder='Limit / halaman' />
+                <SelectValue placeholder='Limit' />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='5'>5</SelectItem>
-                <SelectItem value='10'>10</SelectItem>
-                <SelectItem value='20'>20</SelectItem>
+                <SelectItem value='5'>5 / hal</SelectItem>
+                <SelectItem value='10'>10 / hal</SelectItem>
+                <SelectItem value='20'>20 / hal</SelectItem>
               </SelectContent>
             </Select>
-            <Input
-              type='number'
-              placeholder='Halaman'
-              value={page}
-              min={1}
-              onChange={(e) => setPage(Number(e.target.value))}
-              className='max-w-[80px]'
-            />
+            <div className='flex items-center gap-2'>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setKehadiranPage((p) => Math.max(1, p - 1))}
+                disabled={kehadiranPage <= 1}
+              >
+                Sebelumnya
+              </Button>
+              <span className='text-sm'>Hal {kehadiranPage}</span>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setKehadiranPage((p) => p + 1)}
+                disabled={
+                  !data || kehadiranPage >= data.resultKehadiran.meta.totalPages
+                }
+              >
+                Berikutnya
+              </Button>
+            </div>
           </div>
-          <div className='mx-auto w-[100%] overflow-x-auto'>
-            <Table className='w-[200vw] overflow-auto border lg:w-[100vw]'>
-              <TableHeader className=''>
-                <TableRow>
-                  <TableHead>Tanggal</TableHead>
-                  <TableHead>Nama</TableHead>
-                  <TableHead>NIP</TableHead>
-                  <TableHead>Jam Masuk</TableHead>
-                  <TableHead>Jam Pulang</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
 
-              <TableBody>
-                {loadingKehadiran ? (
+          {/* Tabel Kehadiran */}
+          {isPending ? (
+            <p className='py-8 text-center text-muted-foreground'>Loading...</p>
+          ) : kehadiranList.length === 0 ? (
+            <p className='py-8 text-center text-muted-foreground'>
+              Tidak ada data kehadiran.
+            </p>
+          ) : (
+            <div className='overflow-x-auto rounded-md border'>
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={6} className='py-6 text-center'>
-                      Loading...
-                    </TableCell>
+                    <TableHead>Tanggal</TableHead>
+                    <TableHead>Nama</TableHead>
+                    <TableHead>NIP</TableHead>
+                    <TableHead>Jam Masuk</TableHead>
+                    <TableHead>Jam Pulang</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
-                ) : dataKehadiran.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className='py-6 text-center'>
-                      Tidak ada data kehadiran
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  dataKehadiran.map((item) => (
-                    <TableRow key={item.id} className=''>
+                </TableHeader>
+                <TableBody>
+                  {kehadiranList.map((item) => (
+                    <TableRow key={item.id}>
                       <TableCell>
                         {new Date(item.tanggal).toLocaleDateString('id-ID')}
                       </TableCell>
@@ -315,30 +424,48 @@ export default function CardListIzin() {
                       <TableCell>{item.nip}</TableCell>
                       <TableCell>
                         {item.jamMasuk
-                          ? format(
-                              new Date(item.jamMasuk),
-                              'dd MMM yyyy, HH:mm',
-                              { locale: id }
-                            )
+                          ? new Date(item.jamMasuk).toLocaleString('id-ID')
                           : '-'}
                       </TableCell>
                       <TableCell>
                         {item.jamPulang
-                          ? format(
-                              new Date(item.jamPulang),
-                              'dd MMM yyyy, HH:mm',
-                              { locale: id }
-                            )
+                          ? new Date(item.jamPulang).toLocaleString('id-ID')
                           : '-'}
                       </TableCell>
                       <TableCell>{item.status}</TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </>
+      )}
+
+      {/* Modal Foto Bukti */}
+      {modalImage && (
+        <div
+          className='fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4'
+          onClick={() => setModalImage(null)}
+        >
+          <div
+            className='relative max-h-[80vh] max-w-3xl'
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setModalImage(null)}
+              className='absolute -top-10 right-0 rounded-full bg-black/50 p-1.5 text-white'
+              aria-label='Tutup'
+            >
+              ✕
+            </button>
+            <img
+              src={modalImage}
+              alt='Bukti izin'
+              className='max-h-[80vh] w-auto max-w-full rounded-lg border-2 border-white bg-white object-contain p-2'
+            />
+          </div>
+        </div>
       )}
     </Card>
   );

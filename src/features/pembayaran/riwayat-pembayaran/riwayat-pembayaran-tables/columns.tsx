@@ -54,10 +54,10 @@ export const columns: ColumnDef<RiwayatPembayaran>[] = [
         year: 'numeric'
       }).format(time);
     }
-  },
-  {
-    id: 'actions',
-    header: 'Actions',
-    cell: ({ row }) => <CellAction data={row.original} />
   }
+  // {
+  //   id: 'actions',
+  //   header: 'Actions',
+  //   cell: ({ row }) => <CellAction data={row.original} />
+  // }
 ];

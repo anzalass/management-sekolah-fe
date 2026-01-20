@@ -28,7 +28,11 @@ export default function DetailRapotView({ idKelas }: Props) {
   const { data: tahunAjaran, isLoading: loadingTahun } = useQuery({
     queryKey: ['kelas', idKelas],
     queryFn: async () => {
-      const res = await api.get(`kelas-walikelas/get/${idKelas}`);
+      const res = await api.get(`kelas-walikelas/get/${idKelas}`, {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      });
       return res.data.tahunAjaran;
     }
   });
@@ -38,7 +42,12 @@ export default function DetailRapotView({ idKelas }: Props) {
     queryKey: ['rapotSiswa', idKelas, tahunAjaran],
     queryFn: async () => {
       const res = await api.get(
-        `rapot2?idKelas=${idKelas}&idSiswa=${session?.user?.idGuru}&tahunAjaran=${tahunAjaran}`
+        `rapot2?idKelas=${idKelas}&idSiswa=${session?.user?.idGuru}&tahunAjaran=${tahunAjaran}`,
+        {
+          headers: {
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        }
       );
       return res.data;
     },
