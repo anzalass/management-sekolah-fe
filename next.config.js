@@ -133,8 +133,11 @@ module.exports = withPWA({
       'https://generativelanguage.googleapis.com',
       'https://*.googleapis.com',
       'https://www.google-analytics.com',
-
-      ...(isDev ? ['http://localhost:4000'] : ['http://localhost:4000'])
+      'data:',
+      'blob:',
+      ...(process.env.NODE_ENV === 'development'
+        ? ['http://localhost:4000']
+        : [])
     ].join(' ');
 
     const frameSrc = [

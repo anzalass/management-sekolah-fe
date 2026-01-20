@@ -128,7 +128,8 @@ export default function LogPresensiView() {
     .filter((p) => {
       if (!filterKeterangan) return true;
       return p.keterangan === filterKeterangan;
-    });
+    })
+    .sort((a, b) => new Date(b.waktu).getTime() - new Date(a.waktu).getTime());
 
   // summary stats
   const summary = filtered.reduce(
