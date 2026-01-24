@@ -7,6 +7,7 @@ import { Lato } from 'next/font/google';
 import NextTopLoader from 'nextjs-toploader';
 import './globals.css';
 import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';
+import SWRegister from './sw-register';
 
 export const metadata: Metadata = {
   title: 'Little Alley School',
@@ -49,6 +50,7 @@ export default function RootLayout({
 
         {/* Wrap app dengan provider */}
         <RenderTriggerProvider>
+          <SWRegister />
           <NuqsAdapter>
             <Toaster />
             {children}
