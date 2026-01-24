@@ -301,7 +301,7 @@ Berikan penilaian otomatis dengan skor maksimal 100, serta tampilkan hasil dalam
 
       {/* Section Summary Siswa */}
       {/* Section Summary Siswa */}
-      <Card className='w-[92vw] overflow-x-auto md:w-[84vw]'>
+      <Card className='w-full overflow-x-auto'>
         <CardHeader className='flex flex-col md:flex-row md:items-center md:justify-between'>
           <CardTitle className='text-base md:text-lg'>
             📋 Ringkasan Siswa
@@ -316,7 +316,7 @@ Berikan penilaian otomatis dengan skor maksimal 100, serta tampilkan hasil dalam
           />
         </CardHeader>
 
-        <CardContent className='w-full'>
+        <CardContent>
           {filteredSummaries?.length === 0 ? (
             <p className='text-center text-sm text-muted-foreground'>
               {searchTerm
@@ -324,7 +324,7 @@ Berikan penilaian otomatis dengan skor maksimal 100, serta tampilkan hasil dalam
                 : 'Belum ada siswa yang mengumpulkan ringkasan.'}
             </p>
           ) : (
-            <Table className='w-[200vw] md:w-full'>
+            <Table className='w-[160%] overflow-x-auto md:w-full'>
               <TableHeader>
                 <TableRow>
                   <TableHead>No</TableHead>
