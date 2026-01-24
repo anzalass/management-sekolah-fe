@@ -115,7 +115,7 @@ export default function DetailUjianView({ id }: { id: string }) {
       </Card>
 
       {/* Tabel selesai ujian */}
-      <Card className='w-[84vw] overflow-x-auto'>
+      <Card className='w-full overflow-x-auto'>
         <CardHeader>
           <CardTitle className='text-base md:text-lg'>
             Daftar Selesai Ujian
@@ -127,7 +127,7 @@ export default function DetailUjianView({ id }: { id: string }) {
               Belum ada siswa yang menyelesaikan ujian.
             </p>
           ) : (
-            <Table className='w-[120vw] md:w-full'>
+            <Table className='w-[120%] overflow-x-auto md:w-full'>
               <TableHeader>
                 <TableRow>
                   <TableHead>No</TableHead>

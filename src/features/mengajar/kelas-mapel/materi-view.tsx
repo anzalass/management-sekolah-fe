@@ -135,7 +135,7 @@ export default function MateriView({ id }: IDMateri) {
       </Card>
 
       {/* Section Summary Siswa */}
-      <Card className='w-[92vw] overflow-x-auto md:w-[84vw]'>
+      <Card className='overflow-x-auto] w-full'>
         <CardHeader className='flex flex-col md:flex-row md:items-center md:justify-between'>
           <CardTitle className='text-base md:text-lg'>
             📋 Ringkasan Siswa
@@ -150,7 +150,7 @@ export default function MateriView({ id }: IDMateri) {
           />
         </CardHeader>
 
-        <CardContent className='w-full'>
+        <CardContent>
           {filteredSummaries.length === 0 ? (
             <p className='text-center text-sm text-muted-foreground'>
               {searchTerm
@@ -158,7 +158,7 @@ export default function MateriView({ id }: IDMateri) {
                 : 'Belum ada siswa yang mengumpulkan ringkasan.'}
             </p>
           ) : (
-            <Table className='w-[200vw] md:w-full'>
+            <Table className='w-[160%] overflow-x-auto md:w-full'>
               <TableHeader>
                 <TableRow>
                   <TableHead>No</TableHead>
