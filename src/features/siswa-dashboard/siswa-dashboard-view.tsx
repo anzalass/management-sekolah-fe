@@ -35,6 +35,8 @@ import {
 } from '@/components/ui/dialog';
 import EmptyState from './empty-state';
 import Loading from './loading';
+import { Button } from '@/components/ui/button';
+import { userAgent } from 'next/server';
 
 export interface Kelas {
   id: string;
@@ -185,6 +187,62 @@ export default function SiswaHomeView() {
     markAllNotifikasi();
   };
 
+  function urlBase64ToUint8Array(base64String: string): Uint8Array {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, '+')
+      .replace(/_/g, '/');
+
+    const rawData = atob(base64);
+    return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+  }
+
+  function arrayBufferToBase64(buffer: ArrayBuffer) {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    bytes.forEach((b) => (binary += String.fromCharCode(b)));
+    return btoa(binary);
+  }
+
+  async function enablePush() {
+    if (!('serviceWorker' in navigator)) return;
+    if (!('PushManager' in window)) return;
+
+    const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+    if (!vapidKey) {
+      console.error('VAPID public key not found');
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') return;
+
+    const registration = await navigator.serviceWorker.ready;
+
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(vapidKey)
+    });
+
+    const p256dhKey = subscription.getKey('p256dh');
+    const authKey = subscription.getKey('auth');
+
+    await api.post(
+      '/notifikasi/subscribe',
+      {
+        endpoint: subscription.endpoint,
+        p256dh: p256dhKey ? arrayBufferToBase64(p256dhKey) : null,
+        auth: authKey ? arrayBufferToBase64(authKey) : null,
+        userAgent: navigator.userAgent
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${session?.user?.token}`
+        }
+      }
+    );
+  }
+
   const stripHtml = (html: any) => {
     const tmp = document.createElement('div');
     tmp.innerHTML = html;
@@ -213,7 +271,9 @@ export default function SiswaHomeView() {
 
           <div className='relative flex items-center gap-3'>
             <div className='relative'>
+              <Button onClick={enablePush}>Enable Notif</Button>
               <div className='rounded-full bg-white/20 p-2 backdrop-blur-sm transition-all hover:scale-110 hover:bg-white/30'>
+                <div className=''></div>
                 <Link onClick={handlerNotifikasi} href={'/siswa/notifikasi'}>
                   <Bell size={24} className='drop- text-white' />
                 </Link>
