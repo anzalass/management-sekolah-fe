@@ -37,6 +37,7 @@ import EmptyState from './empty-state';
 import Loading from './loading';
 import { Button } from '@/components/ui/button';
 import { userAgent } from 'next/server';
+import { Switch } from '@/components/ui/switch';
 
 export interface Kelas {
   id: string;
@@ -204,7 +205,7 @@ export default function SiswaHomeView() {
     return btoa(binary);
   }
 
-  async function enablePush() {
+  async function toggleNotification() {
     if (!('serviceWorker' in navigator)) return;
     if (!('PushManager' in window)) return;
 
@@ -243,6 +244,33 @@ export default function SiswaHomeView() {
     );
   }
 
+  const [notifEnabled, setNotifEnabled] = useState(false);
+  const [loadingNotif, setLoadingNotif] = useState(true);
+
+  useEffect(() => {
+    const checkNotificationStatus = async () => {
+      if (!('serviceWorker' in navigator)) {
+        setLoadingNotif(false);
+        return;
+      }
+
+      const permission = Notification.permission;
+      if (permission !== 'granted') {
+        setNotifEnabled(false);
+        setLoadingNotif(false);
+        return;
+      }
+
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+
+      setNotifEnabled(!!sub);
+      setLoadingNotif(false);
+    };
+
+    checkNotificationStatus();
+  }, []);
+
   const stripHtml = (html: any) => {
     const tmp = document.createElement('div');
     tmp.innerHTML = html;
@@ -257,66 +285,82 @@ export default function SiswaHomeView() {
       <div
         className={`relative overflow-hidden ${process.env.NEXT_PUBLIC_THEME_COLOR} p-6 text-white`}
       >
-        {/* Decorative circles */}
-
         <div className='relative flex items-center justify-between'>
+          {/* LEFT */}
           <div className='space-y-1'>
-            <h2 className='drop- text-base font-bold md:text-2xl'>
-              Hi, {session?.user?.nama} 👋
+            <h2 className='text-base font-bold md:text-2xl'>
+              Hi,{' '}
+              {session?.user?.nama.length > 11
+                ? session?.user?.nama.slice(0, 11) + '...'
+                : session?.user?.nama}{' '}
+              👋
             </h2>
-            <p className='text-xs font-medium opacity-90 drop-shadow'>
+            <p className='text-xs font-medium opacity-90'>
               {session?.user?.nip}
             </p>
           </div>
 
-          <div className='relative flex items-center gap-3'>
+          {/* RIGHT */}
+          <div className='relative flex items-center gap-4'>
+            {/* 🔔 NOTIF TOGGLE */}
+
+            {/* 🔔 BELL */}
+            {/* 🔔 BELL */}
             <div className='relative'>
-              <Button onClick={enablePush}>Enable Notif</Button>
-              <div className='rounded-full bg-white/20 p-2 backdrop-blur-sm transition-all hover:scale-110 hover:bg-white/30'>
-                <div className=''></div>
-                <Link onClick={handlerNotifikasi} href={'/siswa/notifikasi'}>
-                  <Bell size={24} className='drop- text-white' />
-                </Link>
-              </div>
-              {totalNotif ? (
-                <span className='absolute -right-1 -top-1 flex h-5 min-w-[20px] animate-bounce items-center justify-center rounded-full bg-gradient-to-r from-rose-500 to-pink-600 px-1.5 text-[10px] font-bold text-white ring-2 ring-white'>
-                  {totalNotif > 99 ? '99+' : totalNotif}
-                </span>
-              ) : (
-                <span className='absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 px-1.5 text-[10px] font-bold text-white ring-2 ring-white'>
-                  0
-                </span>
-              )}
+              <Link
+                onClick={handlerNotifikasi}
+                href='/siswa/notifikasi'
+                className='flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition-all hover:scale-110 hover:bg-white/30'
+              >
+                <Bell size={20} className='text-white' />
+              </Link>
+
+              <span
+                className={`absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold text-white ring-2 ring-white ${
+                  totalNotif
+                    ? 'animate-bounce bg-gradient-to-r from-rose-500 to-pink-600'
+                    : 'bg-gradient-to-r from-emerald-500 to-teal-600'
+                } `}
+              >
+                {totalNotif > 99 ? '99+' : totalNotif || 0}
+              </span>
             </div>
 
+            {/* 👤 PROFILE */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className='border-3 relative h-11 w-11 overflow-hidden rounded-full border-white ring-4 ring-white/30 transition-all hover:scale-110 hover:ring-white/50 focus:outline-none md:h-12 md:w-12'>
+                <button className='relative h-11 w-11 overflow-hidden rounded-full border-2 border-white ring-4 ring-white/30 transition-all hover:scale-110 hover:ring-white/50'>
                   <Image
                     src={session?.user?.foto || avatarUrl}
-                    alt='Foto Siswa'
+                    alt='Foto'
                     width={100}
                     height={100}
                     className='h-full w-full object-cover'
                   />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align='end'
-                className='w-48 border-purple-200'
-              >
+
+              <DropdownMenuContent align='end' className='w-48'>
+                <DropdownMenuItem
+                  onClick={toggleNotification}
+                  className='cursor-pointer'
+                >
+                  <Bell className='mr-2 h-4 w-4 text-yellow-600' />
+                  Enable Notification
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleChangePassword}
                   className='cursor-pointer'
                 >
-                  <Lock className='mr-2 h-4 w-4 text-purple-600' /> Ubah
-                  Password
+                  <Lock className='mr-2 h-4 w-4 text-purple-600' />
+                  Ubah Password
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleLogout}
                   className='cursor-pointer'
                 >
-                  <LogOut className='mr-2 h-4 w-4 text-rose-600' /> Logout
+                  <LogOut className='mr-2 h-4 w-4 text-rose-600' />
+                  Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

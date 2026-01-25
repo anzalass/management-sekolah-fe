@@ -371,9 +371,9 @@ export default function MengajarViewPage() {
             />
           </div>
         </div>
-        {/* <div className=''>
+        <div className=''>
           <PengumumanKelasGuru />
-        </div> */}
+        </div>
 
         <div className=''>
           <CardListIzin />
