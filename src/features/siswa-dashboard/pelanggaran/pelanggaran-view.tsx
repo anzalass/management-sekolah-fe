@@ -264,7 +264,7 @@ export default function PelanggaranView() {
             <h3 className='mb-2 text-lg font-semibold text-gray-900'>
               No data!
             </h3>
-            <p className='text-gray-500'>Youre a kind people 🎉</p>
+            <p className='text-gray-500'>You`re a kind people 🎉</p>
           </div>
         ) : (
           <div className='grid gap-4 md:grid-cols-2'>

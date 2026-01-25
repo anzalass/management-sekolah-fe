@@ -61,7 +61,7 @@ module.exports = withPWA({
       'https://generativelanguage.googleapis.com',
       'https://www.googleapis.com',
       'https://www.google-analytics.com',
-      'http://localhost:5000', // 🔥 FIX UTAMA
+      'http://localhost:4000', // 🔥 FIX UTAMA
       'data:',
       'blob:',
       ...(process.env.NODE_ENV === 'development'

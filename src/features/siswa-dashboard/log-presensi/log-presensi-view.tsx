@@ -259,7 +259,7 @@ export default function LogPresensiView() {
             <div className='relative flex-1'>
               <SearchIcon className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
               <Input
-                placeholder='Find Desc...'
+                placeholder='Find description...'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className='h-[47px] w-full pl-10'

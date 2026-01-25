@@ -323,7 +323,7 @@ export default function PembayaranSiswaView() {
           >
             <div className='flex items-center justify-center gap-2'>
               <Receipt className='h-5 w-5' />
-              <span>Tagihan</span>
+              <span>Billing</span>
             </div>
           </button>
           <button
@@ -336,7 +336,7 @@ export default function PembayaranSiswaView() {
           >
             <div className='flex items-center justify-center gap-2'>
               <Clock className='h-5 w-5' />
-              <span>Riwayat</span>
+              <span>Payment History</span>
             </div>
           </button>
         </div>

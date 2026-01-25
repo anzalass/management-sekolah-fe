@@ -57,9 +57,15 @@ export default function Perizinan() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const [showFilter, setShowFilter] = useState(false);
+  const [useCustomDate, setUseCustomDate] = useState(false);
 
   const { register, handleSubmit, reset, formState } = useForm({
-    defaultValues: { keterangan: '', tanggal: '', bukti: null as File | null }
+    defaultValues: {
+      keterangan: '',
+      tanggal: '',
+      tanggalAkhir: '',
+      bukti: null as File | null
+    }
   });
 
   // Fetch izin
@@ -79,13 +85,41 @@ export default function Perizinan() {
   const submitMutation = useMutation({
     mutationFn: async (formData: any) => {
       if (!session?.user?.token) throw new Error('Token tidak ditemukan');
+
+      const tanggal = new Date(formData.tanggal);
+      const tanggalAkhir = new Date(formData.tanggalAkhir);
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      tanggal.setHours(0, 0, 0, 0);
+      tanggalAkhir.setHours(0, 0, 0, 0);
+
+      if (tanggal < today) {
+        throw {
+          response: {
+            data: { message: 'Start date cannot be earlier than today' }
+          }
+        };
+      }
+
+      if (tanggal > tanggalAkhir) {
+        throw {
+          response: {
+            data: { message: 'Start date cannot be later than end date' }
+          }
+        };
+      }
+
       const fd = new FormData();
       fd.append('keterangan', formData.keterangan);
       fd.append('time', formData.tanggal);
+      fd.append('enddate', formData.tanggalAkhir);
       if (formData.bukti?.[0]) fd.append('image', formData.bukti[0]);
-
       await api.post('perizinan-siswa', fd, {
-        headers: { Authorization: `Bearer ${session.user.token}` }
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.user.token}`
+        }
       });
     },
     onSuccess: () => {
@@ -93,9 +127,11 @@ export default function Perizinan() {
       queryClient.invalidateQueries({ queryKey: ['perizinan-siswa'] });
       reset();
       setOpen(false);
+      setUseCustomDate(false);
     },
     onError: (err: any) => {
       toast.error(err?.response?.data?.message || 'Gagal mengajukan izin');
+      setUseCustomDate(false);
     }
   });
 
@@ -216,7 +252,7 @@ export default function Perizinan() {
                 />
               </div>
               <div className='space-y-2'>
-                <Label>Date</Label>
+                <Label>{useCustomDate === true ? 'Start ' : ''}Date</Label>
                 <div className='relative'>
                   <CalendarIcon className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
                   <Input
@@ -225,6 +261,37 @@ export default function Perizinan() {
                     className='rounded-xl border-gray-200 pl-10 focus:border-blue-500 focus:ring-blue-500'
                   />
                 </div>
+              </div>
+              {useCustomDate && (
+                <div className='space-y-2'>
+                  <Label>End Date</Label>
+                  <div className='relative'>
+                    <CalendarIcon className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
+                    <Input
+                      type='date'
+                      {...register('tanggalAkhir', { required: true })}
+                      className='rounded-xl border-gray-200 pl-10 focus:border-blue-500 focus:ring-blue-500'
+                    />
+                  </div>
+                </div>
+              )}
+              <div className='flex items-center gap-2'>
+                <button
+                  type='button'
+                  onClick={() => setUseCustomDate(!useCustomDate)}
+                  className={`flex h-5 w-5 items-center justify-center rounded border transition-all ${
+                    useCustomDate
+                      ? 'border-blue-600 bg-blue-600'
+                      : 'border-gray-300 bg-white'
+                  }`}
+                >
+                  {useCustomDate && (
+                    <CheckCircle2 className='h-4 w-4 text-white' />
+                  )}
+                </button>
+                <span className='text-sm font-medium text-gray-700'>
+                  Custom Date
+                </span>
               </div>
               <div className='space-y-2'>
                 <Label htmlFor='bukti'>
@@ -449,7 +516,7 @@ export default function Perizinan() {
                       </DialogContent>
                     </Dialog>
                   )}
-                  {izin.status === 'menunggu' && (
+                  {izin.status === 'waiting' && (
                     <div className='mt-4 border-t pt-4'>
                       <Button
                         variant='destructive'
