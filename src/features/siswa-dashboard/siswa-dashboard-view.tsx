@@ -352,8 +352,8 @@ export default function SiswaHomeView() {
                   onClick={handleChangePassword}
                   className='cursor-pointer'
                 >
-                  <Lock className='mr-2 h-4 w-4 text-purple-600' />
-                  Ubah Password
+                  <Lock className='mr-2 h-4 w-4 text-purple-600' /> Change
+                  Password
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleLogout}
@@ -465,7 +465,7 @@ export default function SiswaHomeView() {
             ) : (
               <div className='col-span-full rounded-xl border-2 border-dashed border-purple-200 bg-purple-50/50 p-8 text-center'>
                 <p className='text-sm font-medium text-purple-600'>
-                  Tidak ada kelas ditemukan
+                  No Class Found
                 </p>
               </div>
             )}

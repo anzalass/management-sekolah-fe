@@ -288,9 +288,9 @@ export default function NilaiSiswaView() {
           <div className='py-12 text-center'>
             <Award className='mx-auto mb-4 h-16 w-16 text-gray-300' />
             <h3 className='mb-2 text-lg font-semibold text-gray-900'>
-              Tidak ada data nilai
+              No grades available
             </h3>
-            <p className='text-gray-500'>Belum ada nilai yang tersedia</p>
+            <p className='text-gray-500'>No grades available yet</p>
           </div>
         ) : (
           <div className='space-y-3'>

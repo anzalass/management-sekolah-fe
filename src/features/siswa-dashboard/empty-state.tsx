@@ -14,8 +14,8 @@ interface EmptyStateProps {
 }
 
 export default function EmptyState({
-  title = 'Data Tidak Ditemukan',
-  description = 'Maaf, tidak ada data yang tersedia untuk ditampilkan.'
+  title = 'No Data',
+  description = 'No data available to display.'
 }: EmptyStateProps) {
   return (
     <Card className='flex flex-col items-center justify-center border-2 border-dashed border-gray-200 bg-gray-50 py-12 text-center'>

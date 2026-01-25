@@ -52,7 +52,7 @@ export default function KegiatanKalender() {
 
   return (
     <div className=''>
-      <NavbarSiswa title='Kalender Akademik' />
+      <NavbarSiswa title='Academic Calendar' />
       {events ? (
         <div className='mx-auto mt-12 w-11/12'>
           <Calendar
