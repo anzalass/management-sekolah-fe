@@ -35,9 +35,6 @@ import {
 } from '@/components/ui/dialog';
 import EmptyState from './empty-state';
 import Loading from './loading';
-import { Button } from '@/components/ui/button';
-import { userAgent } from 'next/server';
-import { Switch } from '@/components/ui/switch';
 
 export interface Kelas {
   id: string;
@@ -149,8 +146,35 @@ export default function SiswaHomeView() {
   const initials = getInitials(session?.user?.nama);
   const avatarUrl = `https://ui-avatars.com/api/?name=${initials}&background=random&format=png`;
 
-  const handleLogout = async () =>
-    await signOut({ callbackUrl: '/login-siswa' });
+  const handleLogout = async () => {
+    try {
+      if ('serviceWorker' in navigator) {
+        const reg = await navigator.serviceWorker.ready;
+        const sub = await reg.pushManager.getSubscription();
+
+        if (sub) {
+          await api.post(
+            '/auth/logout',
+            {
+              endpoint: sub.endpoint
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${session?.user?.token}`
+              },
+              withCredentials: true // ✅ ini yang kamu maksud
+            }
+          );
+
+          await sub.unsubscribe(); // 🔥 stop push dari browser
+        }
+      }
+
+      await signOut({ callbackUrl: '/login-siswa' });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const handleChangePassword = () => router.push('/siswa/ubah-password');
 
@@ -353,7 +377,7 @@ export default function SiswaHomeView() {
                   className='cursor-pointer'
                 >
                   <Lock className='mr-2 h-4 w-4 text-purple-600' />
-                  Ubah Password
+                  Change Password
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleLogout}

@@ -202,7 +202,7 @@ export default function SiswaForm({
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>
-        <CardTitle className='text-left text-2xl font-bold'>
+        <CardTitle className='text-left text-lg font-bold md:text-2xl'>
           {pageTitle}
         </CardTitle>
       </CardHeader>

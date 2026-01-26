@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { DataTable as PerizinanGuruTable } from '@/components/ui/table/data-table';
-import { columns } from './perizinan-tables/columns';
+import { columns } from './rekap-bulanan-tables/columns';
 import { useSearchParams } from 'next/navigation';
 import { API } from '@/lib/server';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
@@ -22,14 +22,13 @@ export type PerizinanGuru = {
   nama: string | null;
   nip: string | null;
 };
-export default function PerizinanGuruListingPage() {
+export default function RekapBulananGuruListingPage() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const page = searchParams.get('page') || '1';
   const search = searchParams.get('nama') || '';
   const nip = searchParams.get('nip') || '';
-  const startDate = searchParams.get('startDate') || '';
-  const endDate = searchParams.get('endDate') || '';
+
   const pageLimit = searchParams.get('limit') || '10';
 
   const [data, setData] = useState<PerizinanGuru[]>([]);
@@ -42,7 +41,7 @@ export default function PerizinanGuruListingPage() {
       try {
         setLoading(true);
         const response = await api.get(
-          `perizinan-guru?page=${page}&pageSize=${pageLimit}&nama=${search}&nip=${nip}&startDate=${startDate}&endDate=${endDate}`,
+          `rekap-kehadiran-guru?page=${page}&pageSize=${pageLimit}&nama=${search}&nip=${nip}`,
           {
             headers: {
               Authorization: `Bearer ${session?.user?.token}`
@@ -59,7 +58,7 @@ export default function PerizinanGuruListingPage() {
     };
 
     fetch();
-  }, [page, search, nip, startDate, endDate, trigger, pageLimit]);
+  }, [page, search, nip, trigger, pageLimit]);
 
   return (
     <PerizinanGuruTable columns={columns} data={data} totalItems={totalData} />

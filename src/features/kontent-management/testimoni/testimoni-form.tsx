@@ -91,7 +91,7 @@ export default function TestimonialForm({
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>
-        <CardTitle className='text-left text-2xl font-bold'>
+        <CardTitle className='text-left text-xl font-bold md:text-2xl'>
           {pageTitle}
         </CardTitle>
       </CardHeader>

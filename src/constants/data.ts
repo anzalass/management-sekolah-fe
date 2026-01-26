@@ -54,6 +54,12 @@ export const navItems: NavItem[] = [
         url: '/dashboard/presensi/perizinan',
         icon: 'userPen',
         shortcut: ['n', 'n']
+      },
+      {
+        title: 'Rekap Bulanan Guru',
+        url: '/dashboard/presensi/rekap-bulanan',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
       }
     ]
   },
