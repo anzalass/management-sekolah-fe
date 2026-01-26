@@ -115,10 +115,10 @@ export default function KonselingPage() {
             </div>
             <div>
               <h1 className='text-base font-bold text-white lg:text-2xl'>
-                Riwayat Konseling
+                Consultation History
               </h1>
               <p className='text-sm text-teal-100'>
-                Catatan bimbingan & konseling
+                Guidance & Counseling Notes
               </p>
             </div>
           </div>
@@ -129,7 +129,7 @@ export default function KonselingPage() {
               <p className='text-2xl font-bold text-white'>
                 {konselingData?.length || 0}
               </p>
-              <p className='text-xs text-teal-100'>Total Sesi</p>
+              <p className='text-xs text-teal-100'>Total Session</p>
             </div>
             {/* <div className='rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md'>
               <p className='text-xs text-teal-100'>Selesai</p>
@@ -149,7 +149,7 @@ export default function KonselingPage() {
               <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
               <input
                 type='text'
-                placeholder='Cari keterangan atau kategori...'
+                placeholder='Search by description or category...'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className='w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100'
@@ -207,10 +207,10 @@ export default function KonselingPage() {
           <div className='py-12 text-center'>
             <MessageCircle className='mx-auto mb-4 h-16 w-16 text-gray-300' />
             <h3 className='mb-2 text-lg font-semibold text-gray-900'>
-              Tidak ada data konseling
+              No counseling data available
             </h3>
             <p className='text-gray-500'>
-              Belum ada sesi konseling yang tercatat
+              No counseling sessions recorded yet{' '}
             </p>
           </div>
         ) : (

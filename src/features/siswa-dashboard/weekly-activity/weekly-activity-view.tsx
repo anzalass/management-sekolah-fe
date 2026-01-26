@@ -154,7 +154,7 @@ export default function WeeklyActivityList() {
                 Weekly Activity
               </h1>
               <p className='text-sm text-purple-100'>
-                Dokumentasi kegiatan mingguan
+                Weekly activity documentation
               </p>
             </div>
           </div>
@@ -176,7 +176,7 @@ export default function WeeklyActivityList() {
               <p className='text-2xl font-bold text-white'>
                 {filteredData.length}
               </p>
-              <p className='text-xs text-purple-100'>Tampil</p>
+              <p className='text-xs text-purple-100'>Show</p>
             </div>
           </div>
         </div>
@@ -189,7 +189,7 @@ export default function WeeklyActivityList() {
               <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
               <input
                 type='text'
-                placeholder='Cari kegiatan...'
+                placeholder='Search Activity...'
                 value={searchContent}
                 onChange={(e) => setSearchContent(e.target.value)}
                 className='w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 focus:border-purple-500 focus:outline-none'
@@ -232,9 +232,7 @@ export default function WeeklyActivityList() {
         {filteredData.length === 0 ? (
           <div className='py-12 text-center'>
             <Calendar className='mx-auto mb-4 h-16 w-16 text-gray-300' />
-            <h3 className='text-lg font-semibold text-gray-900'>
-              Tidak ada kegiatan
-            </h3>
+            <h3 className='text-lg font-semibold text-gray-900'>No Activity</h3>
           </div>
         ) : (
           <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
@@ -280,7 +278,7 @@ export default function WeeklyActivityList() {
                   </div>
                   <div className='mt-4 flex items-center gap-2 border-t pt-4 text-sm text-gray-600'>
                     <Image className='h-4 w-4' />
-                    <span>{activity.FotoWeeklyActivity.length} Foto</span>
+                    <span>{activity.FotoWeeklyActivity.length} Photo</span>
                   </div>
                 </div>
               </div>

@@ -49,7 +49,7 @@ export default function MenuFiturSiswa() {
     {
       href: '/siswa/pengumuman',
       icon: <NewspaperIcon />,
-      label: 'Announcment',
+      label: 'Announcement',
       color: 'text-indigo-500'
     },
     {
@@ -77,13 +77,13 @@ export default function MenuFiturSiswa() {
     {
       href: '/siswa/rapot',
       icon: <BookOpen />,
-      label: 'Rapot',
+      label: 'Report',
       color: 'text-indigo-500'
     },
     {
       href: '/siswa/janji-temu',
       icon: <CalendarClock />,
-      label: 'Apointment',
+      label: 'Appointment',
       color: 'text-indigo-500'
     },
     {
@@ -128,7 +128,7 @@ export default function MenuFiturSiswa() {
     {
       href: '/siswa/konseling',
       icon: <UserCheck />,
-      label: 'Konseling',
+      label: 'Consultation',
       color: 'text-indigo-500'
     }
   ];
