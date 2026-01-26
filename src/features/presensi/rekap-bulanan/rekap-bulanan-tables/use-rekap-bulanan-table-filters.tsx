@@ -4,7 +4,7 @@ import { searchParams } from '@/lib/searchparams';
 import { useQueryState } from 'nuqs';
 import { useCallback, useMemo } from 'react';
 
-export function usePerizinanGuruTableFilters() {
+export function useRekapBulananTableFilters() {
   const [namaFilter, setNamaFilter] = useQueryState(
     'nama',
     searchParams.q.withOptions({ shallow: false }).withDefault('')
@@ -12,16 +12,6 @@ export function usePerizinanGuruTableFilters() {
 
   const [nipFilter, setNipFilter] = useQueryState(
     'nip',
-    searchParams.q.withOptions({ shallow: false }).withDefault('')
-  );
-
-  const [startDate, setStartDate] = useQueryState(
-    'startDate',
-    searchParams.q.withOptions({ shallow: false }).withDefault('')
-  );
-
-  const [endDate, setEndDate] = useQueryState(
-    'endDate',
     searchParams.q.withOptions({ shallow: false }).withDefault('')
   );
 
@@ -33,14 +23,13 @@ export function usePerizinanGuruTableFilters() {
   const resetFilters = useCallback(() => {
     setNamaFilter(null);
     setNipFilter(null);
-    setStartDate(null);
-    setEndDate(null);
+
     setPage(1);
   }, [setNamaFilter, setPage]);
 
   const isAnyFilterActive = useMemo(() => {
-    return !!namaFilter || !!startDate || !!endDate || !!nipFilter;
-  }, [namaFilter, startDate, endDate, nipFilter]);
+    return !!namaFilter || !!nipFilter;
+  }, [namaFilter, nipFilter]);
 
   return {
     page,
@@ -50,10 +39,6 @@ export function usePerizinanGuruTableFilters() {
     namaFilter,
     setNamaFilter,
     nipFilter,
-    setNipFilter,
-    startDate,
-    setStartDate,
-    endDate,
-    setEndDate
+    setNipFilter
   };
 }

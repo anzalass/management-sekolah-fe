@@ -49,42 +49,42 @@ export default function NotificationPage() {
 
   // === CATEGORIES ===
   const categories = [
-    { value: 'all', label: 'Semua', icon: Bell, color: 'text-gray-600' },
-    { value: 'Tugas', label: 'Tugas', icon: BookOpen, color: 'text-blue-600' },
+    { value: 'all', label: 'All', icon: Bell, color: 'text-gray-600' },
+    { value: 'Tugas', label: 'Task', icon: BookOpen, color: 'text-blue-600' },
     {
       value: 'Materi',
-      label: 'Materi',
+      label: 'Lesson',
       icon: BookOpen,
       color: 'text-blue-600'
     },
 
     {
       value: 'Pembayaran',
-      label: 'Pembayaran',
+      label: 'Payment',
       icon: DollarSign,
       color: 'text-green-600'
     },
     {
       value: 'prestasi',
-      label: 'Prestasi',
+      label: 'Achivement',
       icon: Award,
       color: 'text-yellow-600'
     },
     {
       value: 'Nilai',
-      label: 'Nilai',
+      label: 'Score',
       icon: FileText,
       color: 'text-purple-600'
     },
     {
       value: 'pengumuman',
-      label: 'Pengumuman',
+      label: 'Announcment',
       icon: AlertCircle,
       color: 'text-orange-600'
     },
     {
       value: 'pelanggaran',
-      label: 'Pelanggaran',
+      label: '',
       icon: AlertCircle,
       color: 'text-red-600'
     }
@@ -101,9 +101,9 @@ export default function NotificationPage() {
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    if (minutes < 60) return `${minutes} menit yang lalu`;
-    if (hours < 24) return `${hours} jam yang lalu`;
-    if (days < 7) return `${days} hari yang lalu`;
+    if (minutes < 60) return `${minutes} minute ago`;
+    if (hours < 24) return `${hours} hour ago`;
+    if (days < 7) return `${days} day ago`;
     return date.toLocaleDateString('id-ID', {
       day: 'numeric',
       month: 'short',
@@ -124,7 +124,7 @@ export default function NotificationPage() {
   if (isLoading) {
     return (
       <div className='flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50'>
-        <p className='animate-pulse text-gray-500'>Memuat notifikasi...</p>
+        <p className='animate-pulse text-gray-500'>Loading...</p>
       </div>
     );
   }
@@ -134,12 +134,12 @@ export default function NotificationPage() {
     return (
       <div className='flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50'>
         <AlertCircle className='mb-3 h-10 w-10 text-red-500' />
-        <p className='mb-4 text-gray-600'>Gagal memuat notifikasi</p>
+        <p className='mb-4 text-gray-600'>Failed</p>
         <button
           onClick={() => refetch()}
           className='rounded-full bg-blue-600 px-5 py-2 font-semibold text-white hover:bg-blue-700'
         >
-          Coba Lagi
+          Try Again
         </button>
       </div>
     );
@@ -163,9 +163,9 @@ export default function NotificationPage() {
                 )}
               </div>
               <div>
-                <h1 className='text-xl font-bold text-white'>Notifikasi</h1>
+                <h1 className='text-xl font-bold text-white'>Notification</h1>
                 <p className='text-sm text-blue-100'>
-                  {filteredNotifications.length} notifikasi
+                  {filteredNotifications.length} notification
                 </p>
               </div>
             </div>
@@ -239,11 +239,10 @@ export default function NotificationPage() {
             <div className='py-16 text-center'>
               <Bell className='mx-auto mb-4 h-16 w-16 text-gray-300' />
               <h3 className='mb-2 text-lg font-semibold text-gray-900'>
-                Tidak ada notifikasi
+                No data
               </h3>
               <p className='text-gray-500'>
-                Belum ada notifikasi{' '}
-                {filter !== 'all' ? `kategori ${filter}` : ''}
+                no data for {filter !== 'all' ? `this ${filter}` : ''}
               </p>
             </div>
           ) : (

@@ -87,22 +87,22 @@ export default function UbahPasswordView() {
       <Card className='w-full max-w-md shadow-lg'>
         <CardHeader>
           <CardTitle className='text-center text-xl font-bold text-blue-600'>
-            🔒 Ubah Password
+            🔒 Change Password
           </CardTitle>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <CardContent className='space-y-4'>
             {/* Password Lama */}
             <div className='space-y-2'>
-              <Label htmlFor='oldPassword'>Password Lama</Label>
+              <Label htmlFor='oldPassword'>Old Password</Label>
               <div className='relative'>
                 <Input
                   id='oldPassword'
                   type={showOldPassword ? 'text' : 'password'}
-                  placeholder='Masukkan password lama'
+                  placeholder='Insert Old password'
                   className='pr-10'
                   {...register('oldPassword', {
-                    required: 'Password lama wajib diisi'
+                    required: 'required'
                   })}
                 />
                 <button
@@ -126,12 +126,12 @@ export default function UbahPasswordView() {
 
             {/* Password Baru */}
             <div className='space-y-2'>
-              <Label htmlFor='newPassword'>Password Baru</Label>
+              <Label htmlFor='newPassword'>New Password</Label>
               <div className='relative'>
                 <Input
                   id='newPassword'
                   type={showNewPassword ? 'text' : 'password'}
-                  placeholder='Masukkan password baru'
+                  placeholder='Insert new password '
                   className='pr-10'
                   {...register('newPassword', passwordValidation)}
                 />
@@ -156,15 +156,15 @@ export default function UbahPasswordView() {
 
             {/* Konfirmasi Password Baru */}
             <div className='space-y-2'>
-              <Label htmlFor='confirmPassword'>Konfirmasi Password Baru</Label>
+              <Label htmlFor='confirmPassword'>Confirm Password Baru</Label>
               <div className='relative'>
                 <Input
                   id='confirmPassword'
                   type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder='Konfirmasi password baru'
+                  placeholder='Confirm new password '
                   className='pr-10'
                   {...register('confirmPassword', {
-                    required: 'Konfirmasi password wajib diisi',
+                    required: 'required',
                     validate: (val) =>
                       val === watch('newPassword') ||
                       'Konfirmasi password tidak sama'
