@@ -110,7 +110,7 @@ export default function PengumumanView() {
       {/* Header */}
       <div className={`w-full ${process.env.NEXT_PUBLIC_THEME_COLOR}`}>
         <div className='mx-auto max-w-6xl'>
-          <NavbarSiswa title='Announcment' />
+          <NavbarSiswa title='Announcement' />
         </div>
       </div>
       <div className={`${process.env.NEXT_PUBLIC_THEME_COLOR} px-4 pb-8`}>
@@ -118,7 +118,7 @@ export default function PengumumanView() {
           <div className='flex items-center justify-center gap-3'>
             <div>
               <p className='text-sm text-blue-100'>
-                {filteredPengumuman.length} Announcment Available
+                {filteredPengumuman.length} Announcement Available
               </p>
             </div>
           </div>
@@ -189,7 +189,7 @@ export default function PengumumanView() {
             <h3 className='mb-2 text-lg font-semibold text-gray-900'>
               No data.
             </h3>
-            <p className='text-gray-500'>Nothing Announcment Available</p>
+            <p className='text-gray-500'>Nothing Announcement Available</p>
           </div>
         ) : (
           <div className='grid gap-4 md:grid-cols-2'>

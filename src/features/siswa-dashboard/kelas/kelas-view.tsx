@@ -118,7 +118,7 @@ export default function KelasView() {
               <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400' />
               <input
                 type='text'
-                placeholder='Cari kelas...'
+                placeholder='Search Classroom...'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className='w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100'
