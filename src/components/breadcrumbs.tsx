@@ -25,7 +25,11 @@ export function Breadcrumbs() {
             {index !== items.length - 1 && (
               <BreadcrumbItem className='hidden md:block'>
                 <BreadcrumbLink asChild>
-                  <Link href={item.link}>{item.title}</Link>
+                  <Link href={item.link}>
+                    {item.title.length > 10
+                      ? item.title.slice(0, 10) + '...'
+                      : item.title}
+                  </Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
             )}
@@ -35,7 +39,11 @@ export function Breadcrumbs() {
               </BreadcrumbSeparator>
             )}
             {index === items.length - 1 && (
-              <BreadcrumbPage>{item.title}</BreadcrumbPage>
+              <BreadcrumbPage>
+                {item.title.length > 10
+                  ? item.title.slice(0, 10) + '...'
+                  : item.title}
+              </BreadcrumbPage>
             )}
           </Fragment>
         ))}

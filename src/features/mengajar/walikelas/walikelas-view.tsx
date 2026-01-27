@@ -160,12 +160,13 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
       <div className='flex w-full flex-col gap-6 xl:flex-row xl:items-start xl:gap-6'>
         {/* Tombol Aksi */}
         <div className='grid w-full grid-cols-2 gap-4 xl:w-[25%]'>
+          {/* Rekap Absensi */}
           <Button
             asChild
-            className='flex min-h-[50px] items-center gap-2 bg-blue-500 text-white hover:bg-blue-600 xl:min-h-[120px]'
+            className='flex min-h-[50px] items-center gap-2 bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-900/40 dark:hover:bg-blue-900/60 xl:min-h-[120px]'
           >
             <Link
-              className='flex flex-col'
+              className='flex flex-col items-center justify-center'
               href={`/mengajar/walikelas/${id}/rekap-absensi`}
             >
               <ClipboardList size={16} />
@@ -173,12 +174,13 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
             </Link>
           </Button>
 
+          {/* Rekap Nilai */}
           <Button
             asChild
-            className='flex min-h-[50px] items-center gap-2 bg-purple-500 text-white hover:bg-purple-600 xl:min-h-[120px]'
+            className='flex min-h-[50px] items-center gap-2 bg-purple-500 text-white hover:bg-purple-600 dark:bg-purple-900/40 dark:hover:bg-purple-900/60 xl:min-h-[120px]'
           >
             <Link
-              className='flex flex-col'
+              className='flex flex-col items-center justify-center'
               href={`/mengajar/walikelas/${id}/rekap-nilai`}
             >
               <FileText size={16} />
@@ -186,12 +188,13 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
             </Link>
           </Button>
 
+          {/* List Siswa */}
           <Button
             asChild
-            className='flex min-h-[50px] items-center gap-2 bg-emerald-500 text-white hover:bg-emerald-600 xl:min-h-[120px]'
+            className='flex min-h-[50px] items-center gap-2 bg-emerald-500 text-white hover:bg-emerald-600 dark:bg-emerald-900/40 dark:hover:bg-emerald-900/60 xl:min-h-[120px]'
           >
             <Link
-              className='flex flex-col'
+              className='flex flex-col items-center justify-center'
               href={`/mengajar/walikelas/${id}/list-siswa`}
             >
               <Users size={16} />
@@ -199,12 +202,13 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
             </Link>
           </Button>
 
+          {/* Kartu Ujian */}
           <Button
             asChild
-            className='flex min-h-[50px] items-center gap-2 bg-amber-500 text-white hover:bg-amber-600 xl:min-h-[120px]'
+            className='flex min-h-[50px] items-center gap-2 bg-amber-500 text-white hover:bg-amber-600 dark:bg-amber-900/40 dark:hover:bg-amber-900/60 xl:min-h-[120px]'
           >
             <Link
-              className='flex flex-col'
+              className='flex flex-col items-center justify-center'
               href={`/mengajar/walikelas/${id}/kartu-ujian`}
             >
               <Ticket size={16} />
@@ -212,12 +216,13 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
             </Link>
           </Button>
 
+          {/* Perizinan */}
           <Button
             asChild
-            className='flex min-h-[50px] items-center gap-2 bg-rose-500 text-white hover:bg-rose-600 xl:min-h-[120px]'
+            className='flex min-h-[50px] items-center gap-2 bg-rose-500 text-white hover:bg-rose-600 dark:bg-rose-900/40 dark:hover:bg-rose-900/60 xl:min-h-[120px]'
           >
             <Link
-              className='flex flex-col'
+              className='flex flex-col items-center justify-center'
               href={`/mengajar/walikelas/${id}/perizinan-siswa`}
             >
               <FileText size={16} />
@@ -225,11 +230,12 @@ const DashboardWaliKelas = ({ id }: IDKelas) => {
             </Link>
           </Button>
 
+          {/* Weekly Activity */}
           <TambahWeeklyActivity idKelas={id} />
         </div>
 
         {/* Tabel Perizinan */}
-        <div className='h-[400px] w-full flex-1 overflow-x-auto rounded-lg border bg-white p-4 shadow-sm xl:w-[65%]'>
+        <div className='h-[400px] w-full flex-1 overflow-x-auto rounded-lg border p-4 shadow-sm xl:w-[65%]'>
           <PerizinanSiswaView idKelas={id} />
         </div>
       </div>
