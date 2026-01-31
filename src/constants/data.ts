@@ -186,17 +186,23 @@ export const navItems: NavItem[] = [
         shortcut: ['n', 'n']
       },
       {
-        title: 'Ruangan',
-        url: '/dashboard/master-data/ruangan',
+        title: 'Hari Libur',
+        url: '/dashboard/master-data/hari-libur',
         icon: 'userPen',
         shortcut: ['n', 'n']
       },
       {
-        title: 'Arsip dan Dokumen',
-        url: '/dashboard/master-data/arsip',
+        title: 'Ruangan',
+        url: '/dashboard/master-data/ruangan',
         icon: 'userPen',
         shortcut: ['n', 'n']
       }
+      // {
+      //   title: 'Arsip dan Dokumen',
+      //   url: '/dashboard/master-data/arsip',
+      //   icon: 'userPen',
+      //   shortcut: ['n', 'n']
+      // }
     ]
   },
   {
