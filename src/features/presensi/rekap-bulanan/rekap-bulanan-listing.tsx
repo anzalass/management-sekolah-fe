@@ -48,8 +48,10 @@ export default function RekapBulananGuruListingPage() {
             }
           }
         );
-        setData(response.data.data);
-        setTotalData(response.data.total);
+        setData(response.data.data.data);
+        console.log(response.data.data.data);
+
+        setTotalData(response.data.data.meta.total);
       } catch (error: any) {
         toast.error(error.response?.data?.message || 'Terjadi kesalahan');
       } finally {

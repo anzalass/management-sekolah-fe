@@ -15,10 +15,11 @@ import {
 import { format } from 'date-fns';
 import RichTextEditor from '@/features/texteditor/textEditor';
 import { toast } from 'sonner';
-import { Pencil, Trash2, Search } from 'lucide-react';
+import { Pencil, Trash2, Search, X } from 'lucide-react';
 import api from '@/lib/api';
 import { useSession } from 'next-auth/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import Image from 'next/image';
 import {
   Table,
   TableBody,
@@ -36,7 +37,12 @@ interface FormValues {
 
 const PengumumanKelasGuru = () => {
   const [editId, setEditId] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState(''); // 🔍 Tambahan untuk search
+  const [searchTerm, setSearchTerm] = useState('');
+
+  /** IMAGE STATE */
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+
   const { data: session } = useSession();
   const queryClient = useQueryClient();
 
@@ -45,8 +51,9 @@ const PengumumanKelasGuru = () => {
       defaultValues: { idKelas: '', judul: '', konten: '' }
     });
 
-  // Fetch kelas
-  const { data: kelasData, isLoading: kelasLoading } = useQuery({
+  /* ===================== FETCH ===================== */
+
+  const { data: kelasData } = useQuery({
     queryKey: ['kelasDropdown'],
     queryFn: async () => {
       const res = await api.get('pengumuman-data-kelas', {
@@ -57,8 +64,7 @@ const PengumumanKelasGuru = () => {
     enabled: !!session?.user?.token
   });
 
-  // Fetch pengumuman
-  const { data: pengumuman = [], isLoading: pengumumanLoading } = useQuery({
+  const { data: pengumuman = [] } = useQuery({
     queryKey: ['pengumuman-guru'],
     queryFn: async () => {
       const res = await api.get('pengumuman-kelas-guru', {
@@ -69,44 +75,38 @@ const PengumumanKelasGuru = () => {
     enabled: !!session?.user?.token
   });
 
-  // CREATE
+  /* ===================== MUTATION ===================== */
+
   const createMutation = useMutation({
-    mutationFn: async (payload: {
-      idKelas: string;
-      title: string;
-      content: string;
-    }) => {
-      const res = await api.post(`pengumuman-kelas`, payload, {
+    mutationFn: async (formData: FormData) => {
+      const res = await api.post('pengumuman-kelas', formData, {
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
-      return res.data.data;
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pengumuman-guru'] });
       toast.success('Pengumuman berhasil ditambahkan');
     },
-    onError: (err: any) =>
-      toast.error(err?.response?.data?.message || 'Gagal menambah pengumuman')
+    onError: () => toast.error('Gagal menambah pengumuman')
   });
 
-  // UPDATE
   const updateMutation = useMutation({
-    mutationFn: async (vars: {
+    mutationFn: async ({
+      id,
+      formData
+    }: {
       id: string;
-      idKelas: string;
-      title: string;
-      content: string;
+      formData: FormData;
     }) => {
-      const res = await api.put(`pengumuman-kelas/${vars.id}`, vars, {
+      const res = await api.put(`pengumuman-kelas/${id}`, formData, {
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
-      return res.data.data;
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pengumuman-guru'] });
@@ -115,110 +115,145 @@ const PengumumanKelasGuru = () => {
     onError: () => toast.error('Gagal update pengumuman')
   });
 
-  // DELETE
   const deleteMutation = useMutation({
-    mutationFn: async (idPengumuman: string) => {
-      const res = await api.delete(`pengumuman-kelas/${idPengumuman}`, {
+    mutationFn: async (id: string) => {
+      await api.delete(`pengumuman-kelas/${id}`, {
         headers: { Authorization: `Bearer ${session?.user?.token}` }
       });
-      return res.data.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pengumuman-guru'] });
       toast.success('Pengumuman berhasil dihapus');
-    },
-    onError: () => toast.error('Gagal menghapus pengumuman')
+    }
   });
 
-  // Submit
+  /* ===================== HANDLER ===================== */
+
+  const handleSelectImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const img = e.target.files?.[0];
+    if (!img) return;
+
+    setFile(img);
+    setPreview(URL.createObjectURL(img));
+  };
+
+  const removeImage = () => {
+    setFile(null);
+    setPreview(null);
+  };
+
   const onSubmit = (data: FormValues) => {
     if (!data.idKelas) {
-      toast.error('Pilih kelas terlebih dahulu!');
+      toast.error('Pilih kelas dulu');
       return;
     }
 
+    const formData = new FormData();
+    formData.append('idKelas', data.idKelas);
+    formData.append('title', data.judul);
+    formData.append('content', data.konten);
+
+    if (file) formData.append('image', file);
+
     if (editId) {
-      updateMutation.mutate({
-        id: editId,
-        idKelas: data.idKelas,
-        title: data.judul,
-        content: data.konten
-      });
+      updateMutation.mutate({ id: editId, formData });
       setEditId(null);
     } else {
-      createMutation.mutate({
-        idKelas: data.idKelas,
-        title: data.judul,
-        content: data.konten
-      });
+      createMutation.mutate(formData);
     }
+
     reset();
-    setValue('konten', '');
+    setFile(null);
+    setPreview(null);
   };
 
-  const handleEdit = (id: string) => {
-    const item = pengumuman.find((p: any) => p.id === id);
-    if (!item) return;
+  const handleEdit = (item: any) => {
+    setEditId(item.id);
+    setValue('idKelas', item.idKelas);
     setValue('judul', item.title);
     setValue('konten', item.content);
-    setEditId(id);
+
+    // 🔥 PREVIEW FOTO LAMA
+    setPreview(item.fotoUrl || null);
+    setFile(null);
   };
 
-  // 🔍 Filter hasil berdasarkan search
   const filteredPengumuman = pengumuman.filter((p: any) =>
     p.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  return (
-    <Card className='p-0'>
-      <CardHeader className='flex flex-col items-start justify-between gap-3 p-3 md:flex-row md:items-center md:p-5'>
-        <CardTitle className='text-sm md:text-base lg:text-lg'>
-          Pengumuman Kelas
-        </CardTitle>
+  /* ===================== RENDER ===================== */
 
-        {/* 🔍 Input Search */}
+  return (
+    <Card>
+      <CardHeader className='flex flex-col gap-3 md:flex-row md:items-center md:justify-between'>
+        <CardTitle>Pengumuman Kelas</CardTitle>
+
         <div className='relative w-full md:w-1/3'>
-          <Search className='absolute left-3 top-2.5 h-4 w-4 text-gray-400' />
+          <Search className='absolute left-3 top-2.5 h-4 w-4 text-muted-foreground' />
           <Input
-            type='text'
-            placeholder='Cari judul pengumuman...'
+            placeholder='Cari judul...'
+            className='pl-9'
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className='pl-9'
           />
         </div>
       </CardHeader>
 
-      <CardContent className='space-y-8 p-3'>
-        {/* Form tambah/update */}
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
+      <CardContent className='space-y-8'>
+        {/* FORM */}
+        <form onSubmit={handleSubmit(onSubmit)} className='space-y-5'>
+          {/* IMAGE */}
+          <div className='space-y-2'>
+            <label className='text-sm font-medium'>Header Image</label>
+
+            {preview ? (
+              <div className='relative'>
+                <Image
+                  src={preview}
+                  alt='Preview'
+                  width={1200}
+                  height={400}
+                  className='h-[220px] w-full rounded-lg object-cover'
+                />
+                <Button
+                  type='button'
+                  size='icon'
+                  variant='destructive'
+                  className='absolute right-3 top-3'
+                  onClick={removeImage}
+                >
+                  <X size={16} />
+                </Button>
+              </div>
+            ) : (
+              <label className='flex h-[220px] cursor-pointer items-center justify-center rounded-lg border-2 border-dashed text-sm text-muted-foreground hover:bg-muted'>
+                Klik untuk upload foto
+                <Input
+                  type='file'
+                  accept='image/*'
+                  className='hidden'
+                  onChange={handleSelectImage}
+                />
+              </label>
+            )}
+          </div>
+
+          {/* KELAS */}
           <Controller
             name='idKelas'
             control={control}
             render={({ field }) => (
-              <Select
-                onValueChange={(val) => field.onChange(val)}
-                value={field.value}
-                disabled={kelasLoading}
-              >
+              <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger>
                   <SelectValue placeholder='Pilih Kelas' />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem key='all' value='All'>
-                    Semua
-                  </SelectItem>
-                  {kelasData?.length > 0 ? (
-                    kelasData.map((k: any) => (
-                      <SelectItem key={k.id} value={k.id}>
-                        {k.nama}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value='no-class' disabled>
-                      Tidak ada kelas
+                  {kelasData?.map((k: any) => (
+                    <SelectItem key={k.id} value={k.id}>
+                      {k.nama}
                     </SelectItem>
-                  )}
+                  ))}
                 </SelectContent>
               </Select>
             )}
@@ -237,72 +272,49 @@ const PengumumanKelasGuru = () => {
             )}
           />
 
-          <Button type='submit' className='mt-10'>
+          <Button type='submit'>
             {editId ? 'Update Pengumuman' : 'Tambah Pengumuman'}
           </Button>
         </form>
 
-        {/* List Pengumuman */}
-        {filteredPengumuman.length === 0 ? (
-          <p className='text-sm text-muted-foreground'>
-            {searchTerm
-              ? 'Tidak ada hasil pencarian.'
-              : 'Belum ada pengumuman.'}
-          </p>
-        ) : (
-          <div className='w-full overflow-auto rounded-lg border shadow-sm'>
-            <Table className='w-[150vw] md:w-full'>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className='w-[40%]'>Judul</TableHead>
-                  <TableHead className='w-[20%]'>Tanggal</TableHead>
-                  <TableHead className='w-[30%]'>Konten</TableHead>
-                  <TableHead className='w-[10%] text-center'>Aksi</TableHead>
+        {/* TABLE */}
+        <div className='overflow-x-auto rounded-lg border'>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Judul</TableHead>
+                <TableHead>Tanggal</TableHead>
+                <TableHead>Aksi</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredPengumuman.map((p: any) => (
+                <TableRow key={p.id}>
+                  <TableCell>{p.title}</TableCell>
+                  <TableCell>
+                    {format(new Date(p.time), 'dd MMM yyyy')}
+                  </TableCell>
+                  <TableCell className='flex gap-2'>
+                    <Button
+                      size='icon'
+                      variant='outline'
+                      onClick={() => handleEdit(p)}
+                    >
+                      <Pencil size={16} />
+                    </Button>
+                    <Button
+                      size='icon'
+                      variant='destructive'
+                      onClick={() => deleteMutation.mutate(p.id)}
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredPengumuman.map((p: any) => (
-                  <TableRow key={p.id}>
-                    <TableCell className='font-medium'>{p.title}</TableCell>
-                    <TableCell>
-                      {format(new Date(p.time), 'dd MMMM yyyy')}
-                    </TableCell>
-                    <TableCell className='max-w-[200px]'>
-                      {p?.content ? (
-                        <div
-                          className='line-clamp-2 text-gray-600'
-                          dangerouslySetInnerHTML={{ __html: p.content }}
-                        />
-                      ) : (
-                        '-'
-                      )}
-                    </TableCell>
-                    <TableCell className='text-center'>
-                      <div className='flex items-center justify-center gap-2'>
-                        <Button
-                          size='icon'
-                          variant='outline'
-                          className='rounded-lg'
-                          onClick={() => handleEdit(p.id)}
-                        >
-                          <Pencil className='h-4 w-4' />
-                        </Button>
-                        <Button
-                          size='icon'
-                          variant='destructive'
-                          className='rounded-lg'
-                          onClick={() => deleteMutation.mutate(p.id)}
-                        >
-                          <Trash2 className='h-4 w-4' />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );

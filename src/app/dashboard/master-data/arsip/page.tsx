@@ -33,7 +33,7 @@ export default async function Page(props: pageProps) {
     <PageContainer scrollable={false}>
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-start justify-between'>
-          <h1 className='text-lg md:text-2xl'>Arsip</h1>
+          <h1 className='text-lg md:text-2xl'>Arsip dan Dokumen</h1>
           <Link
             href='/dashboard/master-data/arsip/new'
             className={cn(buttonVariants(), 'text-xs md:text-sm')}
