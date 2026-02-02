@@ -126,7 +126,16 @@ export default function ListKelasMapel({
   if (kelasMapel.length === 0) {
     return (
       <Card className='p-6 dark:border-slate-700'>
-        <CardTitle>Mata Pelajaran</CardTitle>
+        <div className='flex justify-between'>
+          <CardTitle>Mata Pelajaran</CardTitle>
+
+          <Button
+            className='flex text-sm md:text-base'
+            onClick={() => setOpenModal('mapel')}
+          >
+            + Mapel
+          </Button>
+        </div>
         <p className='mt-6 text-center text-muted-foreground'>
           Belum ada data mata pelajaran
         </p>

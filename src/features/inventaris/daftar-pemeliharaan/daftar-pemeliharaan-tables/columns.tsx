@@ -4,20 +4,22 @@ import { CellAction } from './cell-action';
 
 export type PemeliharaanInventaris = {
   id: string;
-  nama: string;
-  quantity: number;
   status: string;
+  quantity: number;
   ruang: string;
-  biaya: string;
+  biaya?: number;
   tanggal: Date;
   keterangan: string;
+  Inventaris: {
+    nama: string;
+  };
 };
 
 export const columns: ColumnDef<PemeliharaanInventaris>[] = [
   {
-    accessorKey: 'nama', // NIP
+    accessorKey: 'Inventaris.nama', // NIP
     header: 'Nama',
-    cell: ({ row }) => row.original.nama
+    cell: ({ row }) => row.original.Inventaris.nama
   },
   {
     accessorKey: 'status',

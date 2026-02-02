@@ -1,15 +1,19 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useRenderTrigger } from '@/hooks/use-rendertrigger';
 import api from '@/lib/api';
-import { CircleXIcon, Loader2, RotateCcw } from 'lucide-react';
+import { API } from '@/lib/server';
+import { CircleXIcon, Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import React, { useCallback, useRef, useState } from 'react';
 import Webcam from 'react-webcam';
 import { toast } from 'sonner';
+
+const videoConstraints = {
+  width: 340,
+  facingMode: 'environment'
+};
 
 type CameraProps = {
   open: boolean;
@@ -20,60 +24,34 @@ type CameraProps = {
 export default function Camera({ open, setOpen, fetchData }: CameraProps) {
   const webcamRef = useRef<Webcam>(null);
   const { data: session } = useSession();
-
-  const { toggleTrigger } = useRenderTrigger();
-
   const [isLoading, setIsLoading] = useState(false);
+  const { trigger, toggleTrigger } = useRenderTrigger();
   const [url, setUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
   const [location, setLocation] = useState<{
     lat: number | null;
     lng: number | null;
-  }>({ lat: null, lng: null });
+  }>({
+    lat: null,
+    lng: null
+  });
 
-  // 🔥 Kamera default: DEPAN
-  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
-
-  const videoConstraints = {
-    width: 340,
-    facingMode
-  };
-
-  // ========================
-  // Capture Photo + Location
-  // ========================
-  const capturePhoto = useCallback(() => {
-    setError(null);
-
+  const capturePhoto = useCallback((): void => {
     const imageSrc = webcamRef.current?.getScreenshot();
-    if (!imageSrc) {
-      setError('Gagal mengambil foto');
-      return;
-    }
-
-    setUrl(imageSrc);
+    if (imageSrc) setUrl(imageSrc);
 
     if (!navigator.geolocation) {
-      setError('Geolocation tidak didukung');
+      setError('Geolocation is not supported by your browser.');
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        setLocation({
-          lat: coords.latitude,
-          lng: coords.longitude
-        });
-      },
-      (err) => setError(err.message),
-      { enableHighAccuracy: true }
+      ({ coords }) =>
+        setLocation({ lat: coords.latitude, lng: coords.longitude }),
+      (err) => setError(err.message)
     );
   }, []);
 
-  // ==========
-  // Submit API
-  // ==========
   const handleCheckIn = async () => {
     if (!url) return setError('Foto belum diambil');
     if (!location.lat || !location.lng)
@@ -82,48 +60,48 @@ export default function Camera({ open, setOpen, fetchData }: CameraProps) {
     try {
       setIsLoading(true);
 
+      // ambil blob dari foto & convert ke File
       const res = await fetch(url);
       const blob = await res.blob();
-      const file = new File([blob], 'absen-masuk.jpg', {
-        type: 'image/jpeg'
-      });
+      const file = new File([blob], 'absen-masuk.jpg', { type: 'image/jpeg' });
 
+      // buat FormData
       const formData = new FormData();
       formData.append('fotoMasuk', file);
-      formData.append('lat', String(location.lat));
-      formData.append('long', String(location.lng));
+      formData.append('lat', '-6.09955851839959');
+      formData.append('long', '106.51911493230111');
 
+      // kirim pakai api instance
       const response = await api.post('absen-masuk', formData, {
         headers: {
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
 
-      toast.success(response.data.message || 'Absen berhasil');
-
+      toast.success(response.data.message || 'Absen masuk berhasil');
       setOpen(false);
       fetchData();
+      handleRefresh();
       toggleTrigger();
-      handleReset();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Gagal absen');
-      setError(err.response?.data?.message || 'Gagal absen');
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message || 'Terjadi kesalahan saat absen'
+      );
+      setError(error.response?.data?.message || 'Terjadi kesalahan saat absen');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleReset = () => {
+  const handleRefresh = () => {
     setUrl(null);
     setError(null);
     setLocation({ lat: null, lng: null });
   };
 
-  if (!open) return null;
-
   return (
-    <Card className='relative z-50 mx-auto w-full max-w-sm rounded-xl bg-white p-4 shadow-xl'>
-      {/* Close */}
+    <Card className='relative z-50 mx-auto w-full max-w-sm rounded-lg bg-white p-4 shadow-lg'>
+      {/* Close Button */}
       <div className='absolute right-2 top-2'>
         <CircleXIcon
           onClick={() => setOpen(false)}
@@ -131,11 +109,11 @@ export default function Camera({ open, setOpen, fetchData }: CameraProps) {
         />
       </div>
 
-      {/* Camera / Image */}
+      {/* Camera or Image */}
       {url ? (
         <Image
           src={url}
-          alt='Preview'
+          alt='Screenshot'
           unoptimized
           width={340}
           height={340}
@@ -147,47 +125,36 @@ export default function Camera({ open, setOpen, fetchData }: CameraProps) {
           audio={false}
           screenshotFormat='image/jpeg'
           videoConstraints={videoConstraints}
-          mirrored={facingMode === 'user'}
           className='w-full rounded-lg'
         />
       )}
 
-      {/* Controls */}
-      <div className='mt-4 flex items-center justify-between gap-2'>
-        <div className='flex gap-2'>
+      {/* Buttons */}
+      <div className='mt-4 flex items-center justify-between'>
+        <div className='space-x-2'>
           <Button onClick={capturePhoto}>Ambil Foto</Button>
-
-          <Button
-            variant='outline'
-            onClick={() =>
-              setFacingMode((prev) =>
-                prev === 'user' ? 'environment' : 'user'
-              )
-            }
-          >
-            <RotateCcw className='mr-1 h-4 w-4' />
-            Kamera
+          <Button variant='secondary' onClick={handleRefresh}>
+            Refresh
           </Button>
         </div>
-
         {url && location.lat && location.lng ? (
           <Button onClick={handleCheckIn} disabled={isLoading}>
             {isLoading ? (
               <>
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                Menyimpan
+                Menyimpan...
               </>
             ) : (
-              'Submit'
+              'Submit Absen'
             )}
           </Button>
         ) : (
-          <Loader2 className='h-5 w-5 animate-spin text-gray-500' />
+          <Loader2 className='h-5 w-5 animate-spin' />
         )}
       </div>
 
-      {/* Error */}
-      {error && <p className='mt-2 text-sm text-red-500'>{error}</p>}
+      {/* Error Message */}
+      {error && <p className='mt-2 text-red-500'>{error}</p>}
     </Card>
   );
 }

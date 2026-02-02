@@ -145,6 +145,26 @@ export const columns: ColumnDef<any>[] = [
         }
       };
 
+      const handleWait = async () => {
+        setLoading(true);
+        try {
+          await api.put(
+            `perizinan-guru/wait/${id}`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${session?.user?.token}`
+              }
+            }
+          );
+          toggleTrigger();
+        } catch (error: any) {
+          toast.error(error.response?.data?.message || 'Terjadi kesalahan');
+        } finally {
+          setLoading(false);
+        }
+      };
+
       return (
         <div className='flex gap-2'>
           <button
@@ -160,6 +180,13 @@ export const columns: ColumnDef<any>[] = [
             className='rounded bg-red-600 px-3 py-1 text-white hover:bg-red-700 disabled:opacity-50'
           >
             Tolak
+          </button>{' '}
+          <button
+            disabled={loading}
+            onClick={handleWait}
+            className='hover:yellow-red-700 rounded bg-yellow-600 px-3 py-1 text-white disabled:opacity-50'
+          >
+            Menunggu
           </button>
         </div>
       );

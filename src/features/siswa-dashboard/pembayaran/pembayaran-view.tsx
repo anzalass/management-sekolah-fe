@@ -323,7 +323,7 @@ export default function PembayaranSiswaView() {
           >
             <div className='flex items-center justify-center gap-2'>
               <Receipt className='h-5 w-5' />
-              <span className='text-[12px]'>Billing</span>
+              <span className='text-base md:text-xl'>Billing</span>
             </div>
           </button>
           <button
@@ -336,7 +336,7 @@ export default function PembayaranSiswaView() {
           >
             <div className='flex items-center justify-center gap-2'>
               <Clock className='h-5 w-5' />
-              <span className='text-[12px]'>Payment History</span>
+              <span className='text-base md:text-xl'>History</span>
             </div>
           </button>
         </div>
@@ -457,118 +457,132 @@ export default function PembayaranSiswaView() {
                 return (
                   <div
                     key={tagihan.id}
-                    className={`rounded-xl border-l-4 bg-white p-3 shadow-sm transition hover:shadow dark:bg-slate-900 ${
-                      isOverdue
-                        ? 'border-red-500 dark:border-red-600'
-                        : `${statusConfig.borderColor} dark:border-opacity-80`
-                    }`}
+                    className={`rounded-2xl border-l-4 bg-white p-5 shadow-md ${
+                      isOverdue ? 'border-red-500' : statusConfig.borderColor
+                    } active:scale-98 transition-transform`}
                   >
-                    {/* HEADER */}
-                    <div className='mb-2 flex items-start justify-between'>
+                    <div className='mb-3 flex items-start justify-between'>
                       <div className='flex-1'>
-                        <h3 className='text-sm font-semibold text-gray-900 dark:text-slate-100'>
+                        <h3 className='mb-1 text-base font-bold text-gray-900'>
                           {tagihan.nama}
                         </h3>
-
-                        <p className='text-lg font-bold leading-tight text-blue-600 dark:text-blue-400'>
+                        <p className='text-2xl font-bold text-blue-600'>
                           {formatCurrency(tagihan.nominal + tagihan.denda)}
                         </p>
                       </div>
-
                       <span
-                        className={`rounded-md px-2 py-0.5 text-[10px] font-semibold ${statusConfig.bgColor} ${statusConfig.textColor} dark:bg-opacity-20`}
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${statusConfig.bgColor} ${statusConfig.textColor}`}
                       >
                         {statusConfig.text}
                       </span>
                     </div>
 
-                    {/* DUE DATE */}
-                    <div className='mb-2 flex items-center gap-1.5 text-xs text-gray-600 dark:text-slate-400'>
-                      <Calendar className='h-3.5 w-3.5' />
-                      <span>{formatDate(tagihan.jatuhTempo)}</span>
-
+                    <div className='mb-4 flex items-center gap-2 text-sm text-gray-600'>
+                      <Calendar className='h-4 w-4' />
+                      <span>Due: {formatDate(tagihan.jatuhTempo)}</span>
                       {isOverdue && (
-                        <span className='ml-1 font-semibold text-red-600 dark:text-red-400'>
-                          • overdue
+                        <span className='ml-2 font-semibold text-red-600'>
+                          • Over due
                         </span>
                       )}
                     </div>
 
-                    {/* PAID INFO */}
                     {tagihan.status === 'LUNAS' && tagihan.tanggalBayar && (
-                      <div className='mb-2 flex items-center gap-1.5 rounded-md border border-green-200 bg-green-50 px-2 py-1 text-xs text-green-700 dark:border-green-700 dark:bg-green-900/30 dark:text-green-300'>
-                        <CheckCircle className='h-3.5 w-3.5' />
-                        <span>{formatDate(tagihan.tanggalBayar)}</span>
+                      <div className='mb-4 flex items-center gap-2 rounded-lg bg-green-50 p-2 text-sm text-green-600'>
+                        <CheckCircle className='h-4 w-4' />
+                        <span>Paid: {formatDate(tagihan.tanggalBayar)}</span>
                       </div>
                     )}
 
-                    {/* ACTION */}
-                    {(tagihan.status === 'BELUM_BAYAR' ||
-                      tagihan.status === 'BUKTI_TIDAK_VALID' ||
-                      tagihan.status === 'PENDING') && (
-                      <Button
-                        onClick={() => {
-                          setActiveTagihan(tagihan);
-                          setOpen(true);
-                        }}
-                        className='h-8 w-full text-xs'
-                      >
-                        {tagihan.status === 'BUKTI_TIDAK_VALID'
-                          ? 'Reupload'
-                          : 'Upload'}
-                        <Camera className='ml-1 h-3.5 w-3.5' />
-                      </Button>
-                    )}
+                    <>
+                      {(tagihan.status === 'BELUM_BAYAR' ||
+                        tagihan.status === 'BUKTI_TIDAK_VALID' ||
+                        tagihan.status === 'PENDING') && (
+                        <div className='flex space-x-4'>
+                          {/* <button
+                            onClick={() => BayarMidtrans(tagihan.id)}
+                            className='flex w-[66%] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3 font-semibold text-white shadow-lg transition-all hover:shadow-xl active:scale-95'
+                          >
+                            <span>Pay Now </span>
+                            <ArrowRight className='h-5 w-5' />
+                          </button> */}
 
-                    {/* PENDING */}
-                    {tagihan.status === 'PENDING' && (
-                      <div className='mt-2 rounded-md border border-yellow-200 bg-yellow-50 px-2 py-1 text-xs text-yellow-800 dark:border-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'>
-                        <div className='flex items-center gap-1.5'>
-                          <Clock className='h-3.5 w-3.5' />
-                          <span>Waiting confirmation</span>
+                          <Button
+                            onClick={() => {
+                              setActiveTagihan(tagihan);
+                              setOpen(true);
+                            }}
+                            className='h-[45px] w-[34%] space-x-4 p-4 text-sm'
+                          >
+                            {tagihan.status === 'BUKTI_TIDAK_VALID'
+                              ? 'Reupload Evidence'
+                              : 'Upload Evidence'}
+                            <Camera className='ml-2' />
+                          </Button>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {/* MODAL */}
-                    <Dialog open={open} onOpenChange={setOpen}>
-                      <DialogContent className='bg-white dark:bg-slate-900 sm:max-w-md'>
-                        <DialogHeader>
-                          <DialogTitle className='text-gray-900 dark:text-slate-100'>
-                            Upload Evidence
-                          </DialogTitle>
-                        </DialogHeader>
+                      {/* Modal Upload */}
+                      <Dialog open={open} onOpenChange={setOpen}>
+                        <DialogContent className='sm:max-w-md'>
+                          <DialogHeader>
+                            <DialogTitle>
+                              Upload Evidence {activeTagihan?.nama}
+                            </DialogTitle>
+                          </DialogHeader>
 
-                        <div className='space-y-3'>
-                          <input
-                            type='file'
-                            accept='image/png, image/jpeg, image/jpg'
-                            onChange={handleFileChange}
-                            className='w-full cursor-pointer rounded-md border border-gray-300 p-2 text-xs dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
-                          />
-
-                          {preview && (
-                            <img
-                              src={preview}
-                              className='mx-auto h-36 rounded-md border object-contain dark:border-slate-700'
+                          <div className='space-y-4'>
+                            <input
+                              type='file'
+                              accept='image/png, image/jpeg, image/jpg'
+                              onChange={handleFileChange}
+                              className='w-full cursor-pointer rounded-md border border-gray-300 p-2'
                             />
-                          )}
 
-                          <div className='flex justify-end gap-2'>
-                            <Button
-                              variant='outline'
-                              size='sm'
-                              onClick={() => setOpen(false)}
-                            >
-                              Batal
-                            </Button>
-                            <Button size='sm' disabled={isUploading}>
-                              {isUploading ? 'Uploading...' : 'Upload'}
-                            </Button>
+                            {preview && (
+                              <div className='mt-2 flex justify-center'>
+                                <img
+                                  src={preview}
+                                  alt='Preview'
+                                  className='h-48 w-auto rounded-lg border object-contain'
+                                />
+                              </div>
+                            )}
+
+                            <div className='flex justify-end space-x-2'>
+                              <Button
+                                variant='outline'
+                                onClick={() => setOpen(false)}
+                                disabled={isUploading}
+                              >
+                                Batal
+                              </Button>
+
+                              <Button
+                                onClick={() =>
+                                  activeTagihan && uploadBukti(activeTagihan.id)
+                                }
+                                className='flex items-center justify-center bg-blue-600 text-white'
+                                disabled={isUploading}
+                              >
+                                {isUploading ? 'Uploading...' : 'Upload'}
+                              </Button>
+                            </div>
                           </div>
+                        </DialogContent>
+                      </Dialog>
+                    </>
+
+                    {tagihan.status === 'PENDING' && (
+                      <div className='rounded-xl border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800'>
+                        <div className='flex items-center gap-2'>
+                          <Clock className='h-4 w-4' />
+                          <span className='font-medium'>
+                            Waiting Confirmation
+                          </span>
                         </div>
-                      </DialogContent>
-                    </Dialog>
+                      </div>
+                    )}
                   </div>
                 );
               })
@@ -596,35 +610,31 @@ export default function PembayaranSiswaView() {
                 return (
                   <div
                     key={riwayat.id}
-                    className='rounded-xl border border-gray-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900'
+                    className='rounded-2xl border border-gray-200 bg-white p-5 shadow-md'
                   >
-                    {/* HEADER */}
-                    <div className='mb-2 flex items-start justify-between'>
+                    <div className='mb-3 flex items-start justify-between'>
                       <div className='flex-1'>
-                        <h3 className='text-sm font-semibold text-gray-900 dark:text-slate-100'>
+                        <h3 className='mb-1 text-base font-bold text-gray-900'>
                           {riwayat.nama}
                         </h3>
-                        <p className='text-base font-bold text-gray-700 dark:text-slate-300'>
+                        <p className='text-xl font-bold text-gray-700'>
                           {formatCurrency(riwayat.nominal + riwayat.denda)}
                         </p>
                       </div>
-
                       <span
-                        className={`rounded-md px-2 py-0.5 text-[10px] font-semibold ${statusConfig.bgColor} ${statusConfig.textColor} dark:bg-opacity-20`}
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${statusConfig.bgColor} ${statusConfig.textColor}`}
                       >
                         {statusConfig.text}
                       </span>
                     </div>
 
-                    {/* INFO */}
-                    <div className='space-y-1.5 text-xs text-gray-600 dark:text-slate-400'>
-                      <div className='flex items-center gap-1.5'>
-                        <CheckCircle className='h-3.5 w-3.5 text-green-600 dark:text-green-400' />
-                        <span>Paid: {riwayat.tanggalBayar}</span>
+                    <div className='space-y-2'>
+                      <div className='flex items-center gap-2 text-sm text-gray-600'>
+                        <CheckCircle className='h-4 w-4 text-green-600' />
+                        <span>Pay : {riwayat.tanggalBayar}</span>
                       </div>
-
-                      <div className='flex items-center gap-1.5'>
-                        <CreditCard className='h-3.5 w-3.5' />
+                      <div className='flex items-center gap-2 text-sm text-gray-600'>
+                        <CreditCard className='h-4 w-4' />
                         <span>Method: {riwayat.metode}</span>
                       </div>
                     </div>
