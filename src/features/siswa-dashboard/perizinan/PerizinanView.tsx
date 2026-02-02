@@ -117,7 +117,6 @@ export default function Perizinan() {
       if (formData.bukti?.[0]) fd.append('image', formData.bukti[0]);
       await api.post('perizinan-siswa', fd, {
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${session.user.token}`
         }
       });
