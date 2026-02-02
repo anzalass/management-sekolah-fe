@@ -30,7 +30,7 @@ type Izin = {
   id: string;
   time: string;
   keterangan: string;
-  buktiUrl?: string;
+  bukti?: string;
   status: 'disetujui' | 'menunggu' | 'ditolak';
 };
 
@@ -303,11 +303,11 @@ export default function CardListIzin() {
                         </Badge>
                       </TableCell>
                       <TableCell className='text-center'>
-                        {izin.buktiUrl ? (
+                        {izin.bukti ? (
                           <Button
                             variant='ghost'
                             size='icon'
-                            onClick={() => setModalImage(izin.buktiUrl!)}
+                            onClick={() => setModalImage(izin.bukti!)}
                           >
                             <Eye className='h-4 w-4 text-primary' />
                           </Button>
@@ -445,7 +445,7 @@ export default function CardListIzin() {
       {/* Modal Foto Bukti */}
       {modalImage && (
         <div
-          className='fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4'
+          className='fixed inset-0 -top-10 z-50 flex items-center justify-center bg-black/70 p-4'
           onClick={() => setModalImage(null)}
         >
           <div

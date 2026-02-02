@@ -107,8 +107,11 @@ export default function JenisInventarisForm({
                       type='text'
                       placeholder='Masukkan Nama Jenis Inventaris...'
                       {...form.register('nama', {
-                        required: 'Nama Anggaran wajib diisi',
-                        minLength: 3
+                        required: 'Jenis Inventaris wajib diisi',
+                        minLength: {
+                          value: 3,
+                          message: 'Minimal 3 karakter'
+                        }
                       })}
                     />
                   </FormControl>

@@ -81,7 +81,11 @@ export default function ListKelas2({
   if (kelasList.length === 0) {
     return (
       <Card className='p-6 dark:bg-slate-900'>
-        <CardTitle>Kelas</CardTitle>
+        <div className='flex justify-between'>
+          <CardTitle>Kelas</CardTitle>
+          <Button onClick={() => setOpenModal('kelas')}>+ Kelas</Button>
+        </div>
+
         <p className='mt-4 text-center text-muted-foreground'>
           Belum ada data kelas
         </p>
@@ -94,6 +98,7 @@ export default function ListKelas2({
       {/* ===== HEADER ===== */}
       <div className='mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
         <CardTitle>Kelas</CardTitle>
+
         <div className='flex gap-2'>
           <Select
             value={filterTahunAjaran}

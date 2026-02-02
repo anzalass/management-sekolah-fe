@@ -111,7 +111,10 @@ export default function NewsForm({
                       placeholder='Masukkan Judul Berita...'
                       {...form.register('title', {
                         required: 'Judul Berita wajib diisi',
-                        minLength: 6
+                        minLength: {
+                          value: 6,
+                          message: 'Minimal 7 Karakter'
+                        }
                       })}
                     />
                   </FormControl>
@@ -140,7 +143,33 @@ export default function NewsForm({
                 <FormItem>
                   <FormLabel>Gambar</FormLabel>
                   <FormControl>
-                    <Input type='file' {...form.register('image', {})} />
+                    <Input
+                      type='file'
+                      accept='image/*'
+                      {...form.register('image', {
+                        validate: (files: FileList) => {
+                          if (!files || files.length === 0) {
+                            return 'Gambar wajib diupload';
+                          }
+
+                          const file = files[0];
+
+                          if (
+                            !['image/jpeg', 'image/png', 'image/jpg'].includes(
+                              file.type
+                            )
+                          ) {
+                            return 'Format gambar harus JPG atau PNG';
+                          }
+
+                          if (file.size > 2 * 1024 * 1024) {
+                            return 'Ukuran gambar maksimal 2MB';
+                          }
+
+                          return true;
+                        }
+                      })}
+                    />
                   </FormControl>
                   <FormMessage>
                     {form.formState.errors.image?.message}
