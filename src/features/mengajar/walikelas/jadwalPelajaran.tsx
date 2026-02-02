@@ -154,7 +154,7 @@ export default function JadwalPelajaran({ idKelas }: IDKelas) {
 
   return (
     <Card className='p-3 dark:text-white md:p-5'>
-      <div className='mb-4 flex flex-col items-start justify-between gap-3 md:flex-row md:items-center'>
+      <div className='mb-4 flex flex-row items-start justify-between gap-3 md:items-center'>
         <h1 className='text-base font-bold'>Jadwal Pelajaran</h1>
         <Button onClick={() => setOpenModal(true)}>
           <Plus className='mr-2 h-4 w-4' />

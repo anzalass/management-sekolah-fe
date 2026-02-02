@@ -7,17 +7,10 @@ import { useSession } from 'next-auth/react';
 import React from 'react';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react'; // ✅ Spinner dari Lucide
+import { Loader2 } from 'lucide-react';
 
 type IDKelas = {
   idKelas: string;
-};
-
-type Kehadiran = {
-  id: string;
-  nis: string;
-  nama: string;
-  kehadiranSiswa: DetailKehadiran[];
 };
 
 type DetailKehadiran = {
@@ -28,10 +21,23 @@ type DetailKehadiran = {
   keterangan: string;
 };
 
+type Kehadiran = {
+  id: string;
+  nis: string;
+  nama: string;
+  kehadiranSiswa: DetailKehadiran[];
+};
+
 export default function PresensiSiswa({ idKelas }: IDKelas) {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
 
+  // 🔥 loading per siswa (INI PENTING)
+  const [loadingId, setLoadingId] = React.useState<string | null>(null);
+
+  // ======================
+  // GET DATA
+  // ======================
   const { data: dataKehadiran, isLoading } = useQuery<Kehadiran[]>({
     queryKey: ['kehadiran', idKelas],
     queryFn: async () => {
@@ -45,7 +51,9 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
     enabled: !!session?.user?.token
   });
 
-  // ✅ Ambil isPending untuk loading
+  // ======================
+  // MUTATION
+  // ======================
   const mutation = useMutation({
     mutationFn: async ({
       dataAbsen,
@@ -54,6 +62,9 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
       dataAbsen: Kehadiran;
       keterangan: string;
     }) => {
+      setLoadingId(dataAbsen.id);
+
+      // UPDATE
       if (dataAbsen.kehadiranSiswa.length > 0) {
         return api.put(
           `kehadiran/${dataAbsen.kehadiranSiswa[0].id}`,
@@ -64,36 +75,46 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
             }
           }
         );
-      } else {
-        return api.post(
-          `kehadiran`,
-          {
-            idSiswa: dataAbsen.id,
-            namaSiswa: dataAbsen.nama,
-            nisSiswa: dataAbsen.nis,
-            idKelas: idKelas,
-            keterangan
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${session?.user?.token}`
-            }
-          }
-        );
       }
+
+      // CREATE
+      return api.post(
+        `kehadiran`,
+        {
+          idSiswa: dataAbsen.id,
+          namaSiswa: dataAbsen.nama,
+          nisSiswa: dataAbsen.nis,
+          idKelas,
+          keterangan
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${session?.user?.token}`
+          }
+        }
+      );
     },
-    onSuccess: () => {
+
+    onSuccess: async () => {
       toast.success('Absensi berhasil disimpan');
-      queryClient.invalidateQueries({ queryKey: ['kehadiran', idKelas] });
+
+      // ⬇️ WAJIB await biar mobile stabil
+      await queryClient.invalidateQueries({
+        queryKey: ['kehadiran', idKelas]
+      });
+
+      setLoadingId(null);
     },
+
     onError: (err: any) => {
       toast.error(err.response?.data?.message || 'Terjadi kesalahan');
+      setLoadingId(null);
     }
   });
 
-  const { mutate, isPending } = mutation; // ✅ gunakan isPending
+  const { mutate } = mutation;
 
-  const formatKeterangan = (keterangan: string) => {
+  const formatKeterangan = (keterangan?: string) => {
     switch (keterangan) {
       case 'Hadir':
         return 'Hadir';
@@ -108,6 +129,9 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
     }
   };
 
+  // ======================
+  // LOADING STATE
+  // ======================
   if (isLoading) {
     return (
       <Card className='w-full'>
@@ -122,12 +146,16 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
     );
   }
 
+  // ======================
+  // UI
+  // ======================
   return (
     <Card className='w-full overflow-x-auto'>
       <CardHeader>
         <CardTitle className='text-base'>Absensi Hari Ini</CardTitle>
       </CardHeader>
-      <div className='w-full overflow-x-auto rounded-lg p-5 shadow'>
+
+      <div className='w-full overflow-x-auto p-5'>
         <table className='w-full min-w-[500px] border text-left text-sm'>
           <thead>
             <tr>
@@ -137,95 +165,51 @@ export default function PresensiSiswa({ idKelas }: IDKelas) {
               <th className='border p-2'>Aksi</th>
             </tr>
           </thead>
+
           <tbody>
             {dataKehadiran?.map((student) => {
               const sudahAbsen = student.kehadiranSiswa.length > 0;
+              const detail = student.kehadiranSiswa[0];
+
               return (
-                <tr key={student.nis} className='border-b align-top'>
+                <tr key={student.id} className='border-b align-top'>
                   <td className='p-2'>{student.nama}</td>
+
                   <td className='p-2'>
-                    {sudahAbsen
-                      ? formatKeterangan(student.kehadiranSiswa[0]?.keterangan)
-                      : 'Belum Absen'}
+                    {formatKeterangan(detail?.keterangan)}
                   </td>
+
                   <td className='p-2'>
-                    {sudahAbsen
-                      ? new Date(
-                          student.kehadiranSiswa[0]?.waktu
-                        ).toLocaleTimeString('id-ID', {
+                    {detail?.waktu
+                      ? new Date(detail.waktu).toLocaleTimeString('id-ID', {
                           hour: '2-digit',
                           minute: '2-digit'
                         })
                       : '-'}
                   </td>
+
                   <td className='p-2'>
                     <div className='flex flex-wrap gap-2'>
-                      <Button
-                        variant={sudahAbsen ? 'outline' : 'default'}
-                        className={`shrink-0 ${
-                          sudahAbsen
-                            ? 'bg-green-100 text-green-800 hover:bg-green-100'
-                            : 'bg-green-500'
-                        }`}
-                        onClick={() =>
-                          mutate({ dataAbsen: student, keterangan: 'Hadir' })
-                        }
-                        disabled={isPending} // ✅ disable saat loading atau sudah absen
-                      >
-                        {isPending ? (
-                          <Loader2 className='h-4 w-4 animate-spin' />
-                        ) : (
-                          'Hadir'
-                        )}
-                      </Button>
-
-                      <Button
-                        variant='outline'
-                        className='shrink-0 border-yellow-500 text-yellow-500 hover:bg-yellow-50'
-                        onClick={() =>
-                          mutate({ dataAbsen: student, keterangan: 'Izin' })
-                        }
-                        disabled={isPending} // ✅
-                      >
-                        {isPending ? (
-                          <Loader2 className='h-4 w-4 animate-spin' />
-                        ) : (
-                          'Izin'
-                        )}
-                      </Button>
-
-                      <Button
-                        variant='outline'
-                        className='shrink-0 border-blue-500 text-blue-500 hover:bg-blue-50'
-                        onClick={() =>
-                          mutate({ dataAbsen: student, keterangan: 'Sakit' })
-                        }
-                        disabled={isPending} // ✅
-                      >
-                        {isPending ? (
-                          <Loader2 className='h-4 w-4 animate-spin' />
-                        ) : (
-                          'Sakit'
-                        )}
-                      </Button>
-
-                      <Button
-                        variant='outline'
-                        className='shrink-0 border-red-500 text-red-500 hover:bg-red-50'
-                        onClick={() =>
-                          mutate({
-                            dataAbsen: student,
-                            keterangan: 'TanpaKeterangan'
-                          })
-                        }
-                        disabled={isPending} // ✅
-                      >
-                        {isPending ? (
-                          <Loader2 className='h-4 w-4 animate-spin' />
-                        ) : (
-                          'Tanpa Keterangan'
-                        )}
-                      </Button>
+                      {['Hadir', 'Izin', 'Sakit', 'TanpaKeterangan'].map(
+                        (status) => (
+                          <Button
+                            key={status}
+                            variant='outline'
+                            disabled={loadingId === student.id}
+                            onClick={() =>
+                              mutate({ dataAbsen: student, keterangan: status })
+                            }
+                          >
+                            {loadingId === student.id ? (
+                              <Loader2 className='h-4 w-4 animate-spin' />
+                            ) : status === 'TanpaKeterangan' ? (
+                              'Tanpa Ket.'
+                            ) : (
+                              status
+                            )}
+                          </Button>
+                        )
+                      )}
                     </div>
                   </td>
                 </tr>

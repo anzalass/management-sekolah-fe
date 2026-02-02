@@ -22,7 +22,8 @@ export default function Header() {
           <NotificationGuru />
         </div>
         <UserNav />
-        {/* <ThemeToggle /> */} {/*Permintaan krisna*/}
+        <ThemeToggle />
+        {/*Permintaan krisna*/}
       </div>
     </header>
   );

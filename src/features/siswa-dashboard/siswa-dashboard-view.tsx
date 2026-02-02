@@ -35,9 +35,6 @@ import {
 } from '@/components/ui/dialog';
 import EmptyState from './empty-state';
 import Loading from './loading';
-import { Button } from '@/components/ui/button';
-import { userAgent } from 'next/server';
-import { Switch } from '@/components/ui/switch';
 
 export interface Kelas {
   id: string;
@@ -149,8 +146,35 @@ export default function SiswaHomeView() {
   const initials = getInitials(session?.user?.nama);
   const avatarUrl = `https://ui-avatars.com/api/?name=${initials}&background=random&format=png`;
 
-  const handleLogout = async () =>
-    await signOut({ callbackUrl: '/login-siswa' });
+  const handleLogout = async () => {
+    try {
+      if ('serviceWorker' in navigator) {
+        const reg = await navigator.serviceWorker.ready;
+        const sub = await reg.pushManager.getSubscription();
+
+        if (sub) {
+          await api.post(
+            '/auth/logout',
+            {
+              endpoint: sub.endpoint
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${session?.user?.token}`
+              },
+              withCredentials: true // ✅ ini yang kamu maksud
+            }
+          );
+
+          await sub.unsubscribe(); // 🔥 stop push dari browser
+        }
+      }
+
+      await signOut({ callbackUrl: '/login-siswa' });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const handleChangePassword = () => router.push('/siswa/ubah-password');
 
@@ -376,153 +400,81 @@ export default function SiswaHomeView() {
 
       {/* --- Daftar Kelas --- */}
       <div className='mt-8 space-y-8 px-4 md:px-8'>
-        <Card className='hover: border-2 border-purple-200/50 bg-white/95 p-6 backdrop-blur-sm transition-all duration-300'>
-          <div className='pb-4 pt-2'>
-            <CardTitle
-              className={`${process.env.NEXT_PUBLIC_THEME_COLOR} bg-clip-text text-base font-bold text-transparent md:text-xl`}
-            >
-              ✨ Active Classroom
-            </CardTitle>
-          </div>
-          <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4'>
-            {kelas.length > 0 ? (
-              kelas.map((kelasItem) => (
-                <Link
-                  href={`/siswa/kelas/${kelasItem.id}`}
-                  key={kelasItem.id}
-                  className='group'
-                >
-                  <Card className='h-full overflow-hidden border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl'>
-                    {/* Banner */}
-                    <div className='relative h-40 overflow-hidden'>
-                      {kelasItem.banner ? (
-                        // Jika ada gambar
-                        <>
-                          <img
-                            src={kelasItem.banner}
-                            alt={kelasItem.namaMapel}
-                            className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-110'
-                          />
-                          <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent' />
-                        </>
-                      ) : (
-                        // Jika tidak ada gambar → tampilkan inisial
-                        <div className='flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600'>
-                          <span className='text-3xl font-bold text-white drop-shadow-md'>
-                            {getInitials(kelasItem.namaMapel)}
-                          </span>
-                        </div>
-                      )}
+        <Card className='border-2 border-purple-200/50 bg-white/95 p-6'>
+          <CardTitle
+            className={`${process.env.NEXT_PUBLIC_THEME_COLOR} mb-4 bg-clip-text text-lg font-bold text-transparent`}
+          >
+            ✨ Active Classroom
+          </CardTitle>
 
-                      {/* Floating Badge (tetap muncul di semua kasus) */}
-                      <div className='absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 backdrop-blur-sm'>
-                        <span className='text-xs font-semibold text-gray-900'>
-                          {kelasItem.tahunAjaran}
-                        </span>
+          <div className='scrollbar-hide flex gap-4 overflow-x-auto pb-2'>
+            {kelas.map((kelasItem) => (
+              <Link
+                key={kelasItem.id}
+                href={`/siswa/kelas/${kelasItem.id}`}
+                className='min-w-[260px] flex-shrink-0'
+              >
+                <Card className='overflow-hidden border shadow-sm hover:shadow-md'>
+                  <div className='relative h-32'>
+                    {kelasItem.banner ? (
+                      <img
+                        src={kelasItem.banner}
+                        className='h-full w-full object-cover'
+                      />
+                    ) : (
+                      <div className='flex h-full items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-3xl font-bold text-white'>
+                        {getInitials(kelasItem.namaMapel)}
                       </div>
+                    )}
+                  </div>
+
+                  <div className='p-4'>
+                    <h3 className='line-clamp-2 text-sm font-bold'>
+                      {kelasItem.namaMapel}
+                    </h3>
+                    <p className='mt-1 text-xs text-gray-600'>
+                      {kelasItem.namaGuru}
+                    </p>
+
+                    <div className='mt-2 flex justify-between text-xs text-gray-500'>
+                      <span>{kelasItem.tahunAjaran}</span>
+                      <span>{kelasItem.totalSiswa} siswa</span>
                     </div>
-
-                    {/* Content (sama seperti sebelumnya) */}
-                    <div className='p-5'>
-                      <CardTitle className='mb-3 line-clamp-2 text-lg font-bold text-gray-900 transition-colors group-hover:text-blue-600'>
-                        {kelasItem.namaMapel}
-                      </CardTitle>
-
-                      <div className='space-y-2.5 text-sm text-muted-foreground'>
-                        <div className='flex items-center gap-2'>
-                          <div className='flex h-8 w-8 items-center justify-center rounded-full bg-gray-100'>
-                            <span className='text-xs font-semibold text-gray-600'>
-                              {kelasItem.namaGuru.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                          <span className='line-clamp-1 font-medium text-gray-700'>
-                            {kelasItem.namaGuru}
-                          </span>
-                        </div>
-
-                        <div className='flex items-center justify-between pt-2'>
-                          <div className='flex items-center gap-1.5'>
-                            <CalendarIcon className='h-4 w-4 text-gray-400' />
-                            <span className='text-xs'>
-                              {kelasItem.tahunAjaran}
-                            </span>
-                          </div>
-                          <div className='flex items-center gap-1.5'>
-                            <UsersIcon className='h-4 w-4 text-gray-400' />
-                            <span className='text-xs font-medium'>
-                              {kelasItem.totalSiswa} Student
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Bottom Accent */}
-                    <div className='h-1 w-full bg-gradient-to-r from-blue-500 to-purple-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100' />
-                  </Card>
-                </Link>
-              ))
-            ) : (
-              <div className='col-span-full rounded-xl border-2 border-dashed border-purple-200 bg-purple-50/50 p-8 text-center'>
-                <p className='text-sm font-medium text-purple-600'>
-                  No Class Found
-                </p>
-              </div>
-            )}
+                  </div>
+                </Card>
+              </Link>
+            ))}
           </div>
         </Card>
 
         {/* Pengumuman */}
-        <Card className='hover: overflow-hidden border-2 border-purple-200/50 bg-white/95 backdrop-blur-sm transition-all duration-300'>
-          <CardHeader className=''>
-            <div className='flex items-center gap-3'>
-              <div
-                className={`rounded-lg ${process.env.NEXT_PUBLIC_THEME_COLOR} p-2.5`}
-              >
-                <Info className='h-5 w-5 text-white' />
-              </div>
-              <CardTitle
-                className={`${process.env.NEXT_PUBLIC_THEME_COLOR} bg-clip-text text-lg font-bold text-transparent`}
-              >
-                📢 Information
-              </CardTitle>
-            </div>
+        <Card className='border-2 border-purple-200/50 bg-white/95'>
+          <CardHeader>
+            <CardTitle className='text-lg font-bold text-purple-700'>
+              📢 Information
+            </CardTitle>
           </CardHeader>
-          <CardContent className='space-y-3 p-4 md:p-6'>
-            {pengumuman.length > 0 ? (
-              pengumuman.map((info, i) => (
+
+          <CardContent>
+            <div className='scrollbar-hide flex gap-4 overflow-x-auto pb-2'>
+              {pengumuman.map((info, i) => (
                 <div
                   key={i}
                   onClick={() => openModal(info)}
-                  className={`cursor-pointer rounded-2xl border-2 p-4 transition-all duration-300 hover:scale-[1.02] ${
-                    i === 0
-                      ? 'border-purple-500 bg-purple-50 shadow-md'
-                      : 'border-slate-200 hover:border-purple-300'
-                  }`}
+                  className='min-w-[280px] cursor-pointer rounded-xl border p-4 hover:shadow-md'
                 >
-                  <div
-                    className={`mb-2 font-bold ${
-                      i === 0
-                        ? 'text-lg text-purple-800'
-                        : 'text-purple-900 group-hover:text-fuchsia-700'
-                    }`}
-                  >
+                  <h4 className='mb-2 text-sm font-bold text-purple-800'>
                     {info.title}
-                  </div>
-                  <p className='mb-3 line-clamp-2 text-sm leading-relaxed text-gray-600'>
+                  </h4>
+                  <p className='line-clamp-3 text-xs text-gray-600'>
                     {stripHtml(info.content)}
                   </p>
                 </div>
-              ))
-            ) : (
-              <div className='rounded-xl border-2 border-dashed border-purple-200 bg-purple-50/50 p-8 text-center'>
-                <p className='text-sm font-medium text-purple-600'>
-                  No Information Yet
-                </p>
-              </div>
-            )}
+              ))}
+            </div>
           </CardContent>
         </Card>
+
         <Card className='hover: mb-40 overflow-hidden border-2 border-purple-200/50 bg-white/95 backdrop-blur-sm transition-all duration-300'>
           <CardHeader className=''>
             <div className='flex items-center gap-3'>

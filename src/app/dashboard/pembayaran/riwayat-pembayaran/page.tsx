@@ -1,21 +1,10 @@
 import PageContainer from '@/components/layout/page-container';
-import { buttonVariants } from '@/components/ui/button';
-import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
-import AnggaranListingPage from '@/features/master-data/anggaran/anggaran-listing';
-import AnggaranTableAction from '@/features/master-data/anggaran/anggaran-tables/anggaran-table-action';
-import DaftarInventarisListingPage from '@/features/inventaris/inventaris-masuk/inventaris-masuk-listing';
-import DaftarInventarisTableAction from '@/features/inventaris/inventaris-masuk/daftar-inventaris-tables/daftar-inventaris-table-action';
-import KegiatanSekolahListingPage from '@/features/master-data/kegiatan-sekolah/kegiatan-sekolah-listing';
-import KegiatanSekolahTableAction from '@/features/master-data/kegiatan-sekolah/kegiatan-sekolah-tables/kegiatansekolah-table-action';
-import RuangListingPage from '@/features/master-data/ruang/ruang-listing';
-import RuangTableAction from '@/features/master-data/ruang/ruang-tables/ruang-table-action';
+
 import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
-import { cn } from '@/lib/utils';
-import { Plus } from 'lucide-react';
-import Link from 'next/link';
+
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 import RiwayatPembayaranListingPage from '@/features/pembayaran/riwayat-pembayaran/riwayat-pembayaran-listing';
@@ -42,7 +31,7 @@ export default async function Page(props: pageProps) {
       <PageContainer scrollable={false}>
         <div className='flex flex-1 flex-col space-y-4'>
           <div className='flex items-start justify-between'>
-            <Heading title='Riwayat Pembayaran' description='' />
+            <h1 className='text-lg md:text-2xl'>Riwayat Pembayaran</h1>{' '}
             {/* <Link
               href='/dashboard/inventaris/daftar-inventaris/new'
               className={cn(buttonVariants(), 'text-xs md:text-sm')}

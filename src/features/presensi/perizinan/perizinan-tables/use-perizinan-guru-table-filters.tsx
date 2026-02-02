@@ -15,8 +15,13 @@ export function usePerizinanGuruTableFilters() {
     searchParams.q.withOptions({ shallow: false }).withDefault('')
   );
 
-  const [tanggalFilter, setTanggalFilter] = useQueryState(
-    'tanggal',
+  const [startDate, setStartDate] = useQueryState(
+    'startDate',
+    searchParams.q.withOptions({ shallow: false }).withDefault('')
+  );
+
+  const [endDate, setEndDate] = useQueryState(
+    'endDate',
     searchParams.q.withOptions({ shallow: false }).withDefault('')
   );
 
@@ -28,13 +33,14 @@ export function usePerizinanGuruTableFilters() {
   const resetFilters = useCallback(() => {
     setNamaFilter(null);
     setNipFilter(null);
-    setTanggalFilter(null);
+    setStartDate(null);
+    setEndDate(null);
     setPage(1);
   }, [setNamaFilter, setPage]);
 
   const isAnyFilterActive = useMemo(() => {
-    return !!namaFilter || !!tanggalFilter || !!nipFilter;
-  }, [namaFilter, tanggalFilter, nipFilter]);
+    return !!namaFilter || !!startDate || !!endDate || !!nipFilter;
+  }, [namaFilter, startDate, endDate, nipFilter]);
 
   return {
     page,
@@ -45,7 +51,9 @@ export function usePerizinanGuruTableFilters() {
     setNamaFilter,
     nipFilter,
     setNipFilter,
-    tanggalFilter,
-    setTanggalFilter
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate
   };
 }

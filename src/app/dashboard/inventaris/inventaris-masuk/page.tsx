@@ -34,12 +34,12 @@ export default async function Page(props: pageProps) {
       <PageContainer scrollable={false}>
         <div className='flex flex-1 flex-col space-y-4'>
           <div className='flex items-start justify-between'>
-            <Heading title='Inventaris Masuk' description='' />
+            <h1 className='text-lg md:text-2xl'>Inventaris Masuk</h1>
             <Link
               href='/dashboard/inventaris/daftar-inventaris/new'
               className={cn(buttonVariants(), 'text-xs md:text-sm')}
             >
-              <Plus className='mr-2 h-4 w-4' /> Tambah Daftar Inventaris
+              <Plus className='mr-2 h-4 w-4' /> Inventaris Masuk
             </Link>
           </div>
           <Separator />

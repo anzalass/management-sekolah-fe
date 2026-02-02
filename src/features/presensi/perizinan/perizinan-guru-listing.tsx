@@ -28,7 +28,8 @@ export default function PerizinanGuruListingPage() {
   const page = searchParams.get('page') || '1';
   const search = searchParams.get('nama') || '';
   const nip = searchParams.get('nip') || '';
-  const tanggal = searchParams.get('tanggal') || '';
+  const startDate = searchParams.get('startDate') || '';
+  const endDate = searchParams.get('endDate') || '';
   const pageLimit = searchParams.get('limit') || '10';
 
   const [data, setData] = useState<PerizinanGuru[]>([]);
@@ -41,7 +42,7 @@ export default function PerizinanGuruListingPage() {
       try {
         setLoading(true);
         const response = await api.get(
-          `perizinan-guru?page=${page}&pageSize=${pageLimit}&nama=${search}&nip=${nip}&tanggal=${tanggal}`,
+          `perizinan-guru?page=${page}&pageSize=${pageLimit}&nama=${search}&nip=${nip}&startDate=${startDate}&endDate=${endDate}`,
           {
             headers: {
               Authorization: `Bearer ${session?.user?.token}`
@@ -58,7 +59,7 @@ export default function PerizinanGuruListingPage() {
     };
 
     fetch();
-  }, [page, search, nip, tanggal, trigger, pageLimit]);
+  }, [page, search, nip, startDate, endDate, trigger, pageLimit]);
 
   return (
     <PerizinanGuruTable columns={columns} data={data} totalItems={totalData} />

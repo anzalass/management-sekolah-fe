@@ -54,6 +54,12 @@ export const navItems: NavItem[] = [
         url: '/dashboard/presensi/perizinan',
         icon: 'userPen',
         shortcut: ['n', 'n']
+      },
+      {
+        title: 'Rekap Bulanan Guru',
+        url: '/dashboard/presensi/rekap-bulanan',
+        icon: 'userPen',
+        shortcut: ['n', 'n']
       }
     ]
   },
@@ -180,17 +186,23 @@ export const navItems: NavItem[] = [
         shortcut: ['n', 'n']
       },
       {
-        title: 'Ruangan',
-        url: '/dashboard/master-data/ruangan',
+        title: 'Hari Libur',
+        url: '/dashboard/master-data/hari-libur',
         icon: 'userPen',
         shortcut: ['n', 'n']
       },
       {
-        title: 'Arsip dan Dokumen',
-        url: '/dashboard/master-data/arsip',
+        title: 'Ruangan',
+        url: '/dashboard/master-data/ruangan',
         icon: 'userPen',
         shortcut: ['n', 'n']
       }
+      // {
+      //   title: 'Arsip dan Dokumen',
+      //   url: '/dashboard/master-data/arsip',
+      //   icon: 'userPen',
+      //   shortcut: ['n', 'n']
+      // }
     ]
   },
   {

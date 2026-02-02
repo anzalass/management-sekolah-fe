@@ -61,20 +61,23 @@ module.exports = withPWA({
       'https://generativelanguage.googleapis.com',
       'https://www.googleapis.com',
       'https://www.google-analytics.com',
-      'http://localhost:4000', // 🔥 FIX UTAMA
+      'http://localhost:5000', // 🔥 FIX UTAMA
       'data:',
       'blob:',
       ...(process.env.NODE_ENV === 'development'
-        ? ['http://localhost:4000']
+        ? ['http://localhost:5000']
         : [])
     ].join(' ');
 
     const frameSrc = [
       "'self'",
+      'blob:', // 🔥 WAJIB UNTUK PDF PREVIEW
       'https://app.sandbox.midtrans.com',
       'https://api.sandbox.midtrans.com',
       'https://docs.google.com',
       'https://forms.gle',
+      'https://*.google.com',
+      'https://*.gstatic.com',
       'https://little-alley.zeabur.app',
       'https://ytam-be.zeabur.app',
       'https://ytam-be2.zeabur.app'

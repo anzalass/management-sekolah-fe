@@ -13,23 +13,12 @@ import {
 import { Input } from '@/components/ui/input';
 
 import { Textarea } from '@/components/ui/textarea';
-import { Product } from '@/constants/mock-api';
-import { zodResolver } from '@hookform/resolvers/zod';
-import axios from 'axios';
-import { Trash } from 'lucide-react';
-import Image from 'next/image';
+
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { API } from '@/lib/server';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+
 import { JenisInventaris } from '../jenis-inventaris/jenis-inventaris-form';
 import { Ruangan } from '@/features/master-data/ruang/ruang-listing';
 import api from '@/lib/api';
@@ -165,7 +154,7 @@ export default function DaftarInventarisForm({
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>
-        <CardTitle className='text-left text-2xl font-bold'>
+        <CardTitle className='text-left text-xl font-bold md:text-2xl'>
           {pageTitle}
         </CardTitle>
       </CardHeader>
@@ -282,7 +271,7 @@ export default function DaftarInventarisForm({
                       type='number'
                       placeholder='Masukkan Quantity...'
                       {...form.register('quantity', {
-                        required: 'Jumlah Anggaran wajib diisi'
+                        required: 'Quantity wajib diisi'
                       })}
                     />
                   </FormControl>

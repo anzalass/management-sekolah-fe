@@ -2,6 +2,14 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { Clock } from 'lucide-react';
 import { KehadiranGuru } from '../kehadiran-guru-listing';
+import { useState } from 'react';
+import Image from 'next/image';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
 
 export const columns: ColumnDef<KehadiranGuru>[] = [
   {
@@ -35,6 +43,50 @@ export const columns: ColumnDef<KehadiranGuru>[] = [
       return formatTanggal(tanggal);
     }
   },
+
+  {
+    accessorKey: 'fotoMasuk',
+    header: 'Foto Masuk',
+    cell: ({ row }) => {
+      const foto = row.original.fotoMasuk;
+      const [open, setOpen] = useState(false);
+
+      if (!foto) return '-';
+
+      return (
+        <>
+          {/* Thumbnail */}
+          <Image
+            src={foto}
+            alt='Foto Masuk'
+            width={40}
+            height={40}
+            className='cursor-pointer rounded object-cover'
+            onClick={() => setOpen(true)}
+          />
+
+          {/* Modal */}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogContent className='max-w-sm'>
+              <DialogHeader>
+                <DialogTitle>Foto Absen Masuk</DialogTitle>
+              </DialogHeader>
+
+              <Image
+                src={foto}
+                alt='Foto Masuk'
+                width={400}
+                height={400}
+                className='w-full rounded-lg object-cover'
+                unoptimized
+              />
+            </DialogContent>
+          </Dialog>
+        </>
+      );
+    }
+  },
+
   {
     accessorKey: 'jamMasuk',
     header: 'Masuk',

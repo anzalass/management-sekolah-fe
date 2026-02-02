@@ -88,7 +88,7 @@ export default function JenisInventarisForm({
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>
-        <CardTitle className='text-left text-2xl font-bold'>
+        <CardTitle className='text-left text-xl font-bold md:text-2xl'>
           {pageTitle}
         </CardTitle>
       </CardHeader>
@@ -107,8 +107,11 @@ export default function JenisInventarisForm({
                       type='text'
                       placeholder='Masukkan Nama Jenis Inventaris...'
                       {...form.register('nama', {
-                        required: 'Nama Anggaran wajib diisi',
-                        minLength: 3
+                        required: 'Jenis Inventaris wajib diisi',
+                        minLength: {
+                          value: 3,
+                          message: 'Minimal 3 karakter'
+                        }
                       })}
                     />
                   </FormControl>

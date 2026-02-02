@@ -308,7 +308,7 @@ export default function WeeklyActivityList() {
               />
               <div className='p-6'>
                 <p className='mb-4 text-sm text-gray-600'>
-                  Tekan dan tahan untuk menyimpan
+                  Press and hold for download
                 </p>
                 <a
                   href={selectedPhoto?.fotoUrl}

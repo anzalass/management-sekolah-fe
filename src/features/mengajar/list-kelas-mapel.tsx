@@ -1,4 +1,4 @@
-// src/components/ListMapel.jsx
+// src/components/ListMapel.tsx
 import { Button } from '@/components/ui/button';
 import { Card, CardTitle } from '@/components/ui/card';
 import {
@@ -6,13 +6,11 @@ import {
   ClipboardList,
   CalendarCheck,
   Pencil,
-  Trash2,
-  ChevronRight
+  Trash2
 } from 'lucide-react';
 import ModalHapusKelas from './modal-hapus-kelas';
 import ModalTambahKelasMapel from './modal-tambah-kelas-mapel';
 import { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   Select,
   SelectContent,
@@ -22,29 +20,25 @@ import {
 } from '@/components/ui/select';
 import Link from 'next/link';
 
-// ✅ Helper: generate opsi tahun ajaran
-const generateTahunAjaranOptions = () => {
-  const currentYear = new Date().getFullYear();
-  const options = ['Semua Kelas'];
-  for (let i = -5; i <= 5; i++) {
-    const start = currentYear + i;
-    const end = start + 1;
-    options.push(`${start}-${end}`);
-  }
-  return options;
+/* ===================== TYPES ===================== */
+type CountMapel = {
+  MateriMapel?: number;
+  TugasMapel?: number;
+  UjianIframe?: number;
+  DaftarSiswa?: number;
 };
 
-// Helper: ambil inisial
-const getInitials = (str: any) => {
-  return str
-    .split(' ')
-    .map((word: any) => word[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
+export type KelasMapel = {
+  id: string;
+  namaMapel: string;
+  kelas: string;
+  ruangKelas: string;
+  tahunAjaran: string;
+  banner?: string | null;
+  _count?: CountMapel;
 };
 
-type dataEditMapel = {
+type DataEditMapel = {
   id: string;
   namaMapel: string;
   kelas: string;
@@ -53,100 +47,110 @@ type dataEditMapel = {
 
 type Props = {
   setOpenModal: (val: string | null) => void;
-  kelasMapel: any[];
+  kelasMapel: KelasMapel[];
   fetchData: () => void;
 };
 
+/* ===================== HELPERS ===================== */
+const generateTahunAjaranOptions = (): string[] => {
+  const year = new Date().getFullYear();
+  const options: string[] = ['Semua Kelas'];
+  for (let i = -5; i <= 5; i++) {
+    options.push(`${year + i}-${year + i + 1}`);
+  }
+  return options;
+};
+
+const getInitials = (str: string): string =>
+  str
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+
+/* ===================== COLOR MAP ===================== */
+const statColor = {
+  blue: {
+    box: 'bg-blue-50 border-blue-200 dark:bg-blue-900/30 dark:border-blue-700',
+    icon: 'text-blue-700 dark:text-blue-300',
+    value: 'text-blue-900 dark:text-blue-200',
+    label: 'text-blue-700 dark:text-blue-400'
+  },
+  amber: {
+    box: 'bg-amber-50 border-amber-200 dark:bg-amber-900/30 dark:border-amber-700',
+    icon: 'text-amber-700 dark:text-amber-300',
+    value: 'text-amber-900 dark:text-amber-200',
+    label: 'text-amber-700 dark:text-amber-400'
+  },
+  green: {
+    box: 'bg-green-50 border-green-200 dark:bg-green-900/30 dark:border-green-700',
+    icon: 'text-green-700 dark:text-green-300',
+    value: 'text-green-900 dark:text-green-200',
+    label: 'text-green-700 dark:text-green-400'
+  }
+} as const;
+
+/* ===================== COMPONENT ===================== */
 export default function ListKelasMapel({
   setOpenModal,
   kelasMapel,
   fetchData
 }: Props) {
-  const router = useRouter();
-  const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
+  const [modalDeleteOpen, setModalDeleteOpen] = useState<boolean>(false);
   const [openModalEdit, setOpenModalEdit] = useState<string | null>(null);
-  const [dataDelete, setDataDelete] = useState({
-    id: '',
-    jenis: ''
-  });
-  const [dataEditMapel, setEditMapel] = useState<dataEditMapel>({
+
+  const [dataDelete, setDataDelete] = useState<{
+    id: string;
+    jenis: string;
+  }>({ id: '', jenis: '' });
+
+  const [dataEditMapel, setEditMapel] = useState<DataEditMapel>({
     id: '',
     namaMapel: '',
     kelas: '',
     ruangKelas: ''
   });
 
-  // ✅ State filter tahun ajaran
-  const [filterTahunAjaran, setFilterTahunAjaran] = useState('Semua Kelas');
+  const [filterTahunAjaran, setFilterTahunAjaran] =
+    useState<string>('Semua Kelas');
 
-  const openDeleteModal = (id: string, jenis: string) => {
-    setModalDeleteOpen(true);
-    setDataDelete({ id, jenis });
-  };
-
-  const openEditModalMapel = ({
-    id,
-    namaMapel,
-    ruangKelas,
-    kelas
-  }: dataEditMapel) => {
-    setOpenModalEdit('mapel');
-    setEditMapel({ id, namaMapel, kelas, ruangKelas });
-  };
-
-  // ✅ Filter data berdasarkan tahun ajaran
   const kelasMapelFiltered = useMemo(() => {
     if (filterTahunAjaran === 'Semua Kelas') return kelasMapel;
-    return kelasMapel.filter(
-      (mapel) => mapel.tahunAjaran === filterTahunAjaran
-    );
+    return kelasMapel.filter((m) => m.tahunAjaran === filterTahunAjaran);
   }, [kelasMapel, filterTahunAjaran]);
 
   const tahunAjaranOptions = generateTahunAjaranOptions();
 
+  /* ===================== EMPTY ===================== */
   if (kelasMapel.length === 0) {
     return (
-      <div className='rounded-xl border bg-white p-6 shadow-sm'>
-        <div className='my-5 flex w-full flex-col items-start justify-between gap-3 sm:flex-row sm:items-center'>
+      <Card className='p-6 dark:border-slate-700'>
+        <div className='flex justify-between'>
           <CardTitle>Mata Pelajaran</CardTitle>
-          <div className='flex w-full gap-2 sm:w-auto'>
-            <Select
-              value={filterTahunAjaran}
-              onValueChange={setFilterTahunAjaran}
-            >
-              <SelectTrigger className='w-full sm:w-[180px]'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {tahunAjaranOptions.map((opt) => (
-                  <SelectItem key={opt} value={opt}>
-                    {opt}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
-              onClick={() => setOpenModal('mapel')}
-              className='w-full sm:w-auto'
-            >
-              + Mata Pelajaran
-            </Button>
-          </div>
+
+          <Button
+            className='flex text-sm md:text-base'
+            onClick={() => setOpenModal('mapel')}
+          >
+            + Mapel
+          </Button>
         </div>
-        <div className='rounded-xl border bg-white p-6 shadow-sm'>
-          <p className='text-center text-gray-500'>
-            Belum ada data mata pelajaran
-          </p>
-        </div>
-      </div>
+        <p className='mt-6 text-center text-muted-foreground'>
+          Belum ada data mata pelajaran
+        </p>
+      </Card>
     );
   }
 
+  /* ===================== UI ===================== */
   return (
-    <Card className='p-3 md:p-8'>
-      <div className='mb-5 flex w-full flex-col items-start justify-between gap-3 sm:flex-row sm:items-center'>
+    <Card className='p-4 dark:border-slate-700 md:p-8'>
+      {/* HEADER */}
+      <div className='mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
         <CardTitle>Kelas Mata Pelajaran</CardTitle>
-        <div className='flex w-full gap-2 sm:w-auto'>
+
+        <div className='flex gap-2 sm:w-auto'>
           <Select
             value={filterTahunAjaran}
             onValueChange={setFilterTahunAjaran}
@@ -162,173 +166,133 @@ export default function ListKelasMapel({
               ))}
             </SelectContent>
           </Select>
+
           <Button
+            className='flex w-1/2 text-sm md:text-base'
             onClick={() => setOpenModal('mapel')}
-            className='w-full sm:w-auto'
           >
-            + Mata Pelajaran
+            + Mapel
           </Button>
         </div>
       </div>
 
-      {kelasMapelFiltered.length === 0 ? (
-        <p className='py-8 text-center text-muted-foreground'>
-          Tidak ada mata pelajaran untuk tahun ajaran ini.
-        </p>
-      ) : (
-        <div className='grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2'>
-          {kelasMapelFiltered.map((mapel: any) => (
-            <div
-              key={mapel.id}
-              className='group cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:border-indigo-500 hover:shadow-md'
-            >
-              {/* Banner / Image */}
-              <div className='relative h-[100px] w-full'>
-                {mapel.banner ? (
-                  <img
-                    src={mapel.banner}
-                    alt={mapel.namaMapel}
-                    className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-105'
-                  />
-                ) : (
-                  <div className='flex h-full w-full items-center justify-center bg-gradient-to-r from-indigo-600 to-purple-700 text-2xl font-bold text-white'>
-                    {getInitials(mapel.namaMapel)}
-                  </div>
-                )}
-
-                {/* Overlay Mobile */}
-                <div className='absolute inset-0 flex items-center justify-center bg-black/20 text-center md:hidden'>
-                  <div>
-                    <h3 className='text-xl font-bold text-white drop-shadow'>
-                      {mapel.namaMapel}
-                    </h3>
-                    <p className='text-xs text-white/90 drop-shadow'>
-                      {mapel.kelas}
-                    </p>
-                    <p className='text-xs text-white/90 drop-shadow'>
-                      {mapel.ruangKelas}
-                    </p>
-                  </div>
+      {/* GRID */}
+      <div className='grid grid-cols-1 gap-5 sm:grid-cols-2'>
+        {kelasMapelFiltered.map((mapel) => (
+          <div
+            key={mapel.id}
+            className='group overflow-hidden rounded-xl border shadow-sm transition hover:border-indigo-500 hover:shadow-md dark:border-slate-700'
+          >
+            {/* BANNER */}
+            <div className='relative h-[100px]'>
+              {mapel.banner ? (
+                <img
+                  src={mapel.banner}
+                  alt={mapel.namaMapel}
+                  className='h-full w-full object-cover'
+                />
+              ) : (
+                <div className='flex h-full items-center justify-center bg-gradient-to-r from-indigo-600 to-purple-700 text-2xl font-bold text-white'>
+                  {getInitials(mapel.namaMapel)}
                 </div>
-              </div>
-
-              {/* Content */}
-              <div className='flex-1 p-4 md:p-5'>
-                <div className='mb-4 flex items-start justify-between'>
-                  <div>
-                    <div className='flex items-center gap-2'>
-                      <h3 className='text-lg font-bold text-gray-900'>
-                        {mapel.namaMapel}
-                      </h3>
-                      <ChevronRight className='h-4 w-4 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100' />
-                    </div>
-                    <div className='mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-600'>
-                      <span>TA {mapel.tahunAjaran}</span>
-                      <span>•</span>
-                      <span>{mapel.ruangKelas}</span>
-                    </div>
-                  </div>
-                  <div className='flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 md:opacity-100'>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openEditModalMapel({
-                          id: mapel.id,
-                          namaMapel: mapel.namaMapel,
-                          ruangKelas: mapel.ruangKelas,
-                          kelas: mapel.kelas
-                        });
-                      }}
-                      className='rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50'
-                    >
-                      <Pencil className='h-4 w-4' />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openDeleteModal(mapel.id, 'mapel');
-                      }}
-                      className='rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50'
-                    >
-                      <Trash2 className='h-4 w-4' />
-                    </button>
-                  </div>
-                </div>
-
-                <div className='mb-4 block md:hidden'>
-                  <div className='text-sm font-semibold text-gray-900'>
-                    {mapel.kelas}
-                  </div>
-                  {/* <div className='text-xs text-gray-600'>
-                    {mapel.ruangKelas} • TA {mapel.tahunAjaran}
-                  </div> */}
-                </div>
-
-                <div className='mb-4 inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1'>
-                  <span className='text-sm font-semibold text-indigo-800'>
-                    {mapel._count?.DaftarSiswa || 0} Siswa
-                  </span>
-                </div>
-
-                <div className='grid grid-cols-3 gap-2'>
-                  {[
-                    {
-                      label: 'Materi',
-                      count: mapel._count?.MateriMapel || 0,
-                      icon: BookOpen,
-                      color: 'blue'
-                    },
-                    {
-                      label: 'Tugas',
-                      count: mapel._count?.TugasMapel || 0,
-                      icon: ClipboardList,
-                      color: 'amber'
-                    },
-                    {
-                      label: 'Ujian',
-                      count: mapel._count?.UjianIframe || 0,
-                      icon: CalendarCheck,
-                      color: 'green'
-                    }
-                  ].map((item, idx) => {
-                    const IconComponent = item.icon;
-                    return (
-                      <div
-                        key={idx}
-                        className={`flex flex-col items-center rounded-lg border border-${item.color}-200 bg-${item.color}-50 p-2 transition-all hover:shadow-sm`}
-                      >
-                        <IconComponent
-                          className={`mb-1 h-4 w-4 text-${item.color}-700`}
-                        />
-                        <span
-                          className={`text-sm font-bold text-${item.color}-900`}
-                        >
-                          {item.count}
-                        </span>
-                        <span className={`text-[10px] text-${item.color}-700`}>
-                          {item.label}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className='mt-3 w-full'>
-                  <Link href={`/mengajar/kelas-mapel/${mapel.id}`}>
-                    <Button className='w-full'>Masuk Kelas</Button>
-                  </Link>
-                </div>
-              </div>
+              )}
             </div>
-          ))}
-        </div>
-      )}
 
+            {/* CONTENT */}
+            <div className='p-4'>
+              <div className='mb-3 flex items-start justify-between'>
+                <div>
+                  <h3 className='text-lg font-bold'>{mapel.namaMapel}</h3>
+                  <p className='text-sm text-muted-foreground'>
+                    {mapel.kelas} • {mapel.ruangKelas}
+                  </p>
+                </div>
+
+                <div className='flex gap-1 opacity-0 transition group-hover:opacity-100'>
+                  <button
+                    onClick={() => {
+                      setEditMapel({
+                        id: mapel.id,
+                        namaMapel: mapel.namaMapel,
+                        kelas: mapel.kelas,
+                        ruangKelas: mapel.ruangKelas
+                      });
+                      setOpenModalEdit('mapel');
+                    }}
+                    className='rounded-lg p-2 hover:bg-blue-100 dark:hover:bg-blue-900'
+                  >
+                    <Pencil className='h-4 w-4 text-blue-600' />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setDataDelete({ id: mapel.id, jenis: 'mapel' });
+                      setModalDeleteOpen(true);
+                    }}
+                    className='rounded-lg p-2 hover:bg-red-100 dark:hover:bg-red-900'
+                  >
+                    <Trash2 className='h-4 w-4 text-red-600' />
+                  </button>
+                </div>
+              </div>
+
+              {/* STATS */}
+              <div className='grid grid-cols-3 gap-2'>
+                {[
+                  {
+                    label: 'Materi',
+                    count: mapel._count?.MateriMapel ?? 0,
+                    icon: BookOpen,
+                    color: 'blue'
+                  },
+                  {
+                    label: 'Tugas',
+                    count: mapel._count?.TugasMapel ?? 0,
+                    icon: ClipboardList,
+                    color: 'amber'
+                  },
+                  {
+                    label: 'Ujian',
+                    count: mapel._count?.UjianIframe ?? 0,
+                    icon: CalendarCheck,
+                    color: 'green'
+                  }
+                ].map((item: any, i: any) => {
+                  const Icon = item.icon;
+                  const c = statColor[item.color];
+                  return (
+                    <div
+                      key={i}
+                      className={`rounded-lg border p-2 text-center ${c.box}`}
+                    >
+                      <Icon className={`mx-auto mb-1 h-4 w-4 ${c.icon}`} />
+                      <div className={`font-bold ${c.value}`}>{item.count}</div>
+                      <div className={`text-[10px] ${c.label}`}>
+                        {item.label}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <Link
+                href={`/mengajar/kelas-mapel/${mapel.id}`}
+                className='mt-4 block'
+              >
+                <Button className='w-full'>Masuk Kelas</Button>
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* MODAL */}
       <ModalHapusKelas
         open={modalDeleteOpen}
         onClose={() => setModalDeleteOpen(false)}
         idKelas={dataDelete.id}
-        fetchData={fetchData}
         jenis={dataDelete.jenis}
+        fetchData={fetchData}
       />
 
       <ModalTambahKelasMapel

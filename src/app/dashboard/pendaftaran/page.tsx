@@ -1,6 +1,5 @@
 import PageContainer from '@/components/layout/page-container';
 import { buttonVariants } from '@/components/ui/button';
-import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
@@ -9,10 +8,6 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
-import GuruStaffTableAction from '@/features/master-data/guru-staff/guru-staff-tables/gurustaff-table-action';
-import GuruStaffListingPage from '@/features/master-data/guru-staff/guru-staff-listing';
-import SiswaListingPage from '@/features/master-data/siswa/siswa-listing';
-import SiswaTableAction from '@/features/master-data/siswa/siswa-tables/siswa-table-action';
 import { RenderTriggerProvider } from '@/hooks/use-rendertrigger';
 import PendaftaranListingPage from '@/features/pendaftaran/pendaftaran-listing';
 import PendaftaranTableActions from '@/features/pendaftaran/pendaftaran-tables/pendaftaran-table-action';
@@ -38,12 +33,12 @@ export default async function Page(props: pageProps) {
       <PageContainer scrollable={false}>
         <div className='flex flex-1 flex-col space-y-4'>
           <div className='flex items-start justify-between'>
-            <h1 className='text-base md:text-lg'>Pendaftaran Siswa</h1>
+            <h1 className='text-xl md:text-2xl'>Pendaftaran Siswa</h1>
             <Link
               href='/dashboard/pendaftaran/new'
               className={cn(buttonVariants(), 'text-xs md:text-sm')}
             >
-              <Plus className='mr-2 h-4 w-4' /> Tambah Pendaftaran
+              <Plus className='mr-2 h-4 w-4' /> Pendaftaran
             </Link>
           </div>
           <Separator />

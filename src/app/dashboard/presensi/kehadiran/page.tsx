@@ -30,7 +30,7 @@ export default async function Page(props: pageProps) {
       <PageContainer scrollable={false}>
         <div className='flex flex-1 flex-col space-y-4'>
           <div className='flex items-start justify-between'>
-            <Heading title='Kehadiran Guru' description='' />
+            <h1 className='text-lg md:text-2xl'>Kehadiran Guru</h1>{' '}
           </div>
           <Separator />
           <KehadiranGuruTableAction />

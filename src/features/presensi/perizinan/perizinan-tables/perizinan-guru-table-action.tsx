@@ -12,8 +12,11 @@ export default function PerizinanGuruTableAction() {
 
   const {
     isAnyFilterActive,
-    tanggalFilter,
-    setTanggalFilter,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+
     nipFilter,
     setNipFilter,
     resetFilters,
@@ -22,8 +25,13 @@ export default function PerizinanGuruTableAction() {
     setNamaFilter
   } = usePerizinanGuruTableFilters();
 
-  const handleChangeTanggal = (value: string) => {
-    setTanggalFilter(value, { startTransition });
+  const handleChangeTanggalStart = (value: string) => {
+    setStartDate(value, { startTransition });
+    setPage(1);
+  };
+
+  const handleChangeTanggalEnd = (value: string) => {
+    setEndDate(value, { startTransition });
     setPage(1);
   };
 
@@ -44,9 +52,16 @@ export default function PerizinanGuruTableAction() {
 
       <Input
         type='date'
-        placeholder='Masukan Tanggal'
-        value={tanggalFilter}
-        onChange={(e) => handleChangeTanggal(e.target.value)}
+        placeholder='Tanggal Mulai'
+        value={startDate}
+        onChange={(e) => handleChangeTanggalStart(e.target.value)}
+      />
+
+      <Input
+        type='date'
+        placeholder='Tanggal Selesai'
+        value={endDate}
+        onChange={(e) => handleChangeTanggalEnd(e.target.value)}
       />
 
       <DataTableResetFilter

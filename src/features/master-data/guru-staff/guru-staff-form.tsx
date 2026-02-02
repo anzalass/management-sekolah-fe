@@ -200,15 +200,18 @@ export default function GuruStaffForm({
           });
         }
 
-        if (res.status === 201) {
+        console.log(res.data.data);
+
+        if (res.status === 201 && riwayatPendidikanGuruArr.length > 0) {
+          const guruIdFinal = idGuru !== 'new' ? idGuru : res?.data?.data?.id;
+
           await api.post(
-            `user/create-riwayat-pendidikan/${idGuru}`,
+            `user/create-riwayat-pendidikan/${guruIdFinal}`,
             {
               data: riwayatPendidikanGuruArr
             },
             {
               headers: {
-                'Content-Type': 'application/json',
                 Authorization: `Bearer ${session?.user?.token}`
               }
             }
@@ -223,7 +226,7 @@ export default function GuruStaffForm({
 
         router.push('/dashboard/master-data/guru-staff');
       } catch (error: any) {
-        toast.error(error?.response.data.message || 'Terjadi Kesalahan');
+        toast.error(error?.response?.data?.message || 'Terjadi Kesalahan');
       }
     });
   }
@@ -297,7 +300,7 @@ export default function GuruStaffForm({
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>
-        <CardTitle className='text-left text-2xl font-bold'>
+        <CardTitle className='text-left text-xl font-bold md:text-2xl'>
           {pageTitle}
         </CardTitle>
       </CardHeader>
@@ -533,7 +536,7 @@ export default function GuruStaffForm({
                     <FormLabel>Alamat</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder='Enter product description'
+                        placeholder='masukan alamat'
                         className=''
                         {...field}
                       />
@@ -618,7 +621,7 @@ export default function GuruStaffForm({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder='Pilih Jenis Kelamin' />
+                          <SelectValue placeholder='Pilih Status' />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
