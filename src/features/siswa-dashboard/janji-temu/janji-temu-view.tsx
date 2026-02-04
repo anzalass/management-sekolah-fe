@@ -65,7 +65,13 @@ export default function JanjiTemuView() {
   const [showFilter, setShowFilter] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, control, reset } = useForm<FormData>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors, isSubmitting }
+  } = useForm<FormData>({
     defaultValues: { deskripsi: '', guruId: '', waktu: '' }
   });
 
@@ -217,9 +223,15 @@ export default function JanjiTemuView() {
             <div>
               <Label>Description</Label>
               <Textarea
-                {...register('deskripsi', { required: true })}
+                {...register('deskripsi', { required: 'Required' })}
                 placeholder='Description Appointment'
               />
+
+              {errors.deskripsi && (
+                <p className='text-sm text-red-500'>
+                  {errors.deskripsi.message}
+                </p>
+              )}
             </div>
             <div>
               <Label>Guru</Label>
@@ -246,8 +258,11 @@ export default function JanjiTemuView() {
               <Label>Time</Label>
               <Input
                 type='datetime-local'
-                {...register('waktu', { required: true })}
+                {...register('waktu', { required: 'required' })}
               />
+              {errors.waktu && (
+                <p className='text-sm text-red-500'>{errors.waktu.message}</p>
+              )}
             </div>
             <div className='flex justify-end'>
               <Button disabled={loading} type='submit'>

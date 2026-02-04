@@ -27,7 +27,7 @@ export default function HariLiburTableAction() {
   return (
     <div className='flex flex-wrap items-center gap-4'>
       <DataTableSearch
-        searchKey='NamaHari'
+        searchKey='Nama Hari'
         searchQuery={namaHariFilter}
         setSearchQuery={setNamaHariFilter}
         setPage={setPage}

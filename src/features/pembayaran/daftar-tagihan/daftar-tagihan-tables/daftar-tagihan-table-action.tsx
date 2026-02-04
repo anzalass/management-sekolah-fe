@@ -29,6 +29,8 @@ export default function TagihanTableAction() {
     waktuFilter,
     jenisFilter,
     setJenisFilter,
+    statusFilter,
+    setStatusFilter,
     setWaktuFilter
   } = useTagihanTableFilters();
 
@@ -71,10 +73,14 @@ export default function TagihanTableAction() {
           <SelectItem value='Menunggu Konfirmasi'>
             Menunggu Konfirmasi
           </SelectItem>
-          <SelectItem value='Lunas'>Lunas</SelectItem>
+          <SelectItem value='LUNAS'>Lunas</SelectItem>
           <SelectItem value='GAGAL'>Gagal</SelectItem>
-          <SelectItem value='Bukti Tidak Valid'>Bukti Tidak Valid</SelectItem>
-          <SelectItem value='Belum Bayar'>Belum Bayar</SelectItem>
+          <SelectItem value='BUKTI_TIDAK_VALID'>Bukti Tidak Valid</SelectItem>
+          <SelectItem value='BELUM_BAYAR'>Belum Bayar</SelectItem>
+          <SelectItem value='PENDING'>Pending</SelectItem>{' '}
+          <SelectItem value='MENUNGGU_KONFIRMASI'>
+            Menunggu Konfirmasi
+          </SelectItem>
         </SelectContent>
       </Select>
 

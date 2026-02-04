@@ -135,7 +135,10 @@ export default function AnggaranForm({
                       placeholder='Masukkan Nama Anggaran...'
                       {...form.register('nama', {
                         required: 'Nama Anggaran wajib diisi',
-                        minLength: 6
+                        minLength: {
+                          value: 6,
+                          message: 'Minimal 6 Karakter'
+                        }
                       })}
                     />
                   </FormControl>

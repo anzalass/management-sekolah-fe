@@ -261,6 +261,17 @@ export default function PengumumanView() {
               </div>
 
               {/* Content */}
+
+              {selectedPengumuman?.fotoUrl && (
+                <div className='mt-2 overflow-hidden rounded-xl border bg-white shadow-sm'>
+                  <img
+                    src={selectedPengumuman.fotoUrl}
+                    alt='Foto Pengumuman'
+                    className='mx-auto max-h-[250px] w-11/12 object-cover transition-transform duration-300 hover:scale-105'
+                  />
+                </div>
+              )}
+
               <div
                 className='overflow-y-auto p-6'
                 style={{ maxHeight: 'calc(90vh - 160px)' }}

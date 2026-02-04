@@ -25,7 +25,7 @@ import { useSession } from 'next-auth/react';
 // Tipe Data Siswa
 export type KegiatanSekolah = {
   nama: string;
-  tahunAjaran: string;
+  // tahunAjaran: string;
   keterangan: string;
   waktuMulai: Date;
   waktuSelesai: Date;
@@ -47,7 +47,7 @@ export default function KegiatanSekolahForm({
   // Default Values dengan Fallback
   const defaultValue = {
     nama: initialData?.nama,
-    tahunAjaran: initialData?.tahunAjaran,
+    // tahunAjaran: initialData?.tahunAjaran,
     keterangan: initialData?.keterangan,
     waktuMulai: initialData?.waktuMulai
       ? new Date(initialData.waktuSelesai).toISOString().split('T')[0]
@@ -58,9 +58,20 @@ export default function KegiatanSekolahForm({
     status: initialData?.status
   };
 
-  const form = useForm({
-    defaultValues: defaultValue
+  type FormValues = {
+    nama: string;
+    keterangan: string;
+    waktuMulai: string;
+    waktuSelesai: string;
+    status?: string;
+  };
+
+  const form = useForm<FormValues>({
+    defaultValues: defaultValue,
+    mode: 'onChange'
   });
+
+  const getValues = form.getValues;
 
   const { data: session } = useSession();
   // Handle Submit
@@ -126,7 +137,10 @@ export default function KegiatanSekolahForm({
                       placeholder='Masukkan Nama Kegiatan...'
                       {...form.register('nama', {
                         required: 'Nama Kegiatan wajib diisi',
-                        minLength: 6
+                        minLength: {
+                          value: 6,
+                          message: 'Minimal 6 Karakter'
+                        }
                       })}
                     />
                   </FormControl>
@@ -134,7 +148,7 @@ export default function KegiatanSekolahForm({
                     {form.formState.errors.nama?.message}
                   </FormMessage>
                 </FormItem>
-                <FormItem>
+                {/* <FormItem>
                   <FormLabel>Tahun Ajaran</FormLabel>
                   <FormControl>
                     <Input
@@ -149,7 +163,7 @@ export default function KegiatanSekolahForm({
                   <FormMessage>
                     {form.formState.errors.nama?.message}
                   </FormMessage>
-                </FormItem>
+                </FormItem> */}
 
                 <FormItem>
                   <FormLabel>Waktu Mulai</FormLabel>
@@ -168,7 +182,23 @@ export default function KegiatanSekolahForm({
                 <FormItem>
                   <FormLabel>Waktu Selesai</FormLabel>
                   <FormControl>
-                    <Input type='date' {...form.register('waktuSelesai')} />
+                    <Input
+                      type='date'
+                      {...form.register('waktuSelesai', {
+                        required: 'Waktu selesai wajib diisi',
+                        validate: (value) => {
+                          const waktuMulai = getValues('waktuMulai');
+
+                          if (!waktuMulai) return true;
+
+                          if (new Date(value) < new Date(waktuMulai)) {
+                            return 'Waktu selesai tidak boleh kurang dari waktu mulai';
+                          }
+
+                          return true;
+                        }
+                      })}
+                    />
                   </FormControl>
                   <FormMessage>
                     {form.formState.errors.waktuSelesai?.message}
@@ -182,7 +212,7 @@ export default function KegiatanSekolahForm({
                     <Textarea
                       placeholder='Masukkan Keterangan...'
                       {...form.register('keterangan', {
-                        required: 'Alamat wajib diisi'
+                        required: 'Keterangan wajib diisi'
                       })}
                     />
                   </FormControl>

@@ -19,10 +19,8 @@ import * as z from 'zod';
 import { Eye, EyeOff } from 'lucide-react';
 
 const formSchema = z.object({
-  nip: z
-    .string()
-    .min(5, { message: 'NIP harus terdiri dari minimal 5 karakter' }),
-  password: z.string().min(8, { message: 'Password harus minimal 8 karakter' })
+  nip: z.string().nonempty({ message: 'NIP wajib diisi' }), // ✅ required
+  password: z.string().nonempty({ message: 'Password wajib diisi' }) // ✅ required
 });
 
 type UserFormValue = z.infer<typeof formSchema>;

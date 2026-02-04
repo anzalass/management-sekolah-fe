@@ -62,7 +62,9 @@ interface Pengumuman {
   id: string;
   title: string;
   time: string;
+  createdOn: string;
   content: string;
+  fotoUrl?: string;
 }
 
 interface SiswaData {
@@ -469,6 +471,14 @@ export default function SiswaHomeView() {
                   <p className='line-clamp-3 text-xs text-gray-600'>
                     {stripHtml(info.content)}
                   </p>
+                  <p className='mt-3 line-clamp-3 text-xs text-black'>
+                    {new Date(info?.createdOn).toLocaleDateString('id-ID', {
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </p>
                 </div>
               ))}
             </div>
@@ -547,6 +557,29 @@ export default function SiswaHomeView() {
               {selectedPengumuman?.title}
             </DialogTitle>
           </DialogHeader>
+
+          {/* FOTO (Optional) */}
+          {selectedPengumuman?.fotoUrl && (
+            <div className='mt-2 overflow-hidden rounded-xl border bg-white shadow-sm'>
+              <img
+                src={selectedPengumuman.fotoUrl}
+                alt='Foto Pengumuman'
+                className='max-h-[250px] w-full object-cover transition-transform duration-300 hover:scale-105'
+              />
+            </div>
+          )}
+
+          <p className='mt-3 line-clamp-3 text-xs text-black'>
+            {new Date(selectedPengumuman?.createdOn).toLocaleDateString(
+              'id-ID',
+              {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+              }
+            )}
+          </p>
 
           {/* CONTENT SCROLL AREA */}
           <div className='mt-4 flex-1 overflow-y-auto rounded-lg bg-white p-4 text-sm leading-relaxed text-slate-700 shadow-inner'>
