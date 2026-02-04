@@ -33,7 +33,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const onConfirm = async () => {
     try {
       setLoading(true);
-      await api.delete(`arsip/${data.id}`, {
+      await api.delete(`hari-libur/${data.id}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.user?.token}`

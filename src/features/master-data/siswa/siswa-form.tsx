@@ -97,15 +97,6 @@ export default function SiswaForm({
     foto: initialData?.foto ?? null
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const fileUrl = URL.createObjectURL(file);
-      setImagePreview(fileUrl);
-      setImg(file);
-    }
-  };
-
   const form = useForm({
     defaultValues: defaultValue
   });
@@ -211,45 +202,6 @@ export default function SiswaForm({
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
             <div className='space-y-6'>
               {/* Foto */}
-              <FormItem>
-                <FormLabel>Foto {'Maksimal 4 Mb'}</FormLabel>
-                <FormControl>
-                  <Input
-                    type='file'
-                    accept='image/png, image/jpeg, image/jpg'
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        if (file.size > 5 * 1024 * 1024) {
-                          toast.error('Ukuran file maksimal 5 MB!');
-                          e.target.value = ''; // reset input
-                          return;
-                        }
-                        handleFileChange(e);
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-
-              {imagePreview ? (
-                <Image
-                  src={imagePreview ?? null}
-                  alt='Uploaded Preview'
-                  width={200}
-                  height={200}
-                  objectFit='contain'
-                />
-              ) : fotoUrl ? (
-                <Image
-                  src={fotoUrl ?? null}
-                  alt='Uploaded Preview'
-                  width={200}
-                  height={200}
-                  objectFit='contain'
-                />
-              ) : null}
 
               <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
                 {/* NIS */}
@@ -298,24 +250,6 @@ export default function SiswaForm({
                       placeholder='Masukkan Nama Lengkap...'
                       {...form.register('nama', {
                         required: 'Nama wajib diisi',
-                        minLength: {
-                          value: 3,
-                          message: 'Nama minimal 3 karakter'
-                        }
-                      })}
-                    />
-                  </FormControl>
-                  <FormMessage>
-                    {form.formState.errors.nama?.message}
-                  </FormMessage>
-                </FormItem>
-
-                <FormItem>
-                  <FormLabel>Password </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder='Masukkan Password...'
-                      {...form.register('password', {
                         minLength: {
                           value: 3,
                           message: 'Nama minimal 3 karakter'
@@ -470,19 +404,6 @@ export default function SiswaForm({
                 />
 
                 {/* Tahun Lulus */}
-                <FormItem>
-                  <FormLabel>Tahun Lulus</FormLabel>
-                  <FormControl>
-                    <Input
-                      type='number'
-                      placeholder='Masukkan Tahun Lulus...'
-                      {...form.register('tahunLulus')}
-                    />
-                  </FormControl>
-                  <FormMessage>
-                    {form.formState.errors.tahunLulus?.message}
-                  </FormMessage>
-                </FormItem>
 
                 {/* Alamat */}
                 <FormItem>

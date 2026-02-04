@@ -43,8 +43,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
-      setOpen(false);
       toggleTrigger();
+      window.location.reload();
+      setOpen(false);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Terjadi kesalahan');
     } finally {

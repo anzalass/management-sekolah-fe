@@ -13,21 +13,27 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import axios, { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
 import api from '@/lib/api';
 
-// Tipe Data News
-export type News = {
+type News = {
   title: string;
   content: string;
   image: string;
 };
+
+type FormValues = {
+  title: string;
+  content: string;
+  image?: FileList;
+};
+
+const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
 
 export default function NewsForm({
   initialData,
@@ -41,42 +47,51 @@ export default function NewsForm({
   const [loading, startTransition] = useTransition();
   const router = useRouter();
   const { data: session } = useSession();
-  const token = session?.user?.token;
 
-  const defaultValue = {
-    title: initialData?.title || '',
-    content: initialData?.content || '',
-    image: initialData?.image || ''
-  };
+  const isEdit = id !== 'new';
 
-  const form = useForm({
-    defaultValues: defaultValue
+  const [preview, setPreview] = useState<string | null>(
+    initialData?.image || null
+  );
+
+  const form = useForm<FormValues>({
+    mode: 'onSubmit',
+    defaultValues: {
+      title: initialData?.title || '',
+      content: initialData?.content || ''
+    }
   });
 
-  async function onSubmit(values: any) {
+  // cleanup object URL
+  useEffect(() => {
+    return () => {
+      if (preview?.startsWith('blob:')) {
+        URL.revokeObjectURL(preview);
+      }
+    };
+  }, [preview]);
+
+  async function onSubmit(values: FormValues) {
     startTransition(async () => {
       try {
         const formData = new FormData();
         formData.append('title', values.title);
         formData.append('content', values.content);
-        if (values.image[0]) {
+
+        if (values.image && values.image.length > 0) {
           formData.append('image', values.image[0]);
         }
 
-        if (id !== 'new') {
-          // Update existing news
+        if (isEdit) {
           await api.put(`news/update/${id}`, formData, {
             headers: {
-              'Content-Type': 'multipart/form-data',
               Authorization: `Bearer ${session?.user?.token}`
             }
           });
           toast.success('Berita berhasil diperbarui');
         } else {
-          // Create new news
-          await api.post(`news/create`, formData, {
+          await api.post('news/create', formData, {
             headers: {
-              'Content-Type': 'multipart/form-data',
               Authorization: `Bearer ${session?.user?.token}`
             }
           });
@@ -93,92 +108,126 @@ export default function NewsForm({
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>
-        <CardTitle className='text-left text-xl font-bold md:text-2xl'>
+        <CardTitle className='text-xl font-bold md:text-2xl'>
           {pageTitle}
         </CardTitle>
       </CardHeader>
+
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-            <div className='space-y-6'>
-              <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-                {/* Title */}
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+            {/* TITLE */}
+            <FormField
+              control={form.control}
+              name='title'
+              rules={{
+                required: 'Judul berita wajib diisi',
+                minLength: {
+                  value: 6,
+                  message: 'Judul minimal 6 karakter'
+                }
+              }}
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>Judul Berita</FormLabel>
                   <FormControl>
-                    <Input
-                      type='text'
-                      placeholder='Masukkan Judul Berita...'
-                      {...form.register('title', {
-                        required: 'Judul Berita wajib diisi',
-                        minLength: {
-                          value: 6,
-                          message: 'Minimal 7 Karakter'
-                        }
-                      })}
-                    />
+                    <Input placeholder='Masukkan judul berita...' {...field} />
                   </FormControl>
-                  <FormMessage>
-                    {form.formState.errors.title?.message}
-                  </FormMessage>
+                  <FormMessage />
                 </FormItem>
+              )}
+            />
 
-                {/* Content */}
+            {/* CONTENT */}
+            <FormField
+              control={form.control}
+              name='content'
+              rules={{
+                required: 'Konten berita wajib diisi'
+              }}
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>Konten Berita</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder='Masukkan Konten Berita...'
-                      {...form.register('content', {
-                        required: 'Konten wajib diisi'
-                      })}
+                      placeholder='Masukkan konten berita...'
+                      className='min-h-[120px]'
+                      {...field}
                     />
                   </FormControl>
-                  <FormMessage>
-                    {form.formState.errors.content?.message}
-                  </FormMessage>
+                  <FormMessage />
                 </FormItem>
+              )}
+            />
 
-                {/* Image */}
+            {/* IMAGE */}
+            <FormField
+              control={form.control}
+              name='image'
+              rules={{
+                validate: (files) => {
+                  if (!isEdit && (!files || files.length === 0)) {
+                    return 'Gambar wajib diupload';
+                  }
+
+                  if (!files || files.length === 0) return true;
+
+                  const file = files[0];
+
+                  if (!ALLOWED_TYPES.includes(file.type)) {
+                    return 'Format gambar harus JPG, JPEG, atau PNG';
+                  }
+
+                  if (file.size > MAX_FILE_SIZE) {
+                    return 'Ukuran gambar maksimal 1 MB';
+                  }
+
+                  return true;
+                }
+              }}
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>Gambar</FormLabel>
+
+                  {/* PREVIEW */}
+                  {preview && (
+                    <div className='mb-3'>
+                      <img
+                        src={preview}
+                        alt='Preview'
+                        className='h-40 w-full rounded-md border object-cover'
+                      />
+                      {isEdit && !form.watch('image')?.length && (
+                        <p className='mt-1 text-xs text-muted-foreground'>
+                          Gambar lama (upload file baru untuk mengganti)
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   <FormControl>
                     <Input
                       type='file'
-                      accept='image/*'
-                      {...form.register('image', {
-                        validate: (files: FileList) => {
-                          if (!files || files.length === 0) {
-                            return 'Gambar wajib diupload';
-                          }
+                      accept='image/jpeg,image/jpg,image/png'
+                      onChange={(e) => {
+                        const files = e.target.files;
+                        field.onChange(files);
 
-                          const file = files[0];
-
-                          if (
-                            !['image/jpeg', 'image/png', 'image/jpg'].includes(
-                              file.type
-                            )
-                          ) {
-                            return 'Format gambar harus JPG atau PNG';
-                          }
-
-                          if (file.size > 2 * 1024 * 1024) {
-                            return 'Ukuran gambar maksimal 2MB';
-                          }
-
-                          return true;
+                        if (files && files[0]) {
+                          // 🔥 LANGSUNG GANTI PREVIEW
+                          const objectUrl = URL.createObjectURL(files[0]);
+                          setPreview(objectUrl);
                         }
-                      })}
+                      }}
                     />
                   </FormControl>
-                  <FormMessage>
-                    {form.formState.errors.image?.message}
-                  </FormMessage>
-                </FormItem>
-              </div>
-            </div>
 
-            {/* Submit Button */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* SUBMIT */}
             <Button type='submit' disabled={loading}>
               {loading ? (
                 <Loader2 className='h-5 w-5 animate-spin' />

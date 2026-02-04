@@ -130,11 +130,26 @@ const PengumumanKelasGuru = () => {
   /* ===================== HANDLER ===================== */
 
   const handleSelectImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const img = e.target.files?.[0];
-    if (!img) return;
+    const selected = e.target.files?.[0];
+    if (!selected) return;
 
-    setFile(img);
-    setPreview(URL.createObjectURL(img));
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const maxSize = 300 * 1024; // 300 KB
+
+    // VALIDASI FORMAT
+    if (!allowedTypes.includes(selected.type)) {
+      toast.error('Format gambar harus JPG, JPEG, atau PNG');
+      return;
+    }
+
+    // VALIDASI SIZE
+    if (selected.size > maxSize) {
+      toast.error('Ukuran gambar maksimal 300 KB');
+      return;
+    }
+
+    setFile(selected);
+    setPreview(URL.createObjectURL(selected));
   };
 
   const removeImage = () => {
