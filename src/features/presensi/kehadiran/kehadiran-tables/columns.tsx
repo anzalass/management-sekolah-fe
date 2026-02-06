@@ -94,11 +94,13 @@ export const columns: ColumnDef<KehadiranGuru>[] = [
       const jamMasuk = row.original.jamMasuk;
       if (!jamMasuk) return '-';
 
-      const date = new Date(jamMasuk);
+      const date = new Date(jamMasuk + '+07:00');
+
       const formattedTime = date.toLocaleTimeString('id-ID', {
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false
+        hour12: false,
+        timeZone: 'Asia/Jakarta'
       });
 
       return (
@@ -116,11 +118,12 @@ export const columns: ColumnDef<KehadiranGuru>[] = [
       const jamPulang = row.original.jamPulang;
       if (!jamPulang) return '-';
 
-      const date = new Date(jamPulang);
+      const date = new Date(jamPulang + '+07:00');
       const formattedTime = date.toLocaleTimeString('id-ID', {
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false
+        hour12: false,
+        timeZone: 'Asia/Jakarta'
       });
 
       return (
