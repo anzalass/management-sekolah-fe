@@ -267,7 +267,7 @@ export default function PengumumanView() {
                   <img
                     src={selectedPengumuman.fotoUrl}
                     alt='Foto Pengumuman'
-                    className='mx-auto max-h-[250px] w-11/12 object-cover transition-transform duration-300 hover:scale-105'
+                    className='mx-auto max-h-[250px] w-11/12 object-contain transition-transform duration-300 hover:scale-105'
                   />
                 </div>
               )}

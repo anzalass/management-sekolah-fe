@@ -564,7 +564,7 @@ export default function SiswaHomeView() {
               <img
                 src={selectedPengumuman.fotoUrl}
                 alt='Foto Pengumuman'
-                className='max-h-[250px] w-full object-cover transition-transform duration-300 hover:scale-105'
+                className='max-h-[250px] w-full object-contain transition-transform duration-300 hover:scale-105'
               />
             </div>
           )}
