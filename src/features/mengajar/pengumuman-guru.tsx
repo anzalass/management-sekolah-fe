@@ -33,6 +33,7 @@ interface FormValues {
   idKelas: string;
   judul: string;
   konten: string;
+  time: string;
 }
 
 const PengumumanKelasGuru = () => {
@@ -167,6 +168,7 @@ const PengumumanKelasGuru = () => {
     formData.append('idKelas', data.idKelas);
     formData.append('title', data.judul);
     formData.append('content', data.konten);
+    formData.append('time', data.time);
 
     if (file) formData.append('image', file);
 
@@ -277,6 +279,12 @@ const PengumumanKelasGuru = () => {
           <Input
             placeholder='Judul Pengumuman'
             {...register('judul', { required: true })}
+          />
+
+          <Input
+            placeholder='Tanggal Pengumuman'
+            type='date'
+            {...register('time', { required: true })}
           />
 
           <Controller
