@@ -19,6 +19,7 @@ export default function TagihanListingPage() {
   const waktu = searchParams.get('waktu') || '';
   const nisSiswa = searchParams.get('nisSiswa') || '';
   const pageLimit = searchParams.get('limit') || '10';
+  const jenis = searchParams.get('jenis') || '';
 
   const [data, setData] = useState<Tagihan[]>([]);
   const [totalData, setTotalData] = useState(0);
@@ -31,7 +32,7 @@ export default function TagihanListingPage() {
       try {
         setLoading(true);
         const response = await api.get(
-          `pembayaran?page=${page}&pageSize=${pageLimit}&nama=${search}&namaSiswa=${namaSiswa}&waktu=${waktu}&nis=${nisSiswa}`,
+          `pembayaran?page=${page}&pageSize=${pageLimit}&nama=${search}&namaSiswa=${namaSiswa}&waktu=${waktu}&nis=${nisSiswa}&status=${jenis}`,
           {
             headers: {
               'Content-Type': 'application/json',
@@ -49,7 +50,7 @@ export default function TagihanListingPage() {
     };
 
     fetch();
-  }, [page, search, trigger, pageLimit, namaSiswa, nisSiswa, waktu]);
+  }, [page, search, trigger, pageLimit, jenis, namaSiswa, nisSiswa, waktu]);
 
   return <TagihanTable columns={columns} data={data} totalItems={totalData} />;
 }

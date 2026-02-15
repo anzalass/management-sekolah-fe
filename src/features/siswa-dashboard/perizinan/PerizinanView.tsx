@@ -39,6 +39,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import FilterMobile from './perizinan-filter';
 import HeaderSiswa from '../header-siswa';
+import { useEffect } from 'react';
 
 interface Izin {
   id: string;
@@ -59,14 +60,35 @@ export default function Perizinan() {
   const [showFilter, setShowFilter] = useState(false);
   const [useCustomDate, setUseCustomDate] = useState(false);
 
-  const { register, handleSubmit, reset, formState } = useForm({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting }
+  } = useForm({
     defaultValues: {
       keterangan: '',
       tanggal: '',
       tanggalAkhir: '',
-      bukti: null as File | null
+      bukti: null
     }
   });
+
+  const file: any = watch('bukti');
+
+  const [preview, setPreview] = useState<any>(null);
+  const [removePhoto, setRemovePhoto] = useState(false);
+
+  // ========================
+  useEffect(() => {
+    if (file && file.length > 0) {
+      const url = URL.createObjectURL(file[0]);
+      setPreview(url);
+      setRemovePhoto(false);
+    }
+  }, [file]);
 
   // Fetch izin
   const { data: izinList = [], isLoading } = useQuery<Izin[]>({
@@ -117,6 +139,7 @@ export default function Perizinan() {
       if (formData.bukti?.[0]) fd.append('image', formData.bukti[0]);
       await api.post('perizinan-siswa', fd, {
         headers: {
+          'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${session.user.token}`
         }
       });
@@ -171,6 +194,12 @@ export default function Perizinan() {
   const resetFilter = () => {
     setSearch('');
     setFilterTanggal('');
+  };
+
+  const handleRemovePhoto = () => {
+    setPreview(null);
+    setValue('bukti', null);
+    setRemovePhoto(true);
   };
 
   return (
@@ -246,10 +275,23 @@ export default function Perizinan() {
               <div className='space-y-2'>
                 <Label>Description</Label>
                 <Textarea
-                  {...register('keterangan', { required: true })}
-                  placeholder='Jelaskan alasan izin Anda...'
-                  className='min-h-[100px] resize-none rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500'
+                  {...register('keterangan', {
+                    required: 'Description is required',
+                    minLength: {
+                      value: 5,
+                      message: 'Description minimal 5 characters'
+                    }
+                  })}
+                  className={`min-h-[100px] resize-none rounded-xl ${
+                    errors.keterangan ? 'border-red-500' : 'border-gray-200'
+                  }`}
                 />
+
+                {errors.keterangan && (
+                  <p className='text-sm text-red-500'>
+                    {errors.keterangan.message}
+                  </p>
+                )}
               </div>
               <div className='space-y-2'>
                 <Label>{useCustomDate === true ? 'Start ' : ''}Date</Label>
@@ -257,9 +299,19 @@ export default function Perizinan() {
                   <CalendarIcon className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
                   <Input
                     type='date'
-                    {...register('tanggal', { required: true })}
-                    className='rounded-xl border-gray-200 pl-10 focus:border-blue-500 focus:ring-blue-500'
+                    {...register('tanggal', {
+                      required: 'Start date is required'
+                    })}
+                    className={`rounded-xl pl-10 ${
+                      errors.tanggal ? 'border-red-500' : 'border-gray-200'
+                    }`}
                   />
+
+                  {errors.tanggal && (
+                    <p className='text-sm text-red-500'>
+                      {errors.tanggal.message}
+                    </p>
+                  )}
                 </div>
               </div>
               {useCustomDate && (
@@ -269,16 +321,37 @@ export default function Perizinan() {
                     <CalendarIcon className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400' />
                     <Input
                       type='date'
-                      {...register('tanggalAkhir', { required: true })}
-                      className='rounded-xl border-gray-200 pl-10 focus:border-blue-500 focus:ring-blue-500'
+                      {...register('tanggalAkhir', {
+                        validate: (value) => {
+                          if (!useCustomDate) return true;
+
+                          if (!value) return 'End date is required';
+
+                          return true;
+                        }
+                      })}
+                      className={`rounded-xl pl-10 ${
+                        errors.tanggalAkhir
+                          ? 'border-red-500'
+                          : 'border-gray-200'
+                      }`}
                     />
+
+                    {errors.tanggalAkhir && (
+                      <p className='text-sm text-red-500'>
+                        {errors.tanggalAkhir.message}
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
               <div className='flex items-center gap-2'>
                 <button
                   type='button'
-                  onClick={() => setUseCustomDate(!useCustomDate)}
+                  onClick={() => {
+                    setUseCustomDate(!useCustomDate);
+                    if (useCustomDate) reset({ tanggalAkhir: '' });
+                  }}
                   className={`flex h-5 w-5 items-center justify-center rounded border transition-all ${
                     useCustomDate
                       ? 'border-blue-600 bg-blue-600'
@@ -308,13 +381,55 @@ export default function Perizinan() {
                     <div className='flex-1'>
                       <Input
                         type='file'
-                        accept='image/*'
-                        {...register('bukti')}
-                        className='cursor-pointer border-0 bg-transparent p-0 text-sm file:mr-4 file:cursor-pointer file:rounded-lg file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700'
+                        accept='image/png, image/jpeg, image/jpg'
+                        {...register('bukti', {
+                          validate: {
+                            fileSize: (files: any) => {
+                              if (!files || !files[0]) return true;
+                              return (
+                                files[0].size <= 300000 ||
+                                'Image size must be under 300KB'
+                              );
+                            },
+                            fileType: (files: any) => {
+                              if (!files || !files[0]) return true;
+                              return (
+                                [
+                                  'image/png',
+                                  'image/jpeg',
+                                  'image/jpg'
+                                ].includes(files[0].type) ||
+                                'Only PNG / JPG allowed'
+                              );
+                            }
+                          }
+                        })}
                       />
                     </div>
                   </div>
                 </div>
+
+                {preview && !removePhoto && (
+                  <div className='space-y-2'>
+                    <img
+                      src={preview}
+                      alt='preview'
+                      className='h-40 rounded-lg object-cover'
+                    />
+
+                    <Button
+                      type='button'
+                      variant='destructive'
+                      onClick={handleRemovePhoto}
+                    >
+                      Delete Foto
+                    </Button>
+                  </div>
+                )}
+
+                {errors.bukti && (
+                  <p className='text-sm text-red-500'>{errors.bukti.message}</p>
+                )}
               </div>
               <div className='flex justify-end gap-3 pt-2'>
                 <Button
@@ -327,7 +442,7 @@ export default function Perizinan() {
                 </Button>
                 <Button
                   type='submit'
-                  disabled={formState.isSubmitting || submitMutation.isPending}
+                  disabled={isSubmitting || submitMutation.isPending}
                   className='rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40'
                 >
                   {submitMutation.isPending ? (
@@ -516,7 +631,7 @@ export default function Perizinan() {
                       </DialogContent>
                     </Dialog>
                   )}
-                  {izin.status === 'waiting' && (
+                  {izin.status === 'menunggu' && (
                     <div className='mt-4 border-t pt-4'>
                       <Button
                         variant='destructive'

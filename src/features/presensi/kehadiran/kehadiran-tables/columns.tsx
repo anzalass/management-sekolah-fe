@@ -55,33 +55,41 @@ export const columns: ColumnDef<KehadiranGuru>[] = [
 
       return (
         <>
-          {/* Thumbnail */}
-          <Image
-            src={foto}
-            alt='Foto Masuk'
-            width={40}
-            height={40}
-            className='cursor-pointer rounded object-cover'
-            onClick={() => setOpen(true)}
-          />
-
-          {/* Modal */}
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className='max-w-sm'>
-              <DialogHeader>
-                <DialogTitle>Foto Absen Masuk</DialogTitle>
-              </DialogHeader>
-
+          {foto !== 'Menunggu' &&
+          foto !== 'Sakit' &&
+          foto !== 'Izin' &&
+          foto !== 'Tanpa Keterangan' &&
+          foto !== 'Alpha' &&
+          foto !== 'Hadir' ? (
+            <>
               <Image
                 src={foto}
                 alt='Foto Masuk'
-                width={400}
-                height={400}
-                className='w-full rounded-lg object-cover'
-                unoptimized
+                width={40}
+                height={40}
+                className='cursor-pointer rounded object-cover'
+                onClick={() => setOpen(true)}
               />
-            </DialogContent>
-          </Dialog>
+
+              <Dialog open={open} onOpenChange={setOpen}>
+                <DialogContent className='max-w-sm'>
+                  <DialogHeader>
+                    <DialogTitle>Foto Absen Masuk</DialogTitle>
+                  </DialogHeader>
+
+                  <Image
+                    src={foto}
+                    alt='Foto Masuk'
+                    width={400}
+                    height={400}
+                    className='w-full rounded-lg object-cover'
+                    unoptimized
+                  />
+                </DialogContent>
+              </Dialog>
+            </>
+          ) : null}
+          {/* Thumbnail */}
         </>
       );
     }
@@ -95,10 +103,12 @@ export const columns: ColumnDef<KehadiranGuru>[] = [
       if (!jamMasuk) return '-';
 
       const date = new Date(jamMasuk);
+
       const formattedTime = date.toLocaleTimeString('id-ID', {
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false
+        hour12: false,
+        timeZone: 'Asia/Jakarta'
       });
 
       return (
@@ -120,7 +130,8 @@ export const columns: ColumnDef<KehadiranGuru>[] = [
       const formattedTime = date.toLocaleTimeString('id-ID', {
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false
+        hour12: false,
+        timeZone: 'Asia/Jakarta'
       });
 
       return (

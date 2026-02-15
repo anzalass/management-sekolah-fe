@@ -198,8 +198,16 @@ export default function TagihanForm({
                 <FormControl>
                   <Input
                     type='number'
+                    min={1}
                     placeholder='Masukkan nominal...'
-                    {...form.register('nominal', { required: 'Wajib diisi' })}
+                    {...form.register('nominal', {
+                      required: 'Nominal wajib diisi',
+                      valueAsNumber: true,
+                      min: {
+                        value: 1,
+                        message: 'Nominal harus lebih dari 0'
+                      }
+                    })}
                   />
                 </FormControl>
                 <FormMessage>

@@ -15,10 +15,9 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { API } from '@/lib/server';
 import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import api from '@/lib/api';
@@ -26,13 +25,13 @@ import { useQuery } from '@tanstack/react-query';
 
 type Props = {
   openModal: boolean;
-  fetchData: () => void; // tambahkan ini
+  fetchData: () => void;
   setOpenModal: (val: boolean) => void;
-  dataEdit?: FormValues | null; // ← tambahkan untuk edit
+  dataEdit?: FormValues | null;
 };
 
 export type FormValues = {
-  id?: string; // ← penting untuk edit
+  id?: string;
   nipGuru: string;
   kelas: string;
   jamMulai: string;
@@ -49,13 +48,14 @@ export default function ModalTambahJadwal({
   dataEdit
 }: Props) {
   const { data: session } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
     reset,
+    watch,
+    control,
     formState: { errors }
   } = useForm<FormValues>({
     defaultValues: {
@@ -69,16 +69,20 @@ export default function ModalTambahJadwal({
     }
   });
 
-  const [isLoading, setIsLoading] = useState(false);
-
-  // 🔁 Jika dataEdit tersedia, isi form otomatis
+  // isi form saat edit
   useEffect(() => {
-    if (dataEdit) {
-      reset(dataEdit);
-    }
+    if (dataEdit) reset(dataEdit);
   }, [dataEdit, reset]);
 
+  // =========================
+  // SUBMIT
+  // =========================
   const onSubmit = async (data: FormValues) => {
+    if (data.jamSelesai <= data.jamMulai) {
+      toast.error('Jam selesai tidak boleh lebih kecil dari jam mulai');
+      return;
+    }
+
     setIsLoading(true);
     const isEdit = Boolean(dataEdit?.id);
 
@@ -91,7 +95,6 @@ export default function ModalTambahJadwal({
 
       await method(endpoint, data, {
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.user?.token}`
         }
       });
@@ -110,56 +113,49 @@ export default function ModalTambahJadwal({
     }
   };
 
+  // =========================
+  // DATA SELECT
+  // =========================
   const { data: mapelList } = useQuery({
     queryKey: ['mapel-input'],
-    queryFn: async () => {
-      const res = await api.get('mapel-input');
-      return res.data.result;
-    }
+    queryFn: async () => (await api.get('mapel-input')).data.result
   });
 
   const { data: kelasList } = useQuery({
-    queryKey: ['list-kelas-input'],
-    queryFn: async () => {
-      const res = await api.get('list-kelas-input', {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-      return res.data;
-    }
+    queryKey: ['kelas-input'],
+    queryFn: async () =>
+      (
+        await api.get('list-kelas-input', {
+          headers: { Authorization: `Bearer ${session?.user?.token}` }
+        })
+      ).data
   });
 
   const { data: ruangList } = useQuery({
-    queryKey: ['ruang2'],
-    queryFn: async () => {
-      const res = await api.get('ruang2', {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`
-        }
-      });
-      return res.data.data;
-    }
+    queryKey: ['ruang-input'],
+    queryFn: async () =>
+      (
+        await api.get('ruang2', {
+          headers: { Authorization: `Bearer ${session?.user?.token}` }
+        })
+      ).data.data
   });
 
   return (
     <Dialog open={openModal} onOpenChange={setOpenModal}>
       <VisuallyHidden>
-        <DialogTitle>
-          {dataEdit ? 'Edit Jadwal Pelajaran' : 'Tambah Jadwal Pelajaran'}
-        </DialogTitle>
+        <DialogTitle>{dataEdit ? 'Edit Jadwal' : 'Tambah Jadwal'}</DialogTitle>
       </VisuallyHidden>
+
       <DialogContent>
-        <DialogHeader></DialogHeader>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className='space-y-4 dark:text-white'
-        >
+        <DialogHeader />
+
+        <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+          {/* JAM MULAI */}
           <div>
-            <label htmlFor='jamMulai'>Jam Mulai</label>
+            <label>Jam Mulai</label>
             <Input
               type='time'
-              id='jamMulai'
               {...register('jamMulai', { required: 'Jam mulai wajib diisi' })}
             />
             {errors.jamMulai && (
@@ -167,13 +163,16 @@ export default function ModalTambahJadwal({
             )}
           </div>
 
+          {/* JAM SELESAI */}
           <div>
-            <label htmlFor='jamSelesai'>Jam Selesai</label>
+            <label>Jam Selesai</label>
             <Input
               type='time'
-              id='jamSelesai'
               {...register('jamSelesai', {
-                required: 'Jam selesai wajib diisi'
+                required: 'Jam selesai wajib diisi',
+                validate: (val) =>
+                  val > watch('jamMulai') ||
+                  'Jam selesai harus lebih besar dari jam mulai'
               })}
             />
             {errors.jamSelesai && (
@@ -183,105 +182,108 @@ export default function ModalTambahJadwal({
             )}
           </div>
 
-          <div>
-            <Select
-              onValueChange={(val) => setValue('namaMapel', val)}
-              defaultValue={dataEdit?.namaMapel || ''}
-            >
-              <SelectTrigger className='w-full'>
-                <SelectValue placeholder='Pilih Mata Pelajaran' />
-              </SelectTrigger>
-              <SelectContent>
-                {mapelList?.map((m: any) => (
-                  <SelectItem key={m.id} value={m.nama}>
-                    {m.nama}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.namaMapel && (
-              <p className='text-sm text-red-500'>{errors.namaMapel.message}</p>
-            )}
-          </div>
-
-          <div>
-            <Select
-              onValueChange={(val) => setValue('ruang', val)}
-              defaultValue={dataEdit?.ruang || ''}
-            >
-              <SelectTrigger className='w-full'>
-                <SelectValue placeholder='Pilih Ruangan' />
-              </SelectTrigger>
-              <SelectContent>
-                {ruangList?.map((r: any) => (
-                  <SelectItem key={r.id} value={r.nama}>
-                    {r.nama}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.ruang && (
-              <p className='text-sm text-red-500'>{errors.ruang.message}</p>
-            )}
-          </div>
-
-          {/* Select Kelas */}
-          <div>
-            <Select
-              onValueChange={(val) => setValue('kelas', val)}
-              defaultValue={dataEdit?.kelas || ''}
-            >
-              <SelectTrigger className='w-full'>
-                <SelectValue placeholder='Pilih Kelas' />
-              </SelectTrigger>
-              <SelectContent>
-                {kelasList?.map((k: any) => (
-                  <SelectItem key={k.id} value={k.namaKelas}>
-                    {k.namaKelas}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.kelas && (
-              <p className='text-sm text-red-500'>{errors.kelas.message}</p>
-            )}
-          </div>
-
-          <div>
-            <label
-              htmlFor='hari'
-              className='mb-1 block text-sm font-medium text-gray-700'
-            >
-              Hari
-            </label>
-            <Select
-              onValueChange={(val) => setValue('hari', val)}
-              value={watch('hari')}
-            >
-              <SelectTrigger className='w-full'>
-                <SelectValue placeholder='Pilih hari' />
-              </SelectTrigger>
-              <SelectContent>
-                {['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'].map(
-                  (hari) => (
-                    <SelectItem key={hari} value={hari}>
-                      {hari}
+          {/* MAPEL */}
+          <Controller
+            name='namaMapel'
+            control={control}
+            rules={{ required: 'Mata pelajaran wajib dipilih' }}
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder='Pilih Mata Pelajaran' />
+                </SelectTrigger>
+                <SelectContent>
+                  {mapelList?.map((m: any) => (
+                    <SelectItem key={m.id} value={m.nama}>
+                      {m.nama}
                     </SelectItem>
-                  )
-                )}
-              </SelectContent>
-            </Select>
-            {errors.hari && (
-              <p className='text-sm text-red-500'>{errors.hari.message}</p>
+                  ))}
+                </SelectContent>
+              </Select>
             )}
-          </div>
+          />
+          {errors.namaMapel && (
+            <p className='text-sm text-red-500'>{errors.namaMapel.message}</p>
+          )}
+
+          {/* RUANG */}
+          <Controller
+            name='ruang'
+            control={control}
+            rules={{ required: 'Ruangan wajib dipilih' }}
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder='Pilih Ruangan' />
+                </SelectTrigger>
+                <SelectContent>
+                  {ruangList?.map((r: any) => (
+                    <SelectItem key={r.id} value={r.nama}>
+                      {r.nama}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {errors.ruang && (
+            <p className='text-sm text-red-500'>{errors.ruang.message}</p>
+          )}
+
+          {/* KELAS */}
+          <Controller
+            name='kelas'
+            control={control}
+            rules={{ required: 'Kelas wajib dipilih' }}
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder='Pilih Kelas' />
+                </SelectTrigger>
+                <SelectContent>
+                  {kelasList?.map((k: any) => (
+                    <SelectItem key={k.id} value={k.namaKelas}>
+                      {k.namaKelas}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {errors.kelas && (
+            <p className='text-sm text-red-500'>{errors.kelas.message}</p>
+          )}
+
+          {/* HARI */}
+          <Controller
+            name='hari'
+            control={control}
+            rules={{ required: 'Hari wajib dipilih' }}
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder='Pilih Hari' />
+                </SelectTrigger>
+                <SelectContent>
+                  {['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'].map(
+                    (h) => (
+                      <SelectItem key={h} value={h}>
+                        {h}
+                      </SelectItem>
+                    )
+                  )}
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {errors.hari && (
+            <p className='text-sm text-red-500'>{errors.hari.message}</p>
+          )}
 
           <div className='flex justify-end'>
             <Button type='submit' disabled={isLoading}>
               {isLoading
-                ? dataEdit
-                  ? 'Menyimpan...'
-                  : 'Mengirim...'
+                ? 'Menyimpan...'
                 : dataEdit
                   ? 'Simpan Perubahan'
                   : 'Simpan Jadwal'}
