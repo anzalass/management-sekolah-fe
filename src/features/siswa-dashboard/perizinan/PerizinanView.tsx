@@ -129,6 +129,7 @@ export default function Perizinan() {
       setUseCustomDate(false);
     },
     onError: (err: any) => {
+      console.log('error : ', err?.response?.data?.message);
       toast.error(err?.response?.data?.message || 'Gagal mengajukan izin');
       setUseCustomDate(false);
     }
