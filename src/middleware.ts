@@ -5,99 +5,116 @@ import { NextResponse } from 'next/server';
 const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
-  const path = req.nextUrl.pathname; // ambil url sekarang
+  const path = req.nextUrl.pathname;
+  const jabatan = req.auth?.user?.jabatan;
 
-  // Kalau belum login redirect ke /login kecuali ke /login /login-siswa
+  const res = NextResponse.next();
+
+  // ==============================
+  // 1️⃣ SET COOKIE ROLE SAAT LOGIN
+  // ==============================
+  if (jabatan) {
+    res.cookies.set('role', jabatan, {
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/'
+    });
+  }
+
+  // ==========================================
+  // 2️⃣ CEK SESSION EXPIRED (CUSTOM expiresIn)
+  // ==========================================
+  if (req.auth?.expires && req.auth?.user?.expires) {
+    const sessionExpires = Math.floor(
+      new Date(req.auth.expires).getTime() / 1000
+    );
+
+    const userExpiresIn = req.auth.user.expires;
+
+    if (sessionExpires > userExpiresIn) {
+      const redirectTo = jabatan === 'Siswa' ? '/login-siswa' : '/login';
+
+      const response = NextResponse.redirect(new URL(redirectTo, req.url));
+
+      // hapus cookie role supaya tidak stale
+      response.cookies.delete('role');
+
+      return response;
+    }
+  }
+
+  // ==============================
+  // 3️⃣ JIKA BELUM LOGIN
+  // ==============================
   if (!req.auth) {
-    // biarin kalau dia akses /login atau /login-siswa
-    if (path.startsWith('/login-siswa') || path.startsWith('/login')) {
-      return; // boleh akses login
+    const role = req.cookies.get('role')?.value;
+
+    // kalau sudah di halaman login, biarkan
+    if (path.startsWith('/login') || path.startsWith('/login-siswa')) {
+      return res;
     }
 
-    const url = req.url.replace(req.nextUrl.pathname, '/login');
-    return Response.redirect(url);
+    const redirectTo = role === 'Siswa' ? '/login-siswa' : '/login';
+
+    return NextResponse.redirect(new URL(redirectTo, req.url));
   }
 
-  // === Sudah login tapi ke /login atau /login-siswa ===
-  const jabatan = req.auth.user?.jabatan;
-
-  // ========== CEK EXPIRED SESSION BERDASARKAN expiresIn ==========
-  const sessionExpires = Math.floor(
-    new Date(req?.auth?.expires).getTime() / 1000
-  );
-  const userExpiresIn = req.auth?.user?.expires;
-
-  if (userExpiresIn && sessionExpires > userExpiresIn) {
-    return Response.redirect(new URL('/logout', req.url));
-  }
-
+  // ==================================
+  // 4️⃣ SUDAH LOGIN TAPI KE LOGIN PAGE
+  // ==================================
   if (path === '/login' || path === '/login-siswa') {
-    // tentukan redirect default berdasarkan jabatan
     let redirectTo = '/dashboard';
+
     if (jabatan === 'Siswa') redirectTo = '/siswa';
-    else if (
-      jabatan === 'Guru BK' ||
-      jabatan === 'Guru TU' ||
-      jabatan === 'Guru Perpus' ||
-      jabatan?.startsWith('Guru')
-    ) {
-      redirectTo = '/mengajar';
-    }
+    else if (jabatan?.startsWith('Guru')) redirectTo = '/mengajar';
+    else if (jabatan === 'Kepala Sekolah') redirectTo = '/dashboard';
 
-    return Response.redirect(new URL(redirectTo, req.url));
+    return NextResponse.redirect(new URL(redirectTo, req.url));
   }
 
-  // ========== RULE AKSES ==========
+  // ==============================
+  // 5️⃣ RULE AKSES (RBAC)
+  // ==============================
 
-  // Siswa: hanya boleh /siswa
-  if (jabatan === 'Siswa') {
-    if (path.startsWith('/mengajar') || path.startsWith('/dashboard')) {
-      return Response.redirect(new URL('/unauthorized', req.url));
-    }
+  // ✅ Siswa hanya boleh akses /siswa
+  if (jabatan === 'Siswa' && !path.startsWith('/siswa')) {
+    return NextResponse.redirect(new URL('/unauthorized', req.url));
   }
 
-  // Selain Siswa dilarang akses /siswa
+  // ✅ Non siswa tidak boleh /siswa
   if (jabatan !== 'Siswa' && path.startsWith('/siswa')) {
-    return Response.redirect(new URL('/unauthorized', req.url));
+    return NextResponse.redirect(new URL('/unauthorized', req.url));
   }
 
-  // Selain Kepala Sekolah dilarang akses /dashboard
+  // ✅ Hanya Kepala Sekolah boleh /dashboard
   if (jabatan !== 'Kepala Sekolah' && path.startsWith('/dashboard')) {
-    return Response.redirect(new URL('/unauthorized', req.url));
+    return NextResponse.redirect(new URL('/unauthorized', req.url));
   }
 
-  // Selain Guru TU dilarang akses pembayaran
-  if (
-    jabatan !== 'Guru TU' &&
-    (path.startsWith('/mengajar/pembayaran/riwayat-pembayaran') ||
-      path.startsWith('/mengajar/pembayaran/daftar-tagihan'))
-  ) {
-    return Response.redirect(new URL('/unauthorized', req.url));
+  // ✅ Pembayaran hanya Guru TU
+  if (jabatan !== 'Guru TU' && path.startsWith('/mengajar/pembayaran')) {
+    return NextResponse.redirect(new URL('/unauthorized', req.url));
   }
 
-  // Selain Guru BK dilarang akses e-konseling
-  if (
-    jabatan !== 'Guru BK' &&
-    (path.startsWith('/mengajar/e-konseling/konseling-siswa') ||
-      path.startsWith('/mengajar/e-konseling/pelanggaran-prestasi'))
-  ) {
-    return Response.redirect(new URL('/unauthorized', req.url));
+  // ✅ E-Konseling hanya Guru BK
+  if (jabatan !== 'Guru BK' && path.startsWith('/mengajar/e-konseling')) {
+    return NextResponse.redirect(new URL('/unauthorized', req.url));
   }
 
-  // Selain Guru Perpus dilarang akses e-perpus
-  if (
-    jabatan !== 'Guru Perpus' &&
-    (path.startsWith('/mengajar/e-perpus/data-buku') ||
-      path.startsWith('/mengajar/e-perpus/peminjaman-pengembalian'))
-  ) {
-    return Response.redirect(new URL('/unauthorized', req.url));
+  // ✅ E-Perpus hanya Guru Perpus
+  if (jabatan !== 'Guru Perpus' && path.startsWith('/mengajar/e-perpus')) {
+    return NextResponse.redirect(new URL('/unauthorized', req.url));
   }
 
-  // Kalau lolos semua rule, lanjut
-  return;
+  // ==============================
+  // 6️⃣ LOLOS SEMUA RULE
+  // ==============================
+  return res;
 });
 
-// matcher supaya middleware jalan di semua route yang butuh proteksi
+// ==============================
+// MATCHER
+// ==============================
 export const config = {
   matcher: [
     '/dashboard/:path*',
