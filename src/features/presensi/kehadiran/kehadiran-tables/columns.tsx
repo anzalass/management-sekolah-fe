@@ -103,12 +103,12 @@ export const columns: ColumnDef<KehadiranGuru>[] = [
       if (!jamMasuk) return '-';
 
       const date = new Date(jamMasuk);
-
+      date.setHours(date.getHours() - 7);
       const formattedTime = date.toLocaleTimeString('id-ID', {
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false,
-        timeZone: 'Asia/Jakarta'
+        hour12: false
+        //timeZone: 'Asia/Jakarta'
       });
 
       return (
@@ -127,11 +127,12 @@ export const columns: ColumnDef<KehadiranGuru>[] = [
       if (!jamPulang) return '-';
 
       const date = new Date(jamPulang);
+      date.setHours(date.getHours() - 7);
       const formattedTime = date.toLocaleTimeString('id-ID', {
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false,
-        timeZone: 'Asia/Jakarta'
+        hour12: false
+        //timeZone: 'Asia/Jakarta'
       });
 
       return (
