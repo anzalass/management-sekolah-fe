@@ -201,7 +201,8 @@ export default function Overview2() {
                                 'id-ID',
                                 {
                                   hour: '2-digit',
-                                  minute: '2-digit'
+                                  minute: '2-digit',
+                                  timeZone: 'Asia/Jakarta'
                                 }
                               )}
                             </span>
