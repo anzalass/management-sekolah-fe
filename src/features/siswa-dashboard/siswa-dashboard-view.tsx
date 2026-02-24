@@ -552,47 +552,50 @@ export default function SiswaHomeView() {
       {/* Modal Detail Pengumuman */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className='flex max-h-[90vh] max-w-lg flex-col overflow-hidden border-2 border-purple-200 bg-gradient-to-br from-white to-purple-50'>
-          <DialogHeader>
-            <DialogTitle className='bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-xl font-bold text-transparent'>
-              {selectedPengumuman?.title}
-            </DialogTitle>
-          </DialogHeader>
+          {/* SCROLLABLE AREA — SEMUA KONTEN DI SINI */}
+          <div className='flex-1 overflow-y-auto p-4'>
+            <DialogHeader>
+              <DialogTitle className='bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-xl font-bold text-transparent'>
+                {selectedPengumuman?.title}
+              </DialogTitle>
+            </DialogHeader>
 
-          {/* FOTO (Optional) */}
-          {selectedPengumuman?.fotoUrl && (
-            <div className='mt-2 overflow-hidden rounded-xl border bg-white shadow-sm'>
-              <img
-                src={selectedPengumuman.fotoUrl}
-                alt='Foto Pengumuman'
-                className='max-h-[250px] w-full object-contain transition-transform duration-300 hover:scale-105'
+            {/* Tanggal */}
+            <p className='mt-2 text-xs text-black'>
+              {new Date(selectedPengumuman?.createdOn).toLocaleDateString(
+                'id-ID',
+                {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric'
+                }
+              )}
+            </p>
+
+            {/* Gambar (opsional) */}
+            {selectedPengumuman?.fotoUrl && (
+              <div className='mt-3 aspect-video h-full w-full rounded-xl border bg-white shadow-sm'>
+                <img
+                  src={selectedPengumuman.fotoUrl}
+                  alt='Foto Pengumuman'
+                  className='object-cover'
+                />
+              </div>
+            )}
+
+            {/* Konten HTML */}
+            <div className='mt-4 text-sm leading-relaxed text-slate-700'>
+              <div
+                className='prose max-w-none'
+                dangerouslySetInnerHTML={{
+                  __html: selectedPengumuman?.content || ''
+                }}
               />
             </div>
-          )}
-
-          <p className='mt-3 line-clamp-3 text-xs text-black'>
-            {new Date(selectedPengumuman?.createdOn).toLocaleDateString(
-              'id-ID',
-              {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-              }
-            )}
-          </p>
-
-          {/* CONTENT SCROLL AREA */}
-          <div className='mt-4 flex-1 overflow-y-auto rounded-lg bg-white p-4 text-sm leading-relaxed text-slate-700 shadow-inner'>
-            <div
-              className='prose max-w-none'
-              dangerouslySetInnerHTML={{
-                __html: selectedPengumuman?.content || ''
-              }}
-            />
           </div>
         </DialogContent>
       </Dialog>
-
       <BottomNav />
     </div>
   );

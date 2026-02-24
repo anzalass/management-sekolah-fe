@@ -205,14 +205,20 @@ export default function PengumumanView() {
                 {/* Title */}
                 <div className='mb-3 flex items-start justify-between gap-3'>
                   <h3 className='flex-1 text-base font-bold leading-tight text-gray-900'>
-                    {item.title}
+                    {item.title.length > 20
+                      ? item.title.slice(0, 20) + '...'
+                      : item.title}
                   </h3>
                   <ChevronRight className='h-5 w-5 flex-shrink-0 text-gray-400' />
                 </div>
 
                 {/* Content Preview */}
                 <p className='mb-3 line-clamp-2 text-sm leading-relaxed text-gray-600'>
-                  {stripHtml(item.content)}
+                  {stripHtml(
+                    item.content.length > 80
+                      ? item.content.slice(0, 80) + '.....'
+                      : item.content
+                  )}
                 </p>
 
                 {/* Date */}
