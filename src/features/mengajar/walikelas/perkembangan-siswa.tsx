@@ -47,6 +47,23 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
   const token = session?.user?.token || '';
   const queryClient = useQueryClient();
 
+  const [filterBulan, setFilterBulan] = useState('Semua');
+  const bulanOptions = [
+    'Semua',
+    'Januari',
+    'Februari',
+    'Maret',
+    'April',
+    'Mei',
+    'Juni',
+    'Juli',
+    'Agustus',
+    'September',
+    'Oktober',
+    'November',
+    'Desember'
+  ];
+
   const {
     control,
     handleSubmit,
@@ -164,12 +181,18 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
       const cocokNama = catatan.nama
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
+
       const cocokKategori =
         filterKategori === 'Semua' || catatan.kategori === filterKategori;
-      return cocokNama && cocokKategori;
-    });
-  }, [catatanList, searchTerm, filterKategori]);
 
+      const bulanIndex = new Date(catatan.createdOn).getMonth(); // 0-11
+      const namaBulan = bulanOptions[bulanIndex + 1]; // karena ada "Semua" di index 0
+
+      const cocokBulan = filterBulan === 'Semua' || namaBulan === filterBulan;
+
+      return cocokNama && cocokKategori && cocokBulan;
+    });
+  }, [catatanList, searchTerm, filterKategori, filterBulan]);
   // Ambil daftar kategori unik untuk filter
   const kategoriOptions = useMemo(() => {
     const kats = new Set(catatanList.map((c: any) => c.kategori));
@@ -288,20 +311,37 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Select value={filterKategori} onValueChange={setFilterKategori}>
-            <SelectTrigger className='w-full md:w-auto'>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {kategoriOptions.map((kat) => (
-                <SelectItem key={kat} value={kat}>
-                  {kat}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
 
+          <div className='flex gap-3'>
+            {/* Filter Kategori */}
+            <Select value={filterKategori} onValueChange={setFilterKategori}>
+              <SelectTrigger className='w-[180px]'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {kategoriOptions.map((kat) => (
+                  <SelectItem key={kat} value={kat}>
+                    {kat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Filter Bulan */}
+            <Select value={filterBulan} onValueChange={setFilterBulan}>
+              <SelectTrigger className='w-[180px]'>
+                <SelectValue placeholder='Filter Bulan' />
+              </SelectTrigger>
+              <SelectContent>
+                {bulanOptions.map((bulan) => (
+                  <SelectItem key={bulan} value={bulan}>
+                    {bulan}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
         {/* Tabel */}
         <div className='overflow-x-auto rounded-md border'>
           <Table>
@@ -310,6 +350,8 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
                 <TableHead>Siswa</TableHead>
                 <TableHead>Kategori</TableHead>
                 <TableHead>Keterangan</TableHead>
+                <TableHead>Tanggal</TableHead>
+
                 <TableHead className='text-right'>Aksi</TableHead>
               </TableRow>
             </TableHeader>
@@ -335,6 +377,13 @@ const CatatanPerkembanganSiswa = ({ siswa, idKelas, catatanList }: Props) => {
                     <TableCell>
                       <p className='line-clamp-2 max-w-[300px] text-sm text-muted-foreground'>
                         {c.catatan}
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      <p className='line-clamp-2 max-w-[300px] text-sm text-muted-foreground'>
+                        {new Date(c.createdOn).toLocaleDateString('id-ID', {
+                          dateStyle: 'full'
+                        })}
                       </p>
                     </TableCell>
                     <TableCell className='text-right'>

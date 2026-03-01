@@ -55,6 +55,7 @@ export type CatatanPerkembanganSiswaType = {
   idSiswa: string;
   nama: string;
   catatan: string;
+  createdOn: any;
 };
 
 const DashboardWaliKelas = ({ id }: IDKelas) => {

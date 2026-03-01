@@ -59,10 +59,8 @@ export default auth((req) => {
     return NextResponse.redirect(new URL(redirectTo, req.url));
   }
 
-  // ==================================
-  // 4️⃣ SUDAH LOGIN TAPI KE LOGIN PAGE
-  // ==================================
-  if (path === '/login' || path === '/login-siswa') {
+  if (path === '/login-siswa' || path === '/login') {
+    // tentukan redirect default berdasarkan jabatan
     let redirectTo = '/dashboard';
 
     if (jabatan === 'Siswa') redirectTo = '/siswa';
