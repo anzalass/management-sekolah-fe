@@ -150,20 +150,17 @@ export default function Overview2() {
           <DashboardCard
             icon={Boxes}
             title='Tagihan Belum Terbayar'
-            value={dashboard?.totalInventaris || 0}
+            value={dashboard?.totalTagihanBelumBayar || 0}
           />
           <DashboardCard
             icon={Boxes}
             title='Nominal Tagihan Belum Terbayar'
-            // value={
-            //   dashboard?.totalNominalBelumBayar.toLocaleString('id-ID', {
-            //     style: 'currency',
-            //     currency: 'IDR'
-            //   }) ||
-            //   'Rp 0' ||
-            //   0
-            // }
-            value={dashboard?.totalNominalBelumBayar}
+            value={
+              dashboard?.totalNominalBelumBayar?.toLocaleString('id-ID', {
+                style: 'currency',
+                currency: 'IDR'
+              }) || 'Rp 0'
+            }
           />
           <DashboardCard
             icon={Boxes}
