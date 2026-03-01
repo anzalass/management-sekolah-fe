@@ -31,7 +31,7 @@ export default auth((req) => {
     return Response.redirect(new URL('/logout', req.url));
   }
 
-  if (path === '/login' || path === '/login-siswa') {
+  if (path === '/login-siswa' || path === '/login') {
     // tentukan redirect default berdasarkan jabatan
     let redirectTo = '/dashboard';
     if (jabatan === 'Siswa') redirectTo = '/siswa';
