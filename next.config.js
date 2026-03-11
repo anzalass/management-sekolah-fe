@@ -14,7 +14,7 @@ module.exports = withPWA({
     remotePatterns: [
       { protocol: 'https', hostname: 'utfs.io', port: '' },
       { protocol: 'https', hostname: 'api.slingacademy.com', port: '' },
-      { protocol: 'http', hostname: 'localhost', port: '5000' },
+      { protocol: 'http', hostname: 'localhost', port: '4000' },
       {
         protocol: 'https',
         hostname: 'api.yayasantunasanakmulia.sch.id',
@@ -61,11 +61,11 @@ module.exports = withPWA({
       'https://generativelanguage.googleapis.com',
       'https://www.googleapis.com',
       'https://www.google-analytics.com',
-      'http://localhost:5000', // 🔥 FIX UTAMA
+      'http://localhost:4000', // 🔥 FIX UTAMA
       'data:',
       'blob:',
       ...(process.env.NODE_ENV === 'development'
-        ? ['http://localhost:5000']
+        ? ['http://localhost:4000']
         : [])
     ].join(' ');
 
