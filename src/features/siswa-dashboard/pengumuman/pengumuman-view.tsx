@@ -196,7 +196,7 @@ export default function PengumumanView() {
           <div className='grid gap-4 md:grid-cols-2'>
             {filteredPengumuman.map((item: any) => (
               <Link
-                href={`siswa/pengumuman/${item.id}`}
+                href={`/siswa/pengumuman/${item.id}`}
                 key={item.id}
                 onClick={() => {
                   setSelectedPengumuman(item);
