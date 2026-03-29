@@ -460,9 +460,9 @@ export default function SiswaHomeView() {
           <CardContent>
             <div className='scrollbar-hide flex gap-4 overflow-x-auto pb-2'>
               {pengumuman.map((info, i) => (
-                <div
+                <Link
+                  href={`/siswa/pengumuman/${info.id}`}
                   key={i}
-                  onClick={() => openModal(info)}
                   className='min-w-[280px] cursor-pointer rounded-xl border p-4 hover:shadow-md'
                 >
                   <h4 className='mb-2 text-sm font-bold text-purple-800'>
@@ -479,7 +479,7 @@ export default function SiswaHomeView() {
                       year: 'numeric'
                     })}
                   </p>
-                </div>
+                </Link>
               ))}
             </div>
           </CardContent>
