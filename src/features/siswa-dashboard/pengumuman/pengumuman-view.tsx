@@ -29,6 +29,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 interface Pengumuman {
   id: number;
@@ -194,11 +195,11 @@ export default function PengumumanView() {
         ) : (
           <div className='grid gap-4 md:grid-cols-2'>
             {filteredPengumuman.map((item: any) => (
-              <div
+              <Link
+                href={`siswa/pengumuman/${item.id}`}
                 key={item.id}
                 onClick={() => {
                   setSelectedPengumuman(item);
-                  setIsDialogOpen(true);
                 }}
                 className='active:scale-98 cursor-pointer rounded-2xl border border-gray-200 bg-white p-5 shadow-md transition-all hover:shadow-xl'
               >
@@ -228,7 +229,7 @@ export default function PengumumanView() {
                     {formatDate(item.time)} • {formatTime(item.time)}
                   </span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
