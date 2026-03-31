@@ -72,11 +72,11 @@ export default function DetailPengumumanView({ id }: IDPengumuman) {
 
             {/* Image */}
             {pengumuman.fotoUrl && (
-              <div className='mb-4'>
+              <div className='group mb-4 overflow-hidden rounded-xl'>
                 <img
                   src={pengumuman.fotoUrl}
                   alt='foto'
-                  className='max-h-64 w-full rounded-xl object-cover'
+                  className='max-h-80 w-full bg-black/20 object-contain transition-transform duration-500 ease-out group-hover:scale-110'
                 />
               </div>
             )}
