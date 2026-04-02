@@ -8,117 +8,125 @@ export default auth((req) => {
   const path = req.nextUrl.pathname;
   const jabatan = req.auth?.user?.jabatan;
 
-  const res = NextResponse.next();
+  // helper biar gak redirect ke halaman yang sama (anti loop)
+  const redirect = (to) => {
+    if (path === to) return NextResponse.next();
+    return NextResponse.redirect(new URL(to, req.url));
+  };
+
+  let res = NextResponse.next();
 
   // ==============================
-  // 1️⃣ SET COOKIE ROLE SAAT LOGIN
+  // 1️⃣ HANDLE SESSION EXPIRED
   // ==============================
-  if (jabatan) {
-    res.cookies.set('role', jabatan, {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/'
-    });
-  }
-
-  // ==========================================
-  // 2️⃣ CEK SESSION EXPIRED (CUSTOM expiresIn)
-  // ==========================================
-  if (req.auth?.expires && req.auth?.user?.expires) {
-    const sessionExpires = Math.floor(
-      new Date(req.auth.expires).getTime() / 1000
-    );
-
+  if (req.auth?.user?.expires) {
+    const now = Math.floor(Date.now() / 1000);
     const userExpiresIn = req.auth.user.expires;
 
-    if (sessionExpires > userExpiresIn) {
-      const redirectTo = jabatan === 'Siswa' ? '/login-siswa' : '/login';
+    if (now > userExpiresIn) {
+      const redirectTo =
+        jabatan === 'Siswa' ? '/login-siswa' : '/login';
 
-      const response = NextResponse.redirect(new URL(redirectTo, req.url));
-
-      // hapus cookie role supaya tidak stale
-      response.cookies.delete('role');
-
+      const response = redirect(redirectTo);
+      response.cookies.delete('role'); // clear stale cookie
       return response;
     }
   }
 
   // ==============================
-  // 3️⃣ JIKA BELUM LOGIN
+  // 2️⃣ JIKA BELUM LOGIN
   // ==============================
   if (!req.auth) {
-    const role = req.cookies.get('role')?.value;
-
-    // kalau sudah di halaman login, biarkan
-    if (path.startsWith('/login') || path.startsWith('/login-siswa')) {
+    // allow akses halaman login
+    if (path === '/login' || path === '/login-siswa') {
       return res;
     }
 
-    const redirectTo = role === 'Siswa' ? '/login-siswa' : '/login';
-
-    return NextResponse.redirect(new URL(redirectTo, req.url));
+    const response = redirect('/login');
+    response.cookies.delete('role'); // penting!
+    return response;
   }
 
-  if (path === '/login-siswa' || path === '/login') {
-    // tentukan redirect default berdasarkan jabatan
+  // ==============================
+  // 3️⃣ SET COOKIE ROLE (VALID SESSION)
+  // ==============================
+  if (jabatan) {
+    res.cookies.set('role', jabatan, {
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/',
+    });
+  }
+
+  // ==============================
+  // 4️⃣ REDIRECT KALAU SUDAH LOGIN
+  // ==============================
+  if (path === '/login' || path === '/login-siswa') {
     let redirectTo = '/dashboard';
 
     if (jabatan === 'Siswa') redirectTo = '/siswa';
     else if (jabatan?.startsWith('Guru')) redirectTo = '/mengajar';
     else if (jabatan === 'Kepala Sekolah') redirectTo = '/dashboard';
 
-    return NextResponse.redirect(new URL(redirectTo, req.url));
+    return redirect(redirectTo);
   }
 
   // ==============================
-  // 5️⃣ RULE AKSES (RBAC)
+  // 5️⃣ RBAC (ROLE BASED ACCESS)
   // ==============================
 
-  // ✅ Siswa hanya boleh akses /siswa
+  // ✅ Siswa hanya boleh /siswa
   if (jabatan === 'Siswa' && !path.startsWith('/siswa')) {
-    return NextResponse.redirect(new URL('/unauthorized', req.url));
+    return redirect('/unauthorized');
   }
 
   // ✅ Non siswa tidak boleh /siswa
   if (jabatan !== 'Siswa' && path.startsWith('/siswa')) {
-    return NextResponse.redirect(new URL('/unauthorized', req.url));
+    return redirect('/unauthorized');
   }
 
-  // ✅ Hanya Kepala Sekolah boleh /dashboard
+  // ✅ Kepala Sekolah only /dashboard
   if (jabatan !== 'Kepala Sekolah' && path.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/unauthorized', req.url));
+    return redirect('/unauthorized');
   }
 
   // ✅ Pembayaran hanya Guru TU
-  if (jabatan !== 'Guru TU' && path.startsWith('/mengajar/pembayaran')) {
-    return NextResponse.redirect(new URL('/unauthorized', req.url));
+  if (
+    jabatan !== 'Guru TU' &&
+    path.startsWith('/mengajar/pembayaran')
+  ) {
+    return redirect('/unauthorized');
   }
 
   // ✅ E-Konseling hanya Guru BK
-  if (jabatan !== 'Guru BK' && path.startsWith('/mengajar/e-konseling')) {
-    return NextResponse.redirect(new URL('/unauthorized', req.url));
+  if (
+    jabatan !== 'Guru BK' &&
+    path.startsWith('/mengajar/e-konseling')
+  ) {
+    return redirect('/unauthorized');
   }
 
   // ✅ E-Perpus hanya Guru Perpus
-  if (jabatan !== 'Guru Perpus' && path.startsWith('/mengajar/e-perpus')) {
-    return NextResponse.redirect(new URL('/unauthorized', req.url));
+  if (
+    jabatan !== 'Guru Perpus' &&
+    path.startsWith('/mengajar/e-perpus')
+  ) {
+    return redirect('/unauthorized');
   }
 
   // ==============================
-  // 6️⃣ LOLOS SEMUA RULE
+  // 6️⃣ LOLOS SEMUA
   // ==============================
   return res;
 });
 
 // ==============================
-// MATCHER
+// MATCHER (LOGIN DIKELUARIN ❗)
 // ==============================
 export const config = {
   matcher: [
     '/dashboard/:path*',
     '/mengajar/:path*',
     '/siswa/:path*',
-    '/login',
-    '/login-siswa'
-  ]
+  ],
 };
