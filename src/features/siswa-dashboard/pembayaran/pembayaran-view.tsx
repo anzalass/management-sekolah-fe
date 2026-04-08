@@ -80,15 +80,24 @@ export default function PembayaranSiswaView() {
 
   const handleFileChange = (e: any) => {
     const selectedFile = e.target.files[0];
-    if (
-      selectedFile &&
-      ['image/jpeg', 'image/png', 'image/jpg'].includes(selectedFile.type)
-    ) {
-      setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile));
-    } else {
-      alert('Format file tidak valid. Gunakan JPG, JPEG, atau PNG.');
+
+    if (!selectedFile) return;
+
+    // ✅ VALIDASI FORMAT
+    const allowed = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (!allowed.includes(selectedFile.type)) {
+      toast.error('Format harus JPG / PNG');
+      return;
     }
+
+    // 🔥 VALIDASI SIZE 300KB
+    if (selectedFile.size > 300 * 1024) {
+      toast.error('Maksimal ukuran file 300KB');
+      return;
+    }
+
+    setFile(selectedFile);
+    setPreview(URL.createObjectURL(selectedFile));
   };
 
   // Filter state
@@ -568,6 +577,16 @@ export default function PembayaranSiswaView() {
                                 {isUploading ? 'Uploading...' : 'Upload'}
                               </Button>
                             </div>
+                            <p className='mt-1 text-xs text-gray-500'>
+                              Foto terlalu besar?{' '}
+                              <a
+                                href='https://imagecompressor.11zon.com/id/compress-jpeg/compress-jpeg-to-100kb'
+                                target='_blank'
+                                className='text-blue-600 underline'
+                              >
+                                Resize di sini
+                              </a>
+                            </p>
                           </div>
                         </DialogContent>
                       </Dialog>
