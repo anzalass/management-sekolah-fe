@@ -53,6 +53,9 @@ interface Props {
 
 export default function DetailAbsensiSiswaView({ idKelas, idSiswa }: Props) {
   const [open, setOpen] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
   const form = useForm<FormData>({
     defaultValues: { tanggal: '', keterangan: '' }
   });
@@ -117,10 +120,42 @@ export default function DetailAbsensiSiswaView({ idKelas, idSiswa }: Props) {
 
   // filter di FE
   const filteredData = dataKehadiran.filter((item) => {
-    if (!filterDate) return true;
-    const itemDate = new Date(item.waktu).toISOString().slice(0, 10); // yyyy-mm-dd
-    return itemDate === filterDate;
+    const itemDate = new Date(item.waktu);
+
+    // filter date range
+    const isAfterStart = startDate ? itemDate >= new Date(startDate) : true;
+
+    const isBeforeEnd = endDate
+      ? itemDate <= new Date(endDate + 'T23:59:59')
+      : true;
+
+    // filter status
+    const isMatchStatus =
+      filterStatus && filterStatus !== 'ALL'
+        ? item.keterangan === filterStatus
+        : true;
+    return isAfterStart && isBeforeEnd && isMatchStatus;
   });
+
+  const stats = filteredData.reduce(
+    (acc, item) => {
+      switch (item.keterangan) {
+        case 'Hadir':
+          acc.hadir++;
+          break;
+        case 'Izin':
+          acc.izin++;
+          break;
+        case 'Sakit':
+          acc.sakit++;
+          break;
+        default:
+          acc.alpha++;
+      }
+      return acc;
+    },
+    { hadir: 0, izin: 0, sakit: 0, alpha: 0 }
+  );
 
   const formatKeterangan = (keterangan: string) => {
     switch (keterangan) {
@@ -139,86 +174,148 @@ export default function DetailAbsensiSiswaView({ idKelas, idSiswa }: Props) {
 
   return (
     <div className='space-y-6 p-4'>
+      <div className='grid grid-cols-2 gap-3 md:grid-cols-4'>
+        <div className='rounded-xl bg-green-100 p-3'>
+          <p className='text-sm'>Hadir</p>
+          <p className='text-lg font-bold'>{stats.hadir}</p>
+        </div>
+
+        <div className='rounded-xl bg-yellow-100 p-3'>
+          <p className='text-sm'>Izin</p>
+          <p className='text-lg font-bold'>{stats.izin}</p>
+        </div>
+
+        <div className='rounded-xl bg-blue-100 p-3'>
+          <p className='text-sm'>Sakit</p>
+          <p className='text-lg font-bold'>{stats.sakit}</p>
+        </div>
+
+        <div className='rounded-xl bg-red-100 p-3'>
+          <p className='text-sm'>Alpha</p>
+          <p className='text-lg font-bold'>{stats.alpha}</p>
+        </div>
+      </div>
       {/* filter */}
       <div className='flex items-center justify-between space-x-3'>
-        <Input
-          type='date'
-          value={filterDate}
-          onChange={(e) => setFilterDate(e.target.value)}
-          className='w-52'
-        />
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className='text-xs md:text-sm'>Absen Manual +</Button>
-          </DialogTrigger>
-          <DialogContent className='dark:text-white sm:max-w-lg'>
-            <DialogHeader>
-              <DialogTitle>Tambah Absen Manual</DialogTitle>
-            </DialogHeader>
-            <form
-              onSubmit={form.handleSubmit((values) =>
-                addAbsensi.mutate(values)
-              )}
-              className='space-y-4'
-              noValidate
-            >
-              {/* Tanggal */}
-              <div>
-                <label className='mb-1 block text-sm'>Tanggal</label>
-                <Input
-                  type='datetime-local'
-                  {...form.register('tanggal', {
-                    required: 'Tanggal wajib diisi'
-                  })}
-                />
-                {form.formState.errors.tanggal && (
-                  <p className='text-sm text-red-500'>
-                    {form.formState.errors.tanggal.message}
-                  </p>
-                )}
-              </div>
+        <div className='flex flex-wrap items-center gap-3'>
+          {/* Start Date */}
+          <Input
+            type='date'
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className='w-40'
+          />
 
-              {/* Keterangan */}
-              <div>
-                <label className='mb-1 block text-sm'>Keterangan</label>
-                <Controller
-                  name='keterangan'
-                  control={form.control}
-                  rules={{ required: 'Keterangan wajib dipilih' }}
-                  render={({ field }) => (
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value || ''}
-                    >
-                      <SelectTrigger className='w-full'>
-                        <SelectValue placeholder='Pilih keterangan' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value='Hadir'>Hadir</SelectItem>
-                        <SelectItem value='Izin'>Izin</SelectItem>
-                        <SelectItem value='Sakit'>Sakit</SelectItem>
-                        <SelectItem value='Tanpa Keterangan'>
-                          Tanpa Keterangan
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+          {/* End Date */}
+          <Input
+            type='date'
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className='w-40'
+          />
+
+          {/* Status */}
+          <Select
+            value={filterStatus || 'ALL'}
+            onValueChange={(val) => setFilterStatus(val)}
+          >
+            <SelectTrigger className='w-48'>
+              <SelectValue placeholder='Filter Status' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='ALL'>Semua</SelectItem>
+              <SelectItem value='Hadir'>Hadir</SelectItem>
+              <SelectItem value='Izin'>Izin</SelectItem>
+              <SelectItem value='Sakit'>Sakit</SelectItem>
+              <SelectItem value='Tanpa Keterangan'>Tanpa Keterangan</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Reset */}
+          <Button
+            variant='outline'
+            onClick={() => {
+              setStartDate('');
+              setEndDate('');
+              setFilterStatus('ALL');
+            }}
+          >
+            Reset
+          </Button>
+
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button className='text-xs md:text-sm'>Absen Manual +</Button>
+            </DialogTrigger>
+            <DialogContent className='dark:text-white sm:max-w-lg'>
+              <DialogHeader>
+                <DialogTitle>Tambah Absen Manual</DialogTitle>
+              </DialogHeader>
+              <form
+                onSubmit={form.handleSubmit((values) =>
+                  addAbsensi.mutate(values)
+                )}
+                className='space-y-4'
+                noValidate
+              >
+                {/* Tanggal */}
+                <div>
+                  <label className='mb-1 block text-sm'>Tanggal</label>
+                  <Input
+                    type='datetime-local'
+                    {...form.register('tanggal', {
+                      required: 'Tanggal wajib diisi'
+                    })}
+                  />
+                  {form.formState.errors.tanggal && (
+                    <p className='text-sm text-red-500'>
+                      {form.formState.errors.tanggal.message}
+                    </p>
                   )}
-                />
-                {form.formState.errors.keterangan && (
-                  <p className='text-sm text-red-500'>
-                    {form.formState.errors.keterangan.message}
-                  </p>
-                )}
-              </div>
+                </div>
 
-              <DialogFooter>
-                <Button type='submit' disabled={addAbsensi.isPending}>
-                  {addAbsensi.isPending ? 'Menyimpan...' : 'Simpan'}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+                {/* Keterangan */}
+                <div>
+                  <label className='mb-1 block text-sm'>Keterangan</label>
+                  <Controller
+                    name='keterangan'
+                    control={form.control}
+                    rules={{ required: 'Keterangan wajib dipilih' }}
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value || ''}
+                      >
+                        <SelectTrigger className='w-full'>
+                          <SelectValue placeholder='Pilih keterangan' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value='Hadir'>Hadir</SelectItem>
+                          <SelectItem value='Izin'>Izin</SelectItem>
+                          <SelectItem value='Sakit'>Sakit</SelectItem>
+                          <SelectItem value='Tanpa Keterangan'>
+                            Tanpa Keterangan
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {form.formState.errors.keterangan && (
+                    <p className='text-sm text-red-500'>
+                      {form.formState.errors.keterangan.message}
+                    </p>
+                  )}
+                </div>
+
+                <DialogFooter>
+                  <Button type='submit' disabled={addAbsensi.isPending}>
+                    {addAbsensi.isPending ? 'Menyimpan...' : 'Simpan'}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Tabel absensi */}
