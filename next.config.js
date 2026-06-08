@@ -54,6 +54,7 @@ module.exports = withPWA({
       "'self'",
       'https://management-sekolah.zeabur.app',
       'https://little-alley.zeabur.app',
+      'https://diginovaedu.my.id',
       'https://ytam-be.zeabur.app',
       'https://ytam-be2.zeabur.app',
       'https://api.sandbox.midtrans.com',
@@ -79,6 +80,7 @@ module.exports = withPWA({
       'https://*.google.com',
       'https://*.gstatic.com',
       'https://little-alley.zeabur.app',
+      'https://diginovaedu.my.id',
       'https://ytam-be.zeabur.app',
       'https://ytam-be2.zeabur.app'
     ].join(' ');
