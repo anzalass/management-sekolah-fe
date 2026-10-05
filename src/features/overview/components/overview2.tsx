@@ -196,15 +196,9 @@ export default function Overview2() {
                           </p>
                           <p className='flex gap-3 text-base text-muted-foreground'>
                             <Clock size={20} />
+
                             <span className='-mt-1'>
-                              {new Date(item.jamMasuk).toLocaleTimeString(
-                                'id-ID',
-                                {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                  timeZone: 'Asia/Jakarta'
-                                }
-                              )}
+                              {item.jamMasuk?.split(' ')[1]?.slice(0, 5)}
                             </span>
                           </p>
                         </div>
