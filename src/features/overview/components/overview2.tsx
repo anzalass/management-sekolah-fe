@@ -198,13 +198,7 @@ export default function Overview2() {
                             <Clock size={20} />
 
                             <span className='-mt-1'>
-                              {new Date(item.jamMasuk).toLocaleTimeString(
-                                'id-ID',
-                                {
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                }
-                              )}
+                              {new Date(item.jamMasuk).toLocaleTimeString()}
                             </span>
                           </p>
                         </div>
